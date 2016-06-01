@@ -1,5 +1,7 @@
 .git
 index.js
+environment.js
+knexfile.js
 src/*/*/*.js
 src/*/*.js
 src/*.js
