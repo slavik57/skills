@@ -5,6 +5,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var bookshelf_1 = require('../../bookshelf');
+var Promise = require('bluebird');
+var validator = require('validator');
+var typesValidator_1 = require('../commonUtils/typesValidator');
 var User = (function (_super) {
     __extends(User, _super);
     function User() {
@@ -20,6 +23,28 @@ var User = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    User.prototype.initialize = function () {
+        var _this = this;
+        this.on('saving', function (user) { return _this.validateUser(user); });
+    };
+    User.prototype.validateUser = function (user) {
+        if (!validator.isEmail(this.attributes.email)) {
+            return Promise.reject('Email is not valid');
+        }
+        if (!typesValidator_1.TypesValidator.isLongEnoughString(this.attributes.username, 1)) {
+            return Promise.reject('Username is not valid');
+        }
+        if (!typesValidator_1.TypesValidator.isLongEnoughString(this.attributes.password_hash, 1)) {
+            return Promise.reject('Password is not valid');
+        }
+        if (!typesValidator_1.TypesValidator.isLongEnoughString(this.attributes.firstName, 1)) {
+            return Promise.reject('First name is not valid');
+        }
+        if (!typesValidator_1.TypesValidator.isLongEnoughString(this.attributes.lastName, 1)) {
+            return Promise.reject('Last name is not valid');
+        }
+        return null;
+    };
     return User;
 }(bookshelf_1.bookshelf.Model));
 exports.User = User;
@@ -29,6 +54,16 @@ var Users = (function (_super) {
         _super.apply(this, arguments);
         this.model = User;
     }
+    Users.clearUsersTable = function (done) {
+        var promises = [];
+        new Users().fetch().then(function (users) {
+            users.each(function (user) {
+                var promise = user.destroy(null);
+                promises.push(promise);
+            });
+            Promise.all(promises).then(function () { return done(); });
+        });
+    };
     return Users;
 }(bookshelf_1.bookshelf.Collection));
 exports.Users = Users;

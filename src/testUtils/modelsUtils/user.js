@@ -1,9 +1,9 @@
 "use strict";
 var user_1 = require('../../models/user');
-var TestUtils = (function () {
-    function TestUtils() {
+var UserUtils = (function () {
+    function UserUtils() {
     }
-    TestUtils.clearUsersTable = function (done) {
+    UserUtils.clearUsersTable = function (done) {
         var promises = [];
         new user_1.Users().fetch().then(function (users) {
             users.each(function (user) {
@@ -13,6 +13,6 @@ var TestUtils = (function () {
             Promise.all(promises).then(function () { return done(); });
         });
     };
-    return TestUtils;
+    return UserUtils;
 }());
-exports.TestUtils = TestUtils;
+exports.UserUtils = UserUtils;
