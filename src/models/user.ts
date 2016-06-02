@@ -11,6 +11,7 @@ export interface IUser {
   firstName: string;
   lastName: string;
 }
+
 export class User extends bookshelf.Model<User>{
   public attributes: IUser;
 
@@ -49,16 +50,16 @@ export class User extends bookshelf.Model<User>{
 export class Users extends bookshelf.Collection<User> {
   model = User;
 
-  public static clearUsersTable(done: Function): void {
+  public static clearAll(): Promise<any> {
     var promises: Promise<User>[] = []
 
-    new Users().fetch().then((users: Collection<User>) => {
+    return new Users().fetch().then((users: Collection<User>) => {
       users.each(user => {
         var promise: Promise<User> = user.destroy(null);
         promises.push(promise);
       });
 
-      Promise.all(promises).then(() => done());
+      return Promise.all(promises);
     });
   }
 }

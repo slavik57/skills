@@ -12,7 +12,7 @@ describe('User', () => {
     var validUserInfo2: IUser;
 
     beforeEach((done: Function) => {
-      Users.clearUsersTable(done);
+      Users.clearAll().then(() => done());
 
       validUserInfo1 = {
         username: 'slavik57',
@@ -32,7 +32,7 @@ describe('User', () => {
     });
 
     afterEach((done: Function) => {
-      Users.clearUsersTable(done);
+      Users.clearAll().then(() => done());
     });
 
     it('create user with empty fields - should return error', () => {
@@ -273,6 +273,55 @@ describe('User', () => {
 
       // Assert
       return expect(promise).to.eventually.rejected;
+    });
+
+    it('create user with everything ok should be fetched', () => {
+      // Arrange
+      var user = new User(validUserInfo1);
+
+      // Act
+      var promise: Promise<User> = user.save();
+
+      // Assert
+      var usersPromise =
+        promise.then(() => new Users().fetch());
+
+      return expect(usersPromise).to.eventually.fulfilled
+        .then((users: Collection<User>) => {
+          expect(users.size()).to.be.equal(1);
+        });
+    });
+
+  });
+});
+
+describe('Users', () => {
+  describe('clearAll', () => {
+
+    it('should clear all the users', () => {
+      // Act
+      var promise: Promise<void> = Users.clearAll();
+
+      // Assert
+      var usersPromise =
+        promise.then(() => new Users().fetch());
+
+      return expect(usersPromise).to.eventually.fulfilled
+        .then((users: Collection<User>) => {
+          expect(users.size()).to.be.equal(0);
+        });
+    });
+
+    it('should not fail on empty table', () => {
+      // Act
+      var promise: Promise<void> =
+        Users.clearAll().then(() => Users.clearAll());
+
+      // Assert
+      var usersPromise =
+        promise.then(() => new Users().fetch());
+
+      return expect(usersPromise).to.eventually.fulfilled;
     });
 
   });

@@ -9,7 +9,7 @@ describe('User', function () {
         var validUserInfo1;
         var validUserInfo2;
         beforeEach(function (done) {
-            user_1.Users.clearUsersTable(done);
+            user_1.Users.clearAll().then(function () { return done(); });
             validUserInfo1 = {
                 username: 'slavik57',
                 password_hash: 'some hash',
@@ -26,7 +26,7 @@ describe('User', function () {
             };
         });
         afterEach(function (done) {
-            user_1.Users.clearUsersTable(done);
+            user_1.Users.clearAll().then(function () { return done(); });
         });
         it('create user with empty fields - should return error', function () {
             var user = new user_1.User();
@@ -139,6 +139,32 @@ describe('User', function () {
             var user = new user_1.User(validUserInfo1);
             var promise = user.save();
             return chai_1.expect(promise).to.eventually.rejected;
+        });
+        it('create user with everything ok should be fetched', function () {
+            var user = new user_1.User(validUserInfo1);
+            var promise = user.save();
+            var usersPromise = promise.then(function () { return new user_1.Users().fetch(); });
+            return chai_1.expect(usersPromise).to.eventually.fulfilled
+                .then(function (users) {
+                chai_1.expect(users.size()).to.be.equal(1);
+            });
+        });
+    });
+});
+describe('Users', function () {
+    describe('clearAll', function () {
+        it('should clear all the users', function () {
+            var promise = user_1.Users.clearAll();
+            var usersPromise = promise.then(function () { return new user_1.Users().fetch(); });
+            return chai_1.expect(usersPromise).to.eventually.fulfilled
+                .then(function (users) {
+                chai_1.expect(users.size()).to.be.equal(0);
+            });
+        });
+        it('should not fail on empty table', function () {
+            var promise = user_1.Users.clearAll().then(function () { return user_1.Users.clearAll(); });
+            var usersPromise = promise.then(function () { return new user_1.Users().fetch(); });
+            return chai_1.expect(usersPromise).to.eventually.fulfilled;
         });
     });
 });

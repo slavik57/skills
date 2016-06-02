@@ -54,14 +54,14 @@ var Users = (function (_super) {
         _super.apply(this, arguments);
         this.model = User;
     }
-    Users.clearUsersTable = function (done) {
+    Users.clearAll = function () {
         var promises = [];
-        new Users().fetch().then(function (users) {
+        return new Users().fetch().then(function (users) {
             users.each(function (user) {
                 var promise = user.destroy(null);
                 promises.push(promise);
             });
-            Promise.all(promises).then(function () { return done(); });
+            return Promise.all(promises);
         });
     };
     return Users;
