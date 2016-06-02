@@ -14,6 +14,8 @@ exports.up = function(knex, Promise) {
         'READER',
         'GUEST'
       ]).notNullable('global_permissions');
+
+    table.unique(['username','global_permissions']);
   });
 };
 
