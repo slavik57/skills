@@ -1,10 +1,9 @@
 
 exports.up = function(knex, Promise) {
-  return knex.schema.createTableIfNotExists('user_global_permissions', function(table){
+  return knex.schema.createTableIfNotExists('users_global_permissions', function(table){
     table.increments('id');
 
-    table.string('username').notNullable();
-    table.unique('username');
+    table.string('username').notNullable().references('username').inTable('users');
     table.index('username');
 
     table.enu('global_permissions',
@@ -14,10 +13,10 @@ exports.up = function(knex, Promise) {
         'SKILLS_LIST_ADMIN',
         'READER',
         'GUEST'
-      ]).notNullable();
+      ]).notNullable('global_permissions');
   });
 };
 
 exports.down = function(knex, Promise) {
-  return knex.schema.dropTable('user_global_permissions');
+  return knex.schema.dropTable('users_global_permissions');
 };
