@@ -13,7 +13,7 @@ describe('UserGlobalPermissions', function () {
             return usersGlobalPermissions_1.UsersGlobalPermissions.clearAll()
                 .then(function () { return user_1.Users.clearAll(); });
         }
-        beforeEach(function (done) {
+        beforeEach(function () {
             validUserInfo = {
                 username: 'slavik57',
                 password_hash: 'some hash',
@@ -21,25 +21,25 @@ describe('UserGlobalPermissions', function () {
                 firstName: 'Slava',
                 lastName: 'Shp'
             };
-            clearTables()
+            return clearTables()
                 .then(function () { return new user_1.User(validUserInfo).save(); })
-                .then(function () { return done(); });
-            validUserGlobalPermissions = {
-                username: validUserInfo.username,
-                global_permissions: usersGlobalPermissions_1.GlobalPermission[usersGlobalPermissions_1.GlobalPermission.ADMIN]
-            };
+                .then(function (user) {
+                validUserGlobalPermissions = {
+                    user_id: user.id,
+                    global_permissions: usersGlobalPermissions_1.GlobalPermission[usersGlobalPermissions_1.GlobalPermission.ADMIN]
+                };
+            });
         });
-        afterEach(function (done) {
-            clearTables()
-                .then(function () { return done(); });
+        afterEach(function () {
+            return clearTables();
         });
         it('create without any fields should return error', function () {
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions();
             var promise = permissions.save();
             return chai_1.expect(promise).to.be.rejected;
         });
-        it('create without username should return error', function () {
-            delete validUserGlobalPermissions.username;
+        it('create without user_id should return error', function () {
+            delete validUserGlobalPermissions.user_id;
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
             var promise = permissions.save();
             return chai_1.expect(promise).to.be.rejected;
@@ -50,24 +50,24 @@ describe('UserGlobalPermissions', function () {
             var promise = permissions.save();
             return chai_1.expect(promise).to.be.rejected;
         });
-        it('create with empty username should return error', function () {
-            validUserGlobalPermissions.username = '';
+        it('create with non integer user_id should return error', function () {
+            validUserGlobalPermissions.user_id = 1.2;
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
             var promise = permissions.save();
             return chai_1.expect(promise).to.be.rejected;
         });
-        it('create with non existing username should return error', function () {
-            validUserGlobalPermissions.username = 'not existing username';
+        it('create with non existing user_id should return error', function () {
+            validUserGlobalPermissions.user_id = validUserGlobalPermissions.user_id + 1;
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
             var promise = permissions.save();
             return chai_1.expect(promise).to.be.rejected;
         });
-        it('create with existing username should succeed', function () {
+        it('create with existing user_id should succeed', function () {
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
             var promise = permissions.save();
             return chai_1.expect(promise).to.eventually.equal(permissions);
         });
-        it('create with existing username should be fetched', function () {
+        it('create with existing user_id should be fetched', function () {
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
             var promise = permissions.save();
             var permissionsPromise = promise.then(function () { return new usersGlobalPermissions_1.UsersGlobalPermissions().fetch(); });
@@ -76,10 +76,10 @@ describe('UserGlobalPermissions', function () {
                 chai_1.expect(usersPermissions.size()).to.be.equal(1);
             });
         });
-        it('create 2 different permissions with existing username should succeed', function () {
+        it('create 2 different permissions with existing user_id should succeed', function () {
             validUserGlobalPermissions.global_permissions = usersGlobalPermissions_1.GlobalPermission[usersGlobalPermissions_1.GlobalPermission.ADMIN];
             var otherUserGlobalPermissions = {
-                username: validUserGlobalPermissions.username,
+                user_id: validUserGlobalPermissions.user_id,
                 global_permissions: usersGlobalPermissions_1.GlobalPermission[usersGlobalPermissions_1.GlobalPermission.READER]
             };
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
@@ -88,10 +88,10 @@ describe('UserGlobalPermissions', function () {
                 .then(function () { return otherPermissions.save(); });
             return chai_1.expect(promise).to.eventually.equal(otherPermissions);
         });
-        it('create 2 different permissions with existing username should be fetched', function () {
+        it('create 2 different permissions with existing user_id should be fetched', function () {
             validUserGlobalPermissions.global_permissions = usersGlobalPermissions_1.GlobalPermission[usersGlobalPermissions_1.GlobalPermission.ADMIN];
             var otherUserGlobalPermissions = {
-                username: validUserGlobalPermissions.username,
+                user_id: validUserGlobalPermissions.user_id,
                 global_permissions: usersGlobalPermissions_1.GlobalPermission[usersGlobalPermissions_1.GlobalPermission.READER]
             };
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
@@ -106,7 +106,7 @@ describe('UserGlobalPermissions', function () {
         });
         it('create 2 same permissions with existing username should return error', function () {
             var otherUserGlobalPermissions = {
-                username: validUserGlobalPermissions.username,
+                user_id: validUserGlobalPermissions.user_id,
                 global_permissions: validUserGlobalPermissions.global_permissions
             };
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);

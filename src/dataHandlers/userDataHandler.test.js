@@ -124,11 +124,11 @@ describe('userDataHandler', function () {
             var expectedOrdered = expected.sort();
             chai_1.expect(actualOrdered).to.deep.equal(expectedOrdered);
         }
-        function addUserPermissions(userInfo, permissions) {
+        function addUserPermissions(user, permissions) {
             var permissionPromises = [];
             permissions.forEach(function (permission) {
                 var newPermission = {
-                    username: userInfo.username,
+                    user_id: user.id,
                     global_permissions: usersGlobalPermissions_1.GlobalPermission[permission]
                 };
                 var newPermissionPromise = new usersGlobalPermissions_1.UserGlobalPermissions(newPermission).save();
@@ -156,7 +156,7 @@ describe('userDataHandler', function () {
                 usersGlobalPermissions_1.GlobalPermission.SKILLS_LIST_ADMIN
             ];
             var createUserPromise = userDataHandler_1.UserDataHandler.createUser(userInfo);
-            var addUserPermissionsPromise = createUserPromise.then(function () { return addUserPermissions(userInfo, permissions); });
+            var addUserPermissionsPromise = createUserPromise.then(function (user) { return addUserPermissions(user, permissions); });
             var permissionsPromise = createUserPromise.then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userInfo.username); });
             return verifyUserGlobalPermissionsAsync(permissionsPromise, permissions);
         });
@@ -174,8 +174,8 @@ describe('userDataHandler', function () {
             ];
             var createUserPromise1 = userDataHandler_1.UserDataHandler.createUser(userInfo1);
             var createUserPromise2 = userDataHandler_1.UserDataHandler.createUser(userInfo2);
-            var addUserPermissionsPromise1 = createUserPromise1.then(function () { return addUserPermissions(userInfo1, permissions1); });
-            var addUserPermissionsPromise2 = createUserPromise1.then(function () { return addUserPermissions(userInfo2, permissions2); });
+            var addUserPermissionsPromise1 = createUserPromise1.then(function (user) { return addUserPermissions(user, permissions1); });
+            var addUserPermissionsPromise2 = createUserPromise2.then(function (user) { return addUserPermissions(user, permissions2); });
             var permissionsPromise = Promise.all([addUserPermissionsPromise1, addUserPermissionsPromise2])
                 .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userInfo1.username); });
             return verifyUserGlobalPermissionsAsync(permissionsPromise, permissions1);
@@ -194,8 +194,8 @@ describe('userDataHandler', function () {
             ];
             var createUserPromise1 = userDataHandler_1.UserDataHandler.createUser(userInfo1);
             var createUserPromise2 = userDataHandler_1.UserDataHandler.createUser(userInfo2);
-            var addUserPermissionsPromise1 = createUserPromise1.then(function () { return addUserPermissions(userInfo1, permissions1); });
-            var addUserPermissionsPromise2 = createUserPromise1.then(function () { return addUserPermissions(userInfo2, permissions2); });
+            var addUserPermissionsPromise1 = createUserPromise1.then(function (user) { return addUserPermissions(user, permissions1); });
+            var addUserPermissionsPromise2 = createUserPromise2.then(function (user) { return addUserPermissions(user, permissions2); });
             var permissionsPromise = Promise.all([addUserPermissionsPromise1, addUserPermissionsPromise2])
                 .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userInfo2.username); });
             return verifyUserGlobalPermissionsAsync(permissionsPromise, permissions2);

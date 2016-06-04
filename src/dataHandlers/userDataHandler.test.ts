@@ -204,12 +204,12 @@ describe('userDataHandler', () => {
       expect(actualOrdered).to.deep.equal(expectedOrdered);
     }
 
-    function addUserPermissions(userInfo: IUser, permissions: GlobalPermission[]): Promise<any> {
+    function addUserPermissions(user: User, permissions: GlobalPermission[]): Promise<any> {
       var permissionPromises: Promise<UserGlobalPermissions>[] = [];
 
       permissions.forEach((permission: GlobalPermission) => {
         var newPermission: IUserGlobalPermissions = {
-          username: userInfo.username,
+          user_id: user.id,
           global_permissions: GlobalPermission[permission]
         }
 
@@ -259,7 +259,7 @@ describe('userDataHandler', () => {
 
       var createUserPromise: Promise<User> = UserDataHandler.createUser(userInfo);
       var addUserPermissionsPromise: Promise<void> =
-        createUserPromise.then(() => addUserPermissions(userInfo, permissions));
+        createUserPromise.then((user: User) => addUserPermissions(user, permissions));
 
       // Act
       var permissionsPromise: Promise<GlobalPermission[]> =
@@ -288,9 +288,9 @@ describe('userDataHandler', () => {
       var createUserPromise1: Promise<User> = UserDataHandler.createUser(userInfo1);
       var createUserPromise2: Promise<User> = UserDataHandler.createUser(userInfo2);
       var addUserPermissionsPromise1: Promise<void> =
-        createUserPromise1.then(() => addUserPermissions(userInfo1, permissions1));
+        createUserPromise1.then((user: User) => addUserPermissions(user, permissions1));
       var addUserPermissionsPromise2: Promise<void> =
-        createUserPromise1.then(() => addUserPermissions(userInfo2, permissions2));
+        createUserPromise2.then((user: User) => addUserPermissions(user, permissions2));
 
       // Act
       var permissionsPromise: Promise<GlobalPermission[]> =
@@ -320,9 +320,9 @@ describe('userDataHandler', () => {
       var createUserPromise1: Promise<User> = UserDataHandler.createUser(userInfo1);
       var createUserPromise2: Promise<User> = UserDataHandler.createUser(userInfo2);
       var addUserPermissionsPromise1: Promise<void> =
-        createUserPromise1.then(() => addUserPermissions(userInfo1, permissions1));
+        createUserPromise1.then((user: User) => addUserPermissions(user, permissions1));
       var addUserPermissionsPromise2: Promise<void> =
-        createUserPromise1.then(() => addUserPermissions(userInfo2, permissions2));
+        createUserPromise2.then((user: User) => addUserPermissions(user, permissions2));
 
       // Act
       var permissionsPromise: Promise<GlobalPermission[]> =

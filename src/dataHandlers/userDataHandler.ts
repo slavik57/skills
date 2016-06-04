@@ -20,13 +20,26 @@ export class UserDataHandler {
   }
 
   public static getUserGlobalPermissions(username: string): Promise<GlobalPermission[]> {
-    return new UsersGlobalPermissions()
-      .query({ where: { username: username } })
-      .fetch()
+    return this.getUser(username)
+      .then((user: User) => this.fetchUserGlobalPermissions(user))
       .then((usersGlobalPermissions: Collection<UserGlobalPermissions>) => {
         var permissions: UserGlobalPermissions[] = usersGlobalPermissions.toArray();
 
         return _.map(permissions, _ => GlobalPermission[_.attributes.global_permissions]);
       });
+  }
+
+  private static getUser(username: string): Promise<User> {
+    return new User()
+      .query({ where: { username: username } })
+      .fetch();
+  }
+
+  private static fetchUserGlobalPermissions(user: User): Promise<Collection<UserGlobalPermissions>> {
+    if (!user) {
+      return Promise.resolve(new UsersGlobalPermissions());
+    }
+
+    return user.getGlobalPermissions().fetch();
   }
 }

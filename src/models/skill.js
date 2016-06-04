@@ -33,10 +33,10 @@ var Skill = (function (_super) {
         }
         return null;
     };
-    Skill.prototype.prerequisites = function () {
+    Skill.prototype.getPrerequisiteSkills = function () {
         return this.belongsToMany(Skill).through(skillPrerequisite_1.SkillPrerequisite, 'skill_id', 'skill_prerequisite_id');
     };
-    Skill.prototype.contributions = function () {
+    Skill.prototype.getContributingSkills = function () {
         return this.belongsToMany(Skill).through(skillPrerequisite_1.SkillPrerequisite, 'skill_prerequisite_id', 'skill_id');
     };
     return Skill;

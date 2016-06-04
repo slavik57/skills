@@ -10,7 +10,7 @@ export enum GlobalPermission {
 }
 
 export interface IUserGlobalPermissions {
-  username: string;
+  user_id: number;
   global_permissions: string
 }
 

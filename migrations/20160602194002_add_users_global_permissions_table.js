@@ -3,8 +3,8 @@ exports.up = function(knex, Promise) {
   return knex.schema.createTableIfNotExists('users_global_permissions', function(table){
     table.increments('id');
 
-    table.string('username').notNullable().references('username').inTable('users');
-    table.index('username');
+    table.integer('user_id').notNullable().references('id').inTable('users');
+    table.index('user_id');
 
     table.enu('global_permissions',
       [
@@ -15,7 +15,7 @@ exports.up = function(knex, Promise) {
         'GUEST'
       ]).notNullable('global_permissions');
 
-    table.unique(['username','global_permissions']);
+    table.unique(['user_id','global_permissions']);
   });
 };
 

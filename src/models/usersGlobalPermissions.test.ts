@@ -17,7 +17,7 @@ describe('UserGlobalPermissions', () => {
         .then(() => Users.clearAll());
     }
 
-    beforeEach((done: Function) => {
+    beforeEach(() => {
       validUserInfo = {
         username: 'slavik57',
         password_hash: 'some hash',
@@ -26,20 +26,18 @@ describe('UserGlobalPermissions', () => {
         lastName: 'Shp'
       };
 
-      clearTables()
+      return clearTables()
         .then(() => new User(validUserInfo).save())
-        .then(() => done());
-
-      validUserGlobalPermissions = {
-        username: validUserInfo.username,
-        global_permissions: GlobalPermission[GlobalPermission.ADMIN]
-      }
-
+        .then((user: User) => {
+          validUserGlobalPermissions = {
+            user_id: user.id,
+            global_permissions: GlobalPermission[GlobalPermission.ADMIN]
+          }
+        });
     });
 
-    afterEach((done: Function) => {
-      clearTables()
-        .then(() => done());
+    afterEach(() => {
+      return clearTables();
     });
 
     it('create without any fields should return error', () => {
@@ -53,9 +51,9 @@ describe('UserGlobalPermissions', () => {
       return expect(promise).to.be.rejected;
     });
 
-    it('create without username should return error', () => {
+    it('create without user_id should return error', () => {
       /// Arrange
-      delete validUserGlobalPermissions.username;
+      delete validUserGlobalPermissions.user_id;
       var permissions = new UserGlobalPermissions(validUserGlobalPermissions);
 
       // Act
@@ -77,9 +75,9 @@ describe('UserGlobalPermissions', () => {
       return expect(promise).to.be.rejected;
     });
 
-    it('create with empty username should return error', () => {
+    it('create with non integer user_id should return error', () => {
       /// Arrange
-      validUserGlobalPermissions.username = '';
+      validUserGlobalPermissions.user_id = 1.2;
       var permissions = new UserGlobalPermissions(validUserGlobalPermissions);
 
       // Act
@@ -89,9 +87,9 @@ describe('UserGlobalPermissions', () => {
       return expect(promise).to.be.rejected;
     });
 
-    it('create with non existing username should return error', () => {
+    it('create with non existing user_id should return error', () => {
       /// Arrange
-      validUserGlobalPermissions.username = 'not existing username';
+      validUserGlobalPermissions.user_id = validUserGlobalPermissions.user_id + 1;
       var permissions = new UserGlobalPermissions(validUserGlobalPermissions);
 
       // Act
@@ -101,7 +99,7 @@ describe('UserGlobalPermissions', () => {
       return expect(promise).to.be.rejected;
     });
 
-    it('create with existing username should succeed', () => {
+    it('create with existing user_id should succeed', () => {
       /// Arrange
       var permissions = new UserGlobalPermissions(validUserGlobalPermissions);
 
@@ -112,7 +110,7 @@ describe('UserGlobalPermissions', () => {
       return expect(promise).to.eventually.equal(permissions);
     });
 
-    it('create with existing username should be fetched', () => {
+    it('create with existing user_id should be fetched', () => {
       /// Arrange
       var permissions = new UserGlobalPermissions(validUserGlobalPermissions);
 
@@ -129,12 +127,12 @@ describe('UserGlobalPermissions', () => {
         });
     });
 
-    it('create 2 different permissions with existing username should succeed', () => {
+    it('create 2 different permissions with existing user_id should succeed', () => {
       /// Arrange
       validUserGlobalPermissions.global_permissions = GlobalPermission[GlobalPermission.ADMIN];
 
       var otherUserGlobalPermissions: IUserGlobalPermissions = {
-        username: validUserGlobalPermissions.username,
+        user_id: validUserGlobalPermissions.user_id,
         global_permissions: GlobalPermission[GlobalPermission.READER]
       };
 
@@ -150,12 +148,12 @@ describe('UserGlobalPermissions', () => {
       return expect(promise).to.eventually.equal(otherPermissions);
     });
 
-    it('create 2 different permissions with existing username should be fetched', () => {
+    it('create 2 different permissions with existing user_id should be fetched', () => {
       /// Arrange
       validUserGlobalPermissions.global_permissions = GlobalPermission[GlobalPermission.ADMIN];
 
       var otherUserGlobalPermissions: IUserGlobalPermissions = {
-        username: validUserGlobalPermissions.username,
+        user_id: validUserGlobalPermissions.user_id,
         global_permissions: GlobalPermission[GlobalPermission.READER]
       };
 
@@ -180,7 +178,7 @@ describe('UserGlobalPermissions', () => {
     it('create 2 same permissions with existing username should return error', () => {
       /// Arrange
       var otherUserGlobalPermissions: IUserGlobalPermissions = {
-        username: validUserGlobalPermissions.username,
+        user_id: validUserGlobalPermissions.user_id,
         global_permissions: validUserGlobalPermissions.global_permissions
       }
 

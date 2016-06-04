@@ -8,6 +8,7 @@ var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
 var validator = require('validator');
 var typesValidator_1 = require('../commonUtils/typesValidator');
+var usersGlobalPermissions_1 = require('./usersGlobalPermissions');
 var User = (function (_super) {
     __extends(User, _super);
     function User() {
@@ -44,6 +45,9 @@ var User = (function (_super) {
             return Promise.reject('Last name is not valid');
         }
         return null;
+    };
+    User.prototype.getGlobalPermissions = function () {
+        return this.hasMany(usersGlobalPermissions_1.UserGlobalPermissions, 'user_id');
     };
     return User;
 }(bookshelf_1.bookshelf.Model));

@@ -3,6 +3,7 @@ import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import * as validator from 'validator';
 import {TypesValidator} from '../commonUtils/typesValidator';
+import {UserGlobalPermissions} from './usersGlobalPermissions';
 
 export interface IUser {
   username: string;
@@ -44,6 +45,10 @@ export class User extends bookshelf.Model<User>{
     }
 
     return null;
+  }
+
+  public getGlobalPermissions(): Collection<UserGlobalPermissions> {
+    return this.hasMany(UserGlobalPermissions, 'user_id');
   }
 }
 

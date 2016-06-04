@@ -19,13 +19,24 @@ var UserDataHandler = (function () {
         return new user_1.User().where({ username: userName }).fetch({ require: require });
     };
     UserDataHandler.getUserGlobalPermissions = function (username) {
-        return new usersGlobalPermissions_1.UsersGlobalPermissions()
-            .query({ where: { username: username } })
-            .fetch()
+        var _this = this;
+        return this.getUser(username)
+            .then(function (user) { return _this.fetchUserGlobalPermissions(user); })
             .then(function (usersGlobalPermissions) {
             var permissions = usersGlobalPermissions.toArray();
             return _.map(permissions, function (_) { return usersGlobalPermissions_1.GlobalPermission[_.attributes.global_permissions]; });
         });
+    };
+    UserDataHandler.getUser = function (username) {
+        return new user_1.User()
+            .query({ where: { username: username } })
+            .fetch();
+    };
+    UserDataHandler.fetchUserGlobalPermissions = function (user) {
+        if (!user) {
+            return Promise.resolve(new usersGlobalPermissions_1.UsersGlobalPermissions());
+        }
+        return user.getGlobalPermissions().fetch();
     };
     return UserDataHandler;
 }());

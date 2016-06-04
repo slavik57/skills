@@ -24,12 +24,12 @@ var SkillsDataHandler = (function () {
     };
     SkillsDataHandler.getSkillPrerequisites = function (skillName) {
         return this.getSkill(skillName)
-            .then(function (skill) { return skill.prerequisites().fetch(); })
+            .then(function (skill) { return skill.getPrerequisiteSkills().fetch(); })
             .then(function (skills) { return skills.toArray(); });
     };
     SkillsDataHandler.getSkillContributions = function (skillName) {
         return this.getSkill(skillName)
-            .then(function (skill) { return skill.contributions().fetch(); })
+            .then(function (skill) { return skill.getContributingSkills().fetch(); })
             .then(function (skills) { return skills.toArray(); });
     };
     SkillsDataHandler.getSkill = function (skillName) {

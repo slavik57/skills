@@ -26,11 +26,11 @@ export class Skill extends bookshelf.Model<Skill>{
     return null;
   }
 
-  public prerequisites(): Collection<Skill> {
+  public getPrerequisiteSkills(): Collection<Skill> {
     return this.belongsToMany(Skill).through<Skill>(SkillPrerequisite, 'skill_id', 'skill_prerequisite_id');
   }
 
-  public contributions(): Collection<Skill> {
+  public getContributingSkills(): Collection<Skill> {
     return this.belongsToMany(Skill).through<Skill>(SkillPrerequisite, 'skill_prerequisite_id', 'skill_id');
   }
 }

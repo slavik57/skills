@@ -27,13 +27,13 @@ export class SkillsDataHandler {
 
   public static getSkillPrerequisites(skillName: string): Promise<Skill[]> {
     return this.getSkill(skillName)
-      .then((skill: Skill) => skill.prerequisites().fetch())
+      .then((skill: Skill) => skill.getPrerequisiteSkills().fetch())
       .then((skills: Collection<Skill>) => skills.toArray());
   }
 
   public static getSkillContributions(skillName: string): Promise<Skill[]> {
     return this.getSkill(skillName)
-      .then((skill: Skill) => skill.contributions().fetch())
+      .then((skill: Skill) => skill.getContributingSkills().fetch())
       .then((skills: Collection<Skill>) => skills.toArray());
   }
 
