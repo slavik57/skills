@@ -6,15 +6,27 @@ var chaiAsPromised = require('chai-as-promised');
 var user_1 = require('../models/user');
 var userDataHandler_1 = require('./userDataHandler');
 var usersGlobalPermissions_1 = require('../models/usersGlobalPermissions');
+var team_1 = require('../models/team');
+var teamMember_1 = require('../models/teamMember');
+var teamsDataHandler_1 = require('./teamsDataHandler');
 chai.use(chaiAsPromised);
 describe('userDataHandler', function () {
+    function clearTables() {
+        return Promise.all([
+            usersGlobalPermissions_1.UsersGlobalPermissions.clearAll(),
+            teamMember_1.TeamMembers.clearAll()
+        ]).then(function () {
+            return Promise.all([
+                user_1.Users.clearAll(),
+                team_1.Teams.clearAll()
+            ]);
+        });
+    }
     beforeEach(function () {
-        return usersGlobalPermissions_1.UsersGlobalPermissions.clearAll()
-            .then(function () { return user_1.Users.clearAll(); });
+        return clearTables();
     });
     afterEach(function () {
-        return usersGlobalPermissions_1.UsersGlobalPermissions.clearAll()
-            .then(function () { return user_1.Users.clearAll(); });
+        return clearTables();
     });
     function createUserInfo(userNumber) {
         var userNumberString = userNumber.toString();
@@ -202,6 +214,105 @@ describe('userDataHandler', function () {
             var permissionsPromise = Promise.all([addUserPermissionsPromise1, addUserPermissionsPromise2])
                 .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userInfo2.username); });
             return verifyUserGlobalPermissionsAsync(permissionsPromise, permissions2);
+        });
+    });
+    describe('getTeams', function () {
+        function verifyTeamsAsync(actualTeamsPromise, expectedTeams) {
+            return chai_1.expect(actualTeamsPromise).to.eventually.fulfilled
+                .then(function (actualTeams) {
+                var actualTeamInfos = _.map(actualTeams, function (_) { return _.attributes; });
+                verifyTeams(actualTeamInfos, expectedTeams);
+            });
+        }
+        function verifyTeams(actual, expected) {
+            var actualOrdered = _.orderBy(actual, function (_) { return _.name; });
+            var expectedOrdered = _.orderBy(expected, function (_) { return _.name; });
+            chai_1.expect(actual.length).to.be.equal(expected.length);
+            for (var i = 0; i < expected.length; i++) {
+                verifyTeam(actual[i], expected[i]);
+            }
+        }
+        function verifyTeam(actual, expected) {
+            var actualCloned = _.clone(actual);
+            var expectedCloned = _.clone(expected);
+            delete actualCloned['id'];
+            delete expectedCloned['id'];
+            chai_1.expect(actualCloned).to.be.deep.equal(expectedCloned);
+        }
+        function createTeamInfo(teamName) {
+            return {
+                name: teamName
+            };
+        }
+        function createTeamMemberInfo(team, user) {
+            return {
+                team_id: team.id,
+                user_id: user.id
+            };
+        }
+        var teamInfo1;
+        var teamInfo2;
+        var teamInfo3;
+        var userInfo1;
+        var userInfo2;
+        var team1;
+        var team2;
+        var team3;
+        var user1;
+        var user2;
+        beforeEach(function () {
+            teamInfo1 = createTeamInfo('a');
+            teamInfo2 = createTeamInfo('b');
+            teamInfo3 = createTeamInfo('c');
+            userInfo1 = createUserInfo(1);
+            userInfo2 = createUserInfo(2);
+            return Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo3),
+                userDataHandler_1.UserDataHandler.createUser(userInfo1),
+                userDataHandler_1.UserDataHandler.createUser(userInfo2)
+            ]).then(function (teamsAndUser) {
+                team1 = teamsAndUser[0];
+                team2 = teamsAndUser[1];
+                team3 = teamsAndUser[2];
+                user1 = teamsAndUser[3];
+                user2 = teamsAndUser[4];
+            });
+        });
+        it('no such user should return empty teams list', function () {
+            var teamsPromise = userDataHandler_1.UserDataHandler.getTeams('not existing username');
+            var expectedTeams = [];
+            return verifyTeamsAsync(teamsPromise, expectedTeams);
+        });
+        it('user exists but has teams should return empty teams list', function () {
+            var teamsPromise = userDataHandler_1.UserDataHandler.getTeams(userInfo1.username);
+            var expectedTeams = [];
+            return verifyTeamsAsync(teamsPromise, expectedTeams);
+        });
+        it('user exists with teams should return correct teams list', function () {
+            var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo2 = createTeamMemberInfo(team2, user1);
+            var addTeamsPromise = Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo1),
+                teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo2)
+            ]);
+            var teamsPromise = addTeamsPromise.then(function () { return userDataHandler_1.UserDataHandler.getTeams(userInfo1.username); });
+            var expectedTeams = [teamInfo1, teamInfo2];
+            return verifyTeamsAsync(teamsPromise, expectedTeams);
+        });
+        it('multiple users exist with teams should return correct permissions list', function () {
+            var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo2 = createTeamMemberInfo(team2, user1);
+            var teamMemberInfo3 = createTeamMemberInfo(team1, user2);
+            var addTeamsPromise = Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo1),
+                teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo2),
+                teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo3)
+            ]);
+            var teamsPromise = addTeamsPromise.then(function () { return userDataHandler_1.UserDataHandler.getTeams(userInfo1.username); });
+            var expectedTeams = [teamInfo1, teamInfo2];
+            return verifyTeamsAsync(teamsPromise, expectedTeams);
         });
     });
 });

@@ -2,6 +2,7 @@
 var user_1 = require('../models/user');
 var usersGlobalPermissions_1 = require('../models/usersGlobalPermissions');
 var _ = require('lodash');
+var team_1 = require('../models/team');
 var UserDataHandler = (function () {
     function UserDataHandler() {
     }
@@ -27,6 +28,12 @@ var UserDataHandler = (function () {
             return _.map(permissions, function (_) { return usersGlobalPermissions_1.GlobalPermission[_.attributes.global_permissions]; });
         });
     };
+    UserDataHandler.getTeams = function (userName) {
+        var _this = this;
+        return this.getUser(userName)
+            .then(function (user) { return _this.fetchUserTeams(user); })
+            .then(function (teams) { return teams.toArray(); });
+    };
     UserDataHandler.getUser = function (username) {
         return new user_1.User()
             .query({ where: { username: username } })
@@ -37,6 +44,12 @@ var UserDataHandler = (function () {
             return Promise.resolve(new usersGlobalPermissions_1.UsersGlobalPermissions());
         }
         return user.getGlobalPermissions().fetch();
+    };
+    UserDataHandler.fetchUserTeams = function (user) {
+        if (!user) {
+            return Promise.resolve(new team_1.Teams());
+        }
+        return user.getTeams().fetch();
     };
     return UserDataHandler;
 }());

@@ -4,6 +4,8 @@ import * as Promise from 'bluebird';
 import * as validator from 'validator';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {UserGlobalPermissions} from './usersGlobalPermissions';
+import {Team} from './team';
+import {TeamMember} from './teamMember';
 
 export interface IUserInfo {
   username: string;
@@ -49,6 +51,10 @@ export class User extends bookshelf.Model<User>{
 
   public getGlobalPermissions(): Collection<UserGlobalPermissions> {
     return this.hasMany(UserGlobalPermissions, 'user_id');
+  }
+
+  public getTeams(): Collection<Team> {
+    return this.belongsToMany(Team).through<Team>(TeamMember, 'user_id', 'team_id');
   }
 }
 

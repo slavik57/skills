@@ -6,19 +6,31 @@ import * as chaiAsPromised from 'chai-as-promised'
 import {IUserInfo, User, Users} from '../models/user';
 import {UserDataHandler} from './userDataHandler';
 import {IUserGlobalPermissions, UserGlobalPermissions, UsersGlobalPermissions, GlobalPermission} from '../models/usersGlobalPermissions';
+import {ITeamInfo, Team, Teams} from '../models/team';
+import {ITeamMemberInfo, TeamMember, TeamMembers} from '../models/teamMember';
+import {TeamsDataHandler} from './teamsDataHandler';
 
 chai.use(chaiAsPromised);
 
 describe('userDataHandler', () => {
 
+  function clearTables(): Promise<any> {
+    return Promise.all([
+      UsersGlobalPermissions.clearAll(),
+      TeamMembers.clearAll()
+    ]).then(() =>
+      Promise.all([
+        Users.clearAll(),
+        Teams.clearAll()
+      ]));
+  }
+
   beforeEach(() => {
-    return UsersGlobalPermissions.clearAll()
-      .then(() => Users.clearAll());
+    return clearTables();
   });
 
   afterEach(() => {
-    return UsersGlobalPermissions.clearAll()
-      .then(() => Users.clearAll());
+    return clearTables();
   });
 
   function createUserInfo(userNumber: number): IUserInfo {
@@ -336,4 +348,154 @@ describe('userDataHandler', () => {
     });
 
   });
+
+  describe('getTeams', () => {
+
+    function verifyTeamsAsync(actualTeamsPromise: Promise<Team[]>,
+      expectedTeams: ITeamInfo[]): Promise<void> {
+
+      return expect(actualTeamsPromise).to.eventually.fulfilled
+        .then((actualTeams: Team[]) => {
+          var actualTeamInfos: ITeamInfo[] = _.map(actualTeams, _ => _.attributes);
+
+          verifyTeams(actualTeamInfos, expectedTeams);
+        });
+    }
+
+    function verifyTeams(actual: ITeamInfo[], expected: ITeamInfo[]): void {
+      var actualOrdered: ITeamInfo[] = _.orderBy(actual, _ => _.name);
+      var expectedOrdered: ITeamInfo[] = _.orderBy(expected, _ => _.name);
+
+      expect(actual.length).to.be.equal(expected.length);
+
+      for (var i = 0; i < expected.length; i++) {
+        verifyTeam(actual[i], expected[i]);
+      }
+    }
+
+    function verifyTeam(actual: ITeamInfo, expected: ITeamInfo): void {
+      var actualCloned: ITeamInfo = _.clone(actual);
+      var expectedCloned: ITeamInfo = _.clone(expected);
+
+      delete actualCloned['id'];
+      delete expectedCloned['id'];
+
+      expect(actualCloned).to.be.deep.equal(expectedCloned);
+    }
+
+    function createTeamInfo(teamName: string): ITeamInfo {
+      return {
+        name: teamName
+      };
+    }
+
+    function createTeamMemberInfo(team: Team, user: User): ITeamMemberInfo {
+      return {
+        team_id: team.id,
+        user_id: user.id
+      }
+    }
+
+    var teamInfo1: ITeamInfo;
+    var teamInfo2: ITeamInfo;
+    var teamInfo3: ITeamInfo;
+    var userInfo1: IUserInfo;
+    var userInfo2: IUserInfo;
+
+    var team1: Team;
+    var team2: Team;
+    var team3: Team;
+    var user1: User;
+    var user2: User;
+
+    beforeEach(() => {
+      teamInfo1 = createTeamInfo('a');
+      teamInfo2 = createTeamInfo('b');
+      teamInfo3 = createTeamInfo('c');
+
+      userInfo1 = createUserInfo(1);
+      userInfo2 = createUserInfo(2);
+
+      return Promise.all([
+        TeamsDataHandler.createTeam(teamInfo1),
+        TeamsDataHandler.createTeam(teamInfo2),
+        TeamsDataHandler.createTeam(teamInfo3),
+        UserDataHandler.createUser(userInfo1),
+        UserDataHandler.createUser(userInfo2)
+      ]).then((teamsAndUser: any[]) => {
+        team1 = teamsAndUser[0];
+        team2 = teamsAndUser[1];
+        team3 = teamsAndUser[2];
+        user1 = teamsAndUser[3];
+        user2 = teamsAndUser[4];
+      });
+    });
+
+    it('no such user should return empty teams list', () => {
+      // Act
+      var teamsPromise: Promise<Team[]> =
+        UserDataHandler.getTeams('not existing username');
+
+      // Assert
+      var expectedTeams: ITeamInfo[] = [];
+      return verifyTeamsAsync(teamsPromise, expectedTeams);
+    });
+
+    it('user exists but has teams should return empty teams list', () => {
+      // Act
+      var teamsPromise: Promise<Team[]> =
+        UserDataHandler.getTeams(userInfo1.username);
+
+      // Assert
+      var expectedTeams: ITeamInfo[] = [];
+      return verifyTeamsAsync(teamsPromise, expectedTeams);
+    });
+
+    it('user exists with teams should return correct teams list', () => {
+      // Arrange
+      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team2, user1);
+
+      // Assert
+      var addTeamsPromise: Promise<any> =
+        Promise.all([
+          TeamsDataHandler.addTeamMember(teamMemberInfo1),
+          TeamsDataHandler.addTeamMember(teamMemberInfo2)
+        ]);
+
+      // Act
+      var teamsPromise: Promise<Team[]> =
+        addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username));
+
+      // Assert
+      var expectedTeams: ITeamInfo[] = [teamInfo1, teamInfo2];
+      return verifyTeamsAsync(teamsPromise, expectedTeams);
+    });
+
+    it('multiple users exist with teams should return correct permissions list', () => {
+      // Arrange
+      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team2, user1);
+
+      var teamMemberInfo3: ITeamMemberInfo = createTeamMemberInfo(team1, user2);
+
+      // Assert
+      var addTeamsPromise: Promise<any> =
+        Promise.all([
+          TeamsDataHandler.addTeamMember(teamMemberInfo1),
+          TeamsDataHandler.addTeamMember(teamMemberInfo2),
+          TeamsDataHandler.addTeamMember(teamMemberInfo3)
+        ]);
+
+      // Act
+      var teamsPromise: Promise<Team[]> =
+        addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username));
+
+      // Assert
+      var expectedTeams: ITeamInfo[] = [teamInfo1, teamInfo2];
+      return verifyTeamsAsync(teamsPromise, expectedTeams);
+    });
+
+  });
+
 });

@@ -2,6 +2,7 @@ import {IUserInfo, User, Users} from '../models/user';
 import {UserGlobalPermissions, UsersGlobalPermissions, GlobalPermission} from '../models/usersGlobalPermissions';
 import {Collection} from 'bookshelf';
 import * as _ from 'lodash';
+import {Team, Teams} from '../models/team';
 
 export class UserDataHandler {
   public static createUser(userInfo: IUserInfo): Promise<User> {
@@ -29,6 +30,12 @@ export class UserDataHandler {
       });
   }
 
+  public static getTeams(userName: string): Promise<Team[]> {
+    return this.getUser(userName)
+      .then((user: User) => this.fetchUserTeams(user))
+      .then((teams: Collection<Team>) => teams.toArray());
+  }
+
   private static getUser(username: string): Promise<User> {
     return new User()
       .query({ where: { username: username } })
@@ -41,5 +48,13 @@ export class UserDataHandler {
     }
 
     return user.getGlobalPermissions().fetch();
+  }
+
+  private static fetchUserTeams(user: User): Promise<Collection<Team>> {
+    if (!user) {
+      return Promise.resolve(new Teams());
+    }
+
+    return user.getTeams().fetch();
   }
 }

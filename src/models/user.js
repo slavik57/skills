@@ -9,6 +9,8 @@ var Promise = require('bluebird');
 var validator = require('validator');
 var typesValidator_1 = require('../commonUtils/typesValidator');
 var usersGlobalPermissions_1 = require('./usersGlobalPermissions');
+var team_1 = require('./team');
+var teamMember_1 = require('./teamMember');
 var User = (function (_super) {
     __extends(User, _super);
     function User() {
@@ -48,6 +50,9 @@ var User = (function (_super) {
     };
     User.prototype.getGlobalPermissions = function () {
         return this.hasMany(usersGlobalPermissions_1.UserGlobalPermissions, 'user_id');
+    };
+    User.prototype.getTeams = function () {
+        return this.belongsToMany(team_1.Team).through(teamMember_1.TeamMember, 'user_id', 'team_id');
     };
     return User;
 }(bookshelf_1.bookshelf.Model));
