@@ -78,6 +78,33 @@ describe('userDataHandler', () => {
 
   });
 
+  describe('getUser', () => {
+
+    it('no such user should return null', () => {
+      // Act
+      var userPromise: Promise<User> =
+        UserDataHandler.getUser('not existing user');
+
+      // Assert
+      return expect(userPromise).to.eventually.null;
+    });
+
+    it('user exists should return correct user', () => {
+      // Arrange
+      var userInfo: IUserInfo = createUserInfo(1);
+      var createUserPromise: Promise<User> =
+        UserDataHandler.createUser(userInfo);
+
+      // Act
+      var getUserPromise: Promise<User> =
+        createUserPromise.then(() => UserDataHandler.getUser(userInfo.username));
+
+      // Assert
+      return verifyUserInfoAsync(getUserPromise, userInfo);
+    });
+
+  });
+
   describe('getUsers', () => {
 
     function verifyUsersInfoWithoutOrderAsync(actualUsersPromise: Promise<User[]>,
@@ -369,7 +396,7 @@ describe('userDataHandler', () => {
       expect(actual.length).to.be.equal(expected.length);
 
       for (var i = 0; i < expected.length; i++) {
-        verifyTeam(actual[i], expected[i]);
+        verifyTeam(actualOrdered[i], expectedOrdered[i]);
       }
     }
 

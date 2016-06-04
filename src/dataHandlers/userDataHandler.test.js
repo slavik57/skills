@@ -58,6 +58,18 @@ describe('userDataHandler', function () {
             return verifyUserInfoAsync(userPromise, userInfo);
         });
     });
+    describe('getUser', function () {
+        it('no such user should return null', function () {
+            var userPromise = userDataHandler_1.UserDataHandler.getUser('not existing user');
+            return chai_1.expect(userPromise).to.eventually.null;
+        });
+        it('user exists should return correct user', function () {
+            var userInfo = createUserInfo(1);
+            var createUserPromise = userDataHandler_1.UserDataHandler.createUser(userInfo);
+            var getUserPromise = createUserPromise.then(function () { return userDataHandler_1.UserDataHandler.getUser(userInfo.username); });
+            return verifyUserInfoAsync(getUserPromise, userInfo);
+        });
+    });
     describe('getUsers', function () {
         function verifyUsersInfoWithoutOrderAsync(actualUsersPromise, expectedUsersInfo) {
             return chai_1.expect(actualUsersPromise).to.eventually.fulfilled
@@ -229,7 +241,7 @@ describe('userDataHandler', function () {
             var expectedOrdered = _.orderBy(expected, function (_) { return _.name; });
             chai_1.expect(actual.length).to.be.equal(expected.length);
             for (var i = 0; i < expected.length; i++) {
-                verifyTeam(actual[i], expected[i]);
+                verifyTeam(actualOrdered[i], expectedOrdered[i]);
             }
         }
         function verifyTeam(actual, expected) {

@@ -36,7 +36,7 @@ export class UserDataHandler {
       .then((teams: Collection<Team>) => teams.toArray());
   }
 
-  private static getUser(username: string): Promise<User> {
+  public static getUser(username: string): Promise<User> {
     return new User()
       .query({ where: { username: username } })
       .fetch();
