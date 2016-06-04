@@ -137,6 +137,33 @@ describe('SkillsDataHandler', () => {
 
   });
 
+  describe('getSkill', () => {
+
+    it('no such skill should return null', () => {
+      // Act
+      var skillPromise: Promise<Skill> =
+        SkillsDataHandler.getSkill('not existing skill');
+
+      // Assert
+      return expect(skillPromise).to.eventually.null;
+    });
+
+    it('skill exists should return correct skill', () => {
+      // Arrange
+      var skillInfo: ISkillInfo = createSkillInfo(1);
+      var createSkillPromise: Promise<Skill> =
+        SkillsDataHandler.createSkill(skillInfo);
+
+      // Act
+      var getSkillPromise: Promise<Skill> =
+        createSkillPromise.then(() => SkillsDataHandler.getSkill(skillInfo.name));
+
+      // Assert
+      return verifySkillInfoAsync(getSkillPromise, skillInfo);
+    });
+
+  });
+
   describe('getSkills', () => {
 
     it('no skills should return empty', () => {
@@ -280,6 +307,16 @@ describe('SkillsDataHandler', () => {
       });
     });
 
+    it('no such skill should return empty', () => {
+      // Act
+      var skillsPromise: Promise<Skill[]> =
+        SkillsDataHandler.getSkillPrerequisites('not existing skill');
+
+      // Assert
+      var expectedInfo: ISkillInfo[] = [];
+      return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
+    });
+
     it('no skill prerequisites should return empty', () => {
       // Act
       var skillsPromise: Promise<Skill[]> =
@@ -359,6 +396,16 @@ describe('SkillsDataHandler', () => {
         skill2 = skills[1];
         skill3 = skills[2];
       });
+    });
+
+    it('no such skill should return empty', () => {
+      // Act
+      var skillsPromise: Promise<Skill[]> =
+        SkillsDataHandler.getSkillContributions('not existing skill');
+
+      // Assert
+      var expectedInfo: ISkillInfo[] = [];
+      return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
     });
 
     it('no skill prerequisites should return empty', () => {

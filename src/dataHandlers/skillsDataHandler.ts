@@ -27,19 +27,35 @@ export class SkillsDataHandler {
 
   public static getSkillPrerequisites(skillName: string): Promise<Skill[]> {
     return this.getSkill(skillName)
-      .then((skill: Skill) => skill.getPrerequisiteSkills().fetch())
+      .then((skill: Skill) => this.fetchSkillPrerequisitesBySkill(skill))
       .then((skills: Collection<Skill>) => skills.toArray());
   }
 
   public static getSkillContributions(skillName: string): Promise<Skill[]> {
     return this.getSkill(skillName)
-      .then((skill: Skill) => skill.getContributingSkills().fetch())
+      .then((skill: Skill) => this.fetchContributingSkillsBySkill(skill))
       .then((skills: Collection<Skill>) => skills.toArray());
   }
 
-  private static getSkill(skillName: string): Promise<Skill> {
+  public static getSkill(skillName: string): Promise<Skill> {
     return new Skill()
       .query({ where: { name: skillName } })
       .fetch();
+  }
+
+  private static fetchSkillPrerequisitesBySkill(skill: Skill): Promise<Collection<Skill>> {
+    if (!skill) {
+      return Promise.resolve(new Skills());
+    }
+
+    return skill.getPrerequisiteSkills().fetch();
+  }
+
+  private static fetchContributingSkillsBySkill(skill: Skill): Promise<Collection<Skill>> {
+    if (!skill) {
+      return Promise.resolve(new Skills());
+    }
+
+    return skill.getContributingSkills().fetch();
   }
 }

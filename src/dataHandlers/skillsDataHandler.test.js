@@ -93,6 +93,18 @@ describe('SkillsDataHandler', function () {
             return verifySkillInfoAsync(skillPromise, skillInfo);
         });
     });
+    describe('getSkill', function () {
+        it('no such skill should return null', function () {
+            var skillPromise = skillsDataHandler_1.SkillsDataHandler.getSkill('not existing skill');
+            return chai_1.expect(skillPromise).to.eventually.null;
+        });
+        it('skill exists should return correct skill', function () {
+            var skillInfo = createSkillInfo(1);
+            var createSkillPromise = skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo);
+            var getSkillPromise = createSkillPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkill(skillInfo.name); });
+            return verifySkillInfoAsync(getSkillPromise, skillInfo);
+        });
+    });
     describe('getSkills', function () {
         it('no skills should return empty', function () {
             var skillsPromise = skillsDataHandler_1.SkillsDataHandler.getSkills();
@@ -183,6 +195,11 @@ describe('SkillsDataHandler', function () {
                 skill3 = skills[2];
             });
         });
+        it('no such skill should return empty', function () {
+            var skillsPromise = skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites('not existing skill');
+            var expectedInfo = [];
+            return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
+        });
         it('no skill prerequisites should return empty', function () {
             var skillsPromise = skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites(skillInfo1.name);
             var expectedInfo = [];
@@ -233,6 +250,11 @@ describe('SkillsDataHandler', function () {
                 skill2 = skills[1];
                 skill3 = skills[2];
             });
+        });
+        it('no such skill should return empty', function () {
+            var skillsPromise = skillsDataHandler_1.SkillsDataHandler.getSkillContributions('not existing skill');
+            var expectedInfo = [];
+            return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
         });
         it('no skill prerequisites should return empty', function () {
             var skillsPromise = skillsDataHandler_1.SkillsDataHandler.getSkillContributions(skillInfo1.name);

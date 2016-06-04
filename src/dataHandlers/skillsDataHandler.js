@@ -23,19 +23,33 @@ var SkillsDataHandler = (function () {
         });
     };
     SkillsDataHandler.getSkillPrerequisites = function (skillName) {
+        var _this = this;
         return this.getSkill(skillName)
-            .then(function (skill) { return skill.getPrerequisiteSkills().fetch(); })
+            .then(function (skill) { return _this.fetchSkillPrerequisitesBySkill(skill); })
             .then(function (skills) { return skills.toArray(); });
     };
     SkillsDataHandler.getSkillContributions = function (skillName) {
+        var _this = this;
         return this.getSkill(skillName)
-            .then(function (skill) { return skill.getContributingSkills().fetch(); })
+            .then(function (skill) { return _this.fetchContributingSkillsBySkill(skill); })
             .then(function (skills) { return skills.toArray(); });
     };
     SkillsDataHandler.getSkill = function (skillName) {
         return new skill_1.Skill()
             .query({ where: { name: skillName } })
             .fetch();
+    };
+    SkillsDataHandler.fetchSkillPrerequisitesBySkill = function (skill) {
+        if (!skill) {
+            return Promise.resolve(new skill_1.Skills());
+        }
+        return skill.getPrerequisiteSkills().fetch();
+    };
+    SkillsDataHandler.fetchContributingSkillsBySkill = function (skill) {
+        if (!skill) {
+            return Promise.resolve(new skill_1.Skills());
+        }
+        return skill.getContributingSkills().fetch();
     };
     return SkillsDataHandler;
 }());
