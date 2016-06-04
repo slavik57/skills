@@ -85,6 +85,33 @@ describe('TeamsDataHandler', () => {
 
   });
 
+  describe('getTeam', () => {
+
+    it('no such team should return null', () => {
+      // Act
+      var teamPromise: Promise<Team> =
+        TeamsDataHandler.getTeam('not existing team');
+
+      // Assert
+      return expect(teamPromise).to.eventually.null;
+    });
+
+    it('team exists should return correct team', () => {
+      // Arrange
+      var teamInfo: ITeamInfo = createTeamInfo('a');
+      var createTeamPromose: Promise<Team> =
+        TeamsDataHandler.createTeam(teamInfo);
+
+      // Act
+      var getTeamPromise: Promise<Team> =
+        createTeamPromose.then(() => TeamsDataHandler.getTeam(teamInfo.name));
+
+      // Assert
+      return verifyTeamInfoAsync(getTeamPromise, teamInfo);
+    });
+
+  });
+
   describe('addTeamMember', () => {
 
     it('should create a team member', () => {
@@ -181,6 +208,16 @@ describe('TeamsDataHandler', () => {
         user2 = teamAndUsers[3];
         user3 = teamAndUsers[4];
       });
+    });
+
+    it('not existing team should return empty', () => {
+      // Act
+      var teamMembersPromise: Promise<User[]> =
+        TeamsDataHandler.getTeamMembers('not existing team');
+
+      // Assert
+      var expectedInfo: IUserInfo[] = [];
+      return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedInfo);
     });
 
     it('no team members should return empty', () => {

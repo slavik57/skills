@@ -63,6 +63,18 @@ describe('TeamsDataHandler', function () {
             return verifyTeamInfoAsync(teamPromise, teamInfo);
         });
     });
+    describe('getTeam', function () {
+        it('no such team should return null', function () {
+            var teamPromise = teamsDataHandler_1.TeamsDataHandler.getTeam('not existing team');
+            return chai_1.expect(teamPromise).to.eventually.null;
+        });
+        it('team exists should return correct team', function () {
+            var teamInfo = createTeamInfo('a');
+            var createTeamPromose = teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo);
+            var getTeamPromise = createTeamPromose.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeam(teamInfo.name); });
+            return verifyTeamInfoAsync(getTeamPromise, teamInfo);
+        });
+    });
     describe('addTeamMember', function () {
         it('should create a team member', function () {
             var teamInfo = createTeamInfo('a');
@@ -132,6 +144,11 @@ describe('TeamsDataHandler', function () {
                 user2 = teamAndUsers[3];
                 user3 = teamAndUsers[4];
             });
+        });
+        it('not existing team should return empty', function () {
+            var teamMembersPromise = teamsDataHandler_1.TeamsDataHandler.getTeamMembers('not existing team');
+            var expectedInfo = [];
+            return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedInfo);
         });
         it('no team members should return empty', function () {
             var teamMembersPromise = teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo1.name);

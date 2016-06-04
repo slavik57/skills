@@ -2,7 +2,7 @@ import {Collection} from 'bookshelf';
 import {ITeamInfo, Team} from '../models/team';
 import {} from '../models/user';
 import {ITeamMemberInfo, TeamMember} from '../models/teamMember';
-import {User} from '../models/user';
+import {User, Users} from '../models/user';
 
 export class TeamsDataHandler {
 
@@ -16,14 +16,22 @@ export class TeamsDataHandler {
 
   public static getTeamMembers(teamName: string): Promise<User[]> {
     return this.getTeam(teamName)
-      .then((team: Team) => team.getTeamMembers().fetch())
+      .then((team: Team) => this.fetchTeamMembersOfTeam(team))
       .then((teamMembers: Collection<User>) => teamMembers.toArray());
   }
 
-  private static getTeam(teamName: string): Promise<Team> {
+  public static getTeam(teamName: string): Promise<Team> {
     return new Team()
       .query({ where: { name: teamName } })
       .fetch();
+  }
+
+  private static fetchTeamMembersOfTeam(team: Team): Promise<Collection<User>> {
+    if (!team) {
+      return Promise.resolve(new Users());
+    }
+
+    return team.getTeamMembers().fetch();
   }
 
 }
