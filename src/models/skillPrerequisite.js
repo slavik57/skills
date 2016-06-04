@@ -27,13 +27,13 @@ var SkillPrerequisite = (function (_super) {
         this.on('saving', function (skillPrerequisite) { return _this.validateSkillPrerequisite(skillPrerequisite); });
     };
     SkillPrerequisite.prototype.validateSkillPrerequisite = function (skillPrerequisite) {
-        if (!typesValidator_1.TypesValidator.isLongEnoughString(skillPrerequisite.attributes.skill_name, 1)) {
-            return Promise.reject('The skill_name must not be empty');
+        if (!typesValidator_1.TypesValidator.isInteger(skillPrerequisite.attributes.skill_id)) {
+            return Promise.reject('The skill_id must be an integer');
         }
-        if (!typesValidator_1.TypesValidator.isLongEnoughString(skillPrerequisite.attributes.skill_prerequisite, 1)) {
-            return Promise.reject('The skill_prerequisite name must not be empty');
+        if (!typesValidator_1.TypesValidator.isInteger(skillPrerequisite.attributes.skill_prerequisite_id)) {
+            return Promise.reject('The skill_prerequisite_id be an integer');
         }
-        if (skillPrerequisite.attributes.skill_name === skillPrerequisite.attributes.skill_prerequisite) {
+        if (skillPrerequisite.attributes.skill_id === skillPrerequisite.attributes.skill_prerequisite_id) {
             return Promise.reject('Skill can not be a prerequisite of itself');
         }
         return null;

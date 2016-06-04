@@ -4,8 +4,8 @@ import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
 
 export interface ISkillPrerequisiteInfo {
-  skill_name: string;
-  skill_prerequisite: string;
+  skill_id: number;
+  skill_prerequisite_id: number;
 }
 
 export class SkillPrerequisite extends bookshelf.Model<SkillPrerequisite>{
@@ -19,15 +19,15 @@ export class SkillPrerequisite extends bookshelf.Model<SkillPrerequisite>{
   }
 
   public validateSkillPrerequisite(skillPrerequisite: SkillPrerequisite): Promise<boolean> {
-    if (!TypesValidator.isLongEnoughString(skillPrerequisite.attributes.skill_name, 1)) {
-      return Promise.reject('The skill_name must not be empty');
+    if (!TypesValidator.isInteger(skillPrerequisite.attributes.skill_id)) {
+      return Promise.reject('The skill_id must be an integer');
     }
 
-    if (!TypesValidator.isLongEnoughString(skillPrerequisite.attributes.skill_prerequisite, 1)) {
-      return Promise.reject('The skill_prerequisite name must not be empty');
+    if (!TypesValidator.isInteger(skillPrerequisite.attributes.skill_prerequisite_id)) {
+      return Promise.reject('The skill_prerequisite_id be an integer');
     }
 
-    if (skillPrerequisite.attributes.skill_name === skillPrerequisite.attributes.skill_prerequisite) {
+    if (skillPrerequisite.attributes.skill_id === skillPrerequisite.attributes.skill_prerequisite_id) {
       return Promise.reject('Skill can not be a prerequisite of itself');
     }
 

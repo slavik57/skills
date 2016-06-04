@@ -7,6 +7,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
 var typesValidator_1 = require('../commonUtils/typesValidator');
+var skillPrerequisite_1 = require('./skillPrerequisite');
 var Skill = (function (_super) {
     __extends(Skill, _super);
     function Skill() {
@@ -31,6 +32,12 @@ var Skill = (function (_super) {
             return Promise.reject('The skill name must not be empty');
         }
         return null;
+    };
+    Skill.prototype.prerequisites = function () {
+        return this.belongsToMany(Skill).through(skillPrerequisite_1.SkillPrerequisite, 'skill_id', 'skill_prerequisite_id');
+    };
+    Skill.prototype.contributions = function () {
+        return this.belongsToMany(Skill).through(skillPrerequisite_1.SkillPrerequisite, 'skill_prerequisite_id', 'skill_id');
     };
     return Skill;
 }(bookshelf_1.bookshelf.Model));

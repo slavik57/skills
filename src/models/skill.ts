@@ -2,6 +2,7 @@ import {Model, Collection, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
+import {SkillPrerequisite} from './skillPrerequisite';
 
 export interface ISkillInfo {
   name: string;
@@ -23,6 +24,14 @@ export class Skill extends bookshelf.Model<Skill>{
     }
 
     return null;
+  }
+
+  public prerequisites(): Collection<Skill> {
+    return this.belongsToMany(Skill).through<Skill>(SkillPrerequisite, 'skill_id', 'skill_prerequisite_id');
+  }
+
+  public contributions(): Collection<Skill> {
+    return this.belongsToMany(Skill).through<Skill>(SkillPrerequisite, 'skill_prerequisite_id', 'skill_id');
   }
 }
 

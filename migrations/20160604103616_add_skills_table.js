@@ -10,10 +10,13 @@ exports.up = function(knex, Promise) {
     return knex.schema.createTableIfNotExists('skills_prerequisites', function(table){
       table.increments('id');
 
-      table.string('skill_name').notNullable().references('name').inTable('skills');
-      table.string('skill_prerequisite').notNullable().references('name').inTable('skills');
+      table.integer('skill_id').notNullable().references('id').inTable('skills');
+      table.integer('skill_prerequisite_id').notNullable().references('id').inTable('skills');
 
-      table.unique(['skill_name', 'skill_prerequisite']);
+      table.index('skill_id');
+      table.index('skill_prerequisite_id');
+
+      table.unique(['skill_id', 'skill_prerequisite_id']);
     });
   });
 };

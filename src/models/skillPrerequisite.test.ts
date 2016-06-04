@@ -11,6 +11,9 @@ describe('SkillPrerequisite', () => {
   describe('new', () => {
     var validSkillInfo1: ISkillInfo;
     var validSkillInfo2: ISkillInfo;
+    var skill1: Skill;
+    var skill2: Skill;
+
     var validSkillPrerequisiteInfo: ISkillPrerequisiteInfo;
 
     function clearTables(): Promise<any> {
@@ -27,15 +30,20 @@ describe('SkillPrerequisite', () => {
         name: 'skill name 2'
       };
 
-
-      validSkillPrerequisiteInfo = {
-        skill_name: validSkillInfo2.name,
-        skill_prerequisite: validSkillInfo1.name
-      }
-
       return clearTables()
-        .then(() => new Skill(validSkillInfo1).save())
-        .then(() => new Skill(validSkillInfo2).save());
+        .then(() => Promise.all([
+          new Skill(validSkillInfo1).save(),
+          new Skill(validSkillInfo2).save()
+        ]))
+        .then((skills: Skill[]) => {
+          skill1 = skills[0];
+          skill2 = skills[1];
+
+          validSkillPrerequisiteInfo = {
+            skill_id: skill2.id,
+            skill_prerequisite_id: skill1.id
+          }
+        });
     });
 
     afterEach(() => {
@@ -53,9 +61,9 @@ describe('SkillPrerequisite', () => {
       return expect(promise).to.be.rejected;
     });
 
-    it('create without name should return error', () => {
+    it('create without skill_id should return error', () => {
       /// Arrange
-      delete validSkillPrerequisiteInfo.skill_name;
+      delete validSkillPrerequisiteInfo.skill_id;
       var prerequisite = new SkillPrerequisite(validSkillPrerequisiteInfo);
 
       // Act
@@ -65,9 +73,9 @@ describe('SkillPrerequisite', () => {
       return expect(promise).to.be.rejected;
     });
 
-    it('create without skill_prerequisite should return error', () => {
+    it('create without skill_prerequisite_id should return error', () => {
       /// Arrange
-      delete validSkillPrerequisiteInfo.skill_prerequisite;
+      delete validSkillPrerequisiteInfo.skill_prerequisite_id;
       var prerequisite = new SkillPrerequisite(validSkillPrerequisiteInfo);
 
       // Act
@@ -77,9 +85,9 @@ describe('SkillPrerequisite', () => {
       return expect(promise).to.be.rejected;
     });
 
-    it('create with empty name should return error', () => {
+    it('create with non integer skill_id should return error', () => {
       /// Arrange
-      validSkillPrerequisiteInfo.skill_name = '';
+      validSkillPrerequisiteInfo.skill_id = 1.1;
       var prerequisite = new SkillPrerequisite(validSkillPrerequisiteInfo);
 
       // Act
@@ -89,9 +97,9 @@ describe('SkillPrerequisite', () => {
       return expect(promise).to.be.rejected;
     });
 
-    it('create with empty skill_prerequisite should return error', () => {
+    it('create with non integer skill_prerequisite_id should return error', () => {
       /// Arrange
-      validSkillPrerequisiteInfo.skill_prerequisite = '';
+      validSkillPrerequisiteInfo.skill_prerequisite_id = 1.1;
       var prerequisite = new SkillPrerequisite(validSkillPrerequisiteInfo);
 
       // Act
@@ -101,9 +109,9 @@ describe('SkillPrerequisite', () => {
       return expect(promise).to.be.rejected;
     });
 
-    it('create with non existing skill name should return error', () => {
+    it('create with non existing skill_id should return error', () => {
       /// Arrange
-      validSkillPrerequisiteInfo.skill_name = 'not existing skill name';
+      validSkillPrerequisiteInfo.skill_id = skill1.id + skill2.id + 1;
       var prerequisite = new SkillPrerequisite(validSkillPrerequisiteInfo);
 
       // Act
@@ -113,9 +121,9 @@ describe('SkillPrerequisite', () => {
       return expect(promise).to.be.rejected;
     });
 
-    it('create with non existing skill_prerequisite name should return error', () => {
+    it('create with non existing skill_prerequisite_id name should return error', () => {
       // Arrange
-      validSkillPrerequisiteInfo.skill_prerequisite = 'not existing skill name';
+      validSkillPrerequisiteInfo.skill_prerequisite_id = skill1.id + skill2.id + 1;
       var prerequisite = new SkillPrerequisite(validSkillPrerequisiteInfo);
 
       // Act
@@ -125,7 +133,7 @@ describe('SkillPrerequisite', () => {
       return expect(promise).to.be.rejected;
     });
 
-    it('create with existing name and skill_prerequisite should succeed', () => {
+    it('create with existing skill_id and skill_prerequisite_id should succeed', () => {
       /// Arrange
       var prerequisite = new SkillPrerequisite(validSkillPrerequisiteInfo);
 
@@ -136,9 +144,9 @@ describe('SkillPrerequisite', () => {
       return expect(promise).to.eventually.equal(prerequisite);
     });
 
-    it('create with same name and skill_prerequisite should return error', () => {
+    it('create with same skill_id and skill_prerequisite_id should return error', () => {
       // Arrange
-      validSkillPrerequisiteInfo.skill_prerequisite = validSkillPrerequisiteInfo.skill_name;
+      validSkillPrerequisiteInfo.skill_prerequisite_id = validSkillPrerequisiteInfo.skill_id;
       var prerequisite = new SkillPrerequisite(validSkillPrerequisiteInfo);
 
       // Act
@@ -148,7 +156,7 @@ describe('SkillPrerequisite', () => {
       return expect(promise).to.be.rejected;
     });
 
-    it('create with existing name and skill_prerequisite should be fetched', () => {
+    it('create with existing skill_id and skill_prerequisite_id should be fetched', () => {
       /// Arrange
       var prerequisite = new SkillPrerequisite(validSkillPrerequisiteInfo);
 
@@ -162,21 +170,21 @@ describe('SkillPrerequisite', () => {
       return expect(prerequisitesPromise).to.eventually.fulfilled
         .then((prerequisite: Collection<SkillPrerequisite>) => {
           expect(prerequisite.size()).to.be.equal(1);
-          expect(prerequisite.at(0).attributes.skill_name).to.be.equal(validSkillPrerequisiteInfo.skill_name);
-          expect(prerequisite.at(0).attributes.skill_prerequisite).to.be.equal(validSkillPrerequisiteInfo.skill_prerequisite);
+          expect(prerequisite.at(0).attributes.skill_id).to.be.equal(validSkillPrerequisiteInfo.skill_id);
+          expect(prerequisite.at(0).attributes.skill_prerequisite_id).to.be.equal(validSkillPrerequisiteInfo.skill_prerequisite_id);
         });
     });
 
-    it('create 2 different prerequisites with existing name should succeed', () => {
+    it('create 2 different prerequisites should succeed', () => {
       // Arrange
       var skillPrerequisiteInfo1: ISkillPrerequisiteInfo = {
-        skill_name: validSkillInfo1.name,
-        skill_prerequisite: validSkillInfo2.name
+        skill_id: skill1.id,
+        skill_prerequisite_id: skill2.id
       };
 
       var skillPrerequisiteInfo2: ISkillPrerequisiteInfo = {
-        skill_name: validSkillInfo2.name,
-        skill_prerequisite: validSkillInfo1.name
+        skill_id: skill2.id,
+        skill_prerequisite_id: skill1.id
       };
 
       var prerequisite1 = new SkillPrerequisite(skillPrerequisiteInfo1);
@@ -194,13 +202,13 @@ describe('SkillPrerequisite', () => {
     it('create 2 different prerequisites should be fetched', () => {
       // Arrange
       var skillPrerequisiteInfo1: ISkillPrerequisiteInfo = {
-        skill_name: validSkillInfo1.name,
-        skill_prerequisite: validSkillInfo2.name
+        skill_id: skill1.id,
+        skill_prerequisite_id: skill2.id
       };
 
       var skillPrerequisiteInfo2: ISkillPrerequisiteInfo = {
-        skill_name: validSkillInfo2.name,
-        skill_prerequisite: validSkillInfo1.name
+        skill_id: skill2.id,
+        skill_prerequisite_id: skill1.id
       };
 
       var prerequisite1 = new SkillPrerequisite(skillPrerequisiteInfo1);
@@ -223,13 +231,13 @@ describe('SkillPrerequisite', () => {
 
     it('create 2 same prerequisites should return error', () => {
       var skillPrerequisiteInfo1: ISkillPrerequisiteInfo = {
-        skill_name: validSkillInfo1.name,
-        skill_prerequisite: validSkillInfo2.name
+        skill_id: skill1.id,
+        skill_prerequisite_id: skill2.id
       };
 
       var skillPrerequisiteInfo2: ISkillPrerequisiteInfo = {
-        skill_name: skillPrerequisiteInfo1.skill_name,
-        skill_prerequisite: skillPrerequisiteInfo1.skill_name
+        skill_id: skillPrerequisiteInfo1.skill_id,
+        skill_prerequisite_id: skillPrerequisiteInfo1.skill_prerequisite_id
       };
 
       var prerequisite1 = new SkillPrerequisite(skillPrerequisiteInfo1);
