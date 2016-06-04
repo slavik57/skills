@@ -3,12 +3,12 @@ import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
 
-export interface ITeamlInfo {
+export interface ITeamInfo {
   name: string;
 }
 
 export class Team extends bookshelf.Model<Team>{
-  public attributes: ITeamlInfo;
+  public attributes: ITeamInfo;
 
   public get tableName() { return 'teams'; }
   public get idAttribute() { return 'id'; }

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as _ from 'lodash';
 import * as chaiAsPromised from 'chai-as-promised'
-import {IUser, User, Users} from '../models/user';
+import {IUserInfo, User, Users} from '../models/user';
 import {UserDataHandler} from './userDataHandler';
 import {IUserGlobalPermissions, UserGlobalPermissions, UsersGlobalPermissions, GlobalPermission} from '../models/usersGlobalPermissions';
 
@@ -19,7 +19,7 @@ describe('userDataHandler', () => {
       .then(() => Users.clearAll());
   });
 
-  function createUserInfo(userNumber: number): IUser {
+  function createUserInfo(userNumber: number): IUserInfo {
     var userNumberString = userNumber.toString();
 
     return {
@@ -32,7 +32,7 @@ describe('userDataHandler', () => {
   }
 
   function verifyUserInfoAsync(actualUserPromise: Promise<User>,
-    expectedUserInfo: IUser): Promise<void> {
+    expectedUserInfo: IUserInfo): Promise<void> {
 
     return expect(actualUserPromise).to.eventually.fulfilled
       .then((user: User) => {
@@ -40,9 +40,9 @@ describe('userDataHandler', () => {
       });
   }
 
-  function verifyUserInfo(actual: IUser, expected: IUser): void {
-    var actualCloned: IUser = _.clone(actual);
-    var expectedCloned: IUser = _.clone(expected);
+  function verifyUserInfo(actual: IUserInfo, expected: IUserInfo): void {
+    var actualCloned: IUserInfo = _.clone(actual);
+    var expectedCloned: IUserInfo = _.clone(expected);
 
     delete actualCloned['id'];
     delete expectedCloned['id'];
@@ -54,7 +54,7 @@ describe('userDataHandler', () => {
 
     it('should create user correctly', () => {
       // Act
-      var userInfo: IUser = createUserInfo(1);
+      var userInfo: IUserInfo = createUserInfo(1);
       var userPromise: Promise<User> =
         UserDataHandler.createUser(userInfo);
 
@@ -67,7 +67,7 @@ describe('userDataHandler', () => {
   describe('getUsers', () => {
 
     function verifyUsersInfoWithoutOrderAsync(actualUsersPromise: Promise<User[]>,
-      expectedUsersInfo: IUser[]): Promise<void> {
+      expectedUsersInfo: IUserInfo[]): Promise<void> {
 
       return expect(actualUsersPromise).to.eventually.fulfilled
         .then((users: User[]) => {
@@ -78,7 +78,7 @@ describe('userDataHandler', () => {
         });
     }
 
-    function verifyUsersInfoWithoutOrder(actual: IUser[], expected: IUser[]): void {
+    function verifyUsersInfoWithoutOrder(actual: IUserInfo[], expected: IUserInfo[]): void {
       var actualOrdered = _.orderBy(actual, _info => _info.username);
       var expectedOrdered = _.orderBy(expected, _info => _info.username);
 
@@ -94,15 +94,15 @@ describe('userDataHandler', () => {
       var usersPromose: Promise<User[]> = UserDataHandler.getUsers();
 
       // Assert
-      var expectedUsersInfo: IUser[] = [];
+      var expectedUsersInfo: IUserInfo[] = [];
       return verifyUsersInfoWithoutOrderAsync(usersPromose, expectedUsersInfo);
     });
 
     it('should return all created users', () => {
       // Arrange
-      var userInfo1: IUser = createUserInfo(1);
-      var userInfo2: IUser = createUserInfo(2);
-      var userInfo3: IUser = createUserInfo(3);
+      var userInfo1: IUserInfo = createUserInfo(1);
+      var userInfo2: IUserInfo = createUserInfo(2);
+      var userInfo3: IUserInfo = createUserInfo(3);
 
       var createAllUsersPromise: Promise<any> =
         Promise.all([
@@ -116,7 +116,7 @@ describe('userDataHandler', () => {
         createAllUsersPromise.then(() => UserDataHandler.getUsers());
 
       // Assert
-      var expectedUsersInfo: IUser[] = [userInfo1, userInfo2, userInfo3];
+      var expectedUsersInfo: IUserInfo[] = [userInfo1, userInfo2, userInfo3];
       return verifyUsersInfoWithoutOrderAsync(usersPromose, expectedUsersInfo);
     });
 
@@ -144,9 +144,9 @@ describe('userDataHandler', () => {
 
     it('user exists and require is false should return correct user', () => {
       // Arrange
-      var userInfo1: IUser = createUserInfo(1);
-      var userInfo2: IUser = createUserInfo(2);
-      var userInfo3: IUser = createUserInfo(3);
+      var userInfo1: IUserInfo = createUserInfo(1);
+      var userInfo2: IUserInfo = createUserInfo(2);
+      var userInfo3: IUserInfo = createUserInfo(3);
 
       var createUsersPromise: Promise<any> =
         Promise.all([
@@ -165,9 +165,9 @@ describe('userDataHandler', () => {
 
     it('user exists and require is true should return correct user', () => {
       // Arrange
-      var userInfo1: IUser = createUserInfo(1);
-      var userInfo2: IUser = createUserInfo(2);
-      var userInfo3: IUser = createUserInfo(3);
+      var userInfo1: IUserInfo = createUserInfo(1);
+      var userInfo2: IUserInfo = createUserInfo(2);
+      var userInfo3: IUserInfo = createUserInfo(3);
 
       var createUsersPromise: Promise<any> =
         Promise.all([
@@ -234,7 +234,7 @@ describe('userDataHandler', () => {
 
     it('user exists but has no permissions should return empty permissions list', () => {
       // Assert
-      var userInfo: IUser = createUserInfo(1);
+      var userInfo: IUserInfo = createUserInfo(1);
 
       var createUserPromise: Promise<User> = UserDataHandler.createUser(userInfo);
 
@@ -249,7 +249,7 @@ describe('userDataHandler', () => {
 
     it('user exists with permissions should return correct permissions list', () => {
       // Assert
-      var userInfo: IUser = createUserInfo(1);
+      var userInfo: IUserInfo = createUserInfo(1);
       var permissions: GlobalPermission[] =
         [
           GlobalPermission.ADMIN,
@@ -271,8 +271,8 @@ describe('userDataHandler', () => {
 
     it('multiple users exist with permissions should return correct permissions list', () => {
       // Assert
-      var userInfo1: IUser = createUserInfo(1);
-      var userInfo2: IUser = createUserInfo(2);
+      var userInfo1: IUserInfo = createUserInfo(1);
+      var userInfo2: IUserInfo = createUserInfo(2);
       var permissions1: GlobalPermission[] =
         [
           GlobalPermission.READER,
@@ -303,8 +303,8 @@ describe('userDataHandler', () => {
 
     it('multiple users exist with permissions should return correct permissions list 2', () => {
       // Assert
-      var userInfo1: IUser = createUserInfo(1);
-      var userInfo2: IUser = createUserInfo(2);
+      var userInfo1: IUserInfo = createUserInfo(1);
+      var userInfo2: IUserInfo = createUserInfo(2);
       var permissions1: GlobalPermission[] =
         [
           GlobalPermission.READER,

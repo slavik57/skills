@@ -2,14 +2,14 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as chaiAsPromised from 'chai-as-promised'
-import { IUser, User, Users } from './user';
+import { IUserInfo, User, Users } from './user';
 
 chai.use(chaiAsPromised);
 
 describe('User', () => {
   describe('new', () => {
-    var validUserInfo1: IUser;
-    var validUserInfo2: IUser;
+    var validUserInfo1: IUserInfo;
+    var validUserInfo2: IUserInfo;
 
     beforeEach((done: Function) => {
       Users.clearAll().then(() => done());

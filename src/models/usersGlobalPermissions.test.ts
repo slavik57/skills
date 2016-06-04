@@ -2,14 +2,14 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as chaiAsPromised from 'chai-as-promised'
-import { IUser, User, Users } from './user';
+import { IUserInfo, User, Users } from './user';
 import { IUserGlobalPermissions, UserGlobalPermissions, UsersGlobalPermissions, GlobalPermission } from './usersGlobalPermissions';
 
 chai.use(chaiAsPromised);
 
 describe('UserGlobalPermissions', () => {
   describe('new', () => {
-    var validUserInfo: IUser;
+    var validUserInfo: IUserInfo;
     var validUserGlobalPermissions: IUserGlobalPermissions;
 
     function clearTables(): Promise<any> {

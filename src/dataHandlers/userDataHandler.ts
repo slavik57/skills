@@ -1,10 +1,10 @@
-import {IUser, User, Users} from '../models/user';
+import {IUserInfo, User, Users} from '../models/user';
 import {UserGlobalPermissions, UsersGlobalPermissions, GlobalPermission} from '../models/usersGlobalPermissions';
 import {Collection} from 'bookshelf';
 import * as _ from 'lodash';
 
 export class UserDataHandler {
-  public static createUser(userInfo: IUser): Promise<User> {
+  public static createUser(userInfo: IUserInfo): Promise<User> {
     return new User(userInfo).save();
   }
 

@@ -2,13 +2,13 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as chaiAsPromised from 'chai-as-promised'
-import { ITeamlInfo, Team, Teams } from './team';
+import { ITeamInfo, Team, Teams } from './team';
 
 describe('Team', () => {
 
   describe('new', () => {
-    var validTeamInfo: ITeamlInfo;
-    var validTeamInfo2: ITeamlInfo;
+    var validTeamInfo: ITeamInfo;
+    var validTeamInfo2: ITeamInfo;
 
     beforeEach(() => {
       validTeamInfo = {

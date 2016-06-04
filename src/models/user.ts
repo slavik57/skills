@@ -5,7 +5,7 @@ import * as validator from 'validator';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {UserGlobalPermissions} from './usersGlobalPermissions';
 
-export interface IUser {
+export interface IUserInfo {
   username: string;
   password_hash: string;
   email: string;
@@ -14,7 +14,7 @@ export interface IUser {
 }
 
 export class User extends bookshelf.Model<User>{
-  public attributes: IUser;
+  public attributes: IUserInfo;
 
   public get tableName() { return 'users'; }
   public get idAttribute() { return 'id'; }
