@@ -1,9 +1,12 @@
 "use strict";
+var chai = require('chai');
 var chai_1 = require('chai');
 var _ = require('lodash');
+var chaiAsPromised = require('chai-as-promised');
 var user_1 = require('../models/user');
 var userDataHandler_1 = require('./userDataHandler');
 var usersGlobalPermissions_1 = require('../models/usersGlobalPermissions');
+chai.use(chaiAsPromised);
 describe('userDataHandler', function () {
     beforeEach(function () {
         return usersGlobalPermissions_1.UsersGlobalPermissions.clearAll()

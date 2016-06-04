@@ -7,6 +7,8 @@ import {ISkillInfo, Skill, Skills} from '../models/skill';
 import {ISkillPrerequisiteInfo, SkillPrerequisite, SkillPrerequisites} from '../models/skillPrerequisite';
 import {SkillsDataHandler} from './skillsDataHandler';
 
+chai.use(chaiAsPromised);
+
 describe('SkillsDataHandler', () => {
 
   function clearTables(): Promise<any> {

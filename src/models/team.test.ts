@@ -4,6 +4,8 @@ import { Collection } from 'bookshelf';
 import * as chaiAsPromised from 'chai-as-promised'
 import { ITeamInfo, Team, Teams } from './team';
 
+chai.use(chaiAsPromised);
+
 describe('Team', () => {
 
   describe('new', () => {

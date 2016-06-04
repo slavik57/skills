@@ -7,6 +7,8 @@ var __extends = (this && this.__extends) || function (d, b) {
 var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
 var typesValidator_1 = require('../commonUtils/typesValidator');
+var user_1 = require('./user');
+var teamMember_1 = require('./teamMember');
 var Team = (function (_super) {
     __extends(Team, _super);
     function Team() {
@@ -31,6 +33,9 @@ var Team = (function (_super) {
             return Promise.reject('The team name must not be empty');
         }
         return null;
+    };
+    Team.prototype.getTeamMembers = function () {
+        return this.belongsToMany(user_1.User).through(teamMember_1.TeamMember, 'team_id', 'user_id');
     };
     return Team;
 }(bookshelf_1.bookshelf.Model));

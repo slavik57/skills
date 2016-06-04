@@ -4,6 +4,8 @@ import { Collection } from 'bookshelf';
 import * as chaiAsPromised from 'chai-as-promised'
 import { ISkillInfo, Skill, Skills } from './skill';
 
+chai.use(chaiAsPromised);
+
 describe('Skill', () => {
 
   describe('new', () => {

@@ -2,6 +2,8 @@ import {Model, Collection, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
+import {User} from './user';
+import {TeamMember} from './teamMember';
 
 export interface ITeamInfo {
   name: string;
@@ -23,6 +25,10 @@ export class Team extends bookshelf.Model<Team>{
     }
 
     return null;
+  }
+
+  public getTeamMembers(): Collection<User> {
+    return this.belongsToMany(User).through<User>(TeamMember, 'team_id', 'user_id');
   }
 }
 

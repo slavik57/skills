@@ -1,6 +1,9 @@
 "use strict";
+var chai = require('chai');
 var chai_1 = require('chai');
+var chaiAsPromised = require('chai-as-promised');
 var skill_1 = require('./skill');
+chai.use(chaiAsPromised);
 describe('Skill', function () {
     describe('new', function () {
         var validSkillInfo;

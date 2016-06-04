@@ -1,9 +1,12 @@
 "use strict";
+var chai = require('chai');
 var chai_1 = require('chai');
 var _ = require('lodash');
+var chaiAsPromised = require('chai-as-promised');
 var skill_1 = require('../models/skill');
 var skillPrerequisite_1 = require('../models/skillPrerequisite');
 var skillsDataHandler_1 = require('./skillsDataHandler');
+chai.use(chaiAsPromised);
 describe('SkillsDataHandler', function () {
     function clearTables() {
         return skillPrerequisite_1.SkillPrerequisites.clearAll()

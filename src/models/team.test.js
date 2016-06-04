@@ -1,6 +1,9 @@
 "use strict";
+var chai = require('chai');
 var chai_1 = require('chai');
+var chaiAsPromised = require('chai-as-promised');
 var team_1 = require('./team');
+chai.use(chaiAsPromised);
 describe('Team', function () {
     describe('new', function () {
         var validTeamInfo;

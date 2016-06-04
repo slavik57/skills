@@ -7,6 +7,8 @@ import {IUserInfo, User, Users} from '../models/user';
 import {UserDataHandler} from './userDataHandler';
 import {IUserGlobalPermissions, UserGlobalPermissions, UsersGlobalPermissions, GlobalPermission} from '../models/usersGlobalPermissions';
 
+chai.use(chaiAsPromised);
+
 describe('userDataHandler', () => {
 
   beforeEach(() => {
