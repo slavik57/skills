@@ -2,10 +2,12 @@ import {Model, Collection, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import * as validator from 'validator';
+import * as _ from 'lodash';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {UserGlobalPermissions} from './usersGlobalPermissions';
 import {Team} from './team';
 import {TeamMember} from './teamMember';
+import {IUserTeam} from './iUserTeam';
 
 export interface IUserInfo {
   username: string;
@@ -53,8 +55,25 @@ export class User extends bookshelf.Model<User>{
     return this.hasMany(UserGlobalPermissions, 'user_id');
   }
 
-  public getTeams(): Collection<Team> {
-    return this.belongsToMany(Team).through<Team>(TeamMember, 'user_id', 'team_id');
+  public getTeams(): Promise<IUserTeam[]> {
+    return this.belongsToMany(Team)
+      .withPivot(['is_admin'])
+      .through<Team>(TeamMember, 'user_id', 'team_id')
+      .fetch()
+      .then((teamsCollection: Collection<Team>) => {
+        var teams: Team[] = teamsCollection.toArray();
+
+        return _.map(teams, _team => this._convertTeamToUserTeam(_team));
+      });
+  }
+
+  private _convertTeamToUserTeam(team: Team): IUserTeam {
+    var isAdmin: boolean = team.pivot.attributes.is_admin;
+
+    return {
+      team: team,
+      isAdmin: isAdmin
+    }
   }
 }
 

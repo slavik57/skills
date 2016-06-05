@@ -4,13 +4,15 @@ import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {User} from './user';
 import {TeamMember} from './teamMember';
+import {ITeamMemberPivot} from './iTeamMemberPivot';
 
 export interface ITeamInfo {
   name: string;
 }
 
-export class Team extends bookshelf.Model<Team>{
+export class Team extends bookshelf.Model<Team> implements ITeamMemberPivot {
   public attributes: ITeamInfo;
+  public pivot: TeamMember;
 
   public get tableName() { return 'teams'; }
   public get idAttribute() { return 'id'; }

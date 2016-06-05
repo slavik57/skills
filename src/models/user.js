@@ -7,6 +7,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
 var validator = require('validator');
+var _ = require('lodash');
 var typesValidator_1 = require('../commonUtils/typesValidator');
 var usersGlobalPermissions_1 = require('./usersGlobalPermissions');
 var team_1 = require('./team');
@@ -52,7 +53,22 @@ var User = (function (_super) {
         return this.hasMany(usersGlobalPermissions_1.UserGlobalPermissions, 'user_id');
     };
     User.prototype.getTeams = function () {
-        return this.belongsToMany(team_1.Team).through(teamMember_1.TeamMember, 'user_id', 'team_id');
+        var _this = this;
+        return this.belongsToMany(team_1.Team)
+            .withPivot(['is_admin'])
+            .through(teamMember_1.TeamMember, 'user_id', 'team_id')
+            .fetch()
+            .then(function (teamsCollection) {
+            var teams = teamsCollection.toArray();
+            return _.map(teams, function (_team) { return _this._convertTeamToUserTeam(_team); });
+        });
+    };
+    User.prototype._convertTeamToUserTeam = function (team) {
+        var isAdmin = team.pivot.attributes.is_admin;
+        return {
+            team: team,
+            isAdmin: isAdmin
+        };
     };
     return User;
 }(bookshelf_1.bookshelf.Model));

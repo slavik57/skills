@@ -232,7 +232,7 @@ describe('userDataHandler', function () {
         function verifyTeamsAsync(actualTeamsPromise, expectedTeams) {
             return chai_1.expect(actualTeamsPromise).to.eventually.fulfilled
                 .then(function (actualTeams) {
-                var actualTeamInfos = _.map(actualTeams, function (_) { return _.attributes; });
+                var actualTeamInfos = _.map(actualTeams, function (_) { return _.team.attributes; });
                 verifyTeams(actualTeamInfos, expectedTeams);
             });
         }
@@ -259,8 +259,19 @@ describe('userDataHandler', function () {
         function createTeamMemberInfo(team, user) {
             return {
                 team_id: team.id,
-                user_id: user.id
+                user_id: user.id,
+                is_admin: false
             };
+        }
+        function verifyTeamAdminSettingsAsync(actualUserTeamsPromise, expectedAdminSettings) {
+            return chai_1.expect(actualUserTeamsPromise).to.eventually.fulfilled
+                .then(function (actualTeams) {
+                var orderedActualTeams = _.orderBy(actualTeams, function (_) { return _.team.attributes.name; });
+                var actualIsAdmin = _.map(orderedActualTeams, function (_) { return _.isAdmin; });
+                var orderedExpectedAdminSettings = _.orderBy(expectedAdminSettings, function (_) { return _.teamId; });
+                var expectedIsAdmin = _.map(orderedExpectedAdminSettings, function (_) { return _.isAdmin; });
+                chai_1.expect(actualIsAdmin).to.deep.equal(expectedIsAdmin);
+            });
         }
         var teamInfo1;
         var teamInfo2;
@@ -294,15 +305,13 @@ describe('userDataHandler', function () {
         });
         it('no such user should return empty teams list', function () {
             var teamsPromise = userDataHandler_1.UserDataHandler.getTeams('not existing username');
-            var expectedTeams = [];
-            return verifyTeamsAsync(teamsPromise, expectedTeams);
+            return chai_1.expect(teamsPromise).to.eventually.deep.equal([]);
         });
-        it('user exists but has teams should return empty teams list', function () {
+        it('user exists but has no teams should return empty teams list', function () {
             var teamsPromise = userDataHandler_1.UserDataHandler.getTeams(userInfo1.username);
-            var expectedTeams = [];
-            return verifyTeamsAsync(teamsPromise, expectedTeams);
+            return chai_1.expect(teamsPromise).to.eventually.deep.equal([]);
         });
-        it('user exists with teams should return correct teams list', function () {
+        it('user exists with teams should return correct teams', function () {
             var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
             var teamMemberInfo2 = createTeamMemberInfo(team2, user1);
             var addTeamsPromise = Promise.all([
@@ -313,7 +322,27 @@ describe('userDataHandler', function () {
             var expectedTeams = [teamInfo1, teamInfo2];
             return verifyTeamsAsync(teamsPromise, expectedTeams);
         });
-        it('multiple users exist with teams should return correct permissions list', function () {
+        it('user exists with teams should return correct admin settings', function () {
+            var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
+            teamMemberInfo1.is_admin = true;
+            var teamMemberInfo2 = createTeamMemberInfo(team2, user1);
+            teamMemberInfo2.is_admin = false;
+            var teamMemberInfo3 = createTeamMemberInfo(team3, user1);
+            teamMemberInfo3.is_admin = true;
+            var addTeamsPromise = Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo1),
+                teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo2),
+                teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo3)
+            ]);
+            var teamsPromise = addTeamsPromise.then(function () { return userDataHandler_1.UserDataHandler.getTeams(userInfo1.username); });
+            var expectedTeamAdminSettings = [
+                { teamId: teamMemberInfo1.team_id, isAdmin: teamMemberInfo1.is_admin },
+                { teamId: teamMemberInfo2.team_id, isAdmin: teamMemberInfo2.is_admin },
+                { teamId: teamMemberInfo3.team_id, isAdmin: teamMemberInfo3.is_admin }
+            ];
+            return verifyTeamAdminSettingsAsync(teamsPromise, expectedTeamAdminSettings);
+        });
+        it('multiple users exist with teams should return correct teams', function () {
             var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
             var teamMemberInfo2 = createTeamMemberInfo(team2, user1);
             var teamMemberInfo3 = createTeamMemberInfo(team1, user2);

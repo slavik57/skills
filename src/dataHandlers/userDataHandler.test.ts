@@ -9,6 +9,7 @@ import {IUserGlobalPermissions, UserGlobalPermissions, UsersGlobalPermissions, G
 import {ITeamInfo, Team, Teams} from '../models/team';
 import {ITeamMemberInfo, TeamMember, TeamMembers} from '../models/teamMember';
 import {TeamsDataHandler} from './teamsDataHandler';
+import {IUserTeam} from '../models/iUserTeam';
 
 chai.use(chaiAsPromised);
 
@@ -378,12 +379,17 @@ describe('userDataHandler', () => {
 
   describe('getTeams', () => {
 
-    function verifyTeamsAsync(actualTeamsPromise: Promise<Team[]>,
+    interface ITeamIdToIsAdmin {
+      teamId: number;
+      isAdmin: boolean;
+    }
+
+    function verifyTeamsAsync(actualTeamsPromise: Promise<IUserTeam[]>,
       expectedTeams: ITeamInfo[]): Promise<void> {
 
       return expect(actualTeamsPromise).to.eventually.fulfilled
-        .then((actualTeams: Team[]) => {
-          var actualTeamInfos: ITeamInfo[] = _.map(actualTeams, _ => _.attributes);
+        .then((actualTeams: IUserTeam[]) => {
+          var actualTeamInfos: ITeamInfo[] = _.map(actualTeams, _ => _.team.attributes);
 
           verifyTeams(actualTeamInfos, expectedTeams);
         });
@@ -419,8 +425,24 @@ describe('userDataHandler', () => {
     function createTeamMemberInfo(team: Team, user: User): ITeamMemberInfo {
       return {
         team_id: team.id,
-        user_id: user.id
+        user_id: user.id,
+        is_admin: false
       }
+    }
+
+    function verifyTeamAdminSettingsAsync(actualUserTeamsPromise: Promise<IUserTeam[]>,
+      expectedAdminSettings: ITeamIdToIsAdmin[]): Promise<void> {
+
+      return expect(actualUserTeamsPromise).to.eventually.fulfilled
+        .then((actualTeams: IUserTeam[]) => {
+          var orderedActualTeams: IUserTeam[] = _.orderBy(actualTeams, _ => _.team.attributes.name);
+          var actualIsAdmin: boolean[] = _.map(orderedActualTeams, _ => _.isAdmin);
+
+          var orderedExpectedAdminSettings: ITeamIdToIsAdmin[] = _.orderBy(expectedAdminSettings, _ => _.teamId);
+          var expectedIsAdmin: boolean[] = _.map(orderedExpectedAdminSettings, _ => _.isAdmin);
+
+          expect(actualIsAdmin).to.deep.equal(expectedIsAdmin);
+        });
     }
 
     var teamInfo1: ITeamInfo;
@@ -460,25 +482,23 @@ describe('userDataHandler', () => {
 
     it('no such user should return empty teams list', () => {
       // Act
-      var teamsPromise: Promise<Team[]> =
+      var teamsPromise: Promise<IUserTeam[]> =
         UserDataHandler.getTeams('not existing username');
 
       // Assert
-      var expectedTeams: ITeamInfo[] = [];
-      return verifyTeamsAsync(teamsPromise, expectedTeams);
+      return expect(teamsPromise).to.eventually.deep.equal([]);
     });
 
-    it('user exists but has teams should return empty teams list', () => {
+    it('user exists but has no teams should return empty teams list', () => {
       // Act
-      var teamsPromise: Promise<Team[]> =
+      var teamsPromise: Promise<IUserTeam[]> =
         UserDataHandler.getTeams(userInfo1.username);
 
       // Assert
-      var expectedTeams: ITeamInfo[] = [];
-      return verifyTeamsAsync(teamsPromise, expectedTeams);
+      return expect(teamsPromise).to.eventually.deep.equal([]);
     });
 
-    it('user exists with teams should return correct teams list', () => {
+    it('user exists with teams should return correct teams', () => {
       // Arrange
       var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
       var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team2, user1);
@@ -491,7 +511,7 @@ describe('userDataHandler', () => {
         ]);
 
       // Act
-      var teamsPromise: Promise<Team[]> =
+      var teamsPromise: Promise<IUserTeam[]> =
         addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username));
 
       // Assert
@@ -499,7 +519,38 @@ describe('userDataHandler', () => {
       return verifyTeamsAsync(teamsPromise, expectedTeams);
     });
 
-    it('multiple users exist with teams should return correct permissions list', () => {
+    it('user exists with teams should return correct admin settings', () => {
+      // Arrange
+      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      teamMemberInfo1.is_admin = true;
+      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team2, user1);
+      teamMemberInfo2.is_admin = false;
+      var teamMemberInfo3: ITeamMemberInfo = createTeamMemberInfo(team3, user1);
+      teamMemberInfo3.is_admin = true;
+
+      // Assert
+      var addTeamsPromise: Promise<any> =
+        Promise.all([
+          TeamsDataHandler.addTeamMember(teamMemberInfo1),
+          TeamsDataHandler.addTeamMember(teamMemberInfo2),
+          TeamsDataHandler.addTeamMember(teamMemberInfo3)
+        ]);
+
+      // Act
+      var teamsPromise: Promise<IUserTeam[]> =
+        addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username));
+
+      // Assert
+      var expectedTeamAdminSettings: ITeamIdToIsAdmin[] =
+        [
+          { teamId: teamMemberInfo1.team_id, isAdmin: teamMemberInfo1.is_admin },
+          { teamId: teamMemberInfo2.team_id, isAdmin: teamMemberInfo2.is_admin },
+          { teamId: teamMemberInfo3.team_id, isAdmin: teamMemberInfo3.is_admin }
+        ];
+      return verifyTeamAdminSettingsAsync(teamsPromise, expectedTeamAdminSettings);
+    });
+
+    it('multiple users exist with teams should return correct teams', () => {
       // Arrange
       var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
       var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team2, user1);
@@ -515,7 +566,7 @@ describe('userDataHandler', () => {
         ]);
 
       // Act
-      var teamsPromise: Promise<Team[]> =
+      var teamsPromise: Promise<IUserTeam[]> =
         addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username));
 
       // Assert

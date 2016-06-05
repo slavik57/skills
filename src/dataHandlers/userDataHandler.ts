@@ -3,6 +3,7 @@ import {UserGlobalPermissions, UsersGlobalPermissions, GlobalPermission} from '.
 import {Collection} from 'bookshelf';
 import * as _ from 'lodash';
 import {Team, Teams} from '../models/team';
+import {IUserTeam} from '../models/iUserTeam';
 
 export class UserDataHandler {
   public static createUser(userInfo: IUserInfo): Promise<User> {
@@ -22,7 +23,7 @@ export class UserDataHandler {
 
   public static getUserGlobalPermissions(username: string): Promise<GlobalPermission[]> {
     return this.getUser(username)
-      .then((user: User) => this.fetchUserGlobalPermissions(user))
+      .then((user: User) => this._fetchUserGlobalPermissions(user))
       .then((usersGlobalPermissions: Collection<UserGlobalPermissions>) => {
         var permissions: UserGlobalPermissions[] = usersGlobalPermissions.toArray();
 
@@ -30,10 +31,9 @@ export class UserDataHandler {
       });
   }
 
-  public static getTeams(userName: string): Promise<Team[]> {
+  public static getTeams(userName: string): Promise<IUserTeam[]> {
     return this.getUser(userName)
-      .then((user: User) => this.fetchUserTeams(user))
-      .then((teams: Collection<Team>) => teams.toArray());
+      .then((user: User) => this._fetchUserTeams(user));
   }
 
   public static getUser(username: string): Promise<User> {
@@ -42,7 +42,7 @@ export class UserDataHandler {
       .fetch();
   }
 
-  private static fetchUserGlobalPermissions(user: User): Promise<Collection<UserGlobalPermissions>> {
+  private static _fetchUserGlobalPermissions(user: User): Promise<Collection<UserGlobalPermissions>> {
     if (!user) {
       return Promise.resolve(new UsersGlobalPermissions());
     }
@@ -50,11 +50,11 @@ export class UserDataHandler {
     return user.getGlobalPermissions().fetch();
   }
 
-  private static fetchUserTeams(user: User): Promise<Collection<Team>> {
+  private static _fetchUserTeams(user: User): Promise<IUserTeam[]> {
     if (!user) {
-      return Promise.resolve(new Teams());
+      return Promise.resolve([]);
     }
 
-    return user.getTeams().fetch();
+    return user.getTeams();
   }
 }
