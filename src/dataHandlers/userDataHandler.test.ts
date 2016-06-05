@@ -14,7 +14,7 @@ import {UserGlobalPermissions, UsersGlobalPermissions} from '../models/usersGlob
 import {Team, Teams} from '../models/team';
 import {TeamMember, TeamMembers} from '../models/teamMember';
 import {TeamsDataHandler} from './teamsDataHandler';
-import {IUserTeam} from '../models/interfaces/iUserTeam';
+import {ITeamOfAUser} from '../models/interfaces/iTeamOfAUser';
 
 chai.use(chaiAsPromised);
 
@@ -389,11 +389,11 @@ describe('userDataHandler', () => {
       isAdmin: boolean;
     }
 
-    function verifyTeamsAsync(actualTeamsPromise: Promise<IUserTeam[]>,
+    function verifyTeamsAsync(actualTeamsPromise: Promise<ITeamOfAUser[]>,
       expectedTeams: ITeamInfo[]): Promise<void> {
 
       return expect(actualTeamsPromise).to.eventually.fulfilled
-        .then((actualTeams: IUserTeam[]) => {
+        .then((actualTeams: ITeamOfAUser[]) => {
           var actualTeamInfos: ITeamInfo[] = _.map(actualTeams, _ => _.team.attributes);
 
           verifyTeams(actualTeamInfos, expectedTeams);
@@ -435,12 +435,12 @@ describe('userDataHandler', () => {
       }
     }
 
-    function verifyTeamAdminSettingsAsync(actualUserTeamsPromise: Promise<IUserTeam[]>,
+    function verifyTeamAdminSettingsAsync(actualUserTeamsPromise: Promise<ITeamOfAUser[]>,
       expectedAdminSettings: ITeamIdToIsAdmin[]): Promise<void> {
 
       return expect(actualUserTeamsPromise).to.eventually.fulfilled
-        .then((actualTeams: IUserTeam[]) => {
-          var orderedActualTeams: IUserTeam[] = _.orderBy(actualTeams, _ => _.team.attributes.name);
+        .then((actualTeams: ITeamOfAUser[]) => {
+          var orderedActualTeams: ITeamOfAUser[] = _.orderBy(actualTeams, _ => _.team.attributes.name);
           var actualIsAdmin: boolean[] = _.map(orderedActualTeams, _ => _.isAdmin);
 
           var orderedExpectedAdminSettings: ITeamIdToIsAdmin[] = _.orderBy(expectedAdminSettings, _ => _.teamId);
@@ -487,7 +487,7 @@ describe('userDataHandler', () => {
 
     it('no such user should return empty teams list', () => {
       // Act
-      var teamsPromise: Promise<IUserTeam[]> =
+      var teamsPromise: Promise<ITeamOfAUser[]> =
         UserDataHandler.getTeams('not existing username');
 
       // Assert
@@ -496,7 +496,7 @@ describe('userDataHandler', () => {
 
     it('user exists but has no teams should return empty teams list', () => {
       // Act
-      var teamsPromise: Promise<IUserTeam[]> =
+      var teamsPromise: Promise<ITeamOfAUser[]> =
         UserDataHandler.getTeams(userInfo1.username);
 
       // Assert
@@ -516,7 +516,7 @@ describe('userDataHandler', () => {
         ]);
 
       // Act
-      var teamsPromise: Promise<IUserTeam[]> =
+      var teamsPromise: Promise<ITeamOfAUser[]> =
         addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username));
 
       // Assert
@@ -542,7 +542,7 @@ describe('userDataHandler', () => {
         ]);
 
       // Act
-      var teamsPromise: Promise<IUserTeam[]> =
+      var teamsPromise: Promise<ITeamOfAUser[]> =
         addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username));
 
       // Assert
@@ -571,7 +571,7 @@ describe('userDataHandler', () => {
         ]);
 
       // Act
-      var teamsPromise: Promise<IUserTeam[]> =
+      var teamsPromise: Promise<ITeamOfAUser[]> =
         addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username));
 
       // Assert

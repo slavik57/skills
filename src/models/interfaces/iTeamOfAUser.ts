@@ -1,6 +1,6 @@
 import {Team} from '../team';
 
-export interface IUserTeam {
+export interface ITeamOfAUser {
   team: Team;
   isAdmin: boolean;
 }

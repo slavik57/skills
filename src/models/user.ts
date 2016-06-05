@@ -7,7 +7,7 @@ import {TypesValidator} from '../commonUtils/typesValidator';
 import {UserGlobalPermissions} from './usersGlobalPermissions';
 import {Team} from './team';
 import {TeamMember} from './teamMember';
-import {IUserTeam} from './interfaces/iUserTeam';
+import {ITeamOfAUser} from './interfaces/iTeamOfAUser';
 import {IUserInfo} from './interfaces/iUserInfo';
 
 export class User extends bookshelf.Model<User>{
@@ -48,7 +48,7 @@ export class User extends bookshelf.Model<User>{
     return this.hasMany(UserGlobalPermissions, 'user_id');
   }
 
-  public getTeams(): Promise<IUserTeam[]> {
+  public getTeams(): Promise<ITeamOfAUser[]> {
     return this.belongsToMany(Team)
       .withPivot(['is_admin'])
       .through<Team>(TeamMember, 'user_id', 'team_id')
@@ -60,7 +60,7 @@ export class User extends bookshelf.Model<User>{
       });
   }
 
-  private _convertTeamToUserTeam(team: Team): IUserTeam {
+  private _convertTeamToUserTeam(team: Team): ITeamOfAUser {
     var isAdmin: boolean = team.pivot.attributes.is_admin;
 
     return {

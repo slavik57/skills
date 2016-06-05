@@ -5,7 +5,7 @@ import {UserGlobalPermissions, UsersGlobalPermissions} from '../models/usersGlob
 import {Collection} from 'bookshelf';
 import * as _ from 'lodash';
 import {Team, Teams} from '../models/team';
-import {IUserTeam} from '../models/interfaces/iUserTeam';
+import {ITeamOfAUser} from '../models/interfaces/iTeamOfAUser';
 
 export class UserDataHandler {
   public static createUser(userInfo: IUserInfo): Promise<User> {
@@ -33,7 +33,7 @@ export class UserDataHandler {
       });
   }
 
-  public static getTeams(userName: string): Promise<IUserTeam[]> {
+  public static getTeams(userName: string): Promise<ITeamOfAUser[]> {
     return this.getUser(userName)
       .then((user: User) => this._fetchUserTeams(user));
   }
@@ -52,7 +52,7 @@ export class UserDataHandler {
     return user.getGlobalPermissions().fetch();
   }
 
-  private static _fetchUserTeams(user: User): Promise<IUserTeam[]> {
+  private static _fetchUserTeams(user: User): Promise<ITeamOfAUser[]> {
     if (!user) {
       return Promise.resolve([]);
     }
