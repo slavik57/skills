@@ -406,4 +406,58 @@ describe('TeamsDataHandler', function () {
             });
         });
     });
+    describe('setAdminRights', function () {
+        var teamInfo;
+        var teamMemberInfo;
+        var userInfo;
+        beforeEach(function () {
+            teamInfo = createTeamInfo('team 1');
+            userInfo = createUserInfo(1);
+            return Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
+                userDataHandler_1.UserDataHandler.createUser(userInfo)
+            ]).then(function (teamAndUser) {
+                var team = teamAndUser[0];
+                var user = teamAndUser[1];
+                teamMemberInfo = createTeamMemberInfo(team, user);
+                teamMemberInfo.is_admin = false;
+                return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+            });
+        });
+        it('with non existing team id should fail', function () {
+            var teamId = teamMemberInfo.team_id + 1;
+            var userId = teamMemberInfo.user_id;
+            var adminRightsPromise = teamsDataHandler_1.TeamsDataHandler.setAdminRights(teamId, userId, true);
+            return chai_1.expect(adminRightsPromise).to.eventually.rejected;
+        });
+        it('with non existing user id should fail', function () {
+            var teamId = teamMemberInfo.team_id;
+            var userId = teamMemberInfo.user_id + 1;
+            var adminRightsPromise = teamsDataHandler_1.TeamsDataHandler.setAdminRights(teamId, userId, true);
+            return chai_1.expect(adminRightsPromise).to.eventually.rejected;
+        });
+        it('should update the is_admin to true correctly', function () {
+            var teamId = teamMemberInfo.team_id;
+            var userId = teamMemberInfo.user_id;
+            var adminRightsPromise = teamsDataHandler_1.TeamsDataHandler.setAdminRights(teamId, userId, true);
+            return chai_1.expect(adminRightsPromise).to.eventually.fulfilled
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo.name); })
+                .then(function (usersOfATeam) {
+                chai_1.expect(usersOfATeam.length).to.be.equal(1);
+                chai_1.expect(usersOfATeam[0].isAdmin).to.be.true;
+            });
+        });
+        it('should update the is_admin to false correctly', function () {
+            var teamId = teamMemberInfo.team_id;
+            var userId = teamMemberInfo.user_id;
+            var adminRightsPromise = teamsDataHandler_1.TeamsDataHandler.setAdminRights(teamId, userId, true)
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.setAdminRights(teamId, userId, false); });
+            return chai_1.expect(adminRightsPromise).to.eventually.fulfilled
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo.name); })
+                .then(function (usersOfATeam) {
+                chai_1.expect(usersOfATeam.length).to.be.equal(1);
+                chai_1.expect(usersOfATeam[0].isAdmin).to.be.false;
+            });
+        });
+    });
 });

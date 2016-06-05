@@ -46,7 +46,13 @@ export class TeamsDataHandler {
 
   public static upvoteTeamSkill(teamId: number, skillId: number): Promise<TeamSkill> {
     return bookshelf.transaction((transaction) => {
-      return this._upvodeTeamSkillInternal(teamId, skillId);
+      return this._upvoteTeamSkillInternal(teamId, skillId);
+    });
+  }
+
+  public static setAdminRights(teamId: number, userId: number, newAdminRights: boolean): Promise<TeamMember> {
+    return bookshelf.transaction((transaction) => {
+      return this._setAdminRightsInternal(teamId, userId, newAdminRights);
     });
   }
 
@@ -66,7 +72,7 @@ export class TeamsDataHandler {
     return team.getTeamSkills();
   }
 
-  private static _upvodeTeamSkillInternal(teamId: number, skillId: number): Promise<TeamSkill> {
+  private static _upvoteTeamSkillInternal(teamId: number, skillId: number): Promise<TeamSkill> {
     var queryCondition = {};
     queryCondition[TeamSkill.teamIdAttribute] = teamId;
     queryCondition[TeamSkill.skillIdAttribute] = skillId;
@@ -91,4 +97,23 @@ export class TeamsDataHandler {
     return teamSkill.save(updateAttributes, saveOptions);
   }
 
+  private static _setAdminRightsInternal(teamId: number, userId: number, newAdminRights: boolean): Promise<TeamMember> {
+    var queryCondition = {};
+    queryCondition[TeamMember.teamIdAttribute] = teamId;
+    queryCondition[TeamMember.userIdAttribute] = userId;
+
+    var updateAttributes = {};
+    updateAttributes[TeamMember.isAdminAttribute] = newAdminRights;
+
+    var saveOptions: SaveOptions = {
+      patch: true,
+      method: 'update'
+    }
+
+    return new TeamMember(queryCondition)
+      .fetch()
+      .then((teamMember: TeamMember) => {
+        return teamMember.save(updateAttributes, saveOptions);
+      });
+  }
 }

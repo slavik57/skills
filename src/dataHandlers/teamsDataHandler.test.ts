@@ -634,4 +634,92 @@ describe('TeamsDataHandler', () => {
 
   });
 
+  describe('setAdminRights', () => {
+    var teamInfo: ITeamInfo;
+    var teamMemberInfo: ITeamMemberInfo;
+    var userInfo: IUserInfo;
+
+    beforeEach(() => {
+      teamInfo = createTeamInfo('team 1');
+      userInfo = createUserInfo(1);
+
+      return Promise.all([
+        TeamsDataHandler.createTeam(teamInfo),
+        UserDataHandler.createUser(userInfo)
+      ]).then((teamAndUser: any[]) => {
+        var team: Team = teamAndUser[0];
+        var user: User = teamAndUser[1];
+
+        teamMemberInfo = createTeamMemberInfo(team, user);
+        teamMemberInfo.is_admin = false;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+    });
+
+    it('with non existing team id should fail', () => {
+      // Arrange
+      var teamId: number = teamMemberInfo.team_id + 1;
+      var userId: number = teamMemberInfo.user_id;
+
+      // Act
+      var adminRightsPromise: Promise<any> =
+        TeamsDataHandler.setAdminRights(teamId, userId, true);
+
+      // Assert
+      return expect(adminRightsPromise).to.eventually.rejected;
+    });
+
+    it('with non existing user id should fail', () => {
+      // Arrange
+      var teamId: number = teamMemberInfo.team_id;
+      var userId: number = teamMemberInfo.user_id + 1;
+
+      // Act
+      var adminRightsPromise: Promise<any> =
+        TeamsDataHandler.setAdminRights(teamId, userId, true);
+
+      // Assert
+      return expect(adminRightsPromise).to.eventually.rejected;
+    });
+
+    it('should update the is_admin to true correctly', () => {
+      // Arrange
+      var teamId: number = teamMemberInfo.team_id;
+      var userId: number = teamMemberInfo.user_id;
+
+      // Act
+      var adminRightsPromise: Promise<any> =
+        TeamsDataHandler.setAdminRights(teamId, userId, true);
+
+      // Assert
+      return expect(adminRightsPromise).to.eventually.fulfilled
+        .then(() => TeamsDataHandler.getTeamMembers(teamInfo.name))
+        .then((usersOfATeam: IUserOfATeam[]) => {
+          expect(usersOfATeam.length).to.be.equal(1);
+          expect(usersOfATeam[0].isAdmin).to.be.true;
+        });
+    });
+
+    it('should update the is_admin to false correctly', () => {
+      // Arrange
+      var teamId: number = teamMemberInfo.team_id;
+      var userId: number = teamMemberInfo.user_id;
+
+      // Act
+      var adminRightsPromise: Promise<any> =
+        TeamsDataHandler.setAdminRights(teamId, userId, true)
+          .then(() => TeamsDataHandler.setAdminRights(teamId, userId, false));
+
+      // Assert
+      return expect(adminRightsPromise).to.eventually.fulfilled
+        .then(() => TeamsDataHandler.getTeamMembers(teamInfo.name))
+        .then((usersOfATeam: IUserOfATeam[]) => {
+          expect(usersOfATeam.length).to.be.equal(1);
+          expect(usersOfATeam[0].isAdmin).to.be.false;
+        });
+    });
+
+  });
+
 });

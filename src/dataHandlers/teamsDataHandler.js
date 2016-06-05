@@ -35,7 +35,13 @@ var TeamsDataHandler = (function () {
     TeamsDataHandler.upvoteTeamSkill = function (teamId, skillId) {
         var _this = this;
         return bookshelf_1.bookshelf.transaction(function (transaction) {
-            return _this._upvodeTeamSkillInternal(teamId, skillId);
+            return _this._upvoteTeamSkillInternal(teamId, skillId);
+        });
+    };
+    TeamsDataHandler.setAdminRights = function (teamId, userId, newAdminRights) {
+        var _this = this;
+        return bookshelf_1.bookshelf.transaction(function (transaction) {
+            return _this._setAdminRightsInternal(teamId, userId, newAdminRights);
         });
     };
     TeamsDataHandler._fetchMembersOfTeam = function (team) {
@@ -50,7 +56,7 @@ var TeamsDataHandler = (function () {
         }
         return team.getTeamSkills();
     };
-    TeamsDataHandler._upvodeTeamSkillInternal = function (teamId, skillId) {
+    TeamsDataHandler._upvoteTeamSkillInternal = function (teamId, skillId) {
         var _this = this;
         var queryCondition = {};
         queryCondition[teamSkill_1.TeamSkill.teamIdAttribute] = teamId;
@@ -70,6 +76,22 @@ var TeamsDataHandler = (function () {
             method: 'update'
         };
         return teamSkill.save(updateAttributes, saveOptions);
+    };
+    TeamsDataHandler._setAdminRightsInternal = function (teamId, userId, newAdminRights) {
+        var queryCondition = {};
+        queryCondition[teamMember_1.TeamMember.teamIdAttribute] = teamId;
+        queryCondition[teamMember_1.TeamMember.userIdAttribute] = userId;
+        var updateAttributes = {};
+        updateAttributes[teamMember_1.TeamMember.isAdminAttribute] = newAdminRights;
+        var saveOptions = {
+            patch: true,
+            method: 'update'
+        };
+        return new teamMember_1.TeamMember(queryCondition)
+            .fetch()
+            .then(function (teamMember) {
+            return teamMember.save(updateAttributes, saveOptions);
+        });
     };
     return TeamsDataHandler;
 }());
