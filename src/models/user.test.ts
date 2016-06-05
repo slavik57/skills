@@ -43,7 +43,7 @@ describe('User', () => {
       var promise: Promise<User> = user.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create user with missing username - should return error', () => {

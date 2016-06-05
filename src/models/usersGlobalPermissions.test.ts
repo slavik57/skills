@@ -48,7 +48,7 @@ describe('UserGlobalPermissions', () => {
       var promise: Promise<UserGlobalPermissions> = permissions.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create without user_id should return error', () => {
@@ -60,7 +60,7 @@ describe('UserGlobalPermissions', () => {
       var promise: Promise<UserGlobalPermissions> = permissions.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create without global_permissions should return error', () => {
@@ -72,7 +72,7 @@ describe('UserGlobalPermissions', () => {
       var promise: Promise<UserGlobalPermissions> = permissions.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with non integer user_id should return error', () => {
@@ -84,7 +84,7 @@ describe('UserGlobalPermissions', () => {
       var promise: Promise<UserGlobalPermissions> = permissions.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with non existing user_id should return error', () => {
@@ -96,7 +96,7 @@ describe('UserGlobalPermissions', () => {
       var promise: Promise<UserGlobalPermissions> = permissions.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with existing user_id should succeed', () => {
@@ -191,7 +191,7 @@ describe('UserGlobalPermissions', () => {
           .then(() => otherPermissions.save());
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
   });
 });

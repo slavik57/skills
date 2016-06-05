@@ -35,7 +35,8 @@ describe('TeamMember', function () {
         function createTeamMemberInfo(team, user) {
             return {
                 team_id: team.id,
-                user_id: user.id
+                user_id: user.id,
+                is_admin: false
             };
         }
         beforeEach(function () {
@@ -57,49 +58,56 @@ describe('TeamMember', function () {
         it('create without any fields should return error', function () {
             var teamMember = new teamMember_1.TeamMember();
             var promise = teamMember.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create without team_id should return error', function () {
             var teamMemberInfo = createTeamMemberInfo(team1, user1);
             delete teamMemberInfo.team_id;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create without user_id should return error', function () {
             var teamMemberInfo = createTeamMemberInfo(team1, user1);
             delete teamMemberInfo.user_id;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
+        });
+        it('create without is_admin should succeed', function () {
+            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            delete teamMemberInfo.is_admin;
+            var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
+            var promise = teamMember.save();
+            return chai_1.expect(promise).to.eventually.equal(teamMember);
         });
         it('create with non integer team_id should return error', function () {
             var teamMemberInfo = createTeamMemberInfo(team1, user1);
             teamMemberInfo.team_id = 1.1;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non integer user_id should return error', function () {
             var teamMemberInfo = createTeamMemberInfo(team1, user1);
             teamMemberInfo.user_id = 1.1;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non existing team_id should return error', function () {
             var teamMemberInfo = createTeamMemberInfo(team1, user1);
             teamMemberInfo.team_id = team1.id + 1;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non existing user_id name should return error', function () {
             var teamMemberInfo = createTeamMemberInfo(team1, user1);
             teamMemberInfo.user_id = user1.id + user2.id + 1;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with existing team_id and user_id should succeed', function () {
             var teamMemberInfo = createTeamMemberInfo(team1, user1);
@@ -114,9 +122,56 @@ describe('TeamMember', function () {
             var teamMembersPromise = promise.then(function () { return new teamMember_1.TeamMembers().fetch(); });
             return chai_1.expect(teamMembersPromise).to.eventually.fulfilled
                 .then(function (teamMembers) {
+                var teamMember = teamMembers.at(0);
                 chai_1.expect(teamMembers.size()).to.be.equal(1);
-                chai_1.expect(teamMembers.at(0).attributes.team_id).to.be.equal(teamMemberInfo.team_id);
-                chai_1.expect(teamMembers.at(0).attributes.user_id).to.be.equal(teamMemberInfo.user_id);
+                chai_1.expect(teamMember.attributes.team_id).to.be.equal(teamMemberInfo.team_id);
+                chai_1.expect(teamMember.attributes.user_id).to.be.equal(teamMemberInfo.user_id);
+                chai_1.expect(teamMember.attributes.is_admin).to.be.equal(teamMemberInfo.is_admin);
+            });
+        });
+        it('create with is_admin false should be fetched correctly', function () {
+            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            teamMemberInfo.is_admin = false;
+            var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
+            var promise = teamMember.save();
+            var teamMembersPromise = promise.then(function () { return new teamMember_1.TeamMembers().fetch(); });
+            return chai_1.expect(teamMembersPromise).to.eventually.fulfilled
+                .then(function (teamMembers) {
+                var teamMember = teamMembers.at(0);
+                chai_1.expect(teamMembers.size()).to.be.equal(1);
+                chai_1.expect(teamMember.attributes.team_id).to.be.equal(teamMemberInfo.team_id);
+                chai_1.expect(teamMember.attributes.user_id).to.be.equal(teamMemberInfo.user_id);
+                chai_1.expect(teamMember.attributes.is_admin).to.be.false;
+            });
+        });
+        it('create with is_admin true should be fetched correctly', function () {
+            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            teamMemberInfo.is_admin = true;
+            var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
+            var promise = teamMember.save();
+            var teamMembersPromise = promise.then(function () { return new teamMember_1.TeamMembers().fetch(); });
+            return chai_1.expect(teamMembersPromise).to.eventually.fulfilled
+                .then(function (teamMembers) {
+                var teamMember = teamMembers.at(0);
+                chai_1.expect(teamMembers.size()).to.be.equal(1);
+                chai_1.expect(teamMember.attributes.team_id).to.be.equal(teamMemberInfo.team_id);
+                chai_1.expect(teamMember.attributes.user_id).to.be.equal(teamMemberInfo.user_id);
+                chai_1.expect(teamMember.attributes.is_admin).to.be.true;
+            });
+        });
+        it('create without is_admin should be fetched correctly', function () {
+            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            delete teamMemberInfo.is_admin;
+            var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
+            var promise = teamMember.save();
+            var teamMembersPromise = promise.then(function () { return new teamMember_1.TeamMembers().fetch(); });
+            return chai_1.expect(teamMembersPromise).to.eventually.fulfilled
+                .then(function (teamMembers) {
+                var teamMember = teamMembers.at(0);
+                chai_1.expect(teamMembers.size()).to.be.equal(1);
+                chai_1.expect(teamMember.attributes.team_id).to.be.equal(teamMemberInfo.team_id);
+                chai_1.expect(teamMember.attributes.user_id).to.be.equal(teamMemberInfo.user_id);
+                chai_1.expect(teamMember.attributes.is_admin).to.be.false;
             });
         });
         it('create 2 different team members should succeed', function () {
@@ -148,7 +203,7 @@ describe('TeamMember', function () {
             var teamMember2 = new teamMember_1.TeamMember(teamMemberInfo2);
             var promise = teamMember1.save()
                 .then(function () { return teamMember2.save(); });
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
     });
 });

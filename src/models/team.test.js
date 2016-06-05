@@ -23,7 +23,7 @@ describe('Team', function () {
         it('create team with empty fields - should return error', function () {
             var skill = new team_1.Team();
             var promise = skill.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create team with missing name - should return error', function () {
             delete validTeamInfo.name;

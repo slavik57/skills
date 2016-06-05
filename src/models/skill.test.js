@@ -23,7 +23,7 @@ describe('Skill', function () {
         it('create skill with empty fields - should return error', function () {
             var skill = new skill_1.Skill();
             var promise = skill.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create skill with missing name - should return error', function () {
             delete validSkillInfo.name;

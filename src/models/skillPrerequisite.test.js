@@ -43,43 +43,43 @@ describe('SkillPrerequisite', function () {
         it('create without any fields should return error', function () {
             var prerequisite = new skillPrerequisite_1.SkillPrerequisite();
             var promise = prerequisite.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create without skill_id should return error', function () {
             delete validSkillPrerequisiteInfo.skill_id;
             var prerequisite = new skillPrerequisite_1.SkillPrerequisite(validSkillPrerequisiteInfo);
             var promise = prerequisite.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create without skill_prerequisite_id should return error', function () {
             delete validSkillPrerequisiteInfo.skill_prerequisite_id;
             var prerequisite = new skillPrerequisite_1.SkillPrerequisite(validSkillPrerequisiteInfo);
             var promise = prerequisite.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non integer skill_id should return error', function () {
             validSkillPrerequisiteInfo.skill_id = 1.1;
             var prerequisite = new skillPrerequisite_1.SkillPrerequisite(validSkillPrerequisiteInfo);
             var promise = prerequisite.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non integer skill_prerequisite_id should return error', function () {
             validSkillPrerequisiteInfo.skill_prerequisite_id = 1.1;
             var prerequisite = new skillPrerequisite_1.SkillPrerequisite(validSkillPrerequisiteInfo);
             var promise = prerequisite.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non existing skill_id should return error', function () {
             validSkillPrerequisiteInfo.skill_id = skill1.id + skill2.id + 1;
             var prerequisite = new skillPrerequisite_1.SkillPrerequisite(validSkillPrerequisiteInfo);
             var promise = prerequisite.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non existing skill_prerequisite_id name should return error', function () {
             validSkillPrerequisiteInfo.skill_prerequisite_id = skill1.id + skill2.id + 1;
             var prerequisite = new skillPrerequisite_1.SkillPrerequisite(validSkillPrerequisiteInfo);
             var promise = prerequisite.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with existing skill_id and skill_prerequisite_id should succeed', function () {
             var prerequisite = new skillPrerequisite_1.SkillPrerequisite(validSkillPrerequisiteInfo);
@@ -90,7 +90,7 @@ describe('SkillPrerequisite', function () {
             validSkillPrerequisiteInfo.skill_prerequisite_id = validSkillPrerequisiteInfo.skill_id;
             var prerequisite = new skillPrerequisite_1.SkillPrerequisite(validSkillPrerequisiteInfo);
             var promise = prerequisite.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with existing skill_id and skill_prerequisite_id should be fetched', function () {
             var prerequisite = new skillPrerequisite_1.SkillPrerequisite(validSkillPrerequisiteInfo);
@@ -150,7 +150,7 @@ describe('SkillPrerequisite', function () {
             var prerequisite2 = new skillPrerequisite_1.SkillPrerequisite(skillPrerequisiteInfo2);
             var promise = prerequisite1.save()
                 .then(function () { return prerequisite2.save(); });
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
     });
 });

@@ -31,7 +31,7 @@ describe('User', function () {
         it('create user with empty fields - should return error', function () {
             var user = new user_1.User();
             var promise = user.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create user with missing username - should return error', function () {
             delete validUserInfo1.username;

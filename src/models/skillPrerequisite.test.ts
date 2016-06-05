@@ -58,7 +58,7 @@ describe('SkillPrerequisite', () => {
       var promise: Promise<SkillPrerequisite> = prerequisite.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create without skill_id should return error', () => {
@@ -70,7 +70,7 @@ describe('SkillPrerequisite', () => {
       var promise: Promise<SkillPrerequisite> = prerequisite.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create without skill_prerequisite_id should return error', () => {
@@ -82,7 +82,7 @@ describe('SkillPrerequisite', () => {
       var promise: Promise<SkillPrerequisite> = prerequisite.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with non integer skill_id should return error', () => {
@@ -94,7 +94,7 @@ describe('SkillPrerequisite', () => {
       var promise: Promise<SkillPrerequisite> = prerequisite.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with non integer skill_prerequisite_id should return error', () => {
@@ -106,7 +106,7 @@ describe('SkillPrerequisite', () => {
       var promise: Promise<SkillPrerequisite> = prerequisite.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with non existing skill_id should return error', () => {
@@ -118,7 +118,7 @@ describe('SkillPrerequisite', () => {
       var promise: Promise<SkillPrerequisite> = prerequisite.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with non existing skill_prerequisite_id name should return error', () => {
@@ -130,7 +130,7 @@ describe('SkillPrerequisite', () => {
       var promise: Promise<SkillPrerequisite> = prerequisite.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with existing skill_id and skill_prerequisite_id should succeed', () => {
@@ -153,7 +153,7 @@ describe('SkillPrerequisite', () => {
       var promise: Promise<SkillPrerequisite> = prerequisite.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with existing skill_id and skill_prerequisite_id should be fetched', () => {
@@ -249,7 +249,7 @@ describe('SkillPrerequisite', () => {
           .then(() => prerequisite2.save());
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
   });
 });

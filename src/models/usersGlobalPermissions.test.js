@@ -36,31 +36,31 @@ describe('UserGlobalPermissions', function () {
         it('create without any fields should return error', function () {
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions();
             var promise = permissions.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create without user_id should return error', function () {
             delete validUserGlobalPermissions.user_id;
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
             var promise = permissions.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create without global_permissions should return error', function () {
             delete validUserGlobalPermissions.global_permissions;
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
             var promise = permissions.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non integer user_id should return error', function () {
             validUserGlobalPermissions.user_id = 1.2;
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
             var promise = permissions.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non existing user_id should return error', function () {
             validUserGlobalPermissions.user_id = validUserGlobalPermissions.user_id + 1;
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
             var promise = permissions.save();
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with existing user_id should succeed', function () {
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
@@ -113,7 +113,7 @@ describe('UserGlobalPermissions', function () {
             var otherPermissions = new usersGlobalPermissions_1.UserGlobalPermissions(otherUserGlobalPermissions);
             var promise = permissions.save()
                 .then(function () { return otherPermissions.save(); });
-            return chai_1.expect(promise).to.be.rejected;
+            return chai_1.expect(promise).to.eventually.rejected;
         });
     });
 });

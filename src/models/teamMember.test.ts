@@ -41,7 +41,8 @@ describe('TeamMember', () => {
     function createTeamMemberInfo(team: Team, user: User): ITeamMemberInfo {
       return {
         team_id: team.id,
-        user_id: user.id
+        user_id: user.id,
+        is_admin: false
       }
     }
 
@@ -71,7 +72,7 @@ describe('TeamMember', () => {
       var promise: Promise<TeamMember> = teamMember.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create without team_id should return error', () => {
@@ -85,7 +86,7 @@ describe('TeamMember', () => {
       var promise: Promise<TeamMember> = teamMember.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create without user_id should return error', () => {
@@ -99,7 +100,21 @@ describe('TeamMember', () => {
       var promise: Promise<TeamMember> = teamMember.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
+    });
+
+    it('create without is_admin should succeed', () => {
+      /// Arrange
+      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      delete teamMemberInfo.is_admin;
+
+      var teamMember = new TeamMember(teamMemberInfo);
+
+      // Act
+      var promise: Promise<TeamMember> = teamMember.save();
+
+      // Assert
+      return expect(promise).to.eventually.equal(teamMember);
     });
 
     it('create with non integer team_id should return error', () => {
@@ -112,7 +127,7 @@ describe('TeamMember', () => {
       var promise: Promise<TeamMember> = teamMember.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with non integer user_id should return error', () => {
@@ -125,7 +140,7 @@ describe('TeamMember', () => {
       var promise: Promise<TeamMember> = teamMember.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with non existing team_id should return error', () => {
@@ -138,7 +153,7 @@ describe('TeamMember', () => {
       var promise: Promise<TeamMember> = teamMember.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with non existing user_id name should return error', () => {
@@ -151,7 +166,7 @@ describe('TeamMember', () => {
       var promise: Promise<TeamMember> = teamMember.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create with existing team_id and user_id should succeed', () => {
@@ -180,9 +195,84 @@ describe('TeamMember', () => {
 
       return expect(teamMembersPromise).to.eventually.fulfilled
         .then((teamMembers: Collection<TeamMember>) => {
+          var teamMember: TeamMember = teamMembers.at(0);
+
           expect(teamMembers.size()).to.be.equal(1);
-          expect(teamMembers.at(0).attributes.team_id).to.be.equal(teamMemberInfo.team_id);
-          expect(teamMembers.at(0).attributes.user_id).to.be.equal(teamMemberInfo.user_id);
+          expect(teamMember.attributes.team_id).to.be.equal(teamMemberInfo.team_id);
+          expect(teamMember.attributes.user_id).to.be.equal(teamMemberInfo.user_id);
+          expect(teamMember.attributes.is_admin).to.be.equal(teamMemberInfo.is_admin);
+        });
+    });
+
+    it('create with is_admin false should be fetched correctly', () => {
+      // Arrange
+      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      teamMemberInfo.is_admin = false;
+      var teamMember = new TeamMember(teamMemberInfo);
+
+      // Act
+      var promise: Promise<TeamMember> = teamMember.save();
+
+      // Assert
+      var teamMembersPromise =
+        promise.then(() => new TeamMembers().fetch());
+
+      return expect(teamMembersPromise).to.eventually.fulfilled
+        .then((teamMembers: Collection<TeamMember>) => {
+          var teamMember: TeamMember = teamMembers.at(0);
+
+          expect(teamMembers.size()).to.be.equal(1);
+          expect(teamMember.attributes.team_id).to.be.equal(teamMemberInfo.team_id);
+          expect(teamMember.attributes.user_id).to.be.equal(teamMemberInfo.user_id);
+          expect(teamMember.attributes.is_admin).to.be.false;
+        });
+    });
+
+    it('create with is_admin true should be fetched correctly', () => {
+      // Arrange
+      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      teamMemberInfo.is_admin = true;
+      var teamMember = new TeamMember(teamMemberInfo);
+
+      // Act
+      var promise: Promise<TeamMember> = teamMember.save();
+
+      // Assert
+      var teamMembersPromise =
+        promise.then(() => new TeamMembers().fetch());
+
+      return expect(teamMembersPromise).to.eventually.fulfilled
+        .then((teamMembers: Collection<TeamMember>) => {
+          var teamMember: TeamMember = teamMembers.at(0);
+
+          expect(teamMembers.size()).to.be.equal(1);
+          expect(teamMember.attributes.team_id).to.be.equal(teamMemberInfo.team_id);
+          expect(teamMember.attributes.user_id).to.be.equal(teamMemberInfo.user_id);
+          expect(teamMember.attributes.is_admin).to.be.true;
+        });
+    });
+
+    it('create without is_admin should be fetched correctly', () => {
+      // Arrange
+      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      delete teamMemberInfo.is_admin;
+      var teamMember = new TeamMember(teamMemberInfo);
+
+      // Act
+      var promise: Promise<TeamMember> = teamMember.save();
+
+      // Assert
+      var teamMembersPromise =
+        promise.then(() => new TeamMembers().fetch());
+
+      return expect(teamMembersPromise).to.eventually.fulfilled
+        .then((teamMembers: Collection<TeamMember>) => {
+          var teamMember: TeamMember = teamMembers.at(0);
+
+          expect(teamMembers.size()).to.be.equal(1);
+          expect(teamMember.attributes.team_id).to.be.equal(teamMemberInfo.team_id);
+          expect(teamMember.attributes.user_id).to.be.equal(teamMemberInfo.user_id);
+          expect(teamMember.attributes.is_admin).to.be.false;
         });
     });
 
@@ -240,7 +330,7 @@ describe('TeamMember', () => {
           .then(() => teamMember2.save());
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
   });
 });

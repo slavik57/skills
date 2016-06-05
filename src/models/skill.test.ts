@@ -36,7 +36,7 @@ describe('Skill', () => {
       var promise: Promise<Skill> = skill.save();
 
       // Assert
-      return expect(promise).to.be.rejected;
+      return expect(promise).to.eventually.rejected;
     });
 
     it('create skill with missing name - should return error', () => {

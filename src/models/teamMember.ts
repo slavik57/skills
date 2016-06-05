@@ -6,6 +6,7 @@ import {TypesValidator} from '../commonUtils/typesValidator';
 export interface ITeamMemberInfo {
   team_id: number;
   user_id: number;
+  is_admin?: boolean;
 }
 
 export class TeamMember extends bookshelf.Model<TeamMember>{
