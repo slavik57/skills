@@ -1,7 +1,10 @@
+import {Team} from "./team";
+import {ITeamOfASkill} from "./interfaces/iTeamOfASkill";
 import {ITeamSkillPivot} from "./interfaces/iTeamSkillPivot";
 import {Model, Collection, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
+import * as _ from 'lodash';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {SkillPrerequisite} from './skillPrerequisite';
 import {ISkillInfo} from './interfaces/iSkillInfo';
@@ -32,6 +35,29 @@ export class Skill extends bookshelf.Model<Skill> implements ITeamSkillPivot {
 
   public getContributingSkills(): Collection<Skill> {
     return this.belongsToMany(Skill).through<Skill>(SkillPrerequisite, 'skill_prerequisite_id', 'skill_id');
+  }
+
+  public getTeams(): Promise<ITeamOfASkill[]> {
+    return this.belongsToMany(Team)
+      .withPivot(['upvotes'])
+      .through<Team>(TeamSkill, 'skill_id', 'team_id')
+      .fetch()
+      .then((teamsCollection: Collection<Team>) => {
+        var teams: Team[] = teamsCollection.toArray();
+
+        return _.map(teams, _team => this._convertTeamToTeamOfASkill(_team));
+      });
+  }
+
+  private _convertTeamToTeamOfASkill(team: Team): ITeamOfASkill {
+    var teamSkill: TeamSkill = <TeamSkill>team.pivot;
+
+    var upvotes: number = teamSkill.attributes.upvotes;
+
+    return {
+      team: team,
+      upvotes: upvotes
+    }
   }
 }
 

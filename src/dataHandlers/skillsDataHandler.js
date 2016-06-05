@@ -39,6 +39,11 @@ var SkillsDataHandler = (function () {
             .query({ where: { name: skillName } })
             .fetch();
     };
+    SkillsDataHandler.getTeams = function (skillName) {
+        var _this = this;
+        return this.getSkill(skillName)
+            .then(function (skill) { return _this._fetchSkillTeams(skill); });
+    };
     SkillsDataHandler.fetchSkillPrerequisitesBySkill = function (skill) {
         if (!skill) {
             return Promise.resolve(new skill_1.Skills());
@@ -50,6 +55,12 @@ var SkillsDataHandler = (function () {
             return Promise.resolve(new skill_1.Skills());
         }
         return skill.getContributingSkills().fetch();
+    };
+    SkillsDataHandler._fetchSkillTeams = function (skill) {
+        if (!skill) {
+            return Promise.resolve([]);
+        }
+        return skill.getTeams();
     };
     return SkillsDataHandler;
 }());

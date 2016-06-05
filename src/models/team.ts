@@ -1,3 +1,4 @@
+import {IPivotedTeam} from "./interfaces/iPivotedTeam";
 import {Skill} from "./skill";
 import {ISkillOfATeam} from "./interfaces/iSkillOfATeam";
 import {IUserOfATeam} from "./interfaces/iUserOfATeam";
@@ -9,12 +10,13 @@ import {TypesValidator} from '../commonUtils/typesValidator';
 import {User} from './user';
 import {TeamMember} from './teamMember';
 import {ITeamMemberPivot} from './interfaces/iTeamMemberPivot';
+import {ITeamSkillPivot} from './interfaces/iTeamSkillPivot';
 import {ITeamInfo} from './interfaces/iTeamInfo';
 import {TeamSkill} from './teamSkill';
 
-export class Team extends bookshelf.Model<Team> implements ITeamMemberPivot {
+export class Team extends bookshelf.Model<Team> implements IPivotedTeam<TeamMember | TeamSkill> {
   public attributes: ITeamInfo;
-  public pivot: TeamMember;
+  public pivot: TeamMember | TeamSkill;
 
   public get tableName() { return 'teams'; }
   public get idAttribute() { return 'id'; }

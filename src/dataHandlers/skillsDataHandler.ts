@@ -1,3 +1,4 @@
+import {ITeamOfASkill} from "../models/interfaces/iTeamOfASkill";
 import {ISkillPrerequisiteInfo} from "../models/interfaces/iSkillPrerequisiteInfo";
 import {ISkillInfo} from "../models/interfaces/iSkillInfo";
 import {Collection} from 'bookshelf';
@@ -45,6 +46,11 @@ export class SkillsDataHandler {
       .fetch();
   }
 
+  public static getTeams(skillName: string): Promise<ITeamOfASkill[]> {
+    return this.getSkill(skillName)
+      .then((skill: Skill) => this._fetchSkillTeams(skill));
+  }
+
   private static fetchSkillPrerequisitesBySkill(skill: Skill): Promise<Collection<Skill>> {
     if (!skill) {
       return Promise.resolve(new Skills());
@@ -59,5 +65,13 @@ export class SkillsDataHandler {
     }
 
     return skill.getContributingSkills().fetch();
+  }
+
+  private static _fetchSkillTeams(skill: Skill): Promise<ITeamOfASkill[]> {
+    if (!skill) {
+      return Promise.resolve([]);
+    }
+
+    return skill.getTeams();
   }
 }

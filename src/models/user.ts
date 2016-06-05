@@ -63,7 +63,9 @@ export class User extends bookshelf.Model<User> implements ITeamMemberPivot {
   }
 
   private _convertTeamToTeamOfAUser(team: Team): ITeamOfAUser {
-    var isAdmin: boolean = team.pivot.attributes.is_admin;
+    var teamMember: TeamMember = <TeamMember>team.pivot;
+
+    var isAdmin: boolean = teamMember.attributes.is_admin;
 
     return {
       team: team,

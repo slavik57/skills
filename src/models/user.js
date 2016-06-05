@@ -64,7 +64,8 @@ var User = (function (_super) {
         });
     };
     User.prototype._convertTeamToTeamOfAUser = function (team) {
-        var isAdmin = team.pivot.attributes.is_admin;
+        var teamMember = team.pivot;
+        var isAdmin = teamMember.attributes.is_admin;
         return {
             team: team,
             isAdmin: isAdmin
