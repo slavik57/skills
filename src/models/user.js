@@ -55,8 +55,8 @@ var User = (function (_super) {
     User.prototype.getTeams = function () {
         var _this = this;
         return this.belongsToMany(team_1.Team)
-            .withPivot(['is_admin'])
-            .through(teamMember_1.TeamMember, 'user_id', 'team_id')
+            .withPivot([teamMember_1.TeamMember.isAdminAttribute])
+            .through(teamMember_1.TeamMember, teamMember_1.TeamMember.userIdAttribute, teamMember_1.TeamMember.teamIdAttribute)
             .fetch()
             .then(function (teamsCollection) {
             var teams = teamsCollection.toArray();

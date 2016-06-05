@@ -7,8 +7,11 @@ import {ISkillPrerequisiteInfo} from './interfaces/iSkillPrerequisiteInfo';
 export class SkillPrerequisite extends bookshelf.Model<SkillPrerequisite>{
   public attributes: ISkillPrerequisiteInfo;
 
-  public get tableName() { return 'skills_prerequisites'; }
-  public get idAttribute() { return 'id'; }
+  public get tableName(): string { return 'skills_prerequisites'; }
+  public get idAttribute(): string { return 'id'; }
+
+  public static get skillIdAttribute(): string { return 'skill_id'; }
+  public static get skillPrerequisiteIdAttribute(): string { return 'skill_prerequisite_id'; }
 
   public initialize(): void {
     this.on('saving', (skillPrerequisite: SkillPrerequisite) => this.validateSkillPrerequisite(skillPrerequisite));

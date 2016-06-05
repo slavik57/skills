@@ -40,8 +40,8 @@ var Team = (function (_super) {
     Team.prototype.getTeamMembers = function () {
         var _this = this;
         return this.belongsToMany(user_1.User)
-            .withPivot(['is_admin'])
-            .through(teamMember_1.TeamMember, 'team_id', 'user_id')
+            .withPivot([teamMember_1.TeamMember.isAdminAttribute])
+            .through(teamMember_1.TeamMember, teamMember_1.TeamMember.teamIdAttribute, teamMember_1.TeamMember.userIdAttribute)
             .fetch()
             .then(function (usersCollection) {
             var users = usersCollection.toArray();
@@ -51,8 +51,8 @@ var Team = (function (_super) {
     Team.prototype.getTeamSkills = function () {
         var _this = this;
         return this.belongsToMany(skill_1.Skill)
-            .withPivot(['upvotes'])
-            .through(teamSkill_1.TeamSkill, 'team_id', 'skill_id')
+            .withPivot([teamSkill_1.TeamSkill.upvotesAttribute])
+            .through(teamSkill_1.TeamSkill, teamSkill_1.TeamSkill.teamIdAttribute, teamSkill_1.TeamSkill.skillIdAttribute)
             .fetch()
             .then(function (skillsCollection) {
             var skills = skillsCollection.toArray();

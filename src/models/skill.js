@@ -37,16 +37,18 @@ var Skill = (function (_super) {
         return null;
     };
     Skill.prototype.getPrerequisiteSkills = function () {
-        return this.belongsToMany(Skill).through(skillPrerequisite_1.SkillPrerequisite, 'skill_id', 'skill_prerequisite_id');
+        return this.belongsToMany(Skill)
+            .through(skillPrerequisite_1.SkillPrerequisite, skillPrerequisite_1.SkillPrerequisite.skillIdAttribute, skillPrerequisite_1.SkillPrerequisite.skillPrerequisiteIdAttribute);
     };
     Skill.prototype.getContributingSkills = function () {
-        return this.belongsToMany(Skill).through(skillPrerequisite_1.SkillPrerequisite, 'skill_prerequisite_id', 'skill_id');
+        return this.belongsToMany(Skill)
+            .through(skillPrerequisite_1.SkillPrerequisite, skillPrerequisite_1.SkillPrerequisite.skillPrerequisiteIdAttribute, skillPrerequisite_1.SkillPrerequisite.skillIdAttribute);
     };
     Skill.prototype.getTeams = function () {
         var _this = this;
         return this.belongsToMany(team_1.Team)
-            .withPivot(['upvotes'])
-            .through(teamSkill_1.TeamSkill, 'skill_id', 'team_id')
+            .withPivot([teamSkill_1.TeamSkill.upvotesAttribute])
+            .through(teamSkill_1.TeamSkill, teamSkill_1.TeamSkill.skillIdAttribute, teamSkill_1.TeamSkill.teamIdAttribute)
             .fetch()
             .then(function (teamsCollection) {
             var teams = teamsCollection.toArray();

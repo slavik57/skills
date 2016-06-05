@@ -22,6 +22,21 @@ var TeamSkill = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(TeamSkill, "skillIdAttribute", {
+        get: function () { return 'skill_id'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TeamSkill, "teamIdAttribute", {
+        get: function () { return 'team_id'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TeamSkill, "upvotesAttribute", {
+        get: function () { return 'upvotes'; },
+        enumerable: true,
+        configurable: true
+    });
     TeamSkill.prototype.initialize = function () {
         var _this = this;
         this.on('saving', function (teamSkill) { return _this.validateTeamSkill(teamSkill); });

@@ -22,6 +22,21 @@ var TeamMember = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(TeamMember, "teamIdAttribute", {
+        get: function () { return 'team_id'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TeamMember, "userIdAttribute", {
+        get: function () { return 'user_id'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TeamMember, "isAdminAttribute", {
+        get: function () { return 'is_admin'; },
+        enumerable: true,
+        configurable: true
+    });
     TeamMember.prototype.initialize = function () {
         var _this = this;
         this.on('saving', function (teamMember) { return _this.validateTeamMember(teamMember); });

@@ -22,6 +22,16 @@ var SkillPrerequisite = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(SkillPrerequisite, "skillIdAttribute", {
+        get: function () { return 'skill_id'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(SkillPrerequisite, "skillPrerequisiteIdAttribute", {
+        get: function () { return 'skill_prerequisite_id'; },
+        enumerable: true,
+        configurable: true
+    });
     SkillPrerequisite.prototype.initialize = function () {
         var _this = this;
         this.on('saving', function (skillPrerequisite) { return _this.validateSkillPrerequisite(skillPrerequisite); });

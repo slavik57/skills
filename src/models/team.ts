@@ -35,8 +35,8 @@ export class Team extends bookshelf.Model<Team> implements IPivotedTeam<TeamMemb
 
   public getTeamMembers(): Promise<IUserOfATeam[]> {
     return this.belongsToMany(User)
-      .withPivot(['is_admin'])
-      .through<User>(TeamMember, 'team_id', 'user_id')
+      .withPivot([TeamMember.isAdminAttribute])
+      .through<User>(TeamMember, TeamMember.teamIdAttribute, TeamMember.userIdAttribute)
       .fetch()
       .then((usersCollection: Collection<User>) => {
         var users: User[] = usersCollection.toArray();
@@ -47,8 +47,8 @@ export class Team extends bookshelf.Model<Team> implements IPivotedTeam<TeamMemb
 
   public getTeamSkills(): Promise<ISkillOfATeam[]> {
     return this.belongsToMany(Skill)
-      .withPivot(['upvotes'])
-      .through<Skill>(TeamSkill, 'team_id', 'skill_id')
+      .withPivot([TeamSkill.upvotesAttribute])
+      .through<Skill>(TeamSkill, TeamSkill.teamIdAttribute, TeamSkill.skillIdAttribute)
       .fetch()
       .then((skillsCollection: Collection<Skill>) => {
         var skills: Skill[] = skillsCollection.toArray();

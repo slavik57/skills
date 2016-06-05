@@ -7,8 +7,12 @@ import {ITeamMemberInfo} from './interfaces/iTeamMemberInfo';
 export class TeamMember extends bookshelf.Model<TeamMember>{
   public attributes: ITeamMemberInfo;
 
-  public get tableName() { return 'team_members'; }
-  public get idAttribute() { return 'id'; }
+  public get tableName(): string { return 'team_members'; }
+  public get idAttribute(): string { return 'id'; }
+
+  public static get teamIdAttribute(): string { return 'team_id'; }
+  public static get userIdAttribute(): string { return 'user_id'; }
+  public static get isAdminAttribute(): string { return 'is_admin'; }
 
   public initialize(): void {
     this.on('saving', (teamMember: TeamMember) => this.validateTeamMember(teamMember));

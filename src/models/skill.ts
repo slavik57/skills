@@ -30,17 +30,19 @@ export class Skill extends bookshelf.Model<Skill> implements ITeamSkillPivot {
   }
 
   public getPrerequisiteSkills(): Collection<Skill> {
-    return this.belongsToMany(Skill).through<Skill>(SkillPrerequisite, 'skill_id', 'skill_prerequisite_id');
+    return this.belongsToMany(Skill)
+      .through<Skill>(SkillPrerequisite, SkillPrerequisite.skillIdAttribute, SkillPrerequisite.skillPrerequisiteIdAttribute);
   }
 
   public getContributingSkills(): Collection<Skill> {
-    return this.belongsToMany(Skill).through<Skill>(SkillPrerequisite, 'skill_prerequisite_id', 'skill_id');
+    return this.belongsToMany(Skill)
+      .through<Skill>(SkillPrerequisite, SkillPrerequisite.skillPrerequisiteIdAttribute, SkillPrerequisite.skillIdAttribute);
   }
 
   public getTeams(): Promise<ITeamOfASkill[]> {
     return this.belongsToMany(Team)
-      .withPivot(['upvotes'])
-      .through<Team>(TeamSkill, 'skill_id', 'team_id')
+      .withPivot([TeamSkill.upvotesAttribute])
+      .through<Team>(TeamSkill, TeamSkill.skillIdAttribute, TeamSkill.teamIdAttribute)
       .fetch()
       .then((teamsCollection: Collection<Team>) => {
         var teams: Team[] = teamsCollection.toArray();

@@ -52,8 +52,8 @@ export class User extends bookshelf.Model<User> implements ITeamMemberPivot {
 
   public getTeams(): Promise<ITeamOfAUser[]> {
     return this.belongsToMany(Team)
-      .withPivot(['is_admin'])
-      .through<Team>(TeamMember, 'user_id', 'team_id')
+      .withPivot([TeamMember.isAdminAttribute])
+      .through<Team>(TeamMember, TeamMember.userIdAttribute, TeamMember.teamIdAttribute)
       .fetch()
       .then((teamsCollection: Collection<Team>) => {
         var teams: Team[] = teamsCollection.toArray();

@@ -7,8 +7,12 @@ import {ITeamSkillInfo} from './interfaces/iTeamSkillInfo';
 export class TeamSkill extends bookshelf.Model<TeamSkill>{
   public attributes: ITeamSkillInfo;
 
-  public get tableName() { return 'team_skills'; }
-  public get idAttribute() { return 'id'; }
+  public get tableName(): string { return 'team_skills'; }
+  public get idAttribute(): string { return 'id'; }
+
+  public static get skillIdAttribute(): string { return 'skill_id' }
+  public static get teamIdAttribute(): string { return 'team_id' }
+  public static get upvotesAttribute(): string { return 'upvotes' }
 
   public initialize(): void {
     this.on('saving', (teamSkill: TeamSkill) => this.validateTeamSkill(teamSkill));
