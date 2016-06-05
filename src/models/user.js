@@ -34,9 +34,9 @@ var User = (function (_super) {
     });
     User.prototype.initialize = function () {
         var _this = this;
-        this.on('saving', function (user) { return _this.validateUser(user); });
+        this.on('saving', function (user) { return _this._validateUser(user); });
     };
-    User.prototype.validateUser = function (user) {
+    User.prototype._validateUser = function (user) {
         if (!validator.isEmail(this.attributes.email)) {
             return Promise.reject('Email is not valid');
         }
@@ -52,7 +52,7 @@ var User = (function (_super) {
         if (!typesValidator_1.TypesValidator.isLongEnoughString(this.attributes.lastName, 1)) {
             return Promise.reject('Last name is not valid');
         }
-        return null;
+        return Promise.resolve(true);
     };
     User.prototype.getGlobalPermissions = function () {
         return this.hasMany(usersGlobalPermissions_1.UserGlobalPermissions, 'user_id');

@@ -20,10 +20,10 @@ export class User extends bookshelf.Model<User> implements ITeamMemberPivot {
   public static get usernameAttribute(): string { return 'username'; }
 
   public initialize(): void {
-    this.on('saving', (user: User) => this.validateUser(user));
+    this.on('saving', (user: User) => this._validateUser(user));
   }
 
-  public validateUser(user: User): Promise<boolean> {
+  private _validateUser(user: User): Promise<boolean> {
     if (!validator.isEmail(this.attributes.email)) {
       return Promise.reject('Email is not valid');
     }
@@ -44,7 +44,7 @@ export class User extends bookshelf.Model<User> implements ITeamMemberPivot {
       return Promise.reject('Last name is not valid');
     }
 
-    return null;
+    return Promise.resolve(true);
   }
 
   public getGlobalPermissions(): Collection<UserGlobalPermissions> {
