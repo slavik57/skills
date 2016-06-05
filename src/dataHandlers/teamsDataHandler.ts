@@ -1,3 +1,4 @@
+import {ITeamSkillInfo} from "../models/interfaces/iTeamSkillInfo";
 import {IUserOfATeam} from "../models/interfaces/iUserOfATeam";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
 import {ITeamInfo} from "../models/interfaces/iTeamInfo";
@@ -6,6 +7,7 @@ import {Team} from '../models/team';
 import {} from '../models/user';
 import {TeamMember} from '../models/teamMember';
 import {User, Users} from '../models/user';
+import {TeamSkill} from '../models/teamSkill';
 
 export class TeamsDataHandler {
 
@@ -15,6 +17,10 @@ export class TeamsDataHandler {
 
   public static addTeamMember(teamMemberInfo: ITeamMemberInfo): Promise<TeamMember> {
     return new TeamMember(teamMemberInfo).save();
+  }
+
+  public static addTeamSkill(teamSkillInfo: ITeamSkillInfo): Promise<TeamSkill> {
+    return new TeamSkill(teamSkillInfo).save();
   }
 
   public static getTeamMembers(teamName: string): Promise<IUserOfATeam[]> {

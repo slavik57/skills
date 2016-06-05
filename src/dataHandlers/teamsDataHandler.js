@@ -1,6 +1,7 @@
 "use strict";
 var team_1 = require('../models/team');
 var teamMember_1 = require('../models/teamMember');
+var teamSkill_1 = require('../models/teamSkill');
 var TeamsDataHandler = (function () {
     function TeamsDataHandler() {
     }
@@ -9,6 +10,9 @@ var TeamsDataHandler = (function () {
     };
     TeamsDataHandler.addTeamMember = function (teamMemberInfo) {
         return new teamMember_1.TeamMember(teamMemberInfo).save();
+    };
+    TeamsDataHandler.addTeamSkill = function (teamSkillInfo) {
+        return new teamSkill_1.TeamSkill(teamSkillInfo).save();
     };
     TeamsDataHandler.getTeamMembers = function (teamName) {
         var _this = this;

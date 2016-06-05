@@ -1,3 +1,7 @@
+import {ITeamSkillInfo} from "../models/interfaces/iTeamSkillInfo";
+import {SkillsDataHandler} from "./skillsDataHandler";
+import {Skill, Skills} from "../models/skill";
+import {ISkillInfo} from "../models/interfaces/iSkillInfo";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
 import {IUserInfo} from "../models/interfaces/iUserInfo";
 import {ITeamInfo} from "../models/interfaces/iTeamInfo";
@@ -12,17 +16,21 @@ import {User, Users} from '../models/user';
 import {TeamsDataHandler} from './teamsDataHandler';
 import {UserDataHandler} from './userDataHandler';
 import {IUserOfATeam} from '../models/interfaces/iUserOfATeam';
+import {TeamSkill, TeamSkills} from '../models/teamSkill';
 
 chai.use(chaiAsPromised);
 
 describe('TeamsDataHandler', () => {
 
   function clearTables(): Promise<any> {
-    return TeamMembers.clearAll()
-      .then(() => Promise.all([
-        Teams.clearAll(),
-        Users.clearAll()
-      ]));
+    return Promise.all([
+      TeamMembers.clearAll(),
+      TeamSkills.clearAll()
+    ]).then(() => Promise.all([
+      Teams.clearAll(),
+      Users.clearAll(),
+      Skills.clearAll()
+    ]));
   }
 
   function createTeamInfo(teamName: string): ITeamInfo {
@@ -46,6 +54,20 @@ describe('TeamsDataHandler', () => {
       team_id: team.id,
       user_id: user.id,
       is_admin: false
+    }
+  }
+
+  function createSkillInfo(skillName: string): ISkillInfo {
+    return {
+      name: skillName
+    }
+  }
+
+  function createTeamSkillInfo(team: Team, skill: Skill): ITeamSkillInfo {
+    return {
+      team_id: team.id,
+      skill_id: skill.id,
+      upvotes: 0
     }
   }
 
@@ -325,6 +347,34 @@ describe('TeamsDataHandler', () => {
       // Assert
       var expectedUserInfo: IUserInfo[] = [userInfo1, userInfo2];
       return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedUserInfo);
+    });
+
+  });
+
+  describe('addTeamSkill', () => {
+
+    it('should create a team skill', () => {
+      // Act
+      var teamInfo: ITeamInfo = createTeamInfo('a');
+      var skillInfo: ISkillInfo = createSkillInfo('skill1');
+
+      var createTeamAndSkillsPromise: Promise<any[]> = Promise.all([
+        TeamsDataHandler.createTeam(teamInfo),
+        SkillsDataHandler.createSkill(skillInfo)
+      ]);
+
+      var teamSkillPromise: Promise<TeamSkill> =
+        createTeamAndSkillsPromise.then((teamAndSkill: any[]) => {
+          var team: Team = teamAndSkill[0];
+          var skill: Skill = teamAndSkill[1];
+
+          var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team, skill);
+
+          return TeamsDataHandler.addTeamSkill(teamSkillInfo);
+        });
+
+      // Assert
+      return expect(teamSkillPromise).to.eventually.fulfilled;
     });
 
   });
