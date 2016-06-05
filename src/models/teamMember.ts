@@ -27,7 +27,7 @@ export class TeamMember extends bookshelf.Model<TeamMember>{
       return Promise.reject('The user_id be an integer');
     }
 
-    return null;
+    return Promise.resolve(true);
   }
 }
 

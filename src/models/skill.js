@@ -26,6 +26,11 @@ var Skill = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Skill, "nameAttribute", {
+        get: function () { return 'name'; },
+        enumerable: true,
+        configurable: true
+    });
     Skill.prototype.initialize = function () {
         var _this = this;
         this.on('saving', function (skill) { return _this.validateSkill(skill); });
@@ -34,7 +39,7 @@ var Skill = (function (_super) {
         if (!typesValidator_1.TypesValidator.isLongEnoughString(skill.attributes.name, 1)) {
             return Promise.reject('The skill name must not be empty');
         }
-        return null;
+        return Promise.resolve(true);
     };
     Skill.prototype.getPrerequisiteSkills = function () {
         return this.belongsToMany(Skill)

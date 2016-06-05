@@ -15,10 +15,6 @@ var UserDataHandler = (function () {
             return users.toArray();
         });
     };
-    UserDataHandler.getUserByUsername = function (userName, require) {
-        if (require === void 0) { require = false; }
-        return new user_1.User().where({ username: userName }).fetch({ require: require });
-    };
     UserDataHandler.getUserGlobalPermissions = function (username) {
         var _this = this;
         return this.getUser(username)
@@ -34,9 +30,13 @@ var UserDataHandler = (function () {
             .then(function (user) { return _this._fetchUserTeams(user); });
     };
     UserDataHandler.getUser = function (username) {
+        return this._buildUserQuery(username).fetch();
+    };
+    UserDataHandler._buildUserQuery = function (username) {
+        var queryCondition = {};
+        queryCondition[user_1.User.usernameAttribute] = username;
         return new user_1.User()
-            .query({ where: { username: username } })
-            .fetch();
+            .query({ where: queryCondition });
     };
     UserDataHandler._fetchUserGlobalPermissions = function (user) {
         if (!user) {

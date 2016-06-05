@@ -39,16 +39,16 @@ var TeamSkill = (function (_super) {
     });
     TeamSkill.prototype.initialize = function () {
         var _this = this;
-        this.on('saving', function (teamSkill) { return _this.validateTeamSkill(teamSkill); });
+        this.on('saving', function (teamSkill) { return _this._validateTeamSkill(teamSkill); });
     };
-    TeamSkill.prototype.validateTeamSkill = function (teamSkill) {
+    TeamSkill.prototype._validateTeamSkill = function (teamSkill) {
         if (!typesValidator_1.TypesValidator.isInteger(teamSkill.attributes.team_id)) {
             return Promise.reject('The team_id must be an integer');
         }
         if (!typesValidator_1.TypesValidator.isInteger(teamSkill.attributes.skill_id)) {
             return Promise.reject('The skill_id be an integer');
         }
-        return null;
+        return Promise.resolve(true);
     };
     return TeamSkill;
 }(bookshelf_1.bookshelf.Model));

@@ -27,6 +27,11 @@ var User = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(User, "usernameAttribute", {
+        get: function () { return 'username'; },
+        enumerable: true,
+        configurable: true
+    });
     User.prototype.initialize = function () {
         var _this = this;
         this.on('saving', function (user) { return _this.validateUser(user); });

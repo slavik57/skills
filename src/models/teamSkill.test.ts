@@ -12,6 +12,7 @@ import { TeamSkill, TeamSkills } from './teamSkill';
 chai.use(chaiAsPromised);
 
 describe('TeamSkill', () => {
+
   describe('new', () => {
     var skill1: Skill;
     var skill2: Skill;
@@ -347,6 +348,7 @@ describe('TeamSkill', () => {
       return expect(promise).to.eventually.rejected;
     });
   });
+
 });
 
 describe('TeamSkills', () => {

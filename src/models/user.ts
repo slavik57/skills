@@ -15,8 +15,9 @@ export class User extends bookshelf.Model<User> implements ITeamMemberPivot {
   public attributes: IUserInfo;
   public pivot: TeamMember;
 
-  public get tableName() { return 'users'; }
-  public get idAttribute() { return 'id'; }
+  public get tableName(): string { return 'users'; }
+  public get idAttribute(): string { return 'id'; }
+  public static get usernameAttribute(): string { return 'username'; }
 
   public initialize(): void {
     this.on('saving', (user: User) => this.validateUser(user));

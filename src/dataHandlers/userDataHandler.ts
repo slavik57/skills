@@ -19,10 +19,6 @@ export class UserDataHandler {
       });
   }
 
-  public static getUserByUsername(userName: string, require: boolean = false): Promise<User> {
-    return new User().where({ username: userName }).fetch({ require: require });
-  }
-
   public static getUserGlobalPermissions(username: string): Promise<GlobalPermission[]> {
     return this.getUser(username)
       .then((user: User) => this._fetchUserGlobalPermissions(user))
@@ -39,9 +35,15 @@ export class UserDataHandler {
   }
 
   public static getUser(username: string): Promise<User> {
+    return this._buildUserQuery(username).fetch();
+  }
+
+  private static _buildUserQuery(username: string): User {
+    var queryCondition = {};
+    queryCondition[User.usernameAttribute] = username;
+
     return new User()
-      .query({ where: { username: username } })
-      .fetch();
+      .query({ where: queryCondition });
   }
 
   private static _fetchUserGlobalPermissions(user: User): Promise<Collection<UserGlobalPermissions>> {

@@ -564,4 +564,74 @@ describe('TeamsDataHandler', () => {
 
   });
 
+  describe('upvoteTeamSkill', () => {
+
+    var teamInfo: ITeamInfo;
+    var teamSkillInfo: ITeamSkillInfo;
+    var skillInfo: ISkillInfo;
+
+    beforeEach(() => {
+      teamInfo = createTeamInfo('team 1');
+      skillInfo = createSkillInfo('skill 1');
+
+      return Promise.all([
+        TeamsDataHandler.createTeam(teamInfo),
+        SkillsDataHandler.createSkill(skillInfo)
+      ]).then((teamAndSkill: any[]) => {
+        var team: Team = teamAndSkill[0];
+        var skill: Skill = teamAndSkill[1];
+
+        teamSkillInfo = createTeamSkillInfo(team, skill);
+        teamSkillInfo.upvotes = 10;
+
+        return TeamsDataHandler.addTeamSkill(teamSkillInfo);
+      });
+    });
+
+    it('upvote with non existing team id should fail', () => {
+      // Arrange
+      var teamId: number = teamSkillInfo.team_id + 1;
+      var skillId: number = teamSkillInfo.skill_id;
+
+      // Act
+      var upvotePromise: Promise<any> =
+        TeamsDataHandler.upvoteTeamSkill(teamId, skillId);
+
+      // Assert
+      return expect(upvotePromise).to.eventually.rejected;
+    });
+
+    it('upvote with non existing skill id should fail', () => {
+      // Arrange
+      var teamId: number = teamSkillInfo.team_id;
+      var skillId: number = teamSkillInfo.skill_id + 1;
+
+      // Act
+      var upvotePromise: Promise<any> =
+        TeamsDataHandler.upvoteTeamSkill(teamId, skillId);
+
+      // Assert
+      return expect(upvotePromise).to.eventually.rejected;
+    });
+
+    it('upvote should update the upvotes correctly', () => {
+      // Arrange
+      var teamId: number = teamSkillInfo.team_id;
+      var skillId: number = teamSkillInfo.skill_id;
+
+      // Act
+      var upvotePromise: Promise<any> =
+        TeamsDataHandler.upvoteTeamSkill(teamId, skillId);
+
+      // Assert
+      return expect(upvotePromise).to.eventually.fulfilled
+        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then((skillsOfATeam: ISkillOfATeam[]) => {
+          expect(skillsOfATeam.length).to.be.equal(1);
+          expect(skillsOfATeam[0].upvotes).to.be.equal(teamSkillInfo.upvotes + 1)
+        });
+    });
+
+  });
+
 });

@@ -106,40 +106,6 @@ describe('userDataHandler', function () {
             return verifyUsersInfoWithoutOrderAsync(usersPromose, expectedUsersInfo);
         });
     });
-    describe('getUserByUsername', function () {
-        it('no such user and require is false should succeed with null', function () {
-            var userPromise = userDataHandler_1.UserDataHandler.getUserByUsername('not existing', false);
-            return chai_1.expect(userPromise).to.eventually.be.null;
-        });
-        it('no such user and require is true should fail', function () {
-            var userPromise = userDataHandler_1.UserDataHandler.getUserByUsername('not existing', true);
-            return chai_1.expect(userPromise).to.eventually.rejected;
-        });
-        it('user exists and require is false should return correct user', function () {
-            var userInfo1 = createUserInfo(1);
-            var userInfo2 = createUserInfo(2);
-            var userInfo3 = createUserInfo(3);
-            var createUsersPromise = Promise.all([
-                userDataHandler_1.UserDataHandler.createUser(userInfo1),
-                userDataHandler_1.UserDataHandler.createUser(userInfo2),
-                userDataHandler_1.UserDataHandler.createUser(userInfo3)
-            ]);
-            var userPromise = createUsersPromise.then(function () { return userDataHandler_1.UserDataHandler.getUserByUsername(userInfo2.username, false); });
-            return verifyUserInfoAsync(userPromise, userInfo2);
-        });
-        it('user exists and require is true should return correct user', function () {
-            var userInfo1 = createUserInfo(1);
-            var userInfo2 = createUserInfo(2);
-            var userInfo3 = createUserInfo(3);
-            var createUsersPromise = Promise.all([
-                userDataHandler_1.UserDataHandler.createUser(userInfo1),
-                userDataHandler_1.UserDataHandler.createUser(userInfo2),
-                userDataHandler_1.UserDataHandler.createUser(userInfo3)
-            ]);
-            var userPromise = createUsersPromise.then(function () { return userDataHandler_1.UserDataHandler.getUserByUsername(userInfo2.username, true); });
-            return verifyUserInfoAsync(userPromise, userInfo2);
-        });
-    });
     describe('getUserGlobalPermissions', function () {
         function verifyUserGlobalPermissionsAsync(actualPermissionsPromise, expectedPermissions) {
             return chai_1.expect(actualPermissionsPromise).to.eventually.fulfilled

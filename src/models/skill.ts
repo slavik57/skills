@@ -14,8 +14,9 @@ export class Skill extends bookshelf.Model<Skill> implements ITeamSkillPivot {
   public attributes: ISkillInfo;
   public pivot: TeamSkill;
 
-  public get tableName() { return 'skills'; }
-  public get idAttribute() { return 'id'; }
+  public get tableName(): string { return 'skills'; }
+  public get idAttribute(): string { return 'id'; }
+  public static get nameAttribute(): string { return 'name'; }
 
   public initialize(): void {
     this.on('saving', (skill: Skill) => this.validateSkill(skill));
@@ -26,7 +27,7 @@ export class Skill extends bookshelf.Model<Skill> implements ITeamSkillPivot {
       return Promise.reject('The skill name must not be empty');
     }
 
-    return null;
+    return Promise.resolve(true);
   }
 
   public getPrerequisiteSkills(): Collection<Skill> {

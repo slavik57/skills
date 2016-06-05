@@ -27,6 +27,11 @@ var Team = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Team, "nameAttribute", {
+        get: function () { return 'name'; },
+        enumerable: true,
+        configurable: true
+    });
     Team.prototype.initialize = function () {
         var _this = this;
         this.on('saving', function (team) { return _this.validateTeam(team); });
@@ -35,7 +40,7 @@ var Team = (function (_super) {
         if (!typesValidator_1.TypesValidator.isLongEnoughString(team.attributes.name, 1)) {
             return Promise.reject('The team name must not be empty');
         }
-        return null;
+        return Promise.resolve(true);
     };
     Team.prototype.getTeamMembers = function () {
         var _this = this;

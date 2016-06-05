@@ -48,7 +48,7 @@ var TeamMember = (function (_super) {
         if (!typesValidator_1.TypesValidator.isInteger(teamMember.attributes.user_id)) {
             return Promise.reject('The user_id be an integer');
         }
-        return null;
+        return Promise.resolve(true);
     };
     return TeamMember;
 }(bookshelf_1.bookshelf.Model));

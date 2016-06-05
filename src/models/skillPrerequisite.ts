@@ -30,7 +30,7 @@ export class SkillPrerequisite extends bookshelf.Model<SkillPrerequisite>{
       return Promise.reject('Skill can not be a prerequisite of itself');
     }
 
-    return null;
+    return Promise.resolve(true);
   }
 }
 

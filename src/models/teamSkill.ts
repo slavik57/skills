@@ -15,10 +15,10 @@ export class TeamSkill extends bookshelf.Model<TeamSkill>{
   public static get upvotesAttribute(): string { return 'upvotes' }
 
   public initialize(): void {
-    this.on('saving', (teamSkill: TeamSkill) => this.validateTeamSkill(teamSkill));
+    this.on('saving', (teamSkill: TeamSkill) => this._validateTeamSkill(teamSkill));
   }
 
-  public validateTeamSkill(teamSkill: TeamSkill): Promise<boolean> {
+  private _validateTeamSkill(teamSkill: TeamSkill): Promise<boolean> {
     if (!TypesValidator.isInteger(teamSkill.attributes.team_id)) {
       return Promise.reject('The team_id must be an integer');
     }
@@ -27,7 +27,7 @@ export class TeamSkill extends bookshelf.Model<TeamSkill>{
       return Promise.reject('The skill_id be an integer');
     }
 
-    return null;
+    return Promise.resolve(true);
   }
 }
 

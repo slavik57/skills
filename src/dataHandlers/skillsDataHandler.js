@@ -35,8 +35,10 @@ var SkillsDataHandler = (function () {
             .then(function (skills) { return skills.toArray(); });
     };
     SkillsDataHandler.getSkill = function (skillName) {
+        var queryCondition = {};
+        queryCondition[skill_1.Skill.nameAttribute] = skillName;
         return new skill_1.Skill()
-            .query({ where: { name: skillName } })
+            .query({ where: queryCondition })
             .fetch();
     };
     SkillsDataHandler.getTeams = function (skillName) {

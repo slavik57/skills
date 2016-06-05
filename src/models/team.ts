@@ -18,8 +18,9 @@ export class Team extends bookshelf.Model<Team> implements IPivotedTeam<TeamMemb
   public attributes: ITeamInfo;
   public pivot: TeamMember | TeamSkill;
 
-  public get tableName() { return 'teams'; }
-  public get idAttribute() { return 'id'; }
+  public get tableName(): string { return 'teams'; }
+  public get idAttribute(): string { return 'id'; }
+  public static get nameAttribute(): string { return 'name'; }
 
   public initialize(): void {
     this.on('saving', (team: Team) => this.validateTeam(team));
@@ -30,7 +31,7 @@ export class Team extends bookshelf.Model<Team> implements IPivotedTeam<TeamMemb
       return Promise.reject('The team name must not be empty');
     }
 
-    return null;
+    return Promise.resolve(true);
   }
 
   public getTeamMembers(): Promise<IUserOfATeam[]> {

@@ -364,4 +364,46 @@ describe('TeamsDataHandler', function () {
             return verifySkillsInfoWithoutOrderAsync(teamSkillsPromise, expectedSkillsInfo);
         });
     });
+    describe('upvoteTeamSkill', function () {
+        var teamInfo;
+        var teamSkillInfo;
+        var skillInfo;
+        beforeEach(function () {
+            teamInfo = createTeamInfo('team 1');
+            skillInfo = createSkillInfo('skill 1');
+            return Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo)
+            ]).then(function (teamAndSkill) {
+                var team = teamAndSkill[0];
+                var skill = teamAndSkill[1];
+                teamSkillInfo = createTeamSkillInfo(team, skill);
+                teamSkillInfo.upvotes = 10;
+                return teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo);
+            });
+        });
+        it('upvote with non existing team id should fail', function () {
+            var teamId = teamSkillInfo.team_id + 1;
+            var skillId = teamSkillInfo.skill_id;
+            var upvotePromise = teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamId, skillId);
+            return chai_1.expect(upvotePromise).to.eventually.rejected;
+        });
+        it('upvote with non existing skill id should fail', function () {
+            var teamId = teamSkillInfo.team_id;
+            var skillId = teamSkillInfo.skill_id + 1;
+            var upvotePromise = teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamId, skillId);
+            return chai_1.expect(upvotePromise).to.eventually.rejected;
+        });
+        it('upvote should update the upvotes correctly', function () {
+            var teamId = teamSkillInfo.team_id;
+            var skillId = teamSkillInfo.skill_id;
+            var upvotePromise = teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamId, skillId);
+            return chai_1.expect(upvotePromise).to.eventually.fulfilled
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo.name); })
+                .then(function (skillsOfATeam) {
+                chai_1.expect(skillsOfATeam.length).to.be.equal(1);
+                chai_1.expect(skillsOfATeam[0].upvotes).to.be.equal(teamSkillInfo.upvotes + 1);
+            });
+        });
+    });
 });

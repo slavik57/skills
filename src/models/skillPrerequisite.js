@@ -46,7 +46,7 @@ var SkillPrerequisite = (function (_super) {
         if (skillPrerequisite.attributes.skill_id === skillPrerequisite.attributes.skill_prerequisite_id) {
             return Promise.reject('Skill can not be a prerequisite of itself');
         }
-        return null;
+        return Promise.resolve(true);
     };
     return SkillPrerequisite;
 }(bookshelf_1.bookshelf.Model));

@@ -41,8 +41,11 @@ export class SkillsDataHandler {
   }
 
   public static getSkill(skillName: string): Promise<Skill> {
+    var queryCondition = {};
+    queryCondition[Skill.nameAttribute] = skillName;
+
     return new Skill()
-      .query({ where: { name: skillName } })
+      .query({ where: queryCondition })
       .fetch();
   }
 
