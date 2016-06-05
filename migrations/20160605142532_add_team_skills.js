@@ -3,13 +3,14 @@ exports.up = function(knex, Promise) {
   return knex.schema.createTableIfNotExists('team_skills', function(table){
     table.increments('id');
 
-    table.integer('user_id').notNullable().references('id').inTable('users');
+    table.integer('team_id').notNullable().references('id').inTable('teams');
     table.integer('skill_id').notNullable().references('id').inTable('skills');
+    table.integer('upvotes').notNullable().defaultTo(0);
 
-    table.index('user_id');
+    table.index('team_id');
     table.index('skill_id');
 
-    table.unique(['user_id', 'skill_id']);
+    table.unique(['team_id', 'skill_id']);
   });
 };
 
