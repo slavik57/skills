@@ -17,18 +17,29 @@ var TeamsDataHandler = (function () {
     TeamsDataHandler.getTeamMembers = function (teamName) {
         var _this = this;
         return this.getTeam(teamName)
-            .then(function (team) { return _this.fetchTeamMembersOfTeam(team); });
+            .then(function (team) { return _this.fetchMembersOfTeam(team); });
+    };
+    TeamsDataHandler.getTeamSkills = function (teamName) {
+        var _this = this;
+        return this.getTeam(teamName)
+            .then(function (team) { return _this.fetchSkillsOfTeam(team); });
     };
     TeamsDataHandler.getTeam = function (teamName) {
         return new team_1.Team()
             .query({ where: { name: teamName } })
             .fetch();
     };
-    TeamsDataHandler.fetchTeamMembersOfTeam = function (team) {
+    TeamsDataHandler.fetchMembersOfTeam = function (team) {
         if (!team) {
             return Promise.resolve([]);
         }
         return team.getTeamMembers();
+    };
+    TeamsDataHandler.fetchSkillsOfTeam = function (team) {
+        if (!team) {
+            return Promise.resolve([]);
+        }
+        return team.getTeamSkills();
     };
     return TeamsDataHandler;
 }());

@@ -1,3 +1,5 @@
+import {Skill} from "./skill";
+import {ISkillOfATeam} from "./interfaces/iSkillOfATeam";
 import {IUserOfATeam} from "./interfaces/iUserOfATeam";
 import {Model, Collection, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
@@ -8,6 +10,7 @@ import {User} from './user';
 import {TeamMember} from './teamMember';
 import {ITeamMemberPivot} from './interfaces/iTeamMemberPivot';
 import {ITeamInfo} from './interfaces/iTeamInfo';
+import {TeamSkill} from './teamSkill';
 
 export class Team extends bookshelf.Model<Team> implements ITeamMemberPivot {
   public attributes: ITeamInfo;
@@ -40,10 +43,29 @@ export class Team extends bookshelf.Model<Team> implements ITeamMemberPivot {
       });
   }
 
+  public getTeamSkills(): Promise<ISkillOfATeam[]> {
+    return this.belongsToMany(Skill)
+      .withPivot(['upvotes'])
+      .through<Skill>(TeamSkill, 'team_id', 'skill_id')
+      .fetch()
+      .then((skillsCollection: Collection<Skill>) => {
+        var skills: Skill[] = skillsCollection.toArray();
+
+        return _.map(skills, _skill => this._convertSkillToSkillOfATeam(_skill));
+      });
+  }
+
   private _convertUserToUserOfATeam(user: User): IUserOfATeam {
     return {
       user: user,
       isAdmin: user.pivot.attributes.is_admin
+    }
+  }
+
+  private _convertSkillToSkillOfATeam(skill: Skill): ISkillOfATeam {
+    return {
+      skill: skill,
+      upvotes: skill.pivot.attributes.upvotes
     }
   }
 

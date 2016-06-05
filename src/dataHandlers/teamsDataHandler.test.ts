@@ -16,6 +16,7 @@ import {User, Users} from '../models/user';
 import {TeamsDataHandler} from './teamsDataHandler';
 import {UserDataHandler} from './userDataHandler';
 import {IUserOfATeam} from '../models/interfaces/iUserOfATeam';
+import {ISkillOfATeam} from '../models/interfaces/iSkillOfATeam';
 import {TeamSkill, TeamSkills} from '../models/teamSkill';
 
 chai.use(chaiAsPromised);
@@ -324,7 +325,7 @@ describe('TeamsDataHandler', () => {
       return verifyUsersAdminSettingsWithoutOrderAsync(teamMembersPromise, expectedUserAdminConfigurations);
     });
 
-    it('should return all existing skill prerequisites and not return other prerequisites', () => {
+    it('should return all existing team members and not return other members', () => {
       // Arrange
       var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
       var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team1, user2);
@@ -375,6 +376,190 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return expect(teamSkillPromise).to.eventually.fulfilled;
+    });
+
+  });
+
+  describe('getTeamSkills', () => {
+
+    interface ISkillIdToUpvotes {
+      skillId: number;
+      upvotes: number;
+    }
+
+    function verifySkillsInfoWithoutOrderAsync(actualSkillsPromise: Promise<ISkillOfATeam[]>,
+      expectedSkillsInfo: ISkillInfo[]): Promise<void> {
+
+      return expect(actualSkillsPromise).to.eventually.fulfilled
+        .then((skills: ISkillOfATeam[]) => {
+
+          var actualSkillInfo: ISkillInfo[] = _.map(skills, _ => _.skill.attributes);
+
+          verifySkillsInfoWithoutOrder(actualSkillInfo, expectedSkillsInfo);
+        });
+    }
+
+    function verifySkillsInfoWithoutOrder(actual: ISkillInfo[], expected: ISkillInfo[]): void {
+      var actualOrdered = _.orderBy(actual, _ => _.name);
+      var expectedOrdered = _.orderBy(expected, _ => _.name);
+
+      expect(actualOrdered.length).to.be.equal(expectedOrdered.length);
+
+      for (var i = 0; i < expected.length; i++) {
+        verifySkillInfo(actualOrdered[i], expectedOrdered[i]);
+      }
+    }
+
+    function verifySkillInfo(actual: ISkillInfo, expected: ISkillInfo): void {
+      var actualCloned: ISkillInfo = _.clone(actual);
+      var expectedCloned: ISkillInfo = _.clone(expected);
+
+      delete actualCloned['id'];
+      delete expectedCloned['id'];
+
+      expect(actualCloned).to.be.deep.equal(expectedCloned);
+    }
+
+    function verifySkillsUpvotesWithoutOrderAsync(actualSkillsOfATeamPromise: Promise<ISkillOfATeam[]>,
+      expectedSkillIdToUpvotes: ISkillIdToUpvotes[]): Promise<void> {
+
+      return expect(actualSkillsOfATeamPromise).to.eventually.fulfilled
+        .then((actualSkills: ISkillOfATeam[]) => {
+          var orderedActualUsers: ISkillOfATeam[] = _.orderBy(actualSkills, _ => _.skill.id);
+          var actualUpvotes: number[] = _.map(orderedActualUsers, _ => _.upvotes);
+
+          var orderedExpectedUpvotes: ISkillIdToUpvotes[] = _.orderBy(expectedSkillIdToUpvotes, _ => _.skillId);
+          var expectedUpvotes: number[] = _.map(orderedExpectedUpvotes, _ => _.upvotes);
+
+          expect(actualUpvotes).to.deep.equal(expectedUpvotes);
+        });
+    }
+
+    var skillInfo1: ISkillInfo;
+    var skillInfo2: ISkillInfo;
+    var skillInfo3: ISkillInfo;
+    var skill1: Skill;
+    var skill2: Skill;
+    var skill3: Skill;
+
+    var teamInfo1: ITeamInfo;
+    var teamInfo2: ITeamInfo;
+    var team1: Team;
+    var team2: Team;
+
+    beforeEach(() => {
+      skillInfo1 = createSkillInfo('skill1');
+      skillInfo2 = createSkillInfo('skill2');
+      skillInfo3 = createSkillInfo('skill3');
+
+      teamInfo1 = createTeamInfo('a');
+      teamInfo2 = createTeamInfo('b');
+
+      return Promise.all([
+        TeamsDataHandler.createTeam(teamInfo1),
+        TeamsDataHandler.createTeam(teamInfo2),
+        SkillsDataHandler.createSkill(skillInfo1),
+        SkillsDataHandler.createSkill(skillInfo2),
+        SkillsDataHandler.createSkill(skillInfo3)
+      ]).then((teamsAndSkills: any[]) => {
+        team1 = teamsAndSkills[0];
+        team2 = teamsAndSkills[1];
+        skill1 = teamsAndSkills[2];
+        skill2 = teamsAndSkills[3];
+        skill3 = teamsAndSkills[4];
+      });
+    });
+
+    it('not existing team should return empty', () => {
+      // Act
+      var teamSkillsPromise: Promise<ISkillOfATeam[]> =
+        TeamsDataHandler.getTeamSkills('not existing team');
+
+      // Assert
+      return expect(teamSkillsPromise).to.eventually.deep.equal([]);
+    });
+
+    it('no team members should return empty', () => {
+      // Act
+      var teamSkillsPromise: Promise<ISkillOfATeam[]> =
+        TeamsDataHandler.getTeamSkills(teamInfo1.name);
+
+      // Assert
+      return expect(teamSkillsPromise).to.eventually.deep.equal([]);
+    });
+
+    it('should return all existing team skills', () => {
+      // Arrange
+      var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team1, skill2);
+
+      var createAllTeamSkillsPromise: Promise<any> =
+        Promise.all([
+          TeamsDataHandler.addTeamSkill(teamSkillInfo1),
+          TeamsDataHandler.addTeamSkill(teamSkillInfo2)
+        ]);
+
+      // Act
+      var teamSkillsPromise: Promise<ISkillOfATeam[]> =
+        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(teamInfo1.name));
+
+      // Assert
+      var exxpectedSkillInfo: ISkillInfo[] = [skillInfo1, skillInfo2];
+      return verifySkillsInfoWithoutOrderAsync(teamSkillsPromise, exxpectedSkillInfo);
+    });
+
+    it('should return all existing team skills with correct number of upvotes', () => {
+      // Arrange
+      var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      teamSkillInfo1.upvotes = 11;
+      var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team1, skill2);
+      teamSkillInfo2.upvotes = 0;
+      var teamSkillInfo3: ITeamSkillInfo = createTeamSkillInfo(team1, skill3);
+      teamSkillInfo3.upvotes = 7;
+
+      var createAllTeamSkillsPromise: Promise<any> =
+        Promise.all([
+          TeamsDataHandler.addTeamSkill(teamSkillInfo1),
+          TeamsDataHandler.addTeamSkill(teamSkillInfo2),
+          TeamsDataHandler.addTeamSkill(teamSkillInfo3)
+        ]);
+
+      // Act
+      var teamSkillsPromise: Promise<ISkillOfATeam[]> =
+        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(teamInfo1.name));
+
+      // Assert
+      var expectedSkillUpvotes: ISkillIdToUpvotes[] = [
+        { skillId: teamSkillInfo1.skill_id, upvotes: teamSkillInfo1.upvotes },
+        { skillId: teamSkillInfo2.skill_id, upvotes: teamSkillInfo2.upvotes },
+        { skillId: teamSkillInfo3.skill_id, upvotes: teamSkillInfo3.upvotes }
+      ];
+      return verifySkillsUpvotesWithoutOrderAsync(teamSkillsPromise, expectedSkillUpvotes);
+    });
+
+    it('should return all existing skills and not return other skills', () => {
+      // Arrange
+      var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team1, skill2);
+
+      var teamSkillInfo3: ITeamSkillInfo = createTeamSkillInfo(team2, skill1);
+      var teamSkillInfo4: ITeamSkillInfo = createTeamSkillInfo(team2, skill3);
+
+      var createAllTeamSkillsPromise: Promise<any> =
+        Promise.all([
+          TeamsDataHandler.addTeamSkill(teamSkillInfo1),
+          TeamsDataHandler.addTeamSkill(teamSkillInfo2),
+          TeamsDataHandler.addTeamSkill(teamSkillInfo3),
+          TeamsDataHandler.addTeamSkill(teamSkillInfo4)
+        ]);
+
+      // Act
+      var teamSkillsPromise: Promise<ISkillOfATeam[]> =
+        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(teamInfo1.name));
+
+      // Assert
+      var expectedSkillsInfo: ISkillInfo[] = [skillInfo1, skillInfo2];
+      return verifySkillsInfoWithoutOrderAsync(teamSkillsPromise, expectedSkillsInfo);
     });
 
   });

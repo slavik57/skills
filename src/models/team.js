@@ -4,12 +4,14 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var skill_1 = require("./skill");
 var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
 var _ = require('lodash');
 var typesValidator_1 = require('../commonUtils/typesValidator');
 var user_1 = require('./user');
 var teamMember_1 = require('./teamMember');
+var teamSkill_1 = require('./teamSkill');
 var Team = (function (_super) {
     __extends(Team, _super);
     function Team() {
@@ -46,10 +48,27 @@ var Team = (function (_super) {
             return _.map(users, function (_user) { return _this._convertUserToUserOfATeam(_user); });
         });
     };
+    Team.prototype.getTeamSkills = function () {
+        var _this = this;
+        return this.belongsToMany(skill_1.Skill)
+            .withPivot(['upvotes'])
+            .through(teamSkill_1.TeamSkill, 'team_id', 'skill_id')
+            .fetch()
+            .then(function (skillsCollection) {
+            var skills = skillsCollection.toArray();
+            return _.map(skills, function (_skill) { return _this._convertSkillToSkillOfATeam(_skill); });
+        });
+    };
     Team.prototype._convertUserToUserOfATeam = function (user) {
         return {
             user: user,
             isAdmin: user.pivot.attributes.is_admin
+        };
+    };
+    Team.prototype._convertSkillToSkillOfATeam = function (skill) {
+        return {
+            skill: skill,
+            upvotes: skill.pivot.attributes.upvotes
         };
     };
     return Team;

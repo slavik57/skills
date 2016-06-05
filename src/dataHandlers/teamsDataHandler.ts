@@ -1,3 +1,4 @@
+import {ISkillOfATeam} from "../models/interfaces/iSkillOfATeam";
 import {ITeamSkillInfo} from "../models/interfaces/iTeamSkillInfo";
 import {IUserOfATeam} from "../models/interfaces/iUserOfATeam";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
@@ -25,7 +26,12 @@ export class TeamsDataHandler {
 
   public static getTeamMembers(teamName: string): Promise<IUserOfATeam[]> {
     return this.getTeam(teamName)
-      .then((team: Team) => this.fetchTeamMembersOfTeam(team));
+      .then((team: Team) => this.fetchMembersOfTeam(team));
+  }
+
+  public static getTeamSkills(teamName: string): Promise<ISkillOfATeam[]> {
+    return this.getTeam(teamName)
+      .then((team: Team) => this.fetchSkillsOfTeam(team));
   }
 
   public static getTeam(teamName: string): Promise<Team> {
@@ -34,12 +40,20 @@ export class TeamsDataHandler {
       .fetch();
   }
 
-  private static fetchTeamMembersOfTeam(team: Team): Promise<IUserOfATeam[]> {
+  private static fetchMembersOfTeam(team: Team): Promise<IUserOfATeam[]> {
     if (!team) {
       return Promise.resolve([]);
     }
 
     return team.getTeamMembers();
+  }
+
+  private static fetchSkillsOfTeam(team: Team): Promise<ISkillOfATeam[]> {
+    if (!team) {
+      return Promise.resolve([]);
+    }
+
+    return team.getTeamSkills();
   }
 
 }

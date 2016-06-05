@@ -213,7 +213,7 @@ describe('TeamsDataHandler', function () {
             ];
             return verifyUsersAdminSettingsWithoutOrderAsync(teamMembersPromise, expectedUserAdminConfigurations);
         });
-        it('should return all existing skill prerequisites and not return other prerequisites', function () {
+        it('should return all existing team members and not return other members', function () {
             var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
             var teamMemberInfo2 = createTeamMemberInfo(team1, user2);
             var teamMemberInfo3 = createTeamMemberInfo(team2, user1);
@@ -244,6 +244,124 @@ describe('TeamsDataHandler', function () {
                 return teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo);
             });
             return chai_1.expect(teamSkillPromise).to.eventually.fulfilled;
+        });
+    });
+    describe('getTeamSkills', function () {
+        function verifySkillsInfoWithoutOrderAsync(actualSkillsPromise, expectedSkillsInfo) {
+            return chai_1.expect(actualSkillsPromise).to.eventually.fulfilled
+                .then(function (skills) {
+                var actualSkillInfo = _.map(skills, function (_) { return _.skill.attributes; });
+                verifySkillsInfoWithoutOrder(actualSkillInfo, expectedSkillsInfo);
+            });
+        }
+        function verifySkillsInfoWithoutOrder(actual, expected) {
+            var actualOrdered = _.orderBy(actual, function (_) { return _.name; });
+            var expectedOrdered = _.orderBy(expected, function (_) { return _.name; });
+            chai_1.expect(actualOrdered.length).to.be.equal(expectedOrdered.length);
+            for (var i = 0; i < expected.length; i++) {
+                verifySkillInfo(actualOrdered[i], expectedOrdered[i]);
+            }
+        }
+        function verifySkillInfo(actual, expected) {
+            var actualCloned = _.clone(actual);
+            var expectedCloned = _.clone(expected);
+            delete actualCloned['id'];
+            delete expectedCloned['id'];
+            chai_1.expect(actualCloned).to.be.deep.equal(expectedCloned);
+        }
+        function verifySkillsUpvotesWithoutOrderAsync(actualSkillsOfATeamPromise, expectedSkillIdToUpvotes) {
+            return chai_1.expect(actualSkillsOfATeamPromise).to.eventually.fulfilled
+                .then(function (actualSkills) {
+                var orderedActualUsers = _.orderBy(actualSkills, function (_) { return _.skill.id; });
+                var actualUpvotes = _.map(orderedActualUsers, function (_) { return _.upvotes; });
+                var orderedExpectedUpvotes = _.orderBy(expectedSkillIdToUpvotes, function (_) { return _.skillId; });
+                var expectedUpvotes = _.map(orderedExpectedUpvotes, function (_) { return _.upvotes; });
+                chai_1.expect(actualUpvotes).to.deep.equal(expectedUpvotes);
+            });
+        }
+        var skillInfo1;
+        var skillInfo2;
+        var skillInfo3;
+        var skill1;
+        var skill2;
+        var skill3;
+        var teamInfo1;
+        var teamInfo2;
+        var team1;
+        var team2;
+        beforeEach(function () {
+            skillInfo1 = createSkillInfo('skill1');
+            skillInfo2 = createSkillInfo('skill2');
+            skillInfo3 = createSkillInfo('skill3');
+            teamInfo1 = createTeamInfo('a');
+            teamInfo2 = createTeamInfo('b');
+            return Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3)
+            ]).then(function (teamsAndSkills) {
+                team1 = teamsAndSkills[0];
+                team2 = teamsAndSkills[1];
+                skill1 = teamsAndSkills[2];
+                skill2 = teamsAndSkills[3];
+                skill3 = teamsAndSkills[4];
+            });
+        });
+        it('not existing team should return empty', function () {
+            var teamSkillsPromise = teamsDataHandler_1.TeamsDataHandler.getTeamSkills('not existing team');
+            return chai_1.expect(teamSkillsPromise).to.eventually.deep.equal([]);
+        });
+        it('no team members should return empty', function () {
+            var teamSkillsPromise = teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo1.name);
+            return chai_1.expect(teamSkillsPromise).to.eventually.deep.equal([]);
+        });
+        it('should return all existing team skills', function () {
+            var teamSkillInfo1 = createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo2 = createTeamSkillInfo(team1, skill2);
+            var createAllTeamSkillsPromise = Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2)
+            ]);
+            var teamSkillsPromise = createAllTeamSkillsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo1.name); });
+            var exxpectedSkillInfo = [skillInfo1, skillInfo2];
+            return verifySkillsInfoWithoutOrderAsync(teamSkillsPromise, exxpectedSkillInfo);
+        });
+        it('should return all existing team skills with correct number of upvotes', function () {
+            var teamSkillInfo1 = createTeamSkillInfo(team1, skill1);
+            teamSkillInfo1.upvotes = 11;
+            var teamSkillInfo2 = createTeamSkillInfo(team1, skill2);
+            teamSkillInfo2.upvotes = 0;
+            var teamSkillInfo3 = createTeamSkillInfo(team1, skill3);
+            teamSkillInfo3.upvotes = 7;
+            var createAllTeamSkillsPromise = Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2),
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo3)
+            ]);
+            var teamSkillsPromise = createAllTeamSkillsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo1.name); });
+            var expectedSkillUpvotes = [
+                { skillId: teamSkillInfo1.skill_id, upvotes: teamSkillInfo1.upvotes },
+                { skillId: teamSkillInfo2.skill_id, upvotes: teamSkillInfo2.upvotes },
+                { skillId: teamSkillInfo3.skill_id, upvotes: teamSkillInfo3.upvotes }
+            ];
+            return verifySkillsUpvotesWithoutOrderAsync(teamSkillsPromise, expectedSkillUpvotes);
+        });
+        it('should return all existing skills and not return other skills', function () {
+            var teamSkillInfo1 = createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo2 = createTeamSkillInfo(team1, skill2);
+            var teamSkillInfo3 = createTeamSkillInfo(team2, skill1);
+            var teamSkillInfo4 = createTeamSkillInfo(team2, skill3);
+            var createAllTeamSkillsPromise = Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2),
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo3),
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo4)
+            ]);
+            var teamSkillsPromise = createAllTeamSkillsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo1.name); });
+            var expectedSkillsInfo = [skillInfo1, skillInfo2];
+            return verifySkillsInfoWithoutOrderAsync(teamSkillsPromise, expectedSkillsInfo);
         });
     });
 });

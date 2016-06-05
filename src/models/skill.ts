@@ -1,12 +1,15 @@
+import {ITeamSkillPivot} from "./interfaces/iTeamSkillPivot";
 import {Model, Collection, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {SkillPrerequisite} from './skillPrerequisite';
 import {ISkillInfo} from './interfaces/iSkillInfo';
+import {TeamSkill} from './teamSkill';
 
-export class Skill extends bookshelf.Model<Skill>{
+export class Skill extends bookshelf.Model<Skill> implements ITeamSkillPivot {
   public attributes: ISkillInfo;
+  public pivot: TeamSkill;
 
   public get tableName() { return 'skills'; }
   public get idAttribute() { return 'id'; }
