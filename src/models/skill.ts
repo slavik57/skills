@@ -3,10 +3,7 @@ import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {SkillPrerequisite} from './skillPrerequisite';
-
-export interface ISkillInfo {
-  name: string;
-}
+import {ISkillInfo} from './interfaces/iSkillInfo';
 
 export class Skill extends bookshelf.Model<Skill>{
   public attributes: ISkillInfo;

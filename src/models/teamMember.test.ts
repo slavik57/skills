@@ -1,10 +1,13 @@
+import {ITeamMemberInfo} from "./interfaces/iTeamMemberInfo";
+import {ITeamInfo} from "./interfaces/iTeamInfo";
+import {IUserInfo} from "./interfaces/iUserInfo";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as chaiAsPromised from 'chai-as-promised';
-import { ITeamInfo, Team, Teams } from './team';
-import { IUserInfo, User, Users } from './user';
-import { ITeamMemberInfo, TeamMember, TeamMembers } from './teamMember';
+import { Team, Teams } from './team';
+import { User, Users } from './user';
+import { TeamMember, TeamMembers } from './teamMember';
 
 chai.use(chaiAsPromised);
 

@@ -1,9 +1,11 @@
-import {IUserInfo, User, Users} from '../models/user';
-import {UserGlobalPermissions, UsersGlobalPermissions, GlobalPermission} from '../models/usersGlobalPermissions';
+import {IUserInfo} from "../models/interfaces/iUserInfo";
+import {GlobalPermission} from "../models/enums/globalPermission";
+import {User, Users} from '../models/user';
+import {UserGlobalPermissions, UsersGlobalPermissions} from '../models/usersGlobalPermissions';
 import {Collection} from 'bookshelf';
 import * as _ from 'lodash';
 import {Team, Teams} from '../models/team';
-import {IUserTeam} from '../models/iUserTeam';
+import {IUserTeam} from '../models/interfaces/iUserTeam';
 
 export class UserDataHandler {
   public static createUser(userInfo: IUserInfo): Promise<User> {

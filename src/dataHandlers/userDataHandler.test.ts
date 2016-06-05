@@ -1,15 +1,20 @@
+import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
+import {ITeamInfo} from "../models/interfaces/iTeamInfo";
+import {IUserGlobalPermissions} from "../models/interfaces/iUserGlobalPermissions";
+import {GlobalPermission} from "../models/enums/globalPermission";
+import {IUserInfo} from "../models/interfaces/iUserInfo";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as _ from 'lodash';
 import * as chaiAsPromised from 'chai-as-promised'
-import {IUserInfo, User, Users} from '../models/user';
+import { User, Users} from '../models/user';
 import {UserDataHandler} from './userDataHandler';
-import {IUserGlobalPermissions, UserGlobalPermissions, UsersGlobalPermissions, GlobalPermission} from '../models/usersGlobalPermissions';
-import {ITeamInfo, Team, Teams} from '../models/team';
-import {ITeamMemberInfo, TeamMember, TeamMembers} from '../models/teamMember';
+import {UserGlobalPermissions, UsersGlobalPermissions} from '../models/usersGlobalPermissions';
+import {Team, Teams} from '../models/team';
+import {TeamMember, TeamMembers} from '../models/teamMember';
 import {TeamsDataHandler} from './teamsDataHandler';
-import {IUserTeam} from '../models/iUserTeam';
+import {IUserTeam} from '../models/interfaces/iUserTeam';
 
 chai.use(chaiAsPromised);
 

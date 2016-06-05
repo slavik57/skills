@@ -1,7 +1,9 @@
+import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
+import {ITeamInfo} from "../models/interfaces/iTeamInfo";
 import {Collection} from 'bookshelf';
-import {ITeamInfo, Team} from '../models/team';
+import {Team} from '../models/team';
 import {} from '../models/user';
-import {ITeamMemberInfo, TeamMember} from '../models/teamMember';
+import {TeamMember} from '../models/teamMember';
 import {User, Users} from '../models/user';
 
 export class TeamsDataHandler {

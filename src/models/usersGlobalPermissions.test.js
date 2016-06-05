@@ -1,4 +1,5 @@
 "use strict";
+var globalPermission_1 = require("./enums/globalPermission");
 var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
@@ -26,7 +27,7 @@ describe('UserGlobalPermissions', function () {
                 .then(function (user) {
                 validUserGlobalPermissions = {
                     user_id: user.id,
-                    global_permissions: usersGlobalPermissions_1.GlobalPermission[usersGlobalPermissions_1.GlobalPermission.ADMIN]
+                    global_permissions: globalPermission_1.GlobalPermission[globalPermission_1.GlobalPermission.ADMIN]
                 };
             });
         });
@@ -77,10 +78,10 @@ describe('UserGlobalPermissions', function () {
             });
         });
         it('create 2 different permissions with existing user_id should succeed', function () {
-            validUserGlobalPermissions.global_permissions = usersGlobalPermissions_1.GlobalPermission[usersGlobalPermissions_1.GlobalPermission.ADMIN];
+            validUserGlobalPermissions.global_permissions = globalPermission_1.GlobalPermission[globalPermission_1.GlobalPermission.ADMIN];
             var otherUserGlobalPermissions = {
                 user_id: validUserGlobalPermissions.user_id,
-                global_permissions: usersGlobalPermissions_1.GlobalPermission[usersGlobalPermissions_1.GlobalPermission.READER]
+                global_permissions: globalPermission_1.GlobalPermission[globalPermission_1.GlobalPermission.READER]
             };
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
             var otherPermissions = new usersGlobalPermissions_1.UserGlobalPermissions(otherUserGlobalPermissions);
@@ -89,10 +90,10 @@ describe('UserGlobalPermissions', function () {
             return chai_1.expect(promise).to.eventually.equal(otherPermissions);
         });
         it('create 2 different permissions with existing user_id should be fetched', function () {
-            validUserGlobalPermissions.global_permissions = usersGlobalPermissions_1.GlobalPermission[usersGlobalPermissions_1.GlobalPermission.ADMIN];
+            validUserGlobalPermissions.global_permissions = globalPermission_1.GlobalPermission[globalPermission_1.GlobalPermission.ADMIN];
             var otherUserGlobalPermissions = {
                 user_id: validUserGlobalPermissions.user_id,
-                global_permissions: usersGlobalPermissions_1.GlobalPermission[usersGlobalPermissions_1.GlobalPermission.READER]
+                global_permissions: globalPermission_1.GlobalPermission[globalPermission_1.GlobalPermission.READER]
             };
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions(validUserGlobalPermissions);
             var otherPermissions = new usersGlobalPermissions_1.UserGlobalPermissions(otherUserGlobalPermissions);

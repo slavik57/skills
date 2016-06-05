@@ -2,12 +2,7 @@ import {Model, Collection, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
-
-export interface ITeamMemberInfo {
-  team_id: number;
-  user_id: number;
-  is_admin?: boolean;
-}
+import {ITeamMemberInfo} from './interfaces/iTeamMemberInfo';
 
 export class TeamMember extends bookshelf.Model<TeamMember>{
   public attributes: ITeamMemberInfo;

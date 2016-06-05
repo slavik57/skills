@@ -1,6 +1,8 @@
+import {ISkillPrerequisiteInfo} from "../models/interfaces/iSkillPrerequisiteInfo";
+import {ISkillInfo} from "../models/interfaces/iSkillInfo";
 import {Collection} from 'bookshelf';
-import {ISkillInfo, Skill, Skills} from '../models/skill';
-import {ISkillPrerequisiteInfo, SkillPrerequisite, SkillPrerequisites} from '../models/skillPrerequisite';
+import {Skill, Skills} from '../models/skill';
+import {SkillPrerequisite, SkillPrerequisites} from '../models/skillPrerequisite';
 
 export class SkillsDataHandler {
   public static createSkill(skillInfo: ISkillInfo): Promise<Skill> {

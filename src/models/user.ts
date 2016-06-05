@@ -7,15 +7,8 @@ import {TypesValidator} from '../commonUtils/typesValidator';
 import {UserGlobalPermissions} from './usersGlobalPermissions';
 import {Team} from './team';
 import {TeamMember} from './teamMember';
-import {IUserTeam} from './iUserTeam';
-
-export interface IUserInfo {
-  username: string;
-  password_hash: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
+import {IUserTeam} from './interfaces/iUserTeam';
+import {IUserInfo} from './interfaces/iUserInfo';
 
 export class User extends bookshelf.Model<User>{
   public attributes: IUserInfo;

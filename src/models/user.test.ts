@@ -1,8 +1,9 @@
+import {IUserInfo} from "./interfaces/iUserInfo";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as chaiAsPromised from 'chai-as-promised'
-import { IUserInfo, User, Users } from './user';
+import { User, Users } from './user';
 
 chai.use(chaiAsPromised);
 

@@ -4,11 +4,8 @@ import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {User} from './user';
 import {TeamMember} from './teamMember';
-import {ITeamMemberPivot} from './iTeamMemberPivot';
-
-export interface ITeamInfo {
-  name: string;
-}
+import {ITeamMemberPivot} from './interfaces/iTeamMemberPivot';
+import {ITeamInfo} from './interfaces/iTeamInfo';
 
 export class Team extends bookshelf.Model<Team> implements ITeamMemberPivot {
   public attributes: ITeamInfo;

@@ -1,18 +1,6 @@
 import {Model, Collection, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
-
-export enum GlobalPermission {
-  'ADMIN',
-  'TEAMS_LIST_ADMIN',
-  'SKILLS_LIST_ADMIN',
-  'READER',
-  'GUEST'
-}
-
-export interface IUserGlobalPermissions {
-  user_id: number;
-  global_permissions: string
-}
+import {IUserGlobalPermissions} from './interfaces/iUserGlobalPermissions';
 
 export class UserGlobalPermissions extends bookshelf.Model<UserGlobalPermissions>{
   public attributes: IUserGlobalPermissions;

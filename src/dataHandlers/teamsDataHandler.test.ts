@@ -1,11 +1,14 @@
+import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
+import {IUserInfo} from "../models/interfaces/iUserInfo";
+import {ITeamInfo} from "../models/interfaces/iTeamInfo";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as _ from 'lodash';
 import * as chaiAsPromised from 'chai-as-promised';
-import {ITeamInfo, Team, Teams} from '../models/team';
-import {ITeamMemberInfo, TeamMember, TeamMembers} from '../models/teamMember';
-import {IUserInfo, User, Users} from '../models/user';
+import {Team, Teams} from '../models/team';
+import {TeamMember, TeamMembers} from '../models/teamMember';
+import {User, Users} from '../models/user';
 import {TeamsDataHandler} from './teamsDataHandler';
 import {UserDataHandler} from './userDataHandler';
 

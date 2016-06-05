@@ -1,4 +1,5 @@
 "use strict";
+var globalPermission_1 = require("../models/enums/globalPermission");
 var chai = require('chai');
 var chai_1 = require('chai');
 var _ = require('lodash');
@@ -156,7 +157,7 @@ describe('userDataHandler', function () {
             permissions.forEach(function (permission) {
                 var newPermission = {
                     user_id: user.id,
-                    global_permissions: usersGlobalPermissions_1.GlobalPermission[permission]
+                    global_permissions: globalPermission_1.GlobalPermission[permission]
                 };
                 var newPermissionPromise = new usersGlobalPermissions_1.UserGlobalPermissions(newPermission).save();
                 permissionPromises.push(newPermissionPromise);
@@ -178,9 +179,9 @@ describe('userDataHandler', function () {
         it('user exists with permissions should return correct permissions list', function () {
             var userInfo = createUserInfo(1);
             var permissions = [
-                usersGlobalPermissions_1.GlobalPermission.ADMIN,
-                usersGlobalPermissions_1.GlobalPermission.TEAMS_LIST_ADMIN,
-                usersGlobalPermissions_1.GlobalPermission.SKILLS_LIST_ADMIN
+                globalPermission_1.GlobalPermission.ADMIN,
+                globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
+                globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
             ];
             var createUserPromise = userDataHandler_1.UserDataHandler.createUser(userInfo);
             var addUserPermissionsPromise = createUserPromise.then(function (user) { return addUserPermissions(user, permissions); });
@@ -191,13 +192,13 @@ describe('userDataHandler', function () {
             var userInfo1 = createUserInfo(1);
             var userInfo2 = createUserInfo(2);
             var permissions1 = [
-                usersGlobalPermissions_1.GlobalPermission.READER,
-                usersGlobalPermissions_1.GlobalPermission.SKILLS_LIST_ADMIN
+                globalPermission_1.GlobalPermission.READER,
+                globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
             ];
             var permissions2 = [
-                usersGlobalPermissions_1.GlobalPermission.ADMIN,
-                usersGlobalPermissions_1.GlobalPermission.TEAMS_LIST_ADMIN,
-                usersGlobalPermissions_1.GlobalPermission.SKILLS_LIST_ADMIN
+                globalPermission_1.GlobalPermission.ADMIN,
+                globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
+                globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
             ];
             var createUserPromise1 = userDataHandler_1.UserDataHandler.createUser(userInfo1);
             var createUserPromise2 = userDataHandler_1.UserDataHandler.createUser(userInfo2);
@@ -211,13 +212,13 @@ describe('userDataHandler', function () {
             var userInfo1 = createUserInfo(1);
             var userInfo2 = createUserInfo(2);
             var permissions1 = [
-                usersGlobalPermissions_1.GlobalPermission.READER,
-                usersGlobalPermissions_1.GlobalPermission.SKILLS_LIST_ADMIN
+                globalPermission_1.GlobalPermission.READER,
+                globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
             ];
             var permissions2 = [
-                usersGlobalPermissions_1.GlobalPermission.ADMIN,
-                usersGlobalPermissions_1.GlobalPermission.TEAMS_LIST_ADMIN,
-                usersGlobalPermissions_1.GlobalPermission.SKILLS_LIST_ADMIN
+                globalPermission_1.GlobalPermission.ADMIN,
+                globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
+                globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
             ];
             var createUserPromise1 = userDataHandler_1.UserDataHandler.createUser(userInfo1);
             var createUserPromise2 = userDataHandler_1.UserDataHandler.createUser(userInfo2);

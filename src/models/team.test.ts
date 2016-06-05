@@ -1,8 +1,9 @@
+import {ITeamInfo} from "./interfaces/iTeamInfo";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as chaiAsPromised from 'chai-as-promised'
-import { ITeamInfo, Team, Teams } from './team';
+import { Team, Teams } from './team';
 
 chai.use(chaiAsPromised);
 

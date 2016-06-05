@@ -2,11 +2,7 @@ import {Model, Collection, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
-
-export interface ISkillPrerequisiteInfo {
-  skill_id: number;
-  skill_prerequisite_id: number;
-}
+import {ISkillPrerequisiteInfo} from './interfaces/iSkillPrerequisiteInfo';
 
 export class SkillPrerequisite extends bookshelf.Model<SkillPrerequisite>{
   public attributes: ISkillPrerequisiteInfo;

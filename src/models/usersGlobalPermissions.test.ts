@@ -1,9 +1,12 @@
+import {GlobalPermission} from "./enums/globalPermission";
+import {IUserGlobalPermissions} from "./interfaces/iUserGlobalPermissions";
+import {IUserInfo} from "./interfaces/iUserInfo";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as chaiAsPromised from 'chai-as-promised'
-import { IUserInfo, User, Users } from './user';
-import { IUserGlobalPermissions, UserGlobalPermissions, UsersGlobalPermissions, GlobalPermission } from './usersGlobalPermissions';
+import { User, Users } from './user';
+import { UserGlobalPermissions, UsersGlobalPermissions } from './usersGlobalPermissions';
 
 chai.use(chaiAsPromised);
 

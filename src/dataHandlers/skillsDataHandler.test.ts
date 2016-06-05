@@ -1,11 +1,14 @@
+import {ISkillPrerequisiteInfo} from "../models/interfaces/iSkillPrerequisiteInfo";
+import {ISkillInfo} from "../models/interfaces/iSkillInfo";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as _ from 'lodash';
 import * as chaiAsPromised from 'chai-as-promised'
-import {ISkillInfo, Skill, Skills} from '../models/skill';
-import {ISkillPrerequisiteInfo, SkillPrerequisite, SkillPrerequisites} from '../models/skillPrerequisite';
+import {Skill, Skills} from '../models/skill';
+import {SkillPrerequisite, SkillPrerequisites} from '../models/skillPrerequisite';
 import {SkillsDataHandler} from './skillsDataHandler';
+
 
 chai.use(chaiAsPromised);
 

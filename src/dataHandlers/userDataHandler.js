@@ -1,4 +1,5 @@
 "use strict";
+var globalPermission_1 = require("../models/enums/globalPermission");
 var user_1 = require('../models/user');
 var usersGlobalPermissions_1 = require('../models/usersGlobalPermissions');
 var _ = require('lodash');
@@ -24,7 +25,7 @@ var UserDataHandler = (function () {
             .then(function (user) { return _this._fetchUserGlobalPermissions(user); })
             .then(function (usersGlobalPermissions) {
             var permissions = usersGlobalPermissions.toArray();
-            return _.map(permissions, function (_) { return usersGlobalPermissions_1.GlobalPermission[_.attributes.global_permissions]; });
+            return _.map(permissions, function (_) { return globalPermission_1.GlobalPermission[_.attributes.global_permissions]; });
         });
     };
     UserDataHandler.getTeams = function (userName) {

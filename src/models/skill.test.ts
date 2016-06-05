@@ -1,8 +1,9 @@
+import {ISkillInfo} from "./interfaces/iSkillInfo";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as chaiAsPromised from 'chai-as-promised'
-import { ISkillInfo, Skill, Skills } from './skill';
+import { Skill, Skills } from './skill';
 
 chai.use(chaiAsPromised);
 
