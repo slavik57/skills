@@ -34,7 +34,8 @@ describe('TeamsDataHandler', function () {
     function createTeamMemberInfo(team, user) {
         return {
             team_id: team.id,
-            user_id: user.id
+            user_id: user.id,
+            is_admin: false
         };
     }
     function verifyTeamInfoAsync(actualTeamPromise, expectedTeamInfo) {
@@ -96,7 +97,7 @@ describe('TeamsDataHandler', function () {
         function verifyUsersInfoWithoutOrderAsync(actualUsersPromise, expectedUsersInfo) {
             return chai_1.expect(actualUsersPromise).to.eventually.fulfilled
                 .then(function (users) {
-                var actualUserInfos = _.map(users, function (_) { return _.attributes; });
+                var actualUserInfos = _.map(users, function (_) { return _.user.attributes; });
                 verifyUsersInfoWithoutOrder(actualUserInfos, expectedUsersInfo);
             });
         }
@@ -114,6 +115,16 @@ describe('TeamsDataHandler', function () {
             delete actualCloned['id'];
             delete expectedCloned['id'];
             chai_1.expect(actualCloned).to.be.deep.equal(expectedCloned);
+        }
+        function verifyUsersAdminSettingsWithoutOrderAsync(actualUserOfATeamsPromise, expectedAdminSettings) {
+            return chai_1.expect(actualUserOfATeamsPromise).to.eventually.fulfilled
+                .then(function (actualTeams) {
+                var orderedActualUsers = _.orderBy(actualTeams, function (_) { return _.user.id; });
+                var actualIsAdmin = _.map(orderedActualUsers, function (_) { return _.isAdmin; });
+                var orderedExpectedAdminSettings = _.orderBy(expectedAdminSettings, function (_) { return _.userId; });
+                var expectedIsAdmin = _.map(orderedExpectedAdminSettings, function (_) { return _.isAdmin; });
+                chai_1.expect(actualIsAdmin).to.deep.equal(expectedIsAdmin);
+            });
         }
         var userInfo1;
         var userInfo2;
@@ -147,13 +158,11 @@ describe('TeamsDataHandler', function () {
         });
         it('not existing team should return empty', function () {
             var teamMembersPromise = teamsDataHandler_1.TeamsDataHandler.getTeamMembers('not existing team');
-            var expectedInfo = [];
-            return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedInfo);
+            return chai_1.expect(teamMembersPromise).to.eventually.deep.equal([]);
         });
         it('no team members should return empty', function () {
             var teamMembersPromise = teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo1.name);
-            var expectedInfo = [];
-            return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedInfo);
+            return chai_1.expect(teamMembersPromise).to.eventually.deep.equal([]);
         });
         it('should return all existing team members', function () {
             var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
@@ -163,8 +172,28 @@ describe('TeamsDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo2)
             ]);
             var teamMembersPromise = createAllTeamMembersPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo1.name); });
-            var expectedSkillsInfos = [userInfo1, userInfo2];
-            return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedSkillsInfos);
+            var expectedUserInfo = [userInfo1, userInfo2];
+            return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedUserInfo);
+        });
+        it('should return all existing team members with correct admin rights', function () {
+            var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
+            teamMemberInfo1.is_admin = true;
+            var teamMemberInfo2 = createTeamMemberInfo(team1, user2);
+            teamMemberInfo2.is_admin = false;
+            var teamMemberInfo3 = createTeamMemberInfo(team1, user3);
+            teamMemberInfo3.is_admin = true;
+            var createAllTeamMembersPromise = Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo1),
+                teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo2),
+                teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo3)
+            ]);
+            var teamMembersPromise = createAllTeamMembersPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo1.name); });
+            var expectedUserAdminConfigurations = [
+                { userId: teamMemberInfo1.user_id, isAdmin: teamMemberInfo1.is_admin },
+                { userId: teamMemberInfo2.user_id, isAdmin: teamMemberInfo2.is_admin },
+                { userId: teamMemberInfo3.user_id, isAdmin: teamMemberInfo3.is_admin }
+            ];
+            return verifyUsersAdminSettingsWithoutOrderAsync(teamMembersPromise, expectedUserAdminConfigurations);
         });
         it('should return all existing skill prerequisites and not return other prerequisites', function () {
             var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
@@ -178,8 +207,8 @@ describe('TeamsDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo4)
             ]);
             var teamMembersPromise = createAllTeamMembersPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo1.name); });
-            var expectedSkillsInfos = [userInfo1, userInfo2];
-            return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedSkillsInfos);
+            var expectedUserInfo = [userInfo1, userInfo2];
+            return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedUserInfo);
         });
     });
 });

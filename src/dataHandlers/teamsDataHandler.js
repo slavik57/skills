@@ -1,7 +1,6 @@
 "use strict";
 var team_1 = require('../models/team');
 var teamMember_1 = require('../models/teamMember');
-var user_1 = require('../models/user');
 var TeamsDataHandler = (function () {
     function TeamsDataHandler() {
     }
@@ -14,8 +13,7 @@ var TeamsDataHandler = (function () {
     TeamsDataHandler.getTeamMembers = function (teamName) {
         var _this = this;
         return this.getTeam(teamName)
-            .then(function (team) { return _this.fetchTeamMembersOfTeam(team); })
-            .then(function (teamMembers) { return teamMembers.toArray(); });
+            .then(function (team) { return _this.fetchTeamMembersOfTeam(team); });
     };
     TeamsDataHandler.getTeam = function (teamName) {
         return new team_1.Team()
@@ -24,9 +22,9 @@ var TeamsDataHandler = (function () {
     };
     TeamsDataHandler.fetchTeamMembersOfTeam = function (team) {
         if (!team) {
-            return Promise.resolve(new user_1.Users());
+            return Promise.resolve([]);
         }
-        return team.getTeamMembers().fetch();
+        return team.getTeamMembers();
     };
     return TeamsDataHandler;
 }());

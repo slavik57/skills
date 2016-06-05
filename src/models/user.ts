@@ -9,9 +9,11 @@ import {Team} from './team';
 import {TeamMember} from './teamMember';
 import {ITeamOfAUser} from './interfaces/iTeamOfAUser';
 import {IUserInfo} from './interfaces/iUserInfo';
+import {ITeamMemberPivot} from './interfaces/iTeamMemberPivot';
 
-export class User extends bookshelf.Model<User>{
+export class User extends bookshelf.Model<User> implements ITeamMemberPivot {
   public attributes: IUserInfo;
+  public pivot: TeamMember;
 
   public get tableName() { return 'users'; }
   public get idAttribute() { return 'id'; }
@@ -56,11 +58,11 @@ export class User extends bookshelf.Model<User>{
       .then((teamsCollection: Collection<Team>) => {
         var teams: Team[] = teamsCollection.toArray();
 
-        return _.map(teams, _team => this._convertTeamToUserTeam(_team));
+        return _.map(teams, _team => this._convertTeamToTeamOfAUser(_team));
       });
   }
 
-  private _convertTeamToUserTeam(team: Team): ITeamOfAUser {
+  private _convertTeamToTeamOfAUser(team: Team): ITeamOfAUser {
     var isAdmin: boolean = team.pivot.attributes.is_admin;
 
     return {

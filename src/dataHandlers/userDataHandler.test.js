@@ -267,7 +267,7 @@ describe('userDataHandler', function () {
         function verifyTeamAdminSettingsAsync(actualUserTeamsPromise, expectedAdminSettings) {
             return chai_1.expect(actualUserTeamsPromise).to.eventually.fulfilled
                 .then(function (actualTeams) {
-                var orderedActualTeams = _.orderBy(actualTeams, function (_) { return _.team.attributes.name; });
+                var orderedActualTeams = _.orderBy(actualTeams, function (_) { return _.team.id; });
                 var actualIsAdmin = _.map(orderedActualTeams, function (_) { return _.isAdmin; });
                 var orderedExpectedAdminSettings = _.orderBy(expectedAdminSettings, function (_) { return _.teamId; });
                 var expectedIsAdmin = _.map(orderedExpectedAdminSettings, function (_) { return _.isAdmin; });

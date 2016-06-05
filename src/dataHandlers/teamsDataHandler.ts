@@ -1,3 +1,4 @@
+import {IUserOfATeam} from "../models/interfaces/iUserOfATeam";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
 import {ITeamInfo} from "../models/interfaces/iTeamInfo";
 import {Collection} from 'bookshelf';
@@ -16,10 +17,9 @@ export class TeamsDataHandler {
     return new TeamMember(teamMemberInfo).save();
   }
 
-  public static getTeamMembers(teamName: string): Promise<User[]> {
+  public static getTeamMembers(teamName: string): Promise<IUserOfATeam[]> {
     return this.getTeam(teamName)
-      .then((team: Team) => this.fetchTeamMembersOfTeam(team))
-      .then((teamMembers: Collection<User>) => teamMembers.toArray());
+      .then((team: Team) => this.fetchTeamMembersOfTeam(team));
   }
 
   public static getTeam(teamName: string): Promise<Team> {
@@ -28,12 +28,12 @@ export class TeamsDataHandler {
       .fetch();
   }
 
-  private static fetchTeamMembersOfTeam(team: Team): Promise<Collection<User>> {
+  private static fetchTeamMembersOfTeam(team: Team): Promise<IUserOfATeam[]> {
     if (!team) {
-      return Promise.resolve(new Users());
+      return Promise.resolve([]);
     }
 
-    return team.getTeamMembers().fetch();
+    return team.getTeamMembers();
   }
 
 }

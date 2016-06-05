@@ -60,10 +60,10 @@ var User = (function (_super) {
             .fetch()
             .then(function (teamsCollection) {
             var teams = teamsCollection.toArray();
-            return _.map(teams, function (_team) { return _this._convertTeamToUserTeam(_team); });
+            return _.map(teams, function (_team) { return _this._convertTeamToTeamOfAUser(_team); });
         });
     };
-    User.prototype._convertTeamToUserTeam = function (team) {
+    User.prototype._convertTeamToTeamOfAUser = function (team) {
         var isAdmin = team.pivot.attributes.is_admin;
         return {
             team: team,

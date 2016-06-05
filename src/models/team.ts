@@ -1,6 +1,8 @@
+import {IUserOfATeam} from "./interfaces/iUserOfATeam";
 import {Model, Collection, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
+import * as _ from 'lodash';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {User} from './user';
 import {TeamMember} from './teamMember';
@@ -26,9 +28,25 @@ export class Team extends bookshelf.Model<Team> implements ITeamMemberPivot {
     return null;
   }
 
-  public getTeamMembers(): Collection<User> {
-    return this.belongsToMany(User).through<User>(TeamMember, 'team_id', 'user_id');
+  public getTeamMembers(): Promise<IUserOfATeam[]> {
+    return this.belongsToMany(User)
+      .withPivot(['is_admin'])
+      .through<User>(TeamMember, 'team_id', 'user_id')
+      .fetch()
+      .then((usersCollection: Collection<User>) => {
+        var users: User[] = usersCollection.toArray();
+
+        return _.map(users, _user => this._convertUserToUserOfATeam(_user));
+      });
   }
+
+  private _convertUserToUserOfATeam(user: User): IUserOfATeam {
+    return {
+      user: user,
+      isAdmin: user.pivot.attributes.is_admin
+    }
+  }
+
 }
 
 export class Teams extends bookshelf.Collection<Team> {

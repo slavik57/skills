@@ -11,6 +11,7 @@ import {TeamMember, TeamMembers} from '../models/teamMember';
 import {User, Users} from '../models/user';
 import {TeamsDataHandler} from './teamsDataHandler';
 import {UserDataHandler} from './userDataHandler';
+import {IUserOfATeam} from '../models/interfaces/iUserOfATeam';
 
 chai.use(chaiAsPromised);
 
@@ -43,7 +44,8 @@ describe('TeamsDataHandler', () => {
   function createTeamMemberInfo(team: Team, user: User): ITeamMemberInfo {
     return {
       team_id: team.id,
-      user_id: user.id
+      user_id: user.id,
+      is_admin: false
     }
   }
 
@@ -145,13 +147,18 @@ describe('TeamsDataHandler', () => {
 
   describe('getTeamMembers', () => {
 
-    function verifyUsersInfoWithoutOrderAsync(actualUsersPromise: Promise<User[]>,
+    interface IUserIdToIsAdmin {
+      userId: number;
+      isAdmin: boolean;
+    }
+
+    function verifyUsersInfoWithoutOrderAsync(actualUsersPromise: Promise<IUserOfATeam[]>,
       expectedUsersInfo: IUserInfo[]): Promise<void> {
 
       return expect(actualUsersPromise).to.eventually.fulfilled
-        .then((users: User[]) => {
+        .then((users: IUserOfATeam[]) => {
 
-          var actualUserInfos: IUserInfo[] = _.map(users, _ => _.attributes);
+          var actualUserInfos: IUserInfo[] = _.map(users, _ => _.user.attributes);
 
           verifyUsersInfoWithoutOrder(actualUserInfos, expectedUsersInfo);
         });
@@ -176,6 +183,21 @@ describe('TeamsDataHandler', () => {
       delete expectedCloned['id'];
 
       expect(actualCloned).to.be.deep.equal(expectedCloned);
+    }
+
+    function verifyUsersAdminSettingsWithoutOrderAsync(actualUserOfATeamsPromise: Promise<IUserOfATeam[]>,
+      expectedAdminSettings: IUserIdToIsAdmin[]): Promise<void> {
+
+      return expect(actualUserOfATeamsPromise).to.eventually.fulfilled
+        .then((actualTeams: IUserOfATeam[]) => {
+          var orderedActualUsers: IUserOfATeam[] = _.orderBy(actualTeams, _ => _.user.id);
+          var actualIsAdmin: boolean[] = _.map(orderedActualUsers, _ => _.isAdmin);
+
+          var orderedExpectedAdminSettings: IUserIdToIsAdmin[] = _.orderBy(expectedAdminSettings, _ => _.userId);
+          var expectedIsAdmin: boolean[] = _.map(orderedExpectedAdminSettings, _ => _.isAdmin);
+
+          expect(actualIsAdmin).to.deep.equal(expectedIsAdmin);
+        });
     }
 
     var userInfo1: IUserInfo;
@@ -215,22 +237,20 @@ describe('TeamsDataHandler', () => {
 
     it('not existing team should return empty', () => {
       // Act
-      var teamMembersPromise: Promise<User[]> =
+      var teamMembersPromise: Promise<IUserOfATeam[]> =
         TeamsDataHandler.getTeamMembers('not existing team');
 
       // Assert
-      var expectedInfo: IUserInfo[] = [];
-      return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedInfo);
+      return expect(teamMembersPromise).to.eventually.deep.equal([]);
     });
 
     it('no team members should return empty', () => {
       // Act
-      var teamMembersPromise: Promise<User[]> =
+      var teamMembersPromise: Promise<IUserOfATeam[]> =
         TeamsDataHandler.getTeamMembers(teamInfo1.name);
 
       // Assert
-      var expectedInfo: IUserInfo[] = [];
-      return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedInfo);
+      return expect(teamMembersPromise).to.eventually.deep.equal([]);
     });
 
     it('should return all existing team members', () => {
@@ -245,12 +265,41 @@ describe('TeamsDataHandler', () => {
         ]);
 
       // Act
-      var teamMembersPromise: Promise<User[]> =
+      var teamMembersPromise: Promise<IUserOfATeam[]> =
         createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(teamInfo1.name));
 
       // Assert
-      var expectedSkillsInfos: IUserInfo[] = [userInfo1, userInfo2];
-      return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedSkillsInfos);
+      var expectedUserInfo: IUserInfo[] = [userInfo1, userInfo2];
+      return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedUserInfo);
+    });
+
+    it('should return all existing team members with correct admin rights', () => {
+      // Arrange
+      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      teamMemberInfo1.is_admin = true;
+      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team1, user2);
+      teamMemberInfo2.is_admin = false;
+      var teamMemberInfo3: ITeamMemberInfo = createTeamMemberInfo(team1, user3);
+      teamMemberInfo3.is_admin = true;
+
+      var createAllTeamMembersPromise: Promise<any> =
+        Promise.all([
+          TeamsDataHandler.addTeamMember(teamMemberInfo1),
+          TeamsDataHandler.addTeamMember(teamMemberInfo2),
+          TeamsDataHandler.addTeamMember(teamMemberInfo3)
+        ]);
+
+      // Act
+      var teamMembersPromise: Promise<IUserOfATeam[]> =
+        createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(teamInfo1.name));
+
+      // Assert
+      var expectedUserAdminConfigurations: IUserIdToIsAdmin[] = [
+        { userId: teamMemberInfo1.user_id, isAdmin: teamMemberInfo1.is_admin },
+        { userId: teamMemberInfo2.user_id, isAdmin: teamMemberInfo2.is_admin },
+        { userId: teamMemberInfo3.user_id, isAdmin: teamMemberInfo3.is_admin }
+      ];
+      return verifyUsersAdminSettingsWithoutOrderAsync(teamMembersPromise, expectedUserAdminConfigurations);
     });
 
     it('should return all existing skill prerequisites and not return other prerequisites', () => {
@@ -270,12 +319,12 @@ describe('TeamsDataHandler', () => {
         ]);
 
       // Act
-      var teamMembersPromise: Promise<User[]> =
+      var teamMembersPromise: Promise<IUserOfATeam[]> =
         createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(teamInfo1.name));
 
       // Assert
-      var expectedSkillsInfos: IUserInfo[] = [userInfo1, userInfo2];
-      return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedSkillsInfos);
+      var expectedUserInfo: IUserInfo[] = [userInfo1, userInfo2];
+      return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedUserInfo);
     });
 
   });

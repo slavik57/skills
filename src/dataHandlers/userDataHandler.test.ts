@@ -440,7 +440,7 @@ describe('userDataHandler', () => {
 
       return expect(actualUserTeamsPromise).to.eventually.fulfilled
         .then((actualTeams: ITeamOfAUser[]) => {
-          var orderedActualTeams: ITeamOfAUser[] = _.orderBy(actualTeams, _ => _.team.attributes.name);
+          var orderedActualTeams: ITeamOfAUser[] = _.orderBy(actualTeams, _ => _.team.id);
           var actualIsAdmin: boolean[] = _.map(orderedActualTeams, _ => _.isAdmin);
 
           var orderedExpectedAdminSettings: ITeamIdToIsAdmin[] = _.orderBy(expectedAdminSettings, _ => _.teamId);
