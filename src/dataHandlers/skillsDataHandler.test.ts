@@ -1,3 +1,4 @@
+import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
 import {TeamSkillUpvotes} from "../models/teamSkillUpvote";
 import {TeamSkill, TeamSkills} from "../models/teamSkill";
 import {IUserInfo} from "../models/interfaces/iUserInfo";
@@ -44,14 +45,6 @@ describe('SkillsDataHandler', () => {
     return clearTables();
   });
 
-  function createSkillInfo(skillNumber: number): ISkillInfo {
-    var skillNumberString = skillNumber.toString();
-
-    return {
-      name: 'name ' + skillNumberString
-    }
-  }
-
   function verifySkillInfoAsync(actualSkillPromise: Promise<Skill>,
     expectedSkillInfo: ISkillInfo): Promise<void> {
 
@@ -69,13 +62,6 @@ describe('SkillsDataHandler', () => {
     delete expectedCloned['id'];
 
     expect(actualCloned).to.be.deep.equal(expectedCloned);
-  }
-
-  function createSkillPrerequisiteInfo(skill: Skill, skillPrerequisite: Skill): ISkillPrerequisiteInfo {
-    return {
-      skill_id: skill.id,
-      skill_prerequisite_id: skillPrerequisite.id
-    }
   }
 
   function verifySkillPrerequisiteInfoAsync(actualSkillPrerequisitePromise: Promise<SkillPrerequisite>,
@@ -147,7 +133,7 @@ describe('SkillsDataHandler', () => {
 
     it('should create a skill correctly', () => {
       // Act
-      var skillInfo: ISkillInfo = createSkillInfo(1);
+      var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('1');
       var skillPromise: Promise<Skill> =
         SkillsDataHandler.createSkill(skillInfo);
 
@@ -170,7 +156,7 @@ describe('SkillsDataHandler', () => {
 
     it('skill exists should return correct skill', () => {
       // Arrange
-      var skillInfo: ISkillInfo = createSkillInfo(1);
+      var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('1');
       var createSkillPromise: Promise<Skill> =
         SkillsDataHandler.createSkill(skillInfo);
 
@@ -197,9 +183,9 @@ describe('SkillsDataHandler', () => {
 
     it('should return all created skills', () => {
       // Arrange
-      var skillInfo1: ISkillInfo = createSkillInfo(1);
-      var skillInfo2: ISkillInfo = createSkillInfo(2);
-      var skillInfo3: ISkillInfo = createSkillInfo(3);
+      var skillInfo1: ISkillInfo = ModelInfoMockFactory.createSkillInfo('1');
+      var skillInfo2: ISkillInfo = ModelInfoMockFactory.createSkillInfo('2');
+      var skillInfo3: ISkillInfo = ModelInfoMockFactory.createSkillInfo('3');
 
       var createAllSkillsPromise: Promise<any> =
         Promise.all([
@@ -223,8 +209,8 @@ describe('SkillsDataHandler', () => {
 
     it('should create a skillPrerequisite', () => {
       // Act
-      var skillInfo1: ISkillInfo = createSkillInfo(1);
-      var skillInfo2: ISkillInfo = createSkillInfo(2);
+      var skillInfo1: ISkillInfo = ModelInfoMockFactory.createSkillInfo('1');
+      var skillInfo2: ISkillInfo = ModelInfoMockFactory.createSkillInfo('2');
 
       var createAllSkillsPromise =
         Promise.all([
@@ -237,7 +223,7 @@ describe('SkillsDataHandler', () => {
           var skill1 = skills[0];
           var skill2 = skills[1];
 
-          var skillPrerequisiteInfo: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill1, skill2);
+          var skillPrerequisiteInfo: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
 
           return SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo);
         });
@@ -261,8 +247,8 @@ describe('SkillsDataHandler', () => {
 
     it('should return all created skill prerequisites', () => {
       // Arrange
-      var skillInfo1: ISkillInfo = createSkillInfo(1);
-      var skillInfo2: ISkillInfo = createSkillInfo(2);
+      var skillInfo1: ISkillInfo = ModelInfoMockFactory.createSkillInfo('1');
+      var skillInfo2: ISkillInfo = ModelInfoMockFactory.createSkillInfo('2');
 
       var createAllSkillsPromise =
         Promise.all([
@@ -278,8 +264,8 @@ describe('SkillsDataHandler', () => {
           var skill1: Skill = skills[0];
           var skill2: Skill = skills[1];
 
-          skillPrerequisiteInfo1 = createSkillPrerequisiteInfo(skill1, skill2);
-          skillPrerequisiteInfo2 = createSkillPrerequisiteInfo(skill2, skill1);
+          skillPrerequisiteInfo1 = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
+          skillPrerequisiteInfo2 = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
 
           return Promise.all([
             SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo1),
@@ -312,9 +298,9 @@ describe('SkillsDataHandler', () => {
     var skill3: Skill;
 
     beforeEach(() => {
-      skillInfo1 = createSkillInfo(1);
-      skillInfo2 = createSkillInfo(2);
-      skillInfo3 = createSkillInfo(3);
+      skillInfo1 = ModelInfoMockFactory.createSkillInfo('1');
+      skillInfo2 = ModelInfoMockFactory.createSkillInfo('2');
+      skillInfo3 = ModelInfoMockFactory.createSkillInfo('3');
 
       return Promise.all([
         SkillsDataHandler.createSkill(skillInfo1),
@@ -349,8 +335,8 @@ describe('SkillsDataHandler', () => {
 
     it('should return all existing skill prerequisites', () => {
       // Arrange
-      var skill1PrerequisiteInfo1: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill1, skill2);
-      var skill1PrerequisiteInfo2: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill1, skill3);
+      var skill1PrerequisiteInfo1: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
+      var skill1PrerequisiteInfo2: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill3);
 
       var createAllSkillPrerequisitesPromise: Promise<any> =
         Promise.all([
@@ -369,10 +355,10 @@ describe('SkillsDataHandler', () => {
 
     it('should return all existing skill prerequisites and not return other prerequisites', () => {
       // Arrange
-      var skill1PrerequisiteInfo1: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill1, skill2);
-      var skill1PrerequisiteInfo2: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill1, skill3);
+      var skill1PrerequisiteInfo1: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
+      var skill1PrerequisiteInfo2: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill3);
 
-      var skill2PrerequisiteInfo: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill2, skill1);
+      var skill2PrerequisiteInfo: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
 
       var createAllSkillPrerequisitesPromise: Promise<any> =
         Promise.all([
@@ -403,9 +389,9 @@ describe('SkillsDataHandler', () => {
     var skill3: Skill;
 
     beforeEach(() => {
-      skillInfo1 = createSkillInfo(1);
-      skillInfo2 = createSkillInfo(2);
-      skillInfo3 = createSkillInfo(3);
+      skillInfo1 = ModelInfoMockFactory.createSkillInfo('1');
+      skillInfo2 = ModelInfoMockFactory.createSkillInfo('2');
+      skillInfo3 = ModelInfoMockFactory.createSkillInfo('3');
 
       return Promise.all([
         SkillsDataHandler.createSkill(skillInfo1),
@@ -440,8 +426,8 @@ describe('SkillsDataHandler', () => {
 
     it('no skill prerequisites leading to skill should return empty', () => {
       // Act
-      var skill1PrerequisiteInfo1: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill1, skill2);
-      var skill1PrerequisiteInfo2: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill1, skill3);
+      var skill1PrerequisiteInfo1: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
+      var skill1PrerequisiteInfo2: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill3);
 
       var createAllSkillPrerequisitesPromise: Promise<any> =
         Promise.all([
@@ -460,8 +446,8 @@ describe('SkillsDataHandler', () => {
 
     it('should return all existing skills with prerequisites of this skill', () => {
       // Arrange
-      var skill2PrerequisiteInfo1: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill2, skill1);
-      var skill3PrerequisiteInfo1: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill3, skill1);
+      var skill2PrerequisiteInfo1: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
+      var skill3PrerequisiteInfo1: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill3, skill1);
 
       var createAllSkillPrerequisitesPromise: Promise<any> =
         Promise.all([
@@ -480,10 +466,10 @@ describe('SkillsDataHandler', () => {
 
     it('should return all existing skill with prerequisites of this skill and not return other skills', () => {
       // Arrange
-      var skill2PrerequisiteInfo1: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill2, skill1);
-      var skill3PrerequisiteInfo1: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill3, skill1);
+      var skill2PrerequisiteInfo1: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
+      var skill3PrerequisiteInfo1: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill3, skill1);
 
-      var skill1PrerequisiteInfo2: ISkillPrerequisiteInfo = createSkillPrerequisiteInfo(skill1, skill2);
+      var skill1PrerequisiteInfo2: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
 
       var createAllSkillPrerequisitesPromise: Promise<any> =
         Promise.all([
@@ -539,19 +525,6 @@ describe('SkillsDataHandler', () => {
       expect(actualCloned).to.be.deep.equal(expectedCloned);
     }
 
-    function createTeamInfo(teamName: string): ITeamInfo {
-      return {
-        name: teamName
-      };
-    }
-
-    function createTeamSkillInfo(team: Team, skill: Skill): ITeamSkillInfo {
-      return {
-        team_id: team.id,
-        skill_id: skill.id
-      }
-    }
-
     function verifyTeamUpvotingUsersAsync(actualTeamsOfSkillPromise: Promise<ITeamOfASkill[]>,
       expectedSkillUpdvotes: ITeamIdToUpvotes[]): Promise<void> {
 
@@ -565,16 +538,6 @@ describe('SkillsDataHandler', () => {
 
           expect(actualUpvodtingUserIds).to.deep.equal(expectedUpvotingUserIds);
         });
-    }
-
-    function createUserInfo(userNumber): IUserInfo {
-      return {
-        username: 'username' + userNumber,
-        password_hash: 'password' + userNumber,
-        email: 'email' + userNumber + '@gmail.com',
-        firstName: 'firstName' + userNumber,
-        lastName: 'lastName' + userNumber
-      };
     }
 
     var teamInfo1: ITeamInfo;
@@ -595,15 +558,15 @@ describe('SkillsDataHandler', () => {
     var user2: User;
 
     beforeEach(() => {
-      teamInfo1 = createTeamInfo('a');
-      teamInfo2 = createTeamInfo('b');
-      teamInfo3 = createTeamInfo('c');
+      teamInfo1 = ModelInfoMockFactory.createTeamInfo('a');
+      teamInfo2 = ModelInfoMockFactory.createTeamInfo('b');
+      teamInfo3 = ModelInfoMockFactory.createTeamInfo('c');
 
-      skillInfo1 = createSkillInfo(1);
-      skillInfo2 = createSkillInfo(2);
+      skillInfo1 = ModelInfoMockFactory.createSkillInfo('1');
+      skillInfo2 = ModelInfoMockFactory.createSkillInfo('2');
 
-      userInfo1 = createUserInfo(1);
-      userInfo2 = createUserInfo(2);
+      userInfo1 = ModelInfoMockFactory.createUserInfo(1);
+      userInfo2 = ModelInfoMockFactory.createUserInfo(2);
 
       return Promise.all([
         TeamsDataHandler.createTeam(teamInfo1),
@@ -644,8 +607,8 @@ describe('SkillsDataHandler', () => {
 
     it('skill exists with teams should return correct teams', () => {
       // Arrange
-      var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team2, skill1);
+      var teamSkillInfo1: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo2: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
 
       // Assert
       var addSkillsPromise: Promise<any> =
@@ -665,9 +628,9 @@ describe('SkillsDataHandler', () => {
 
     it('skill exists with teams should return correct upvoting user ids', () => {
       // Arrange
-      var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team2, skill1);
-      var teamSkillInfo3: ITeamSkillInfo = createTeamSkillInfo(team3, skill1);
+      var teamSkillInfo1: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo2: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
+      var teamSkillInfo3: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team3, skill1);
 
       // Assert
       var addSkillsPromise: Promise<any> =
@@ -693,10 +656,10 @@ describe('SkillsDataHandler', () => {
 
     it('multiple skills exist with teams should return correct teams', () => {
       // Arrange
-      var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team2, skill1);
+      var teamSkillInfo1: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo2: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
 
-      var teamSkillInfo3: ITeamSkillInfo = createTeamSkillInfo(team1, skill2);
+      var teamSkillInfo3: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
 
       // Assert
       var addSkillsPromise: Promise<any> =
@@ -717,9 +680,9 @@ describe('SkillsDataHandler', () => {
 
     it('skill exists with teams with upvotes should return correct upvoting user ids', () => {
       // Arrange
-      var team1SkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      var team2SkillInfo: ITeamSkillInfo = createTeamSkillInfo(team2, skill1);
-      var team3SkillInfo: ITeamSkillInfo = createTeamSkillInfo(team3, skill1);
+      var team1SkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+      var team2SkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
+      var team3SkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team3, skill1);
 
       var addSkillsAndUpvote: Promise<any> =
         Promise.all([

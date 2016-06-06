@@ -1,4 +1,5 @@
 "use strict";
+var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
 var globalPermission_1 = require("../models/enums/globalPermission");
 var chai = require('chai');
 var chai_1 = require('chai');
@@ -29,16 +30,6 @@ describe('userDataHandler', function () {
     afterEach(function () {
         return clearTables();
     });
-    function createUserInfo(userNumber) {
-        var userNumberString = userNumber.toString();
-        return {
-            username: userNumberString + ' name',
-            password_hash: userNumberString + ' password',
-            email: userNumberString + '@gmail.com',
-            firstName: userNumberString + ' first name',
-            lastName: userNumberString + ' last name'
-        };
-    }
     function verifyUserInfoAsync(actualUserPromise, expectedUserInfo) {
         return chai_1.expect(actualUserPromise).to.eventually.fulfilled
             .then(function (user) {
@@ -77,7 +68,7 @@ describe('userDataHandler', function () {
     }
     describe('createUser', function () {
         it('should create user correctly', function () {
-            var userInfo = createUserInfo(1);
+            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             var userPromise = userDataHandler_1.UserDataHandler.createUser(userInfo);
             return verifyUserInfoAsync(userPromise, userInfo);
         });
@@ -88,7 +79,7 @@ describe('userDataHandler', function () {
             return chai_1.expect(userPromise).to.eventually.null;
         });
         it('user exists should return correct user', function () {
-            var userInfo = createUserInfo(1);
+            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             var createUserPromise = userDataHandler_1.UserDataHandler.createUser(userInfo);
             var getUserPromise = createUserPromise.then(function () { return userDataHandler_1.UserDataHandler.getUser(userInfo.username); });
             return verifyUserInfoAsync(getUserPromise, userInfo);
@@ -116,9 +107,9 @@ describe('userDataHandler', function () {
             return verifyUsersInfoWithoutOrderAsync(usersPromose, expectedUsersInfo);
         });
         it('should return all created users', function () {
-            var userInfo1 = createUserInfo(1);
-            var userInfo2 = createUserInfo(2);
-            var userInfo3 = createUserInfo(3);
+            var userInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+            var userInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2);
+            var userInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(3);
             var createAllUsersPromise = Promise.all([
                 userDataHandler_1.UserDataHandler.createUser(userInfo1),
                 userDataHandler_1.UserDataHandler.createUser(userInfo2),
@@ -136,14 +127,14 @@ describe('userDataHandler', function () {
             return verifyUserGlobalPermissionsAsync(permissionsPromise, expectedPermissions);
         });
         it('user exists but has no permissions should return empty permissions list', function () {
-            var userInfo = createUserInfo(1);
+            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             var createUserPromise = userDataHandler_1.UserDataHandler.createUser(userInfo);
             var permissionsPromise = createUserPromise.then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userInfo.username); });
             var expectedPermissions = [];
             return verifyUserGlobalPermissionsAsync(permissionsPromise, expectedPermissions);
         });
         it('user exists with permissions should return correct permissions list', function () {
-            var userInfo = createUserInfo(1);
+            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             var permissions = [
                 globalPermission_1.GlobalPermission.ADMIN,
                 globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
@@ -155,8 +146,8 @@ describe('userDataHandler', function () {
             return verifyUserGlobalPermissionsAsync(permissionsPromise, permissions);
         });
         it('multiple users exist with permissions should return correct permissions list', function () {
-            var userInfo1 = createUserInfo(1);
-            var userInfo2 = createUserInfo(2);
+            var userInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+            var userInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2);
             var permissions1 = [
                 globalPermission_1.GlobalPermission.READER,
                 globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
@@ -175,8 +166,8 @@ describe('userDataHandler', function () {
             return verifyUserGlobalPermissionsAsync(permissionsPromise, permissions1);
         });
         it('multiple users exist with permissions should return correct permissions list 2', function () {
-            var userInfo1 = createUserInfo(1);
-            var userInfo2 = createUserInfo(2);
+            var userInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+            var userInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2);
             var permissions1 = [
                 globalPermission_1.GlobalPermission.READER,
                 globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
@@ -218,18 +209,6 @@ describe('userDataHandler', function () {
             delete expectedCloned['id'];
             chai_1.expect(actualCloned).to.be.deep.equal(expectedCloned);
         }
-        function createTeamInfo(teamName) {
-            return {
-                name: teamName
-            };
-        }
-        function createTeamMemberInfo(team, user) {
-            return {
-                team_id: team.id,
-                user_id: user.id,
-                is_admin: false
-            };
-        }
         function verifyTeamAdminSettingsAsync(actualUserTeamsPromise, expectedAdminSettings) {
             return chai_1.expect(actualUserTeamsPromise).to.eventually.fulfilled
                 .then(function (actualTeams) {
@@ -251,11 +230,11 @@ describe('userDataHandler', function () {
         var user1;
         var user2;
         beforeEach(function () {
-            teamInfo1 = createTeamInfo('a');
-            teamInfo2 = createTeamInfo('b');
-            teamInfo3 = createTeamInfo('c');
-            userInfo1 = createUserInfo(1);
-            userInfo2 = createUserInfo(2);
+            teamInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');
+            teamInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('b');
+            teamInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('c');
+            userInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+            userInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2);
             return Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
                 teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
@@ -279,8 +258,8 @@ describe('userDataHandler', function () {
             return chai_1.expect(teamsPromise).to.eventually.deep.equal([]);
         });
         it('user exists with teams should return correct teams', function () {
-            var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
-            var teamMemberInfo2 = createTeamMemberInfo(team2, user1);
+            var teamMemberInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
+            var teamMemberInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team2, user1);
             var addTeamsPromise = Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo2)
@@ -290,11 +269,11 @@ describe('userDataHandler', function () {
             return verifyTeamsAsync(teamsPromise, expectedTeams);
         });
         it('user exists with teams should return correct admin settings', function () {
-            var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             teamMemberInfo1.is_admin = true;
-            var teamMemberInfo2 = createTeamMemberInfo(team2, user1);
+            var teamMemberInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team2, user1);
             teamMemberInfo2.is_admin = false;
-            var teamMemberInfo3 = createTeamMemberInfo(team3, user1);
+            var teamMemberInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team3, user1);
             teamMemberInfo3.is_admin = true;
             var addTeamsPromise = Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo1),
@@ -310,9 +289,9 @@ describe('userDataHandler', function () {
             return verifyTeamAdminSettingsAsync(teamsPromise, expectedTeamAdminSettings);
         });
         it('multiple users exist with teams should return correct teams', function () {
-            var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
-            var teamMemberInfo2 = createTeamMemberInfo(team2, user1);
-            var teamMemberInfo3 = createTeamMemberInfo(team1, user2);
+            var teamMemberInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
+            var teamMemberInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team2, user1);
+            var teamMemberInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user2);
             var addTeamsPromise = Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo2),
@@ -327,7 +306,7 @@ describe('userDataHandler', function () {
         var userInfo;
         var user;
         beforeEach(function () {
-            userInfo = createUserInfo(1);
+            userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             return userDataHandler_1.UserDataHandler.createUser(userInfo)
                 .then(function (_user) {
                 user = _user;
@@ -408,7 +387,7 @@ describe('userDataHandler', function () {
         var userInfo;
         var user;
         beforeEach(function () {
-            userInfo = createUserInfo(1);
+            userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             return userDataHandler_1.UserDataHandler.createUser(userInfo)
                 .then(function (_user) {
                 user = _user;

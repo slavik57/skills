@@ -40,6 +40,12 @@ var ModelInfoMockFactory = (function () {
             is_admin: false
         };
     };
+    ModelInfoMockFactory.createSkillPrerequisiteInfo = function (skill, skillPrerequisite) {
+        return {
+            skill_id: skill.id,
+            skill_prerequisite_id: skillPrerequisite.id
+        };
+    };
     return ModelInfoMockFactory;
 }());
 exports.ModelInfoMockFactory = ModelInfoMockFactory;

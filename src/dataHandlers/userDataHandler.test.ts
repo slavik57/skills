@@ -1,3 +1,4 @@
+import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
 import {ITeamInfo} from "../models/interfaces/iTeamInfo";
 import {IUserGlobalPermissions} from "../models/interfaces/iUserGlobalPermissions";
@@ -38,18 +39,6 @@ describe('userDataHandler', () => {
   afterEach(() => {
     return clearTables();
   });
-
-  function createUserInfo(userNumber: number): IUserInfo {
-    var userNumberString = userNumber.toString();
-
-    return {
-      username: userNumberString + ' name',
-      password_hash: userNumberString + ' password',
-      email: userNumberString + '@gmail.com',
-      firstName: userNumberString + ' first name',
-      lastName: userNumberString + ' last name'
-    }
-  }
 
   function verifyUserInfoAsync(actualUserPromise: Promise<User>,
     expectedUserInfo: IUserInfo): Promise<void> {
@@ -108,7 +97,7 @@ describe('userDataHandler', () => {
 
     it('should create user correctly', () => {
       // Act
-      var userInfo: IUserInfo = createUserInfo(1);
+      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
       var userPromise: Promise<User> =
         UserDataHandler.createUser(userInfo);
 
@@ -131,7 +120,7 @@ describe('userDataHandler', () => {
 
     it('user exists should return correct user', () => {
       // Arrange
-      var userInfo: IUserInfo = createUserInfo(1);
+      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
       var createUserPromise: Promise<User> =
         UserDataHandler.createUser(userInfo);
 
@@ -181,9 +170,9 @@ describe('userDataHandler', () => {
 
     it('should return all created users', () => {
       // Arrange
-      var userInfo1: IUserInfo = createUserInfo(1);
-      var userInfo2: IUserInfo = createUserInfo(2);
-      var userInfo3: IUserInfo = createUserInfo(3);
+      var userInfo1: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
+      var userInfo2: IUserInfo = ModelInfoMockFactory.createUserInfo(2);
+      var userInfo3: IUserInfo = ModelInfoMockFactory.createUserInfo(3);
 
       var createAllUsersPromise: Promise<any> =
         Promise.all([
@@ -217,7 +206,7 @@ describe('userDataHandler', () => {
 
     it('user exists but has no permissions should return empty permissions list', () => {
       // Assert
-      var userInfo: IUserInfo = createUserInfo(1);
+      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
 
       var createUserPromise: Promise<User> = UserDataHandler.createUser(userInfo);
 
@@ -232,7 +221,7 @@ describe('userDataHandler', () => {
 
     it('user exists with permissions should return correct permissions list', () => {
       // Assert
-      var userInfo: IUserInfo = createUserInfo(1);
+      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
       var permissions: GlobalPermission[] =
         [
           GlobalPermission.ADMIN,
@@ -254,8 +243,8 @@ describe('userDataHandler', () => {
 
     it('multiple users exist with permissions should return correct permissions list', () => {
       // Assert
-      var userInfo1: IUserInfo = createUserInfo(1);
-      var userInfo2: IUserInfo = createUserInfo(2);
+      var userInfo1: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
+      var userInfo2: IUserInfo = ModelInfoMockFactory.createUserInfo(2);
       var permissions1: GlobalPermission[] =
         [
           GlobalPermission.READER,
@@ -286,8 +275,8 @@ describe('userDataHandler', () => {
 
     it('multiple users exist with permissions should return correct permissions list 2', () => {
       // Assert
-      var userInfo1: IUserInfo = createUserInfo(1);
-      var userInfo2: IUserInfo = createUserInfo(2);
+      var userInfo1: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
+      var userInfo2: IUserInfo = ModelInfoMockFactory.createUserInfo(2);
       var permissions1: GlobalPermission[] =
         [
           GlobalPermission.READER,
@@ -357,20 +346,6 @@ describe('userDataHandler', () => {
       expect(actualCloned).to.be.deep.equal(expectedCloned);
     }
 
-    function createTeamInfo(teamName: string): ITeamInfo {
-      return {
-        name: teamName
-      };
-    }
-
-    function createTeamMemberInfo(team: Team, user: User): ITeamMemberInfo {
-      return {
-        team_id: team.id,
-        user_id: user.id,
-        is_admin: false
-      }
-    }
-
     function verifyTeamAdminSettingsAsync(actualUserTeamsPromise: Promise<ITeamOfAUser[]>,
       expectedAdminSettings: ITeamIdToIsAdmin[]): Promise<void> {
 
@@ -399,12 +374,12 @@ describe('userDataHandler', () => {
     var user2: User;
 
     beforeEach(() => {
-      teamInfo1 = createTeamInfo('a');
-      teamInfo2 = createTeamInfo('b');
-      teamInfo3 = createTeamInfo('c');
+      teamInfo1 = ModelInfoMockFactory.createTeamInfo('a');
+      teamInfo2 = ModelInfoMockFactory.createTeamInfo('b');
+      teamInfo3 = ModelInfoMockFactory.createTeamInfo('c');
 
-      userInfo1 = createUserInfo(1);
-      userInfo2 = createUserInfo(2);
+      userInfo1 = ModelInfoMockFactory.createUserInfo(1);
+      userInfo2 = ModelInfoMockFactory.createUserInfo(2);
 
       return Promise.all([
         TeamsDataHandler.createTeam(teamInfo1),
@@ -441,8 +416,8 @@ describe('userDataHandler', () => {
 
     it('user exists with teams should return correct teams', () => {
       // Arrange
-      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
-      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team2, user1);
+      var teamMemberInfo1: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
+      var teamMemberInfo2: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team2, user1);
 
       // Assert
       var addTeamsPromise: Promise<any> =
@@ -462,11 +437,11 @@ describe('userDataHandler', () => {
 
     it('user exists with teams should return correct admin settings', () => {
       // Arrange
-      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo1: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       teamMemberInfo1.is_admin = true;
-      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team2, user1);
+      var teamMemberInfo2: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team2, user1);
       teamMemberInfo2.is_admin = false;
-      var teamMemberInfo3: ITeamMemberInfo = createTeamMemberInfo(team3, user1);
+      var teamMemberInfo3: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team3, user1);
       teamMemberInfo3.is_admin = true;
 
       // Assert
@@ -493,10 +468,10 @@ describe('userDataHandler', () => {
 
     it('multiple users exist with teams should return correct teams', () => {
       // Arrange
-      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
-      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team2, user1);
+      var teamMemberInfo1: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
+      var teamMemberInfo2: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team2, user1);
 
-      var teamMemberInfo3: ITeamMemberInfo = createTeamMemberInfo(team1, user2);
+      var teamMemberInfo3: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user2);
 
       // Assert
       var addTeamsPromise: Promise<any> =
@@ -523,7 +498,7 @@ describe('userDataHandler', () => {
     var user: User;
 
     beforeEach(() => {
-      userInfo = createUserInfo(1);
+      userInfo = ModelInfoMockFactory.createUserInfo(1);
 
       return UserDataHandler.createUser(userInfo)
         .then((_user: User) => {
@@ -670,7 +645,7 @@ describe('userDataHandler', () => {
     var user: User;
 
     beforeEach(() => {
-      userInfo = createUserInfo(1);
+      userInfo = ModelInfoMockFactory.createUserInfo(1);
 
       return UserDataHandler.createUser(userInfo)
         .then((_user: User) => {

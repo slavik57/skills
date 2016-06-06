@@ -1,3 +1,4 @@
+import {ISkillPrerequisiteInfo} from "../models/interfaces/iSkillPrerequisiteInfo";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
 import {IUserInfo} from "../models/interfaces/iUserInfo";
 import {Team} from "../models/team";
@@ -10,6 +11,7 @@ import {ITeamInfo} from "../models/interfaces/iTeamInfo";
 import {ISkillInfo} from "../models/interfaces/iSkillInfo";
 
 export class ModelInfoMockFactory {
+
   public static createUserInfo(userNumber: number): IUserInfo {
     return {
       username: 'username' + userNumber,
@@ -46,12 +48,18 @@ export class ModelInfoMockFactory {
     };
   }
 
-
   public static createTeamMemberInfo(team: Team, user: User): ITeamMemberInfo {
     return {
       team_id: team.id,
       user_id: user.id,
       is_admin: false
+    }
+  }
+
+  public static createSkillPrerequisiteInfo(skill: Skill, skillPrerequisite: Skill): ISkillPrerequisiteInfo {
+    return {
+      skill_id: skill.id,
+      skill_prerequisite_id: skillPrerequisite.id
     }
   }
 }

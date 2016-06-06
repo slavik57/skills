@@ -1,4 +1,5 @@
 "use strict";
+var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
 var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
 var teamSkill_1 = require("../models/teamSkill");
 var teamsDataHandler_1 = require("./teamsDataHandler");
@@ -31,12 +32,6 @@ describe('SkillsDataHandler', function () {
     afterEach(function () {
         return clearTables();
     });
-    function createSkillInfo(skillNumber) {
-        var skillNumberString = skillNumber.toString();
-        return {
-            name: 'name ' + skillNumberString
-        };
-    }
     function verifySkillInfoAsync(actualSkillPromise, expectedSkillInfo) {
         return chai_1.expect(actualSkillPromise).to.eventually.fulfilled
             .then(function (skill) {
@@ -49,12 +44,6 @@ describe('SkillsDataHandler', function () {
         delete actualCloned['id'];
         delete expectedCloned['id'];
         chai_1.expect(actualCloned).to.be.deep.equal(expectedCloned);
-    }
-    function createSkillPrerequisiteInfo(skill, skillPrerequisite) {
-        return {
-            skill_id: skill.id,
-            skill_prerequisite_id: skillPrerequisite.id
-        };
     }
     function verifySkillPrerequisiteInfoAsync(actualSkillPrerequisitePromise, expectedSkillPrerequisiteInfo) {
         return chai_1.expect(actualSkillPrerequisitePromise).to.eventually.fulfilled
@@ -101,7 +90,7 @@ describe('SkillsDataHandler', function () {
     }
     describe('createSkill', function () {
         it('should create a skill correctly', function () {
-            var skillInfo = createSkillInfo(1);
+            var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             var skillPromise = skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo);
             return verifySkillInfoAsync(skillPromise, skillInfo);
         });
@@ -112,7 +101,7 @@ describe('SkillsDataHandler', function () {
             return chai_1.expect(skillPromise).to.eventually.null;
         });
         it('skill exists should return correct skill', function () {
-            var skillInfo = createSkillInfo(1);
+            var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             var createSkillPromise = skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo);
             var getSkillPromise = createSkillPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkill(skillInfo.name); });
             return verifySkillInfoAsync(getSkillPromise, skillInfo);
@@ -125,9 +114,9 @@ describe('SkillsDataHandler', function () {
             return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillsInfo);
         });
         it('should return all created skills', function () {
-            var skillInfo1 = createSkillInfo(1);
-            var skillInfo2 = createSkillInfo(2);
-            var skillInfo3 = createSkillInfo(3);
+            var skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
+            var skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
+            var skillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('3');
             var createAllSkillsPromise = Promise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
@@ -140,8 +129,8 @@ describe('SkillsDataHandler', function () {
     });
     describe('addSkillPrerequisite', function () {
         it('should create a skillPrerequisite', function () {
-            var skillInfo1 = createSkillInfo(1);
-            var skillInfo2 = createSkillInfo(2);
+            var skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
+            var skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
             var createAllSkillsPromise = Promise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2)
@@ -149,7 +138,7 @@ describe('SkillsDataHandler', function () {
             var skillPrerequisitePromise = createAllSkillsPromise.then(function (skills) {
                 var skill1 = skills[0];
                 var skill2 = skills[1];
-                var skillPrerequisiteInfo = createSkillPrerequisiteInfo(skill1, skill2);
+                var skillPrerequisiteInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
                 return skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo);
             });
             return chai_1.expect(skillPrerequisitePromise).to.eventually.fulfilled;
@@ -162,8 +151,8 @@ describe('SkillsDataHandler', function () {
             return verifySkillPrerequisitesInfoWithoutOrderAsync(prerequisitesPromise, expectedPrerequisitesInfo);
         });
         it('should return all created skill prerequisites', function () {
-            var skillInfo1 = createSkillInfo(1);
-            var skillInfo2 = createSkillInfo(2);
+            var skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
+            var skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
             var createAllSkillsPromise = Promise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2)
@@ -173,8 +162,8 @@ describe('SkillsDataHandler', function () {
             var createAllSkillPrerequisitesPromise = createAllSkillsPromise.then(function (skills) {
                 var skill1 = skills[0];
                 var skill2 = skills[1];
-                skillPrerequisiteInfo1 = createSkillPrerequisiteInfo(skill1, skill2);
-                skillPrerequisiteInfo2 = createSkillPrerequisiteInfo(skill2, skill1);
+                skillPrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
+                skillPrerequisiteInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
                 return Promise.all([
                     skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo1),
                     skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo2),
@@ -195,9 +184,9 @@ describe('SkillsDataHandler', function () {
         var skill2;
         var skill3;
         beforeEach(function () {
-            skillInfo1 = createSkillInfo(1);
-            skillInfo2 = createSkillInfo(2);
-            skillInfo3 = createSkillInfo(3);
+            skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
+            skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
+            skillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('3');
             return Promise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
@@ -219,8 +208,8 @@ describe('SkillsDataHandler', function () {
             return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
         });
         it('should return all existing skill prerequisites', function () {
-            var skill1PrerequisiteInfo1 = createSkillPrerequisiteInfo(skill1, skill2);
-            var skill1PrerequisiteInfo2 = createSkillPrerequisiteInfo(skill1, skill3);
+            var skill1PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
+            var skill1PrerequisiteInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill3);
             var createAllSkillPrerequisitesPromise = Promise.all([
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo1),
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo2)
@@ -230,9 +219,9 @@ describe('SkillsDataHandler', function () {
             return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillsInfos);
         });
         it('should return all existing skill prerequisites and not return other prerequisites', function () {
-            var skill1PrerequisiteInfo1 = createSkillPrerequisiteInfo(skill1, skill2);
-            var skill1PrerequisiteInfo2 = createSkillPrerequisiteInfo(skill1, skill3);
-            var skill2PrerequisiteInfo = createSkillPrerequisiteInfo(skill2, skill1);
+            var skill1PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
+            var skill1PrerequisiteInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill3);
+            var skill2PrerequisiteInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
             var createAllSkillPrerequisitesPromise = Promise.all([
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo1),
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo2),
@@ -251,9 +240,9 @@ describe('SkillsDataHandler', function () {
         var skill2;
         var skill3;
         beforeEach(function () {
-            skillInfo1 = createSkillInfo(1);
-            skillInfo2 = createSkillInfo(2);
-            skillInfo3 = createSkillInfo(3);
+            skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
+            skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
+            skillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('3');
             return Promise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
@@ -275,8 +264,8 @@ describe('SkillsDataHandler', function () {
             return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
         });
         it('no skill prerequisites leading to skill should return empty', function () {
-            var skill1PrerequisiteInfo1 = createSkillPrerequisiteInfo(skill1, skill2);
-            var skill1PrerequisiteInfo2 = createSkillPrerequisiteInfo(skill1, skill3);
+            var skill1PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
+            var skill1PrerequisiteInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill3);
             var createAllSkillPrerequisitesPromise = Promise.all([
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo1),
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo2)
@@ -286,8 +275,8 @@ describe('SkillsDataHandler', function () {
             return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
         });
         it('should return all existing skills with prerequisites of this skill', function () {
-            var skill2PrerequisiteInfo1 = createSkillPrerequisiteInfo(skill2, skill1);
-            var skill3PrerequisiteInfo1 = createSkillPrerequisiteInfo(skill3, skill1);
+            var skill2PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
+            var skill3PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill3, skill1);
             var createAllSkillPrerequisitesPromise = Promise.all([
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill2PrerequisiteInfo1),
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill3PrerequisiteInfo1)
@@ -297,9 +286,9 @@ describe('SkillsDataHandler', function () {
             return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillInfos);
         });
         it('should return all existing skill with prerequisites of this skill and not return other skills', function () {
-            var skill2PrerequisiteInfo1 = createSkillPrerequisiteInfo(skill2, skill1);
-            var skill3PrerequisiteInfo1 = createSkillPrerequisiteInfo(skill3, skill1);
-            var skill1PrerequisiteInfo2 = createSkillPrerequisiteInfo(skill1, skill2);
+            var skill2PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
+            var skill3PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill3, skill1);
+            var skill1PrerequisiteInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
             var createAllSkillPrerequisitesPromise = Promise.all([
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill2PrerequisiteInfo1),
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill3PrerequisiteInfo1)
@@ -332,17 +321,6 @@ describe('SkillsDataHandler', function () {
             delete expectedCloned['id'];
             chai_1.expect(actualCloned).to.be.deep.equal(expectedCloned);
         }
-        function createTeamInfo(teamName) {
-            return {
-                name: teamName
-            };
-        }
-        function createTeamSkillInfo(team, skill) {
-            return {
-                team_id: team.id,
-                skill_id: skill.id
-            };
-        }
         function verifyTeamUpvotingUsersAsync(actualTeamsOfSkillPromise, expectedSkillUpdvotes) {
             return chai_1.expect(actualTeamsOfSkillPromise).to.eventually.fulfilled
                 .then(function (actualTeams) {
@@ -352,15 +330,6 @@ describe('SkillsDataHandler', function () {
                 var expectedUpvotingUserIds = _.map(orderedExpectedUpvotes, function (_) { return _.upvotingUserIds.sort(); });
                 chai_1.expect(actualUpvodtingUserIds).to.deep.equal(expectedUpvotingUserIds);
             });
-        }
-        function createUserInfo(userNumber) {
-            return {
-                username: 'username' + userNumber,
-                password_hash: 'password' + userNumber,
-                email: 'email' + userNumber + '@gmail.com',
-                firstName: 'firstName' + userNumber,
-                lastName: 'lastName' + userNumber
-            };
         }
         var teamInfo1;
         var teamInfo2;
@@ -377,13 +346,13 @@ describe('SkillsDataHandler', function () {
         var user1;
         var user2;
         beforeEach(function () {
-            teamInfo1 = createTeamInfo('a');
-            teamInfo2 = createTeamInfo('b');
-            teamInfo3 = createTeamInfo('c');
-            skillInfo1 = createSkillInfo(1);
-            skillInfo2 = createSkillInfo(2);
-            userInfo1 = createUserInfo(1);
-            userInfo2 = createUserInfo(2);
+            teamInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');
+            teamInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('b');
+            teamInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('c');
+            skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
+            skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
+            userInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+            userInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2);
             return Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
                 teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
@@ -411,8 +380,8 @@ describe('SkillsDataHandler', function () {
             return chai_1.expect(teamsPromise).to.eventually.deep.equal([]);
         });
         it('skill exists with teams should return correct teams', function () {
-            var teamSkillInfo1 = createTeamSkillInfo(team1, skill1);
-            var teamSkillInfo2 = createTeamSkillInfo(team2, skill1);
+            var teamSkillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
             var addSkillsPromise = Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2)
@@ -422,9 +391,9 @@ describe('SkillsDataHandler', function () {
             return verifyTeamsAsync(teamsPromise, expectedTeams);
         });
         it('skill exists with teams should return correct upvoting user ids', function () {
-            var teamSkillInfo1 = createTeamSkillInfo(team1, skill1);
-            var teamSkillInfo2 = createTeamSkillInfo(team2, skill1);
-            var teamSkillInfo3 = createTeamSkillInfo(team3, skill1);
+            var teamSkillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
+            var teamSkillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team3, skill1);
             var addSkillsPromise = Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2),
@@ -439,9 +408,9 @@ describe('SkillsDataHandler', function () {
             return verifyTeamUpvotingUsersAsync(teamsPromise, expectedSkillUpvotes);
         });
         it('multiple skills exist with teams should return correct teams', function () {
-            var teamSkillInfo1 = createTeamSkillInfo(team1, skill1);
-            var teamSkillInfo2 = createTeamSkillInfo(team2, skill1);
-            var teamSkillInfo3 = createTeamSkillInfo(team1, skill2);
+            var teamSkillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
+            var teamSkillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
             var addSkillsPromise = Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2),
@@ -452,9 +421,9 @@ describe('SkillsDataHandler', function () {
             return verifyTeamsAsync(teamsPromise, expectedTeams);
         });
         it('skill exists with teams with upvotes should return correct upvoting user ids', function () {
-            var team1SkillInfo = createTeamSkillInfo(team1, skill1);
-            var team2SkillInfo = createTeamSkillInfo(team2, skill1);
-            var team3SkillInfo = createTeamSkillInfo(team3, skill1);
+            var team1SkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+            var team2SkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
+            var team3SkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team3, skill1);
             var addSkillsAndUpvote = Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(team1SkillInfo),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(team2SkillInfo),
