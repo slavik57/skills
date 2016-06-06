@@ -16,9 +16,13 @@ var UserDataHandler = (function () {
             return users.toArray();
         });
     };
-    UserDataHandler.addGlobalPermission = function (username, permissionsToAdd) {
+    UserDataHandler.addGlobalPermissions = function (username, permissionsToAdd) {
         var _this = this;
         return bookshelf_1.bookshelf.transaction(function () { return _this._addGlobalPermissionInternal(username, permissionsToAdd); });
+    };
+    UserDataHandler.removeGlobalPermissions = function (username, permissionsToRemove) {
+        var _this = this;
+        return bookshelf_1.bookshelf.transaction(function () { return _this._removeGlobalPermissionInternal(username, permissionsToRemove); });
     };
     UserDataHandler.getUserGlobalPermissions = function (username) {
         var _this = this;
@@ -69,13 +73,30 @@ var UserDataHandler = (function () {
         return Promise.all([userPromise, permissionsPromise])
             .then(function (results) {
             var user = results[0];
+            if (!user) {
+                return Promise.reject('User [' + username + '] does not exist');
+            }
             var existingPermissionsCollection = results[1];
             return _this._addNotExistingGlobalPermissions(user.id, existingPermissionsCollection, permissionsToAdd);
+        });
+    };
+    UserDataHandler._removeGlobalPermissionInternal = function (username, permissionsToRemove) {
+        var _this = this;
+        return this.getUser(username)
+            .then(function (user) {
+            if (!user) {
+                return Promise.reject('User [' + username + '] does not exist');
+            }
+            var permissionsToDeteleQuery = _this._createUserGlobalPermissionInfos(user.id, permissionsToRemove);
+            var permissionsToDelete = _.map(permissionsToDeteleQuery, function (_info) { return new usersGlobalPermissions_1.UserGlobalPermissions().where(_info); });
+            var deleteUserPermissionsPromise = _.map(permissionsToDelete, function (_permission) { return _permission.destroy(false); });
+            return Promise.all(deleteUserPermissionsPromise);
         });
     };
     UserDataHandler._addNotExistingGlobalPermissions = function (userId, existingPermissionsCollection, permissionsToAdd) {
         var existingPermissions = this._convertPermissionsCollectionsToGlobalPermissions(existingPermissionsCollection);
         var newPermissions = _.difference(permissionsToAdd, existingPermissions);
+        newPermissions = _.uniq(newPermissions);
         var newUserPermissions = this._createUserGlobalPermission(userId, newPermissions);
         var newUserPermissionsPromise = _.map(newUserPermissions, function (_permission) { return _permission.save(); });
         return Promise.all(newUserPermissionsPromise);
@@ -84,6 +105,10 @@ var UserDataHandler = (function () {
         var _this = this;
         var userPermissionInfos = _.map(permissions, function (_permission) { return _this._createUserGlobalPermissionInfo(userId, _permission); });
         return _.map(userPermissionInfos, function (_info) { return new usersGlobalPermissions_1.UserGlobalPermissions(_info); });
+    };
+    UserDataHandler._createUserGlobalPermissionInfos = function (userId, permissions) {
+        var _this = this;
+        return _.map(permissions, function (_permission) { return _this._createUserGlobalPermissionInfo(userId, _permission); });
     };
     UserDataHandler._createUserGlobalPermissionInfo = function (userId, permission) {
         return {

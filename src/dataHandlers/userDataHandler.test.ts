@@ -517,7 +517,7 @@ describe('userDataHandler', () => {
 
   });
 
-  describe('addGlobalPermission', () => {
+  describe('addGlobalPermissions', () => {
 
     var userInfo: IUserInfo;
     var user: User;
@@ -541,13 +541,42 @@ describe('userDataHandler', () => {
 
       // Act
       var addPermissionPromise: Promise<any> =
-        UserDataHandler.addGlobalPermission(userInfo.username, permissionsToAdd);
+        UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd);
 
       // Assert
       var actualPermissionsPromise: Promise<GlobalPermission[]> =
         addPermissionPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
 
       return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, permissionsToAdd);
+    });
+
+    it('adding permissions with same permission appearing multiple times should add only once', () => {
+      // Arrange
+      var permissionsToAdd =
+        [
+          GlobalPermission.ADMIN,
+          GlobalPermission.ADMIN,
+          GlobalPermission.ADMIN,
+          GlobalPermission.READER,
+          GlobalPermission.READER,
+          GlobalPermission.READER,
+          GlobalPermission.READER
+        ];
+
+      // Act
+      var addPermissionPromise: Promise<any> =
+        UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd);
+
+      // Assert
+      var actualPermissionsPromise: Promise<GlobalPermission[]> =
+        addPermissionPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+
+      var expectedPermissions =
+        [
+          GlobalPermission.ADMIN,
+          GlobalPermission.READER
+        ];
+      return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, expectedPermissions);
     });
 
     it('adding same permissions should add to permissions only once', () => {
@@ -560,8 +589,8 @@ describe('userDataHandler', () => {
 
       // Act
       var addPermissionPromise: Promise<any> =
-        UserDataHandler.addGlobalPermission(userInfo.username, permissionsToAdd)
-          .then(() => UserDataHandler.addGlobalPermission(userInfo.username, permissionsToAdd));
+        UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd)
+          .then(() => UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd));
 
       // Assert
       var actualPermissionsPromise: Promise<GlobalPermission[]> =
@@ -580,8 +609,8 @@ describe('userDataHandler', () => {
 
       // Act
       var addPermissionPromise: Promise<any> =
-        UserDataHandler.addGlobalPermission(userInfo.username, permissionsToAdd)
-          .then(() => UserDataHandler.addGlobalPermission(userInfo.username, permissionsToAdd));
+        UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd)
+          .then(() => UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd));
 
       // Assert
       return expect(addPermissionPromise).to.eventually.fulfilled;
@@ -597,7 +626,7 @@ describe('userDataHandler', () => {
 
       // Act
       var addPermissionPromise: Promise<any> =
-        UserDataHandler.addGlobalPermission('not existing username', permissionsToAdd);
+        UserDataHandler.addGlobalPermissions('not existing username', permissionsToAdd);
 
       // Assert
       return expect(addPermissionPromise).to.eventually.rejected;
@@ -612,7 +641,7 @@ describe('userDataHandler', () => {
         ];
 
       var existingPermissionsPromise: Promise<any> =
-        UserDataHandler.addGlobalPermission(userInfo.username, existingPermissions);
+        UserDataHandler.addGlobalPermissions(userInfo.username, existingPermissions);
 
       var permissionsToAdd =
         [
@@ -623,7 +652,7 @@ describe('userDataHandler', () => {
       // Act
       var addPermissionPromise: Promise<any> =
         existingPermissionsPromise
-          .then(() => UserDataHandler.addGlobalPermission(userInfo.username, permissionsToAdd));
+          .then(() => UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd));
 
       // Assert
       var actualPermissionsPromise: Promise<GlobalPermission[]> =
@@ -631,6 +660,155 @@ describe('userDataHandler', () => {
 
       var expectedPermissions: GlobalPermission[] = _.union(existingPermissions, permissionsToAdd);
       return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, expectedPermissions);
+    });
+
+  });
+
+  describe('removeGlobalPermissions', () => {
+
+    var userInfo: IUserInfo;
+    var user: User;
+
+    beforeEach(() => {
+      userInfo = createUserInfo(1);
+
+      return UserDataHandler.createUser(userInfo)
+        .then((_user: User) => {
+          user = _user;
+        });
+    });
+
+    it('removing from user without permissions should succeed', () => {
+      // Arrange
+      var permissionsToRemove =
+        [
+          GlobalPermission.ADMIN,
+          GlobalPermission.READER
+        ];
+
+      // Act
+      var removePermissionsPromise: Promise<any> =
+        UserDataHandler.removeGlobalPermissions(userInfo.username, permissionsToRemove);
+
+      // Assert
+      return expect(removePermissionsPromise).to.eventually.fulfilled;
+    });
+
+    it('removing all permissions should leave no permissions', () => {
+      // Arrange
+      var existingPermissions =
+        [
+          GlobalPermission.ADMIN,
+          GlobalPermission.READER
+        ];
+
+      var existingPermissionsPromise: Promise<any> =
+        UserDataHandler.addGlobalPermissions(userInfo.username, existingPermissions);
+
+      // Act
+      var removePermissionsPromise: Promise<any> =
+        existingPermissionsPromise
+          .then(() => UserDataHandler.removeGlobalPermissions(userInfo.username, existingPermissions));
+
+      // Assert
+      var actualPermissionsPromise: Promise<GlobalPermission[]> =
+        removePermissionsPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+
+      return expect(actualPermissionsPromise).to.eventually.deep.equal([]);
+    });
+
+    it('removing some permissions should leave other permissions', () => {
+      // Arrange
+      var existingPermissions =
+        [
+          GlobalPermission.ADMIN,
+          GlobalPermission.READER,
+          GlobalPermission.TEAMS_LIST_ADMIN,
+          GlobalPermission.GUEST
+        ];
+
+      var existingPermissionsPromise: Promise<any> =
+        UserDataHandler.addGlobalPermissions(userInfo.username, existingPermissions);
+
+      var permissionsToRemove =
+        [
+          GlobalPermission.ADMIN,
+          GlobalPermission.TEAMS_LIST_ADMIN
+        ];
+
+      // Act
+      var removePermissionsPromise: Promise<any> =
+        existingPermissionsPromise
+          .then(() => UserDataHandler.removeGlobalPermissions(userInfo.username, permissionsToRemove));
+
+      // Assert
+      var actualPermissionsPromise: Promise<GlobalPermission[]> =
+        removePermissionsPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+
+      var expectedPermissions =
+        [
+          GlobalPermission.READER,
+          GlobalPermission.GUEST
+        ];
+      return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, expectedPermissions);
+    });
+
+    it('removing permissions that appear multiple times should remove correctly', () => {
+      // Arrange
+      var existingPermissions =
+        [
+          GlobalPermission.ADMIN,
+          GlobalPermission.READER,
+          GlobalPermission.TEAMS_LIST_ADMIN,
+          GlobalPermission.GUEST
+        ];
+
+      var existingPermissionsPromise: Promise<any> =
+        UserDataHandler.addGlobalPermissions(userInfo.username, existingPermissions);
+
+      var permissionsToRemove =
+        [
+          GlobalPermission.ADMIN,
+          GlobalPermission.ADMIN,
+          GlobalPermission.ADMIN,
+          GlobalPermission.ADMIN,
+          GlobalPermission.TEAMS_LIST_ADMIN,
+          GlobalPermission.TEAMS_LIST_ADMIN,
+          GlobalPermission.TEAMS_LIST_ADMIN,
+          GlobalPermission.TEAMS_LIST_ADMIN
+        ];
+
+      // Act
+      var removePermissionsPromise: Promise<any> =
+        existingPermissionsPromise
+          .then(() => UserDataHandler.removeGlobalPermissions(userInfo.username, permissionsToRemove));
+
+      // Assert
+      var actualPermissionsPromise: Promise<GlobalPermission[]> =
+        removePermissionsPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+
+      var expectedPermissions =
+        [
+          GlobalPermission.READER,
+          GlobalPermission.GUEST
+        ];
+      return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, expectedPermissions);
+    });
+
+    it('removing from not existing user should fail', () => {
+      // Arrange
+      var permissionsToRemove =
+        [
+          GlobalPermission.ADMIN,
+          GlobalPermission.READER
+        ];
+
+      // Act
+      var addPermissionPromise: Promise<any> =
+        UserDataHandler.removeGlobalPermissions('not existing username', permissionsToRemove);
+
+      // Assert
+      return expect(addPermissionPromise).to.eventually.rejected;
     });
 
   });

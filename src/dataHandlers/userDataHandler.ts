@@ -21,8 +21,12 @@ export class UserDataHandler {
       });
   }
 
-  public static addGlobalPermission(username: string, permissionsToAdd: GlobalPermission[]): Promise<any> {
+  public static addGlobalPermissions(username: string, permissionsToAdd: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
     return bookshelf.transaction(() => this._addGlobalPermissionInternal(username, permissionsToAdd));
+  }
+
+  public static removeGlobalPermissions(username: string, permissionsToRemove: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
+    return bookshelf.transaction(() => this._removeGlobalPermissionInternal(username, permissionsToRemove));
   }
 
   public static getUserGlobalPermissions(username: string): Promise<GlobalPermission[]> {
@@ -76,7 +80,7 @@ export class UserDataHandler {
     return user.getTeams();
   }
 
-  private static _addGlobalPermissionInternal(username: string, permissionsToAdd: GlobalPermission[]): Promise<any> {
+  private static _addGlobalPermissionInternal(username: string, permissionsToAdd: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
     var userPromise: Promise<User> = this.getUser(username);
     var permissionsPromise: Promise<Collection<UserGlobalPermissions>> =
       userPromise.then((user: User) => this._fetchUserGlobalPermissions(user));
@@ -84,24 +88,45 @@ export class UserDataHandler {
     return Promise.all([userPromise, permissionsPromise])
       .then((results: any[]) => {
         var user: User = results[0];
+        if (!user) {
+          return Promise.reject('User [' + username + '] does not exist');
+        }
+
         var existingPermissionsCollection: Collection<UserGlobalPermissions> = results[1];
 
         return this._addNotExistingGlobalPermissions(user.id, existingPermissionsCollection, permissionsToAdd);
       });
   }
 
+  private static _removeGlobalPermissionInternal(username: string, permissionsToRemove: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
+    return this.getUser(username)
+      .then((user: User) => {
+        if (!user) {
+          return Promise.reject('User [' + username + '] does not exist');
+        }
+
+        var permissionsToDeteleQuery: IUserGlobalPermissions[] =
+          this._createUserGlobalPermissionInfos(user.id, permissionsToRemove);
+
+        var permissionsToDelete: UserGlobalPermissions[] =
+          _.map(permissionsToDeteleQuery, _info => new UserGlobalPermissions().where(_info));
+
+        var deleteUserPermissionsPromise: Promise<UserGlobalPermissions>[] =
+          _.map(permissionsToDelete, _permission => _permission.destroy(false));
+
+        return Promise.all(deleteUserPermissionsPromise);
+      });
+  }
+
   private static _addNotExistingGlobalPermissions(userId: number,
     existingPermissionsCollection: Collection<UserGlobalPermissions>,
-    permissionsToAdd: GlobalPermission[]): Promise<any> {
+    permissionsToAdd: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
 
     var existingPermissions: GlobalPermission[] =
       this._convertPermissionsCollectionsToGlobalPermissions(existingPermissionsCollection);
 
     var newPermissions: GlobalPermission[] = _.difference(permissionsToAdd, existingPermissions);
-
-    // if (permissionsToAdd.length < 1) {
-    //   return Promise.resolve(true);
-    // }
+    newPermissions = _.uniq(newPermissions);
 
     var newUserPermissions: UserGlobalPermissions[] =
       this._createUserGlobalPermission(userId, newPermissions);
@@ -117,6 +142,10 @@ export class UserDataHandler {
       _.map(permissions, _permission => this._createUserGlobalPermissionInfo(userId, _permission));
 
     return _.map(userPermissionInfos, _info => new UserGlobalPermissions(_info));
+  }
+
+  private static _createUserGlobalPermissionInfos(userId: number, permissions: GlobalPermission[]): IUserGlobalPermissions[] {
+    return _.map(permissions, _permission => this._createUserGlobalPermissionInfo(userId, _permission));
   }
 
   private static _createUserGlobalPermissionInfo(userId: number, permission: GlobalPermission): IUserGlobalPermissions {
