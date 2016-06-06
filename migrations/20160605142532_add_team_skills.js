@@ -5,7 +5,6 @@ exports.up = function(knex, Promise) {
 
     table.integer('team_id').notNullable().references('id').inTable('teams');
     table.integer('skill_id').notNullable().references('id').inTable('skills');
-    table.integer('upvotes').notNullable().defaultTo(0);
 
     table.index('team_id');
     table.index('skill_id');
