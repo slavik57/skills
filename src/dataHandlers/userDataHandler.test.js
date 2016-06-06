@@ -52,6 +52,29 @@ describe('userDataHandler', function () {
         delete expectedCloned['id'];
         chai_1.expect(actualCloned).to.be.deep.equal(expectedCloned);
     }
+    function verifyUserGlobalPermissionsAsync(actualPermissionsPromise, expectedPermissions) {
+        return chai_1.expect(actualPermissionsPromise).to.eventually.fulfilled
+            .then(function (actualPermissions) {
+            verifyUserGlobalPermissions(actualPermissions, expectedPermissions);
+        });
+    }
+    function verifyUserGlobalPermissions(actual, expected) {
+        var actualOrdered = actual.sort();
+        var expectedOrdered = expected.sort();
+        chai_1.expect(actualOrdered).to.deep.equal(expectedOrdered);
+    }
+    function addUserPermissions(user, permissions) {
+        var permissionPromises = [];
+        permissions.forEach(function (permission) {
+            var newPermission = {
+                user_id: user.id,
+                global_permissions: globalPermission_1.GlobalPermission[permission]
+            };
+            var newPermissionPromise = new usersGlobalPermissions_1.UserGlobalPermissions(newPermission).save();
+            permissionPromises.push(newPermissionPromise);
+        });
+        return Promise.all(permissionPromises);
+    }
     describe('createUser', function () {
         it('should create user correctly', function () {
             var userInfo = createUserInfo(1);
@@ -107,29 +130,6 @@ describe('userDataHandler', function () {
         });
     });
     describe('getUserGlobalPermissions', function () {
-        function verifyUserGlobalPermissionsAsync(actualPermissionsPromise, expectedPermissions) {
-            return chai_1.expect(actualPermissionsPromise).to.eventually.fulfilled
-                .then(function (actualPermissions) {
-                verifyUserGlobalPermissions(actualPermissions, expectedPermissions);
-            });
-        }
-        function verifyUserGlobalPermissions(actual, expected) {
-            var actualOrdered = actual.sort();
-            var expectedOrdered = expected.sort();
-            chai_1.expect(actualOrdered).to.deep.equal(expectedOrdered);
-        }
-        function addUserPermissions(user, permissions) {
-            var permissionPromises = [];
-            permissions.forEach(function (permission) {
-                var newPermission = {
-                    user_id: user.id,
-                    global_permissions: globalPermission_1.GlobalPermission[permission]
-                };
-                var newPermissionPromise = new usersGlobalPermissions_1.UserGlobalPermissions(newPermission).save();
-                permissionPromises.push(newPermissionPromise);
-            });
-            return Promise.all(permissionPromises);
-        }
         it('no such user should return empty permissions list', function () {
             var permissionsPromise = userDataHandler_1.UserDataHandler.getUserGlobalPermissions('not existing username');
             var expectedPermissions = [];
@@ -321,6 +321,69 @@ describe('userDataHandler', function () {
             var teamsPromise = addTeamsPromise.then(function () { return userDataHandler_1.UserDataHandler.getTeams(userInfo1.username); });
             var expectedTeams = [teamInfo1, teamInfo2];
             return verifyTeamsAsync(teamsPromise, expectedTeams);
+        });
+    });
+    describe('addGlobalPermission', function () {
+        var userInfo;
+        var user;
+        beforeEach(function () {
+            userInfo = createUserInfo(1);
+            return userDataHandler_1.UserDataHandler.createUser(userInfo)
+                .then(function (_user) {
+                user = _user;
+            });
+        });
+        it('adding should add to permissions', function () {
+            var permissionsToAdd = [
+                globalPermission_1.GlobalPermission.ADMIN,
+                globalPermission_1.GlobalPermission.READER
+            ];
+            var addPermissionPromise = userDataHandler_1.UserDataHandler.addGlobalPermission(userInfo.username, permissionsToAdd);
+            var actualPermissionsPromise = addPermissionPromise.then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userInfo.username); });
+            return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, permissionsToAdd);
+        });
+        it('adding same permissions should add to permissions only once', function () {
+            var permissionsToAdd = [
+                globalPermission_1.GlobalPermission.ADMIN,
+                globalPermission_1.GlobalPermission.READER
+            ];
+            var addPermissionPromise = userDataHandler_1.UserDataHandler.addGlobalPermission(userInfo.username, permissionsToAdd)
+                .then(function () { return userDataHandler_1.UserDataHandler.addGlobalPermission(userInfo.username, permissionsToAdd); });
+            var actualPermissionsPromise = addPermissionPromise.then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userInfo.username); });
+            return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, permissionsToAdd);
+        });
+        it('adding existing permissions should succeed', function () {
+            var permissionsToAdd = [
+                globalPermission_1.GlobalPermission.ADMIN,
+                globalPermission_1.GlobalPermission.READER
+            ];
+            var addPermissionPromise = userDataHandler_1.UserDataHandler.addGlobalPermission(userInfo.username, permissionsToAdd)
+                .then(function () { return userDataHandler_1.UserDataHandler.addGlobalPermission(userInfo.username, permissionsToAdd); });
+            return chai_1.expect(addPermissionPromise).to.eventually.fulfilled;
+        });
+        it('adding to not existing user should fail', function () {
+            var permissionsToAdd = [
+                globalPermission_1.GlobalPermission.ADMIN,
+                globalPermission_1.GlobalPermission.READER
+            ];
+            var addPermissionPromise = userDataHandler_1.UserDataHandler.addGlobalPermission('not existing username', permissionsToAdd);
+            return chai_1.expect(addPermissionPromise).to.eventually.rejected;
+        });
+        it('adding new permissions should add to permissions', function () {
+            var existingPermissions = [
+                globalPermission_1.GlobalPermission.ADMIN,
+                globalPermission_1.GlobalPermission.READER
+            ];
+            var existingPermissionsPromise = userDataHandler_1.UserDataHandler.addGlobalPermission(userInfo.username, existingPermissions);
+            var permissionsToAdd = [
+                globalPermission_1.GlobalPermission.ADMIN,
+                globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN
+            ];
+            var addPermissionPromise = existingPermissionsPromise
+                .then(function () { return userDataHandler_1.UserDataHandler.addGlobalPermission(userInfo.username, permissionsToAdd); });
+            var actualPermissionsPromise = addPermissionPromise.then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userInfo.username); });
+            var expectedPermissions = _.union(existingPermissions, permissionsToAdd);
+            return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, expectedPermissions);
         });
     });
 });

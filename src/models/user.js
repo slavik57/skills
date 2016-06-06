@@ -55,7 +55,7 @@ var User = (function (_super) {
         return Promise.resolve(true);
     };
     User.prototype.getGlobalPermissions = function () {
-        return this.hasMany(usersGlobalPermissions_1.UserGlobalPermissions, 'user_id');
+        return this.hasMany(usersGlobalPermissions_1.UserGlobalPermissions, usersGlobalPermissions_1.UserGlobalPermissions.userIdAttribute);
     };
     User.prototype.getTeams = function () {
         var _this = this;

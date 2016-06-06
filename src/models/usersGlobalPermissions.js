@@ -20,6 +20,11 @@ var UserGlobalPermissions = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(UserGlobalPermissions, "userIdAttribute", {
+        get: function () { return 'user_id'; },
+        enumerable: true,
+        configurable: true
+    });
     return UserGlobalPermissions;
 }(bookshelf_1.bookshelf.Model));
 exports.UserGlobalPermissions = UserGlobalPermissions;

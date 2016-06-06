@@ -48,7 +48,7 @@ export class User extends bookshelf.Model<User> implements ITeamMemberPivot {
   }
 
   public getGlobalPermissions(): Collection<UserGlobalPermissions> {
-    return this.hasMany(UserGlobalPermissions, 'user_id');
+    return this.hasMany(UserGlobalPermissions, UserGlobalPermissions.userIdAttribute);
   }
 
   public getTeams(): Promise<ITeamOfAUser[]> {

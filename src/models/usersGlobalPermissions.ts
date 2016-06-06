@@ -5,8 +5,10 @@ import {IUserGlobalPermissions} from './interfaces/iUserGlobalPermissions';
 export class UserGlobalPermissions extends bookshelf.Model<UserGlobalPermissions>{
   public attributes: IUserGlobalPermissions;
 
-  public get tableName() { return 'users_global_permissions'; }
-  public get idAttribute() { return 'id'; }
+  public get tableName(): string { return 'users_global_permissions'; }
+  public get idAttribute(): string { return 'id'; }
+
+  public static get userIdAttribute(): string { return 'user_id'; }
 }
 
 export class UsersGlobalPermissions extends bookshelf.Collection<UserGlobalPermissions> {
