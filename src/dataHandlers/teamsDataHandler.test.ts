@@ -1,3 +1,5 @@
+import {TeamSkillUpvotes} from "../models/teamSkillUpvote";
+import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
 import {ITeamSkillInfo} from "../models/interfaces/iTeamSkillInfo";
 import {SkillsDataHandler} from "./skillsDataHandler";
 import {Skill, Skills} from "../models/skill";
@@ -24,52 +26,15 @@ chai.use(chaiAsPromised);
 describe('TeamsDataHandler', () => {
 
   function clearTables(): Promise<any> {
-    return Promise.all([
-      TeamMembers.clearAll(),
-      TeamSkills.clearAll()
-    ]).then(() => Promise.all([
-      Teams.clearAll(),
-      Users.clearAll(),
-      Skills.clearAll()
-    ]));
-  }
-
-  function createTeamInfo(teamName: string): ITeamInfo {
-    return {
-      name: teamName
-    };
-  }
-
-  function createUserInfo(userNumber: number): IUserInfo {
-    return {
-      username: 'username' + userNumber,
-      password_hash: 'password_hash' + userNumber,
-      email: 'email' + userNumber + '@gmail.com',
-      firstName: 'firstName' + userNumber,
-      lastName: 'lastName' + userNumber
-    };
-  }
-
-  function createTeamMemberInfo(team: Team, user: User): ITeamMemberInfo {
-    return {
-      team_id: team.id,
-      user_id: user.id,
-      is_admin: false
-    }
-  }
-
-  function createSkillInfo(skillName: string): ISkillInfo {
-    return {
-      name: skillName
-    }
-  }
-
-  function createTeamSkillInfo(team: Team, skill: Skill): ITeamSkillInfo {
-    return {
-      team_id: team.id,
-      skill_id: skill.id,
-      upvotes: 0
-    }
+    return TeamSkillUpvotes.clearAll()
+      .then(() => Promise.all([
+        TeamMembers.clearAll(),
+        TeamSkills.clearAll()
+      ])).then(() => Promise.all([
+        Teams.clearAll(),
+        Users.clearAll(),
+        Skills.clearAll()
+      ]));
   }
 
   function verifyTeamInfoAsync(actualTeamPromise: Promise<Team>,
@@ -103,7 +68,7 @@ describe('TeamsDataHandler', () => {
 
     it('should create a team correctly', () => {
       // Act
-      var teamInfo: ITeamInfo = createTeamInfo('a');
+      var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo('a');
       var teamPromise: Promise<Team> =
         TeamsDataHandler.createTeam(teamInfo);
 
@@ -126,7 +91,7 @@ describe('TeamsDataHandler', () => {
 
     it('team exists should return correct team', () => {
       // Arrange
-      var teamInfo: ITeamInfo = createTeamInfo('a');
+      var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo('a');
       var createTeamPromose: Promise<Team> =
         TeamsDataHandler.createTeam(teamInfo);
 
@@ -144,8 +109,8 @@ describe('TeamsDataHandler', () => {
 
     it('should create a team member', () => {
       // Act
-      var teamInfo: ITeamInfo = createTeamInfo('a');
-      var userInfo: IUserInfo = createUserInfo(1);
+      var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo('a');
+      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
 
       var createTeamAndUserPromise: Promise<any[]> = Promise.all([
         TeamsDataHandler.createTeam(teamInfo),
@@ -157,7 +122,7 @@ describe('TeamsDataHandler', () => {
           var team: Team = teamAndUser[0];
           var user: User = teamAndUser[1];
 
-          var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team, user);
+          var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team, user);
 
           return TeamsDataHandler.addTeamMember(teamMemberInfo);
         });
@@ -236,12 +201,12 @@ describe('TeamsDataHandler', () => {
     var team2: Team;
 
     beforeEach(() => {
-      userInfo1 = createUserInfo(1);
-      userInfo2 = createUserInfo(2);
-      userInfo3 = createUserInfo(3);
+      userInfo1 = ModelInfoMockFactory.createUserInfo(1);
+      userInfo2 = ModelInfoMockFactory.createUserInfo(2);
+      userInfo3 = ModelInfoMockFactory.createUserInfo(3);
 
-      teamInfo1 = createTeamInfo('a');
-      teamInfo2 = createTeamInfo('b');
+      teamInfo1 = ModelInfoMockFactory.createTeamInfo('a');
+      teamInfo2 = ModelInfoMockFactory.createTeamInfo('b');
 
       return Promise.all([
         TeamsDataHandler.createTeam(teamInfo1),
@@ -278,8 +243,8 @@ describe('TeamsDataHandler', () => {
 
     it('should return all existing team members', () => {
       // Arrange
-      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
-      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team1, user2);
+      var teamMemberInfo1: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
+      var teamMemberInfo2: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user2);
 
       var createAllTeamMembersPromise: Promise<any> =
         Promise.all([
@@ -298,11 +263,11 @@ describe('TeamsDataHandler', () => {
 
     it('should return all existing team members with correct admin rights', () => {
       // Arrange
-      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo1: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       teamMemberInfo1.is_admin = true;
-      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team1, user2);
+      var teamMemberInfo2: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user2);
       teamMemberInfo2.is_admin = false;
-      var teamMemberInfo3: ITeamMemberInfo = createTeamMemberInfo(team1, user3);
+      var teamMemberInfo3: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user3);
       teamMemberInfo3.is_admin = true;
 
       var createAllTeamMembersPromise: Promise<any> =
@@ -327,11 +292,11 @@ describe('TeamsDataHandler', () => {
 
     it('should return all existing team members and not return other members', () => {
       // Arrange
-      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
-      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team1, user2);
+      var teamMemberInfo1: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
+      var teamMemberInfo2: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user2);
 
-      var teamMemberInfo3: ITeamMemberInfo = createTeamMemberInfo(team2, user1);
-      var teamMemberInfo4: ITeamMemberInfo = createTeamMemberInfo(team2, user3);
+      var teamMemberInfo3: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team2, user1);
+      var teamMemberInfo4: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team2, user3);
 
       var createAllTeamMembersPromise: Promise<any> =
         Promise.all([
@@ -356,8 +321,8 @@ describe('TeamsDataHandler', () => {
 
     it('should create a team skill', () => {
       // Act
-      var teamInfo: ITeamInfo = createTeamInfo('a');
-      var skillInfo: ISkillInfo = createSkillInfo('skill1');
+      var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo('a');
+      var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('skill1');
 
       var createTeamAndSkillsPromise: Promise<any[]> = Promise.all([
         TeamsDataHandler.createTeam(teamInfo),
@@ -369,7 +334,7 @@ describe('TeamsDataHandler', () => {
           var team: Team = teamAndSkill[0];
           var skill: Skill = teamAndSkill[1];
 
-          var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team, skill);
+          var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team, skill);
 
           return TeamsDataHandler.addTeamSkill(teamSkillInfo);
         });
@@ -384,7 +349,7 @@ describe('TeamsDataHandler', () => {
 
     interface ISkillIdToUpvotes {
       skillId: number;
-      upvotes: number;
+      upvotingUserIds: number[];
     }
 
     function verifySkillsInfoWithoutOrderAsync(actualSkillsPromise: Promise<ISkillOfATeam[]>,
@@ -426,12 +391,12 @@ describe('TeamsDataHandler', () => {
       return expect(actualSkillsOfATeamPromise).to.eventually.fulfilled
         .then((actualSkills: ISkillOfATeam[]) => {
           var orderedActualUsers: ISkillOfATeam[] = _.orderBy(actualSkills, _ => _.skill.id);
-          var actualUpvotes: number[] = _.map(orderedActualUsers, _ => _.upvotes);
+          var actualUpvotingUserIds: number[][] = _.map(orderedActualUsers, _ => _.upvotingUserIds.sort());
 
           var orderedExpectedUpvotes: ISkillIdToUpvotes[] = _.orderBy(expectedSkillIdToUpvotes, _ => _.skillId);
-          var expectedUpvotes: number[] = _.map(orderedExpectedUpvotes, _ => _.upvotes);
+          var expectedUpvotingUserIds: number[][] = _.map(orderedExpectedUpvotes, _ => _.upvotingUserIds.sort());
 
-          expect(actualUpvotes).to.deep.equal(expectedUpvotes);
+          expect(actualUpvotingUserIds).to.deep.equal(expectedUpvotingUserIds);
         });
     }
 
@@ -447,26 +412,38 @@ describe('TeamsDataHandler', () => {
     var team1: Team;
     var team2: Team;
 
-    beforeEach(() => {
-      skillInfo1 = createSkillInfo('skill1');
-      skillInfo2 = createSkillInfo('skill2');
-      skillInfo3 = createSkillInfo('skill3');
+    var userInfo1: IUserInfo;
+    var userInfo2: IUserInfo;
+    var user1: User;
+    var user2: User;
 
-      teamInfo1 = createTeamInfo('a');
-      teamInfo2 = createTeamInfo('b');
+    beforeEach(() => {
+      skillInfo1 = ModelInfoMockFactory.createSkillInfo('skill1');
+      skillInfo2 = ModelInfoMockFactory.createSkillInfo('skill2');
+      skillInfo3 = ModelInfoMockFactory.createSkillInfo('skill3');
+
+      teamInfo1 = ModelInfoMockFactory.createTeamInfo('a');
+      teamInfo2 = ModelInfoMockFactory.createTeamInfo('b');
+
+      userInfo1 = ModelInfoMockFactory.createUserInfo(1);
+      userInfo2 = ModelInfoMockFactory.createUserInfo(2);
 
       return Promise.all([
         TeamsDataHandler.createTeam(teamInfo1),
         TeamsDataHandler.createTeam(teamInfo2),
         SkillsDataHandler.createSkill(skillInfo1),
         SkillsDataHandler.createSkill(skillInfo2),
-        SkillsDataHandler.createSkill(skillInfo3)
-      ]).then((teamsAndSkills: any[]) => {
-        team1 = teamsAndSkills[0];
-        team2 = teamsAndSkills[1];
-        skill1 = teamsAndSkills[2];
-        skill2 = teamsAndSkills[3];
-        skill3 = teamsAndSkills[4];
+        SkillsDataHandler.createSkill(skillInfo3),
+        UserDataHandler.createUser(userInfo1),
+        UserDataHandler.createUser(userInfo2)
+      ]).then((results: any[]) => {
+        team1 = results[0];
+        team2 = results[1];
+        skill1 = results[2];
+        skill2 = results[3];
+        skill3 = results[4];
+        user1 = results[5];
+        user2 = results[6];
       });
     });
 
@@ -490,8 +467,8 @@ describe('TeamsDataHandler', () => {
 
     it('should return all existing team skills', () => {
       // Arrange
-      var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team1, skill2);
+      var teamSkillInfo1: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo2: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
 
       var createAllTeamSkillsPromise: Promise<any> =
         Promise.all([
@@ -508,14 +485,11 @@ describe('TeamsDataHandler', () => {
       return verifySkillsInfoWithoutOrderAsync(teamSkillsPromise, exxpectedSkillInfo);
     });
 
-    it('should return all existing team skills with correct number of upvotes', () => {
+    it('should return all existing team skills with correct upvoting user ids', () => {
       // Arrange
-      var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      teamSkillInfo1.upvotes = 11;
-      var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team1, skill2);
-      teamSkillInfo2.upvotes = 0;
-      var teamSkillInfo3: ITeamSkillInfo = createTeamSkillInfo(team1, skill3);
-      teamSkillInfo3.upvotes = 7;
+      var teamSkillInfo1: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo2: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
+      var teamSkillInfo3: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill3);
 
       var createAllTeamSkillsPromise: Promise<any> =
         Promise.all([
@@ -530,20 +504,20 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       var expectedSkillUpvotes: ISkillIdToUpvotes[] = [
-        { skillId: teamSkillInfo1.skill_id, upvotes: teamSkillInfo1.upvotes },
-        { skillId: teamSkillInfo2.skill_id, upvotes: teamSkillInfo2.upvotes },
-        { skillId: teamSkillInfo3.skill_id, upvotes: teamSkillInfo3.upvotes }
+        { skillId: teamSkillInfo1.skill_id, upvotingUserIds: [] },
+        { skillId: teamSkillInfo2.skill_id, upvotingUserIds: [] },
+        { skillId: teamSkillInfo3.skill_id, upvotingUserIds: [] }
       ];
       return verifySkillsUpvotesWithoutOrderAsync(teamSkillsPromise, expectedSkillUpvotes);
     });
 
     it('should return all existing skills and not return other skills', () => {
       // Arrange
-      var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team1, skill2);
+      var teamSkillInfo1: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo2: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
 
-      var teamSkillInfo3: ITeamSkillInfo = createTeamSkillInfo(team2, skill1);
-      var teamSkillInfo4: ITeamSkillInfo = createTeamSkillInfo(team2, skill3);
+      var teamSkillInfo3: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
+      var teamSkillInfo4: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team2, skill3);
 
       var createAllTeamSkillsPromise: Promise<any> =
         Promise.all([
@@ -562,73 +536,171 @@ describe('TeamsDataHandler', () => {
       return verifySkillsInfoWithoutOrderAsync(teamSkillsPromise, expectedSkillsInfo);
     });
 
+    it('after upvoting skills should return all existing team skills with correct upvoting user ids', () => {
+      // Arrange
+      var teamSkillInfo1: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo2: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
+      var teamSkillInfo3: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill3);
+
+      var createSkillsAndUpvotePromise: Promise<any> =
+        Promise.all([
+          TeamsDataHandler.addTeamSkill(teamSkillInfo1),
+          TeamsDataHandler.addTeamSkill(teamSkillInfo2),
+          TeamsDataHandler.addTeamSkill(teamSkillInfo3)
+        ]).then((teamSkills: TeamSkill[]) => {
+          var [teamSkill1, teamSkill2, teamSkill3] = teamSkills;
+
+          return Promise.all([
+            TeamsDataHandler.upvoteTeamSkill(teamSkill1.id, user1.id),
+            TeamsDataHandler.upvoteTeamSkill(teamSkill1.id, user2.id),
+            TeamsDataHandler.upvoteTeamSkill(teamSkill2.id, user2.id)
+          ])
+        });
+
+      // Act
+      var teamSkillsPromise: Promise<ISkillOfATeam[]> =
+        createSkillsAndUpvotePromise.then(() => TeamsDataHandler.getTeamSkills(teamInfo1.name));
+
+      // Assert
+      var expectedSkillUpvotes: ISkillIdToUpvotes[] = [
+        { skillId: skill1.id, upvotingUserIds: [user1.id, user2.id] },
+        { skillId: skill2.id, upvotingUserIds: [user2.id] },
+        { skillId: skill3.id, upvotingUserIds: [] }
+      ];
+      return verifySkillsUpvotesWithoutOrderAsync(teamSkillsPromise, expectedSkillUpvotes);
+    });
+
   });
 
   describe('upvoteTeamSkill', () => {
 
     var teamInfo: ITeamInfo;
-    var teamSkillInfo: ITeamSkillInfo;
-    var skillInfo: ISkillInfo;
+
+    var user1: User;
+    var user2: User;
+
+    var teamSkill: TeamSkill;
 
     beforeEach(() => {
-      teamInfo = createTeamInfo('team 1');
-      skillInfo = createSkillInfo('skill 1');
+      teamInfo = ModelInfoMockFactory.createTeamInfo('team 1');
+      var skillInfo = ModelInfoMockFactory.createSkillInfo('skill 1');
+      var userInfo1 = ModelInfoMockFactory.createUserInfo(1);
+      var userInfo2 = ModelInfoMockFactory.createUserInfo(2);
 
       return Promise.all([
         TeamsDataHandler.createTeam(teamInfo),
-        SkillsDataHandler.createSkill(skillInfo)
-      ]).then((teamAndSkill: any[]) => {
-        var team: Team = teamAndSkill[0];
-        var skill: Skill = teamAndSkill[1];
+        SkillsDataHandler.createSkill(skillInfo),
+        UserDataHandler.createUser(userInfo1),
+        UserDataHandler.createUser(userInfo2)
+      ]).then((teamSkillAndUser: any[]) => {
+        var team: Team = teamSkillAndUser[0];
+        var skill: Skill = teamSkillAndUser[1];
 
-        teamSkillInfo = createTeamSkillInfo(team, skill);
-        teamSkillInfo.upvotes = 10;
+        user1 = teamSkillAndUser[2];
+        user2 = teamSkillAndUser[3];
+
+        var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team, skill);
 
         return TeamsDataHandler.addTeamSkill(teamSkillInfo);
+      }).then((_teamSkill: TeamSkill) => {
+        teamSkill = _teamSkill;
       });
     });
 
-    it('upvote with non existing team id should fail', () => {
+    it('upvote with non existing team skill id should fail', () => {
       // Arrange
-      var teamId: number = teamSkillInfo.team_id + 1;
-      var skillId: number = teamSkillInfo.skill_id;
+      var teamSkillId: number = teamSkill.id + 1;
+      var userId: number = user1.id;
 
       // Act
       var upvotePromise: Promise<any> =
-        TeamsDataHandler.upvoteTeamSkill(teamId, skillId);
+        TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId);
 
       // Assert
       return expect(upvotePromise).to.eventually.rejected;
     });
 
-    it('upvote with non existing skill id should fail', () => {
+    it('upvote with non existing user id should fail', () => {
       // Arrange
-      var teamId: number = teamSkillInfo.team_id;
-      var skillId: number = teamSkillInfo.skill_id + 1;
+      var teamSkillId: number = teamSkill.id;
+      var userId: number = user1.id + user2.id + 1;
 
       // Act
       var upvotePromise: Promise<any> =
-        TeamsDataHandler.upvoteTeamSkill(teamId, skillId);
+        TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId);
 
       // Assert
       return expect(upvotePromise).to.eventually.rejected;
     });
 
-    it('upvote should update the upvotes correctly', () => {
+    it('upvote should set the upvoting user ids correctly', () => {
       // Arrange
-      var teamId: number = teamSkillInfo.team_id;
-      var skillId: number = teamSkillInfo.skill_id;
+      var teamSkillId: number = teamSkill.id;
+      var userId: number = user1.id;
 
       // Act
       var upvotePromise: Promise<any> =
-        TeamsDataHandler.upvoteTeamSkill(teamId, skillId);
+        TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId);
 
       // Assert
       return expect(upvotePromise).to.eventually.fulfilled
         .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
         .then((skillsOfATeam: ISkillOfATeam[]) => {
           expect(skillsOfATeam.length).to.be.equal(1);
-          expect(skillsOfATeam[0].upvotes).to.be.equal(teamSkillInfo.upvotes + 1)
+          expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([userId]);
+        });
+    });
+
+    it('upvote with same user twice should fail', () => {
+      // Arrange
+      var teamSkillId: number = teamSkill.id;
+      var userId: number = user1.id;
+
+      // Act
+      var upvotePromise: Promise<any> =
+        TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId)
+          .then(() => TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId));
+
+      // Assert
+      return expect(upvotePromise).to.eventually.rejected;
+    });
+
+    it('upvote with same user twice should set the upvoting user ids correctly', () => {
+      // Arrange
+      var teamSkillId: number = teamSkill.id;
+      var userId: number = user1.id;
+
+      // Act
+      var upvotePromise: Promise<any> =
+        TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId)
+          .then(() => TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId));
+
+      // Assert
+      return expect(upvotePromise).to.eventually.rejected
+        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then((skillsOfATeam: ISkillOfATeam[]) => {
+          expect(skillsOfATeam.length).to.be.equal(1);
+          expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([userId]);
+        });
+    });
+
+    it('upvote with different user twice set the upvoting user ids correctly', () => {
+      // Arrange
+      var teamSkillId: number = teamSkill.id;
+      var userId1: number = user1.id;
+      var userId2: number = user2.id;
+
+      // Act
+      var upvotePromise: Promise<any> =
+        TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId1)
+          .then(() => TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId2));
+
+      // Assert
+      return expect(upvotePromise).to.eventually.fulfilled
+        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then((skillsOfATeam: ISkillOfATeam[]) => {
+          expect(skillsOfATeam.length).to.be.equal(1);
+          expect(skillsOfATeam[0].upvotingUserIds.sort()).to.be.deep.equal([userId1, userId2].sort());
         });
     });
 
@@ -640,8 +712,8 @@ describe('TeamsDataHandler', () => {
     var userInfo: IUserInfo;
 
     beforeEach(() => {
-      teamInfo = createTeamInfo('team 1');
-      userInfo = createUserInfo(1);
+      teamInfo = ModelInfoMockFactory.createTeamInfo('team 1');
+      userInfo = ModelInfoMockFactory.createUserInfo(1);
 
       return Promise.all([
         TeamsDataHandler.createTeam(teamInfo),
@@ -650,7 +722,7 @@ describe('TeamsDataHandler', () => {
         var team: Team = teamAndUser[0];
         var user: User = teamAndUser[1];
 
-        teamMemberInfo = createTeamMemberInfo(team, user);
+        teamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team, user);
         teamMemberInfo.is_admin = false;
 
         return TeamsDataHandler.addTeamMember(teamMemberInfo);

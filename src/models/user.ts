@@ -1,3 +1,4 @@
+import {IHasPivot} from "./interfaces/iHasPivot";
 import {Model, Collection, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
@@ -9,9 +10,8 @@ import {Team} from './team';
 import {TeamMember} from './teamMember';
 import {ITeamOfAUser} from './interfaces/iTeamOfAUser';
 import {IUserInfo} from './interfaces/iUserInfo';
-import {ITeamMemberPivot} from './interfaces/iTeamMemberPivot';
 
-export class User extends bookshelf.Model<User> implements ITeamMemberPivot {
+export class User extends bookshelf.Model<User> implements IHasPivot<TeamMember> {
   public attributes: IUserInfo;
   public pivot: TeamMember;
 

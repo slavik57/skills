@@ -41,31 +41,44 @@ var Skill = (function (_super) {
         }
         return Promise.resolve(true);
     };
-    Skill.prototype.getPrerequisiteSkills = function () {
+    Skill.prototype.prerequisiteSkills = function () {
         return this.belongsToMany(Skill)
             .through(skillPrerequisite_1.SkillPrerequisite, skillPrerequisite_1.SkillPrerequisite.skillIdAttribute, skillPrerequisite_1.SkillPrerequisite.skillPrerequisiteIdAttribute);
     };
-    Skill.prototype.getContributingSkills = function () {
+    Skill.prototype.contributingSkills = function () {
         return this.belongsToMany(Skill)
             .through(skillPrerequisite_1.SkillPrerequisite, skillPrerequisite_1.SkillPrerequisite.skillPrerequisiteIdAttribute, skillPrerequisite_1.SkillPrerequisite.skillIdAttribute);
     };
+    Skill.prototype.teamSkills = function () {
+        return this.hasMany(teamSkill_1.TeamSkill, teamSkill_1.TeamSkill.skillIdAttribute);
+    };
     Skill.prototype.getTeams = function () {
         var _this = this;
-        return this.belongsToMany(team_1.Team)
-            .withPivot([teamSkill_1.TeamSkill.upvotesAttribute])
-            .through(teamSkill_1.TeamSkill, teamSkill_1.TeamSkill.skillIdAttribute, teamSkill_1.TeamSkill.teamIdAttribute)
-            .fetch()
-            .then(function (teamsCollection) {
-            var teams = teamsCollection.toArray();
-            return _.map(teams, function (_team) { return _this._convertTeamToTeamOfASkill(_team); });
+        var fetchOptions = {
+            withRelated: [
+                teamSkill_1.TeamSkill.relatedTeamSkillUpvotesAttribute,
+                teamSkill_1.TeamSkill.relatedTeamAttribute
+            ]
+        };
+        return this.teamSkills()
+            .fetch(fetchOptions)
+            .then(function (teamSkillsCollection) {
+            var teamSkills = teamSkillsCollection.toArray();
+            return _.map(teamSkills, function (_skill) { return _this._convertTeamSkillToTeamOfASkill(_skill); });
         });
     };
-    Skill.prototype._convertTeamToTeamOfASkill = function (team) {
-        var teamSkill = team.pivot;
-        var upvotes = teamSkill.attributes.upvotes;
+    Skill.prototype._teams = function () {
+        return this.belongsToMany(team_1.Team)
+            .through(teamSkill_1.TeamSkill, teamSkill_1.TeamSkill.skillIdAttribute, teamSkill_1.TeamSkill.teamIdAttribute);
+    };
+    Skill.prototype._convertTeamSkillToTeamOfASkill = function (teamSkill) {
+        var team = teamSkill.relations.team;
+        var upvotesCollection = teamSkill.relations.upvotes;
+        var upvotes = upvotesCollection.toArray();
+        var upvotingIds = _.map(upvotes, function (_) { return _.attributes.user_id; });
         return {
             team: team,
-            upvotes: upvotes
+            upvotingUserIds: upvotingIds
         };
     };
     return Skill;

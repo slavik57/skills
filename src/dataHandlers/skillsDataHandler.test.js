@@ -1,4 +1,6 @@
 "use strict";
+var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
+var teamSkill_1 = require("../models/teamSkill");
 var teamsDataHandler_1 = require("./teamsDataHandler");
 var team_1 = require("../models/team");
 var chai = require('chai');
@@ -8,16 +10,19 @@ var chaiAsPromised = require('chai-as-promised');
 var skill_1 = require('../models/skill');
 var skillPrerequisite_1 = require('../models/skillPrerequisite');
 var skillsDataHandler_1 = require('./skillsDataHandler');
-var teamSkill_1 = require('../models/teamSkill');
+var userDataHandler_1 = require('./userDataHandler');
+var user_1 = require('../models/user');
 chai.use(chaiAsPromised);
 describe('SkillsDataHandler', function () {
     function clearTables() {
-        return Promise.all([
+        return teamSkillUpvote_1.TeamSkillUpvotes.clearAll()
+            .then(function () { return Promise.all([
             skillPrerequisite_1.SkillPrerequisites.clearAll(),
             teamSkill_1.TeamSkills.clearAll()
-        ]).then(function () { return Promise.all([
+        ]); }).then(function () { return Promise.all([
             skill_1.Skills.clearAll(),
-            team_1.Teams.clearAll()
+            team_1.Teams.clearAll(),
+            user_1.Users.clearAll()
         ]); });
     }
     beforeEach(function () {
@@ -335,19 +340,27 @@ describe('SkillsDataHandler', function () {
         function createTeamSkillInfo(team, skill) {
             return {
                 team_id: team.id,
-                skill_id: skill.id,
-                upvotes: 0
+                skill_id: skill.id
             };
         }
-        function verifyTeamUpvotesAsync(actualTeamsOfSkillPromise, expectedSkillUpdvotes) {
+        function verifyTeamUpvotingUsersAsync(actualTeamsOfSkillPromise, expectedSkillUpdvotes) {
             return chai_1.expect(actualTeamsOfSkillPromise).to.eventually.fulfilled
                 .then(function (actualTeams) {
                 var orderedActualTeams = _.orderBy(actualTeams, function (_) { return _.team.id; });
-                var actualUpvotes = _.map(orderedActualTeams, function (_) { return _.upvotes; });
+                var actualUpvodtingUserIds = _.map(orderedActualTeams, function (_) { return _.upvotingUserIds.sort(); });
                 var orderedExpectedUpvotes = _.orderBy(expectedSkillUpdvotes, function (_) { return _.teamId; });
-                var expectedUpvotes = _.map(orderedExpectedUpvotes, function (_) { return _.upvotes; });
-                chai_1.expect(actualUpvotes).to.deep.equal(expectedUpvotes);
+                var expectedUpvotingUserIds = _.map(orderedExpectedUpvotes, function (_) { return _.upvotingUserIds.sort(); });
+                chai_1.expect(actualUpvodtingUserIds).to.deep.equal(expectedUpvotingUserIds);
             });
+        }
+        function createUserInfo(userNumber) {
+            return {
+                username: 'username' + userNumber,
+                password_hash: 'password' + userNumber,
+                email: 'email' + userNumber + '@gmail.com',
+                firstName: 'firstName' + userNumber,
+                lastName: 'lastName' + userNumber
+            };
         }
         var teamInfo1;
         var teamInfo2;
@@ -359,24 +372,34 @@ describe('SkillsDataHandler', function () {
         var team3;
         var skill1;
         var skill2;
+        var userInfo1;
+        var userInfo2;
+        var user1;
+        var user2;
         beforeEach(function () {
             teamInfo1 = createTeamInfo('a');
             teamInfo2 = createTeamInfo('b');
             teamInfo3 = createTeamInfo('c');
             skillInfo1 = createSkillInfo(1);
             skillInfo2 = createSkillInfo(2);
+            userInfo1 = createUserInfo(1);
+            userInfo2 = createUserInfo(2);
             return Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
                 teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
                 teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo3),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2)
-            ]).then(function (teamsAndSkills) {
-                team1 = teamsAndSkills[0];
-                team2 = teamsAndSkills[1];
-                team3 = teamsAndSkills[2];
-                skill1 = teamsAndSkills[3];
-                skill2 = teamsAndSkills[4];
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
+                userDataHandler_1.UserDataHandler.createUser(userInfo1),
+                userDataHandler_1.UserDataHandler.createUser(userInfo2)
+            ]).then(function (results) {
+                team1 = results[0];
+                team2 = results[1];
+                team3 = results[2];
+                skill1 = results[3];
+                skill2 = results[4];
+                user1 = results[5];
+                user2 = results[6];
             });
         });
         it('no such skill should return empty teams list', function () {
@@ -398,13 +421,10 @@ describe('SkillsDataHandler', function () {
             var expectedTeams = [teamInfo1, teamInfo2];
             return verifyTeamsAsync(teamsPromise, expectedTeams);
         });
-        it('skill exists with teams should return correct upvotes', function () {
+        it('skill exists with teams should return correct upvoting user ids', function () {
             var teamSkillInfo1 = createTeamSkillInfo(team1, skill1);
-            teamSkillInfo1.upvotes = 13;
             var teamSkillInfo2 = createTeamSkillInfo(team2, skill1);
-            teamSkillInfo2.upvotes = 0;
             var teamSkillInfo3 = createTeamSkillInfo(team3, skill1);
-            teamSkillInfo3.upvotes = 154;
             var addSkillsPromise = Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2),
@@ -412,11 +432,11 @@ describe('SkillsDataHandler', function () {
             ]);
             var teamsPromise = addSkillsPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getTeams(skillInfo1.name); });
             var expectedSkillUpvotes = [
-                { teamId: teamSkillInfo1.team_id, upvotes: teamSkillInfo1.upvotes },
-                { teamId: teamSkillInfo2.team_id, upvotes: teamSkillInfo2.upvotes },
-                { teamId: teamSkillInfo3.team_id, upvotes: teamSkillInfo3.upvotes }
+                { teamId: teamSkillInfo1.team_id, upvotingUserIds: [] },
+                { teamId: teamSkillInfo2.team_id, upvotingUserIds: [] },
+                { teamId: teamSkillInfo3.team_id, upvotingUserIds: [] }
             ];
-            return verifyTeamUpvotesAsync(teamsPromise, expectedSkillUpvotes);
+            return verifyTeamUpvotingUsersAsync(teamsPromise, expectedSkillUpvotes);
         });
         it('multiple skills exist with teams should return correct teams', function () {
             var teamSkillInfo1 = createTeamSkillInfo(team1, skill1);
@@ -430,6 +450,30 @@ describe('SkillsDataHandler', function () {
             var teamsPromise = addSkillsPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getTeams(skillInfo1.name); });
             var expectedTeams = [teamInfo1, teamInfo2];
             return verifyTeamsAsync(teamsPromise, expectedTeams);
+        });
+        it('skill exists with teams with upvotes should return correct upvoting user ids', function () {
+            var team1SkillInfo = createTeamSkillInfo(team1, skill1);
+            var team2SkillInfo = createTeamSkillInfo(team2, skill1);
+            var team3SkillInfo = createTeamSkillInfo(team3, skill1);
+            var addSkillsAndUpvote = Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(team1SkillInfo),
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(team2SkillInfo),
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(team3SkillInfo)
+            ]).then(function (teamSkills) {
+                var team1Skill = teamSkills[0], team2Skill = teamSkills[1], team3Skill = teamSkills[2];
+                return Promise.all([
+                    teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(team1Skill.id, user1.id),
+                    teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(team1Skill.id, user2.id),
+                    teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(team2Skill.id, user2.id),
+                ]);
+            });
+            var teamsPromise = addSkillsAndUpvote.then(function () { return skillsDataHandler_1.SkillsDataHandler.getTeams(skillInfo1.name); });
+            var expectedSkillUpvotes = [
+                { teamId: team1.id, upvotingUserIds: [user1.id, user2.id] },
+                { teamId: team2.id, upvotingUserIds: [user2.id] },
+                { teamId: team3.id, upvotingUserIds: [] }
+            ];
+            return verifyTeamUpvotingUsersAsync(teamsPromise, expectedSkillUpvotes);
         });
     });
 });

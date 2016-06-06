@@ -1,3 +1,6 @@
+import {TeamSkillUpvotes} from "../models/teamSkillUpvote";
+import {TeamSkill, TeamSkills} from "../models/teamSkill";
+import {IUserInfo} from "../models/interfaces/iUserInfo";
 import {TeamsDataHandler} from "./teamsDataHandler";
 import {ITeamSkillInfo} from "../models/interfaces/iTeamSkillInfo";
 import {ITeamInfo} from "../models/interfaces/iTeamInfo";
@@ -13,7 +16,8 @@ import * as chaiAsPromised from 'chai-as-promised'
 import {Skill, Skills} from '../models/skill';
 import {SkillPrerequisite, SkillPrerequisites} from '../models/skillPrerequisite';
 import {SkillsDataHandler} from './skillsDataHandler';
-import {TeamSkills} from '../models/teamSkill';
+import {UserDataHandler} from './userDataHandler';
+import {User, Users} from '../models/user';
 
 
 chai.use(chaiAsPromised);
@@ -21,13 +25,15 @@ chai.use(chaiAsPromised);
 describe('SkillsDataHandler', () => {
 
   function clearTables(): Promise<any> {
-    return Promise.all([
-      SkillPrerequisites.clearAll(),
-      TeamSkills.clearAll()
-    ]).then(() => Promise.all([
-      Skills.clearAll(),
-      Teams.clearAll()
-    ]));
+    return TeamSkillUpvotes.clearAll()
+      .then(() => Promise.all([
+        SkillPrerequisites.clearAll(),
+        TeamSkills.clearAll()
+      ])).then(() => Promise.all([
+        Skills.clearAll(),
+        Teams.clearAll(),
+        Users.clearAll()
+      ]));
   }
 
   beforeEach(() => {
@@ -500,12 +506,11 @@ describe('SkillsDataHandler', () => {
 
     interface ITeamIdToUpvotes {
       teamId: number;
-      upvotes: number;
+      upvotingUserIds: number[];
     }
 
     function verifyTeamsAsync(actualTeamsPromise: Promise<ITeamOfASkill[]>,
       expectedTeams: ITeamInfo[]): Promise<void> {
-
       return expect(actualTeamsPromise).to.eventually.fulfilled
         .then((actualTeams: ITeamOfASkill[]) => {
           var actualTeamInfos: ITeamInfo[] = _.map(actualTeams, _ => _.team.attributes);
@@ -517,7 +522,6 @@ describe('SkillsDataHandler', () => {
     function verifyTeams(actual: ITeamInfo[], expected: ITeamInfo[]): void {
       var actualOrdered: ITeamInfo[] = _.orderBy(actual, _ => _.name);
       var expectedOrdered: ITeamInfo[] = _.orderBy(expected, _ => _.name);
-
       expect(actual.length).to.be.equal(expected.length);
 
       for (var i = 0; i < expected.length; i++) {
@@ -544,24 +548,33 @@ describe('SkillsDataHandler', () => {
     function createTeamSkillInfo(team: Team, skill: Skill): ITeamSkillInfo {
       return {
         team_id: team.id,
-        skill_id: skill.id,
-        upvotes: 0
+        skill_id: skill.id
       }
     }
 
-    function verifyTeamUpvotesAsync(actualTeamsOfSkillPromise: Promise<ITeamOfASkill[]>,
+    function verifyTeamUpvotingUsersAsync(actualTeamsOfSkillPromise: Promise<ITeamOfASkill[]>,
       expectedSkillUpdvotes: ITeamIdToUpvotes[]): Promise<void> {
 
       return expect(actualTeamsOfSkillPromise).to.eventually.fulfilled
         .then((actualTeams: ITeamOfASkill[]) => {
           var orderedActualTeams: ITeamOfASkill[] = _.orderBy(actualTeams, _ => _.team.id);
-          var actualUpvotes: number[] = _.map(orderedActualTeams, _ => _.upvotes);
+          var actualUpvodtingUserIds: number[][] = _.map(orderedActualTeams, _ => _.upvotingUserIds.sort());
 
           var orderedExpectedUpvotes: ITeamIdToUpvotes[] = _.orderBy(expectedSkillUpdvotes, _ => _.teamId);
-          var expectedUpvotes: number[] = _.map(orderedExpectedUpvotes, _ => _.upvotes);
+          var expectedUpvotingUserIds: number[][] = _.map(orderedExpectedUpvotes, _ => _.upvotingUserIds.sort());
 
-          expect(actualUpvotes).to.deep.equal(expectedUpvotes);
+          expect(actualUpvodtingUserIds).to.deep.equal(expectedUpvotingUserIds);
         });
+    }
+
+    function createUserInfo(userNumber): IUserInfo {
+      return {
+        username: 'username' + userNumber,
+        password_hash: 'password' + userNumber,
+        email: 'email' + userNumber + '@gmail.com',
+        firstName: 'firstName' + userNumber,
+        lastName: 'lastName' + userNumber
+      };
     }
 
     var teamInfo1: ITeamInfo;
@@ -576,6 +589,11 @@ describe('SkillsDataHandler', () => {
     var skill1: Skill;
     var skill2: Skill;
 
+    var userInfo1: IUserInfo;
+    var userInfo2: IUserInfo;
+    var user1: User;
+    var user2: User;
+
     beforeEach(() => {
       teamInfo1 = createTeamInfo('a');
       teamInfo2 = createTeamInfo('b');
@@ -584,18 +602,25 @@ describe('SkillsDataHandler', () => {
       skillInfo1 = createSkillInfo(1);
       skillInfo2 = createSkillInfo(2);
 
+      userInfo1 = createUserInfo(1);
+      userInfo2 = createUserInfo(2);
+
       return Promise.all([
         TeamsDataHandler.createTeam(teamInfo1),
         TeamsDataHandler.createTeam(teamInfo2),
         TeamsDataHandler.createTeam(teamInfo3),
         SkillsDataHandler.createSkill(skillInfo1),
-        SkillsDataHandler.createSkill(skillInfo2)
-      ]).then((teamsAndSkills: any[]) => {
-        team1 = teamsAndSkills[0];
-        team2 = teamsAndSkills[1];
-        team3 = teamsAndSkills[2];
-        skill1 = teamsAndSkills[3];
-        skill2 = teamsAndSkills[4];
+        SkillsDataHandler.createSkill(skillInfo2),
+        UserDataHandler.createUser(userInfo1),
+        UserDataHandler.createUser(userInfo2)
+      ]).then((results: any[]) => {
+        team1 = results[0];
+        team2 = results[1];
+        team3 = results[2];
+        skill1 = results[3];
+        skill2 = results[4];
+        user1 = results[5];
+        user2 = results[6];
       });
     });
 
@@ -638,14 +663,11 @@ describe('SkillsDataHandler', () => {
       return verifyTeamsAsync(teamsPromise, expectedTeams);
     });
 
-    it('skill exists with teams should return correct upvotes', () => {
+    it('skill exists with teams should return correct upvoting user ids', () => {
       // Arrange
       var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      teamSkillInfo1.upvotes = 13;
       var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team2, skill1);
-      teamSkillInfo2.upvotes = 0;
       var teamSkillInfo3: ITeamSkillInfo = createTeamSkillInfo(team3, skill1);
-      teamSkillInfo3.upvotes = 154;
 
       // Assert
       var addSkillsPromise: Promise<any> =
@@ -662,11 +684,11 @@ describe('SkillsDataHandler', () => {
       // Assert
       var expectedSkillUpvotes: ITeamIdToUpvotes[] =
         [
-          { teamId: teamSkillInfo1.team_id, upvotes: teamSkillInfo1.upvotes },
-          { teamId: teamSkillInfo2.team_id, upvotes: teamSkillInfo2.upvotes },
-          { teamId: teamSkillInfo3.team_id, upvotes: teamSkillInfo3.upvotes }
+          { teamId: teamSkillInfo1.team_id, upvotingUserIds: [] },
+          { teamId: teamSkillInfo2.team_id, upvotingUserIds: [] },
+          { teamId: teamSkillInfo3.team_id, upvotingUserIds: [] }
         ];
-      return verifyTeamUpvotesAsync(teamsPromise, expectedSkillUpvotes);
+      return verifyTeamUpvotingUsersAsync(teamsPromise, expectedSkillUpvotes);
     });
 
     it('multiple skills exist with teams should return correct teams', () => {
@@ -691,6 +713,40 @@ describe('SkillsDataHandler', () => {
       // Assert
       var expectedTeams: ITeamInfo[] = [teamInfo1, teamInfo2];
       return verifyTeamsAsync(teamsPromise, expectedTeams);
+    });
+
+    it('skill exists with teams with upvotes should return correct upvoting user ids', () => {
+      // Arrange
+      var team1SkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      var team2SkillInfo: ITeamSkillInfo = createTeamSkillInfo(team2, skill1);
+      var team3SkillInfo: ITeamSkillInfo = createTeamSkillInfo(team3, skill1);
+
+      var addSkillsAndUpvote: Promise<any> =
+        Promise.all([
+          TeamsDataHandler.addTeamSkill(team1SkillInfo),
+          TeamsDataHandler.addTeamSkill(team2SkillInfo),
+          TeamsDataHandler.addTeamSkill(team3SkillInfo)
+        ]).then((teamSkills: TeamSkill[]) => {
+          var [team1Skill, team2Skill, team3Skill] = teamSkills;
+          return Promise.all([
+            TeamsDataHandler.upvoteTeamSkill(team1Skill.id, user1.id),
+            TeamsDataHandler.upvoteTeamSkill(team1Skill.id, user2.id),
+            TeamsDataHandler.upvoteTeamSkill(team2Skill.id, user2.id),
+          ])
+        });
+
+      // Act
+      var teamsPromise: Promise<ITeamOfASkill[]> =
+        addSkillsAndUpvote.then(() => SkillsDataHandler.getTeams(skillInfo1.name));
+
+      // Assert
+      var expectedSkillUpvotes: ITeamIdToUpvotes[] =
+        [
+          { teamId: team1.id, upvotingUserIds: [user1.id, user2.id] },
+          { teamId: team2.id, upvotingUserIds: [user2.id] },
+          { teamId: team3.id, upvotingUserIds: [] }
+        ];
+      return verifyTeamUpvotingUsersAsync(teamsPromise, expectedSkillUpvotes);
     });
 
   });

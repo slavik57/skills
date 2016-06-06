@@ -50,13 +50,13 @@ var SkillsDataHandler = (function () {
         if (!skill) {
             return Promise.resolve(new skill_1.Skills());
         }
-        return skill.getPrerequisiteSkills().fetch();
+        return skill.prerequisiteSkills().fetch();
     };
     SkillsDataHandler.fetchContributingSkillsBySkill = function (skill) {
         if (!skill) {
             return Promise.resolve(new skill_1.Skills());
         }
-        return skill.getContributingSkills().fetch();
+        return skill.contributingSkills().fetch();
     };
     SkillsDataHandler._fetchSkillTeams = function (skill) {
         if (!skill) {

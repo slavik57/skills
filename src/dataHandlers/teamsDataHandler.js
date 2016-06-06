@@ -1,4 +1,5 @@
 "use strict";
+var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
 var bookshelf_1 = require('../../bookshelf');
 var team_1 = require('../models/team');
 var teamMember_1 = require('../models/teamMember');
@@ -32,15 +33,16 @@ var TeamsDataHandler = (function () {
             .query({ where: queryCondition })
             .fetch();
     };
-    TeamsDataHandler.upvoteTeamSkill = function (teamId, skillId) {
-        var _this = this;
-        return bookshelf_1.bookshelf.transaction(function (transaction) {
-            return _this._upvoteTeamSkillInternal(teamId, skillId);
-        });
+    TeamsDataHandler.upvoteTeamSkill = function (teamSkillId, upvotingUserId) {
+        var upvoteInfo = {
+            team_skill_id: teamSkillId,
+            user_id: upvotingUserId
+        };
+        return new teamSkillUpvote_1.TeamSkillUpvote(upvoteInfo).save();
     };
     TeamsDataHandler.setAdminRights = function (teamId, userId, newAdminRights) {
         var _this = this;
-        return bookshelf_1.bookshelf.transaction(function (transaction) {
+        return bookshelf_1.bookshelf.transaction(function () {
             return _this._setAdminRightsInternal(teamId, userId, newAdminRights);
         });
     };
@@ -55,27 +57,6 @@ var TeamsDataHandler = (function () {
             return Promise.resolve([]);
         }
         return team.getTeamSkills();
-    };
-    TeamsDataHandler._upvoteTeamSkillInternal = function (teamId, skillId) {
-        var _this = this;
-        var queryCondition = {};
-        queryCondition[teamSkill_1.TeamSkill.teamIdAttribute] = teamId;
-        queryCondition[teamSkill_1.TeamSkill.skillIdAttribute] = skillId;
-        return new teamSkill_1.TeamSkill(queryCondition)
-            .fetch()
-            .then(function (teamSkill) {
-            var newUpvotes = teamSkill.attributes.upvotes + 1;
-            return _this._updateTeamSkillUpvotes(teamSkill, newUpvotes);
-        });
-    };
-    TeamsDataHandler._updateTeamSkillUpvotes = function (teamSkill, newUpvotes) {
-        var updateAttributes = {};
-        updateAttributes[teamSkill_1.TeamSkill.upvotesAttribute] = newUpvotes;
-        var saveOptions = {
-            patch: true,
-            method: 'update'
-        };
-        return teamSkill.save(updateAttributes, saveOptions);
     };
     TeamsDataHandler._setAdminRightsInternal = function (teamId, userId, newAdminRights) {
         var queryCondition = {};

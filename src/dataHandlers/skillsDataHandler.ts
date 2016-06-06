@@ -59,7 +59,7 @@ export class SkillsDataHandler {
       return Promise.resolve(new Skills());
     }
 
-    return skill.getPrerequisiteSkills().fetch();
+    return skill.prerequisiteSkills().fetch();
   }
 
   private static fetchContributingSkillsBySkill(skill: Skill): Promise<Collection<Skill>> {
@@ -67,7 +67,7 @@ export class SkillsDataHandler {
       return Promise.resolve(new Skills());
     }
 
-    return skill.getContributingSkills().fetch();
+    return skill.contributingSkills().fetch();
   }
 
   private static _fetchSkillTeams(skill: Skill): Promise<ITeamOfASkill[]> {

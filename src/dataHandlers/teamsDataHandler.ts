@@ -1,3 +1,5 @@
+import {TeamSkillUpvote} from "../models/teamSkillUpvote";
+import {ITeamSkillUpvoteInfo} from "../models/interfaces/iTeamSkillUpvoteInfo";
 import {ISkillOfATeam} from "../models/interfaces/iSkillOfATeam";
 import {ITeamSkillInfo} from "../models/interfaces/iTeamSkillInfo";
 import {IUserOfATeam} from "../models/interfaces/iUserOfATeam";
@@ -44,14 +46,17 @@ export class TeamsDataHandler {
       .fetch();
   }
 
-  public static upvoteTeamSkill(teamId: number, skillId: number): Promise<TeamSkill> {
-    return bookshelf.transaction((transaction) => {
-      return this._upvoteTeamSkillInternal(teamId, skillId);
-    });
+  public static upvoteTeamSkill(teamSkillId: number, upvotingUserId: number): Promise<TeamSkillUpvote> {
+    var upvoteInfo: ITeamSkillUpvoteInfo = {
+      team_skill_id: teamSkillId,
+      user_id: upvotingUserId
+    };
+
+    return new TeamSkillUpvote(upvoteInfo).save();
   }
 
   public static setAdminRights(teamId: number, userId: number, newAdminRights: boolean): Promise<TeamMember> {
-    return bookshelf.transaction((transaction) => {
+    return bookshelf.transaction(() => {
       return this._setAdminRightsInternal(teamId, userId, newAdminRights);
     });
   }
@@ -70,31 +75,6 @@ export class TeamsDataHandler {
     }
 
     return team.getTeamSkills();
-  }
-
-  private static _upvoteTeamSkillInternal(teamId: number, skillId: number): Promise<TeamSkill> {
-    var queryCondition = {};
-    queryCondition[TeamSkill.teamIdAttribute] = teamId;
-    queryCondition[TeamSkill.skillIdAttribute] = skillId;
-
-    return new TeamSkill(queryCondition)
-      .fetch()
-      .then((teamSkill: TeamSkill) => {
-        var newUpvotes: number = teamSkill.attributes.upvotes + 1;
-
-        return this._updateTeamSkillUpvotes(teamSkill, newUpvotes);
-      });
-  }
-
-  private static _updateTeamSkillUpvotes(teamSkill: TeamSkill, newUpvotes: number): Promise<TeamSkill> {
-    var updateAttributes = {};
-    updateAttributes[TeamSkill.upvotesAttribute] = newUpvotes;
-
-    var saveOptions: SaveOptions = {
-      patch: true,
-      method: 'update'
-    }
-    return teamSkill.save(updateAttributes, saveOptions);
   }
 
   private static _setAdminRightsInternal(teamId: number, userId: number, newAdminRights: boolean): Promise<TeamMember> {
@@ -116,4 +96,5 @@ export class TeamsDataHandler {
         return teamMember.save(updateAttributes, saveOptions);
       });
   }
+
 }

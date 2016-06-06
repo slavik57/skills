@@ -31,8 +31,7 @@ describe('TeamSkill', function () {
         function createTeamSkillInfo(team, skill) {
             return {
                 team_id: team.id,
-                skill_id: skill.id,
-                upvotes: 0
+                skill_id: skill.id
             };
         }
         beforeEach(function () {
@@ -70,13 +69,6 @@ describe('TeamSkill', function () {
             var promise = teamSkill.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
-        it('create without upvotes should succeed', function () {
-            var teamSkillInfo = createTeamSkillInfo(team1, skill1);
-            delete teamSkillInfo.upvotes;
-            var teamSkill = new teamSkill_1.TeamSkill(teamSkillInfo);
-            var promise = teamSkill.save();
-            return chai_1.expect(promise).to.eventually.equal(teamSkill);
-        });
         it('create with non integer team_id should return error', function () {
             var teamSkillInfo = createTeamSkillInfo(team1, skill1);
             teamSkillInfo.team_id = 1.1;
@@ -88,13 +80,6 @@ describe('TeamSkill', function () {
             var teamMemberInfo = createTeamSkillInfo(team1, skill1);
             teamMemberInfo.skill_id = 1.1;
             var teamSkill = new teamSkill_1.TeamSkill(teamMemberInfo);
-            var promise = teamSkill.save();
-            return chai_1.expect(promise).to.eventually.rejected;
-        });
-        it('create with non integer upvotes should return error', function () {
-            var teamSkillInfo = createTeamSkillInfo(team1, skill1);
-            teamSkillInfo.upvotes = 1.1;
-            var teamSkill = new teamSkill_1.TeamSkill(teamSkillInfo);
             var promise = teamSkill.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
@@ -129,54 +114,6 @@ describe('TeamSkill', function () {
                 chai_1.expect(teamSkills.size()).to.be.equal(1);
                 chai_1.expect(teamSkill.attributes.team_id).to.be.equal(teamSkillInfo.team_id);
                 chai_1.expect(teamSkill.attributes.skill_id).to.be.equal(teamSkillInfo.skill_id);
-                chai_1.expect(teamSkill.attributes.upvotes).to.be.equal(teamSkillInfo.upvotes);
-            });
-        });
-        it('create with upvotes = 0 should be fetched correctly', function () {
-            var teamSkillInfo = createTeamSkillInfo(team1, skill1);
-            var upvotes = 0;
-            teamSkillInfo.upvotes = upvotes;
-            var teamSkill = new teamSkill_1.TeamSkill(teamSkillInfo);
-            var promise = teamSkill.save();
-            var teamSkillsPromise = promise.then(function () { return new teamSkill_1.TeamSkills().fetch(); });
-            return chai_1.expect(teamSkillsPromise).to.eventually.fulfilled
-                .then(function (teamSkills) {
-                var teamSkill = teamSkills.at(0);
-                chai_1.expect(teamSkills.size()).to.be.equal(1);
-                chai_1.expect(teamSkill.attributes.team_id).to.be.equal(teamSkillInfo.team_id);
-                chai_1.expect(teamSkill.attributes.skill_id).to.be.equal(teamSkillInfo.skill_id);
-                chai_1.expect(teamSkill.attributes.upvotes).to.be.equal(upvotes);
-            });
-        });
-        it('create with upvotes = 11 should be fetched correctly', function () {
-            var teamSkillInfo = createTeamSkillInfo(team1, skill1);
-            var upvotes = 11;
-            teamSkillInfo.upvotes = upvotes;
-            var teamSkill = new teamSkill_1.TeamSkill(teamSkillInfo);
-            var promise = teamSkill.save();
-            var teamSkillsPromise = promise.then(function () { return new teamSkill_1.TeamSkills().fetch(); });
-            return chai_1.expect(teamSkillsPromise).to.eventually.fulfilled
-                .then(function (teamSkills) {
-                var teamSkill = teamSkills.at(0);
-                chai_1.expect(teamSkills.size()).to.be.equal(1);
-                chai_1.expect(teamSkill.attributes.team_id).to.be.equal(teamSkillInfo.team_id);
-                chai_1.expect(teamSkill.attributes.skill_id).to.be.equal(teamSkillInfo.skill_id);
-                chai_1.expect(teamSkill.attributes.upvotes).to.be.equal(upvotes);
-            });
-        });
-        it('create without upvotes should be fetched correctly', function () {
-            var teamSkillInfo = createTeamSkillInfo(team1, skill1);
-            delete teamSkillInfo.upvotes;
-            var teamSkill = new teamSkill_1.TeamSkill(teamSkillInfo);
-            var promise = teamSkill.save();
-            var teamSkillsPromise = promise.then(function () { return new teamSkill_1.TeamSkills().fetch(); });
-            return chai_1.expect(teamSkillsPromise).to.eventually.fulfilled
-                .then(function (teamSkills) {
-                var teamSkill = teamSkills.at(0);
-                chai_1.expect(teamSkills.size()).to.be.equal(1);
-                chai_1.expect(teamSkill.attributes.team_id).to.be.equal(teamSkillInfo.team_id);
-                chai_1.expect(teamSkill.attributes.skill_id).to.be.equal(teamSkillInfo.skill_id);
-                chai_1.expect(teamSkill.attributes.upvotes).to.be.equal(0);
             });
         });
         it('create 2 different team skills should succeed', function () {

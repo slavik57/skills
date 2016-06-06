@@ -1,22 +1,21 @@
-import {IPivotedTeam} from "./interfaces/iPivotedTeam";
+import {TeamSkillUpvote} from "./teamSkillUpvote";
 import {Skill} from "./skill";
 import {ISkillOfATeam} from "./interfaces/iSkillOfATeam";
 import {IUserOfATeam} from "./interfaces/iUserOfATeam";
-import {Model, Collection, EventFunction} from 'bookshelf';
+import {Model, Collection, EventFunction, CollectionFetchOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {User} from './user';
 import {TeamMember} from './teamMember';
-import {ITeamMemberPivot} from './interfaces/iTeamMemberPivot';
-import {ITeamSkillPivot} from './interfaces/iTeamSkillPivot';
+import {IHasPivot} from './interfaces/iHasPivot';
 import {ITeamInfo} from './interfaces/iTeamInfo';
 import {TeamSkill} from './teamSkill';
 
-export class Team extends bookshelf.Model<Team> implements IPivotedTeam<TeamMember | TeamSkill> {
+export class Team extends bookshelf.Model<Team> implements IHasPivot<TeamMember> {
   public attributes: ITeamInfo;
-  public pivot: TeamMember | TeamSkill;
+  public pivot: TeamMember;
 
   public get tableName(): string { return 'teams'; }
   public get idAttribute(): string { return 'id'; }
@@ -34,6 +33,10 @@ export class Team extends bookshelf.Model<Team> implements IPivotedTeam<TeamMemb
     return Promise.resolve(true);
   }
 
+  public teamSkills(): Collection<TeamSkill> {
+    return this.hasMany(TeamSkill, TeamSkill.teamIdAttribute);
+  }
+
   public getTeamMembers(): Promise<IUserOfATeam[]> {
     return this.belongsToMany(User)
       .withPivot([TeamMember.isAdminAttribute])
@@ -47,15 +50,20 @@ export class Team extends bookshelf.Model<Team> implements IPivotedTeam<TeamMemb
   }
 
   public getTeamSkills(): Promise<ISkillOfATeam[]> {
-    return this.belongsToMany(Skill)
-      .withPivot([TeamSkill.upvotesAttribute])
-      .through<Skill>(TeamSkill, TeamSkill.teamIdAttribute, TeamSkill.skillIdAttribute)
-      .fetch()
-      .then((skillsCollection: Collection<Skill>) => {
-        var skills: Skill[] = skillsCollection.toArray();
+    var fetchOptions: CollectionFetchOptions = {
+      withRelated: [
+        TeamSkill.relatedTeamSkillUpvotesAttribute,
+        TeamSkill.relatedSkillAttribute
+      ]
+    };
 
-        return _.map(skills, _skill => this._convertSkillToSkillOfATeam(_skill));
-      });
+    return this.teamSkills()
+      .fetch(fetchOptions)
+      .then((teamSkillsCollection: Collection<TeamSkill>) => {
+        var teamSkills: TeamSkill[] = teamSkillsCollection.toArray();
+
+        return _.map(teamSkills, _skill => this._convertTeamSkillToSkillOfATeam(_skill));
+      })
   }
 
   private _convertUserToUserOfATeam(user: User): IUserOfATeam {
@@ -65,11 +73,19 @@ export class Team extends bookshelf.Model<Team> implements IPivotedTeam<TeamMemb
     }
   }
 
-  private _convertSkillToSkillOfATeam(skill: Skill): ISkillOfATeam {
+  private _convertTeamSkillToSkillOfATeam(teamSkill: TeamSkill): ISkillOfATeam {
+    var skill: Skill = teamSkill.relations.skill;
+
+    var upvotesCollection: Collection<TeamSkillUpvote> = teamSkill.relations.upvotes;
+    var upvotes: TeamSkillUpvote[] = upvotesCollection.toArray();
+
+    var upvotingIds =
+      _.map(upvotes, _ => _.attributes.user_id);
+
     return {
       skill: skill,
-      upvotes: skill.pivot.attributes.upvotes
-    }
+      upvotingUserIds: upvotingIds
+    };
   }
 
 }

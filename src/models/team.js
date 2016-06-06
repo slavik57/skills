@@ -4,7 +4,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var skill_1 = require("./skill");
 var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
 var _ = require('lodash');
@@ -42,6 +41,9 @@ var Team = (function (_super) {
         }
         return Promise.resolve(true);
     };
+    Team.prototype.teamSkills = function () {
+        return this.hasMany(teamSkill_1.TeamSkill, teamSkill_1.TeamSkill.teamIdAttribute);
+    };
     Team.prototype.getTeamMembers = function () {
         var _this = this;
         return this.belongsToMany(user_1.User)
@@ -55,13 +57,17 @@ var Team = (function (_super) {
     };
     Team.prototype.getTeamSkills = function () {
         var _this = this;
-        return this.belongsToMany(skill_1.Skill)
-            .withPivot([teamSkill_1.TeamSkill.upvotesAttribute])
-            .through(teamSkill_1.TeamSkill, teamSkill_1.TeamSkill.teamIdAttribute, teamSkill_1.TeamSkill.skillIdAttribute)
-            .fetch()
-            .then(function (skillsCollection) {
-            var skills = skillsCollection.toArray();
-            return _.map(skills, function (_skill) { return _this._convertSkillToSkillOfATeam(_skill); });
+        var fetchOptions = {
+            withRelated: [
+                teamSkill_1.TeamSkill.relatedTeamSkillUpvotesAttribute,
+                teamSkill_1.TeamSkill.relatedSkillAttribute
+            ]
+        };
+        return this.teamSkills()
+            .fetch(fetchOptions)
+            .then(function (teamSkillsCollection) {
+            var teamSkills = teamSkillsCollection.toArray();
+            return _.map(teamSkills, function (_skill) { return _this._convertTeamSkillToSkillOfATeam(_skill); });
         });
     };
     Team.prototype._convertUserToUserOfATeam = function (user) {
@@ -70,10 +76,14 @@ var Team = (function (_super) {
             isAdmin: user.pivot.attributes.is_admin
         };
     };
-    Team.prototype._convertSkillToSkillOfATeam = function (skill) {
+    Team.prototype._convertTeamSkillToSkillOfATeam = function (teamSkill) {
+        var skill = teamSkill.relations.skill;
+        var upvotesCollection = teamSkill.relations.upvotes;
+        var upvotes = upvotesCollection.toArray();
+        var upvotingIds = _.map(upvotes, function (_) { return _.attributes.user_id; });
         return {
             skill: skill,
-            upvotes: skill.pivot.attributes.upvotes
+            upvotingUserIds: upvotingIds
         };
     };
     return Team;

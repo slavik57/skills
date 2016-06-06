@@ -1,7 +1,7 @@
+import {TeamSkillUpvote} from "./teamSkillUpvote";
 import {Team} from "./team";
 import {ITeamOfASkill} from "./interfaces/iTeamOfASkill";
-import {ITeamSkillPivot} from "./interfaces/iTeamSkillPivot";
-import {Model, Collection, EventFunction} from 'bookshelf';
+import {Model, Collection, EventFunction, CollectionFetchOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
@@ -10,9 +10,8 @@ import {SkillPrerequisite} from './skillPrerequisite';
 import {ISkillInfo} from './interfaces/iSkillInfo';
 import {TeamSkill} from './teamSkill';
 
-export class Skill extends bookshelf.Model<Skill> implements ITeamSkillPivot {
+export class Skill extends bookshelf.Model<Skill> {
   public attributes: ISkillInfo;
-  public pivot: TeamSkill;
 
   public get tableName(): string { return 'skills'; }
   public get idAttribute(): string { return 'id'; }
@@ -30,37 +29,55 @@ export class Skill extends bookshelf.Model<Skill> implements ITeamSkillPivot {
     return Promise.resolve(true);
   }
 
-  public getPrerequisiteSkills(): Collection<Skill> {
+  public prerequisiteSkills(): Collection<Skill> {
     return this.belongsToMany(Skill)
       .through<Skill>(SkillPrerequisite, SkillPrerequisite.skillIdAttribute, SkillPrerequisite.skillPrerequisiteIdAttribute);
   }
 
-  public getContributingSkills(): Collection<Skill> {
+  public contributingSkills(): Collection<Skill> {
     return this.belongsToMany(Skill)
       .through<Skill>(SkillPrerequisite, SkillPrerequisite.skillPrerequisiteIdAttribute, SkillPrerequisite.skillIdAttribute);
   }
 
-  public getTeams(): Promise<ITeamOfASkill[]> {
-    return this.belongsToMany(Team)
-      .withPivot([TeamSkill.upvotesAttribute])
-      .through<Team>(TeamSkill, TeamSkill.skillIdAttribute, TeamSkill.teamIdAttribute)
-      .fetch()
-      .then((teamsCollection: Collection<Team>) => {
-        var teams: Team[] = teamsCollection.toArray();
+  public teamSkills(): Collection<TeamSkill> {
+    return this.hasMany(TeamSkill, TeamSkill.skillIdAttribute);
+  }
 
-        return _.map(teams, _team => this._convertTeamToTeamOfASkill(_team));
+  public getTeams(): Promise<ITeamOfASkill[]> {
+    var fetchOptions: CollectionFetchOptions = {
+      withRelated: [
+        TeamSkill.relatedTeamSkillUpvotesAttribute,
+        TeamSkill.relatedTeamAttribute
+      ]
+    };
+
+    return this.teamSkills()
+      .fetch(fetchOptions)
+      .then((teamSkillsCollection: Collection<TeamSkill>) => {
+        var teamSkills: TeamSkill[] = teamSkillsCollection.toArray();
+
+        return _.map(teamSkills, _skill => this._convertTeamSkillToTeamOfASkill(_skill));
       });
   }
 
-  private _convertTeamToTeamOfASkill(team: Team): ITeamOfASkill {
-    var teamSkill: TeamSkill = <TeamSkill>team.pivot;
+  private _teams(): Collection<Team> {
+    return this.belongsToMany(Team)
+      .through<Team>(TeamSkill, TeamSkill.skillIdAttribute, TeamSkill.teamIdAttribute)
+  }
 
-    var upvotes: number = teamSkill.attributes.upvotes;
+  private _convertTeamSkillToTeamOfASkill(teamSkill: TeamSkill): ITeamOfASkill {
+    var team: Team = teamSkill.relations.team;
+
+    var upvotesCollection: Collection<TeamSkillUpvote> = teamSkill.relations.upvotes;
+    var upvotes: TeamSkillUpvote[] = upvotesCollection.toArray();
+
+    var upvotingIds =
+      _.map(upvotes, _ => _.attributes.user_id);
 
     return {
       team: team,
-      upvotes: upvotes
-    }
+      upvotingUserIds: upvotingIds
+    };
   }
 }
 

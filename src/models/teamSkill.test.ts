@@ -41,8 +41,7 @@ describe('TeamSkill', () => {
     function createTeamSkillInfo(team: Team, skill: Skill): ITeamSkillInfo {
       return {
         team_id: team.id,
-        skill_id: skill.id,
-        upvotes: 0
+        skill_id: skill.id
       }
     }
 
@@ -103,20 +102,6 @@ describe('TeamSkill', () => {
       return expect(promise).to.eventually.rejected;
     });
 
-    it('create without upvotes should succeed', () => {
-      /// Arrange
-      var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      delete teamSkillInfo.upvotes;
-
-      var teamSkill = new TeamSkill(teamSkillInfo);
-
-      // Act
-      var promise: Promise<TeamSkill> = teamSkill.save();
-
-      // Assert
-      return expect(promise).to.eventually.equal(teamSkill);
-    });
-
     it('create with non integer team_id should return error', () => {
       // Arrange
       var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
@@ -135,19 +120,6 @@ describe('TeamSkill', () => {
       var teamMemberInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
       teamMemberInfo.skill_id = 1.1;
       var teamSkill = new TeamSkill(teamMemberInfo);
-
-      // Act
-      var promise: Promise<TeamSkill> = teamSkill.save();
-
-      // Assert
-      return expect(promise).to.eventually.rejected;
-    });
-
-    it('create with non integer upvotes should return error', () => {
-      // Arrange
-      var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      teamSkillInfo.upvotes = 1.1;
-      var teamSkill = new TeamSkill(teamSkillInfo);
 
       // Act
       var promise: Promise<TeamSkill> = teamSkill.save();
@@ -213,81 +185,6 @@ describe('TeamSkill', () => {
           expect(teamSkills.size()).to.be.equal(1);
           expect(teamSkill.attributes.team_id).to.be.equal(teamSkillInfo.team_id);
           expect(teamSkill.attributes.skill_id).to.be.equal(teamSkillInfo.skill_id);
-          expect(teamSkill.attributes.upvotes).to.be.equal(teamSkillInfo.upvotes);
-        });
-    });
-
-    it('create with upvotes = 0 should be fetched correctly', () => {
-      // Arrange
-      var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      var upvotes = 0;
-      teamSkillInfo.upvotes = upvotes;
-      var teamSkill = new TeamSkill(teamSkillInfo);
-
-      // Act
-      var promise: Promise<TeamSkill> = teamSkill.save();
-
-      // Assert
-      var teamSkillsPromise =
-        promise.then(() => new TeamSkills().fetch());
-
-      return expect(teamSkillsPromise).to.eventually.fulfilled
-        .then((teamSkills: Collection<TeamSkill>) => {
-          var teamSkill: TeamSkill = teamSkills.at(0);
-
-          expect(teamSkills.size()).to.be.equal(1);
-          expect(teamSkill.attributes.team_id).to.be.equal(teamSkillInfo.team_id);
-          expect(teamSkill.attributes.skill_id).to.be.equal(teamSkillInfo.skill_id);
-          expect(teamSkill.attributes.upvotes).to.be.equal(upvotes);
-        });
-    });
-
-    it('create with upvotes = 11 should be fetched correctly', () => {
-      // Arrange
-      var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      var upvotes = 11;
-      teamSkillInfo.upvotes = upvotes;
-      var teamSkill = new TeamSkill(teamSkillInfo);
-
-      // Act
-      var promise: Promise<TeamSkill> = teamSkill.save();
-
-      // Assert
-      var teamSkillsPromise =
-        promise.then(() => new TeamSkills().fetch());
-
-      return expect(teamSkillsPromise).to.eventually.fulfilled
-        .then((teamSkills: Collection<TeamSkill>) => {
-          var teamSkill: TeamSkill = teamSkills.at(0);
-
-          expect(teamSkills.size()).to.be.equal(1);
-          expect(teamSkill.attributes.team_id).to.be.equal(teamSkillInfo.team_id);
-          expect(teamSkill.attributes.skill_id).to.be.equal(teamSkillInfo.skill_id);
-          expect(teamSkill.attributes.upvotes).to.be.equal(upvotes);
-        });
-    });
-
-    it('create without upvotes should be fetched correctly', () => {
-      // Arrange
-      var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      delete teamSkillInfo.upvotes;
-      var teamSkill = new TeamSkill(teamSkillInfo);
-
-      // Act
-      var promise: Promise<TeamSkill> = teamSkill.save();
-
-      // Assert
-      var teamSkillsPromise =
-        promise.then(() => new TeamSkills().fetch());
-
-      return expect(teamSkillsPromise).to.eventually.fulfilled
-        .then((teamSkills: Collection<TeamSkill>) => {
-          var teamSkill: TeamSkill = teamSkills.at(0);
-
-          expect(teamSkills.size()).to.be.equal(1);
-          expect(teamSkill.attributes.team_id).to.be.equal(teamSkillInfo.team_id);
-          expect(teamSkill.attributes.skill_id).to.be.equal(teamSkillInfo.skill_id);
-          expect(teamSkill.attributes.upvotes).to.be.equal(0);
         });
     });
 

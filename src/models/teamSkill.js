@@ -4,6 +4,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var skill_1 = require("./skill");
+var team_1 = require("./team");
+var teamSkillUpvote_1 = require("./teamSkillUpvote");
 var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
 var typesValidator_1 = require('../commonUtils/typesValidator');
@@ -32,14 +35,33 @@ var TeamSkill = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TeamSkill, "upvotesAttribute", {
+    Object.defineProperty(TeamSkill, "relatedTeamSkillUpvotesAttribute", {
         get: function () { return 'upvotes'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TeamSkill, "relatedTeamAttribute", {
+        get: function () { return 'team'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TeamSkill, "relatedSkillAttribute", {
+        get: function () { return 'skill'; },
         enumerable: true,
         configurable: true
     });
     TeamSkill.prototype.initialize = function () {
         var _this = this;
         this.on('saving', function (teamSkill) { return _this._validateTeamSkill(teamSkill); });
+    };
+    TeamSkill.prototype.upvotes = function () {
+        return this.hasMany(teamSkillUpvote_1.TeamSkillUpvote, teamSkillUpvote_1.TeamSkillUpvote.teamSkillIdAttribute);
+    };
+    TeamSkill.prototype.team = function () {
+        return this.belongsTo(team_1.Team, TeamSkill.teamIdAttribute);
+    };
+    TeamSkill.prototype.skill = function () {
+        return this.belongsTo(skill_1.Skill, TeamSkill.skillIdAttribute);
     };
     TeamSkill.prototype._validateTeamSkill = function (teamSkill) {
         if (!typesValidator_1.TypesValidator.isInteger(teamSkill.attributes.team_id)) {
@@ -62,8 +84,8 @@ var TeamSkills = (function (_super) {
     TeamSkills.clearAll = function () {
         var promises = [];
         return new TeamSkills().fetch().then(function (users) {
-            users.each(function (teamMembers) {
-                var promise = teamMembers.destroy(null);
+            users.each(function (teamSkills) {
+                var promise = teamSkills.destroy(null);
                 promises.push(promise);
             });
             return Promise.all(promises);
