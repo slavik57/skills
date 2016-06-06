@@ -40,6 +40,17 @@ var TeamsDataHandler = (function () {
         };
         return new teamSkillUpvote_1.TeamSkillUpvote(upvoteInfo).save();
     };
+    TeamsDataHandler.removeUpvoteForTeamSkill = function (teamSkillId, upvotedUserId) {
+        var idQuery = {};
+        idQuery[teamSkillUpvote_1.TeamSkillUpvote.teamSkillIdAttribute] = teamSkillId;
+        idQuery[teamSkillUpvote_1.TeamSkillUpvote.userIdAttribute] = upvotedUserId;
+        var destroyOptions = {
+            require: true
+        };
+        return new teamSkillUpvote_1.TeamSkillUpvote()
+            .where(idQuery)
+            .destroy(destroyOptions);
+    };
     TeamsDataHandler.setAdminRights = function (teamId, userId, newAdminRights) {
         var _this = this;
         return bookshelf_1.bookshelf.transaction(function () {

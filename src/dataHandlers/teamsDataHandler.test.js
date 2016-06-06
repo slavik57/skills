@@ -447,6 +447,113 @@ describe('TeamsDataHandler', function () {
             });
         });
     });
+    describe('removeUpvoteForTeamSkill', function () {
+        var upvotedUser1;
+        var upvotedUser2;
+        var notUpvotedUser;
+        var teamInfo;
+        var teamSkill;
+        beforeEach(function () {
+            teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team 1');
+            var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill 1');
+            var upvotedUserInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+            var upvotedUserInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2);
+            var notUpvotedUserInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(3);
+            return Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo),
+                userDataHandler_1.UserDataHandler.createUser(upvotedUserInfo1),
+                userDataHandler_1.UserDataHandler.createUser(upvotedUserInfo2),
+                userDataHandler_1.UserDataHandler.createUser(notUpvotedUserInfo)
+            ]).then(function (teamSkillAndUser) {
+                var team = teamSkillAndUser[0];
+                var skill = teamSkillAndUser[1];
+                upvotedUser1 = teamSkillAndUser[2];
+                upvotedUser2 = teamSkillAndUser[3];
+                notUpvotedUser = teamSkillAndUser[4];
+                var teamSkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team, skill);
+                return teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo);
+            }).then(function (_teamSkill) {
+                teamSkill = _teamSkill;
+                return Promise.all([
+                    teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamSkill.id, upvotedUser1.id),
+                    teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamSkill.id, upvotedUser2.id)
+                ]);
+            });
+        });
+        it('with non existing team skill id should fail', function () {
+            var teamSkillId = teamSkill.id + 1;
+            var userId = upvotedUser1.id;
+            var promise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);
+            return chai_1.expect(promise).to.eventually.rejected;
+        });
+        it('with non existing user id should fail', function () {
+            var teamSkillId = teamSkill.id;
+            var userId = upvotedUser1.id + upvotedUser2.id + notUpvotedUser.id + 1;
+            var promise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);
+            return chai_1.expect(promise).to.eventually.rejected;
+        });
+        it('with user who did not upvote should fail', function () {
+            var teamSkillId = teamSkill.id;
+            var userId = notUpvotedUser.id;
+            var promise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);
+            return chai_1.expect(promise).to.eventually.rejected;
+        });
+        it('with user who did not upvote should set the upvoting user ids correctly', function () {
+            var teamSkillId = teamSkill.id;
+            var userId = notUpvotedUser.id;
+            var removeUpvotePromise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);
+            return chai_1.expect(removeUpvotePromise).to.eventually.rejected
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo.name); })
+                .then(function (skillsOfATeam) {
+                chai_1.expect(skillsOfATeam.length).to.be.equal(1);
+                chai_1.expect(skillsOfATeam[0].upvotingUserIds.sort()).to.be.deep.equal([upvotedUser1.id, upvotedUser2.id].sort());
+            });
+        });
+        it('with user who upvote should set the upvoting user ids correctly', function () {
+            var teamSkillId = teamSkill.id;
+            var userId = upvotedUser1.id;
+            var removeUpvotePromise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);
+            return chai_1.expect(removeUpvotePromise).to.eventually.fulfilled
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo.name); })
+                .then(function (skillsOfATeam) {
+                chai_1.expect(skillsOfATeam.length).to.be.equal(1);
+                chai_1.expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([upvotedUser2.id]);
+            });
+        });
+        it('with same user twice should fail', function () {
+            var teamSkillId = teamSkill.id;
+            var userId = upvotedUser1.id;
+            var removeUpvotePromise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId)
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId); });
+            return chai_1.expect(removeUpvotePromise).to.eventually.rejected;
+        });
+        it('with same user twice should set the upvoting user ids correctly', function () {
+            var teamSkillId = teamSkill.id;
+            var userId = upvotedUser1.id;
+            var removeUpvotePromise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId)
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId); });
+            return chai_1.expect(removeUpvotePromise).to.eventually.rejected
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo.name); })
+                .then(function (skillsOfATeam) {
+                chai_1.expect(skillsOfATeam.length).to.be.equal(1);
+                chai_1.expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([upvotedUser2.id]);
+            });
+        });
+        it('with different user twice set the upvoting user ids correctly', function () {
+            var teamSkillId = teamSkill.id;
+            var userId1 = upvotedUser1.id;
+            var userId2 = upvotedUser2.id;
+            var upvotePromise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId1)
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId2); });
+            return chai_1.expect(upvotePromise).to.eventually.fulfilled
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo.name); })
+                .then(function (skillsOfATeam) {
+                chai_1.expect(skillsOfATeam.length).to.be.equal(1);
+                chai_1.expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([]);
+            });
+        });
+    });
     describe('setAdminRights', function () {
         var teamInfo;
         var teamMemberInfo;

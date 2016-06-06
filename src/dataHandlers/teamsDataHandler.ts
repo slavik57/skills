@@ -5,7 +5,7 @@ import {ITeamSkillInfo} from "../models/interfaces/iTeamSkillInfo";
 import {IUserOfATeam} from "../models/interfaces/iUserOfATeam";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
 import {ITeamInfo} from "../models/interfaces/iTeamInfo";
-import {Collection, SaveOptions } from 'bookshelf';
+import {Collection, SaveOptions, DestroyOptions } from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import {Team} from '../models/team';
 import {} from '../models/user';
@@ -53,6 +53,20 @@ export class TeamsDataHandler {
     };
 
     return new TeamSkillUpvote(upvoteInfo).save();
+  }
+
+  public static removeUpvoteForTeamSkill(teamSkillId: number, upvotedUserId: number): Promise<TeamSkillUpvote> {
+    var idQuery = {};
+    idQuery[TeamSkillUpvote.teamSkillIdAttribute] = teamSkillId;
+    idQuery[TeamSkillUpvote.userIdAttribute] = upvotedUserId;
+
+    var destroyOptions: DestroyOptions = {
+      require: true
+    }
+
+    return new TeamSkillUpvote()
+      .where(idQuery)
+      .destroy(destroyOptions);
   }
 
   public static setAdminRights(teamId: number, userId: number, newAdminRights: boolean): Promise<TeamMember> {

@@ -706,6 +706,180 @@ describe('TeamsDataHandler', () => {
 
   });
 
+  describe('removeUpvoteForTeamSkill', () => {
+
+    var upvotedUser1: User;
+    var upvotedUser2: User;
+    var notUpvotedUser: User;
+
+    var teamInfo: ITeamInfo;
+
+    var teamSkill: TeamSkill;
+
+    beforeEach(() => {
+      teamInfo = ModelInfoMockFactory.createTeamInfo('team 1');
+      var skillInfo = ModelInfoMockFactory.createSkillInfo('skill 1');
+      var upvotedUserInfo1 = ModelInfoMockFactory.createUserInfo(1);
+      var upvotedUserInfo2 = ModelInfoMockFactory.createUserInfo(2);
+      var notUpvotedUserInfo = ModelInfoMockFactory.createUserInfo(3);
+      //
+      return Promise.all([
+        TeamsDataHandler.createTeam(teamInfo),
+        SkillsDataHandler.createSkill(skillInfo),
+        UserDataHandler.createUser(upvotedUserInfo1),
+        UserDataHandler.createUser(upvotedUserInfo2),
+        UserDataHandler.createUser(notUpvotedUserInfo)
+      ]).then((teamSkillAndUser: any[]) => {
+        var team: Team = teamSkillAndUser[0];
+        var skill: Skill = teamSkillAndUser[1];
+
+        upvotedUser1 = teamSkillAndUser[2];
+        upvotedUser2 = teamSkillAndUser[3];
+        notUpvotedUser = teamSkillAndUser[4];
+
+        var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team, skill);
+
+        return TeamsDataHandler.addTeamSkill(teamSkillInfo);
+      }).then((_teamSkill: TeamSkill) => {
+        teamSkill = _teamSkill;
+
+        return Promise.all([
+          TeamsDataHandler.upvoteTeamSkill(teamSkill.id, upvotedUser1.id),
+          TeamsDataHandler.upvoteTeamSkill(teamSkill.id, upvotedUser2.id)
+        ]);
+      });
+    });
+
+    it('with non existing team skill id should fail', () => {
+      // Arrange
+      var teamSkillId: number = teamSkill.id + 1;
+      var userId: number = upvotedUser1.id;
+
+      // Act
+      var promise: Promise<any> =
+        TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);
+
+      // Assert
+      return expect(promise).to.eventually.rejected;
+    });
+
+    it('with non existing user id should fail', () => {
+      // Arrange
+      var teamSkillId: number = teamSkill.id;
+      var userId: number = upvotedUser1.id + upvotedUser2.id + notUpvotedUser.id + 1;
+
+      // Act
+      var promise: Promise<any> =
+        TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);
+
+      // Assert
+      return expect(promise).to.eventually.rejected;
+    });
+
+    it('with user who did not upvote should fail', () => {
+      // Arrange
+      var teamSkillId: number = teamSkill.id;
+      var userId: number = notUpvotedUser.id;
+
+      // Act
+      var promise: Promise<any> =
+        TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);
+
+      // Assert
+      return expect(promise).to.eventually.rejected;
+    });
+
+    it('with user who did not upvote should set the upvoting user ids correctly', () => {
+      // Arrange
+      var teamSkillId: number = teamSkill.id;
+      var userId: number = notUpvotedUser.id;
+
+      // Act
+      var removeUpvotePromise: Promise<any> =
+        TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);
+
+      // Assert
+      return expect(removeUpvotePromise).to.eventually.rejected
+        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then((skillsOfATeam: ISkillOfATeam[]) => {
+          expect(skillsOfATeam.length).to.be.equal(1);
+          expect(skillsOfATeam[0].upvotingUserIds.sort()).to.be.deep.equal([upvotedUser1.id, upvotedUser2.id].sort());
+        });
+    });
+
+    it('with user who upvote should set the upvoting user ids correctly', () => {
+      // Arrange
+      var teamSkillId: number = teamSkill.id;
+      var userId: number = upvotedUser1.id;
+
+      // Act
+      var removeUpvotePromise: Promise<any> =
+        TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);
+
+      // Assert
+      return expect(removeUpvotePromise).to.eventually.fulfilled
+        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then((skillsOfATeam: ISkillOfATeam[]) => {
+          expect(skillsOfATeam.length).to.be.equal(1);
+          expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([upvotedUser2.id]);
+        });
+    });
+
+    it('with same user twice should fail', () => {
+      // Arrange
+      var teamSkillId: number = teamSkill.id;
+      var userId: number = upvotedUser1.id;
+
+      // Act
+      var removeUpvotePromise: Promise<any> =
+        TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId)
+          .then(() => TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId));
+
+      // Assert
+      return expect(removeUpvotePromise).to.eventually.rejected;
+    });
+
+    it('with same user twice should set the upvoting user ids correctly', () => {
+      // Arrange
+      var teamSkillId: number = teamSkill.id;
+      var userId: number = upvotedUser1.id;
+
+      // Act
+      var removeUpvotePromise: Promise<any> =
+        TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId)
+          .then(() => TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId));
+
+      // Assert
+      return expect(removeUpvotePromise).to.eventually.rejected
+        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then((skillsOfATeam: ISkillOfATeam[]) => {
+          expect(skillsOfATeam.length).to.be.equal(1);
+          expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([upvotedUser2.id]);
+        });
+    });
+
+    it('with different user twice set the upvoting user ids correctly', () => {
+      // Arrange
+      var teamSkillId: number = teamSkill.id;
+      var userId1: number = upvotedUser1.id;
+      var userId2: number = upvotedUser2.id;
+
+      // Act
+      var upvotePromise: Promise<any> =
+        TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId1)
+          .then(() => TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId2));
+
+      // Assert
+      return expect(upvotePromise).to.eventually.fulfilled
+        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then((skillsOfATeam: ISkillOfATeam[]) => {
+          expect(skillsOfATeam.length).to.be.equal(1);
+          expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([]);
+        });
+    });
+
+  });
+
   describe('setAdminRights', () => {
     var teamInfo: ITeamInfo;
     var teamMemberInfo: ITeamMemberInfo;
