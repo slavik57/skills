@@ -1,15 +1,19 @@
 "use strict";
+var environmentDirtifier_1 = require("../testUtils/environmentDirtifier");
 var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var modelInfoComparers_1 = require("../testUtils/modelInfoComparers");
 var modelVerificator_1 = require("../testUtils/modelVerificator");
+var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
 var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
 var skillsDataHandler_1 = require("./skillsDataHandler");
 var chai = require('chai');
 var chai_1 = require('chai');
 var _ = require('lodash');
 var chaiAsPromised = require('chai-as-promised');
+var teamMember_1 = require('../models/teamMember');
 var teamsDataHandler_1 = require('./teamsDataHandler');
 var userDataHandler_1 = require('./userDataHandler');
+var teamSkill_1 = require('../models/teamSkill');
 chai.use(chaiAsPromised);
 describe('TeamsDataHandler', function () {
     beforeEach(function () {
@@ -23,6 +27,69 @@ describe('TeamsDataHandler', function () {
             var teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');
             var teamPromise = teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo);
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(teamPromise, teamInfo);
+        });
+    });
+    describe('deleteTeam', function () {
+        var testModels;
+        beforeEach(function () {
+            return environmentDirtifier_1.EnvironmentDirtifier.fillAllTables()
+                .then(function (_testModels) {
+                testModels = _testModels;
+            });
+        });
+        it('not existing team should not fail', function () {
+            var promise = teamsDataHandler_1.TeamsDataHandler.deleteTeam(9999);
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('existing team should not fail', function () {
+            var teamToDelete = testModels.teams[0];
+            var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(teamToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('existing team should remove the relevant team skills', function () {
+            var teamToDelete = testModels.teams[0];
+            var promise = teamsDataHandler_1.TeamsDataHandler.deleteTeam(teamToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return new teamSkill_1.TeamSkills().fetch(); })
+                .then(function (_teamSkillsCollection) { return _teamSkillsCollection.toArray(); })
+                .then(function (_teamSkills) {
+                return _.map(_teamSkills, function (_) { return _.attributes.team_id; });
+            })
+                .then(function (_skillIds) {
+                chai_1.expect(_skillIds).not.to.contain(teamToDelete.id);
+            });
+        });
+        it('existing team should remove the relevant team members', function () {
+            var teamToDelete = testModels.teams[0];
+            var promise = teamsDataHandler_1.TeamsDataHandler.deleteTeam(teamToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return new teamMember_1.TeamMembers().fetch(); })
+                .then(function (_teamMembersCollection) { return _teamMembersCollection.toArray(); })
+                .then(function (_teamMembers) {
+                return _.map(_teamMembers, function (_) { return _.attributes.team_id; });
+            })
+                .then(function (_skillIds) {
+                chai_1.expect(_skillIds).not.to.contain(teamToDelete.id);
+            });
+        });
+        it('existing team should remove the relevant team skill upvotes', function () {
+            var teamToDelete = testModels.teams[0];
+            var promise = teamsDataHandler_1.TeamsDataHandler.deleteTeam(teamToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return new teamSkillUpvote_1.TeamSkillUpvotes().fetch(); })
+                .then(function (_teamSkillUpvotesCollection) { return _teamSkillUpvotesCollection.toArray(); })
+                .then(function (_teamSkillsUpvotes) {
+                return _.map(_teamSkillsUpvotes, function (_) { return _.attributes.team_skill_id; });
+            })
+                .then(function (_teamSkillIds) {
+                return _.filter(testModels.teamSkills, function (_) { return _teamSkillIds.indexOf(_.id) >= 0; });
+            })
+                .then(function (_teamSkills) {
+                return _.map(_teamSkills, function (_) { return _.attributes.team_id; });
+            })
+                .then(function (_teamIds) {
+                chai_1.expect(_teamIds).not.to.contain(teamToDelete.id);
+            });
         });
     });
     describe('getTeam', function () {

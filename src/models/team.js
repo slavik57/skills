@@ -32,6 +32,26 @@ var Team = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Team, "relatedTeamMembersAttribute", {
+        get: function () { return 'teamMembers'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Team, "relatedTeamSkillsAttribute", {
+        get: function () { return 'teamSkills'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Team, "dependents", {
+        get: function () {
+            return [
+                Team.relatedTeamMembersAttribute,
+                Team.relatedTeamSkillsAttribute
+            ];
+        },
+        enumerable: true,
+        configurable: true
+    });
     Team.collection = function (teams, options) {
         return new Teams(teams, options);
     };
@@ -44,6 +64,9 @@ var Team = (function (_super) {
             return Promise.reject('The team name must not be empty');
         }
         return Promise.resolve(true);
+    };
+    Team.prototype.teamMembers = function () {
+        return this.hasMany(teamMember_1.TeamMember, teamMember_1.TeamMember.teamIdAttribute);
     };
     Team.prototype.teamSkills = function () {
         return this.hasMany(teamSkill_1.TeamSkill, teamSkill_1.TeamSkill.teamIdAttribute);

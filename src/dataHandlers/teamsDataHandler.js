@@ -10,6 +10,9 @@ var TeamsDataHandler = (function () {
     TeamsDataHandler.createTeam = function (teamInfo) {
         return new team_1.Team(teamInfo).save();
     };
+    TeamsDataHandler.deleteTeam = function (teamId) {
+        return this._initializeTeamByIdQuery(teamId).destroy();
+    };
     TeamsDataHandler.addTeamMember = function (teamMemberInfo) {
         return new teamMember_1.TeamMember(teamMemberInfo).save();
     };

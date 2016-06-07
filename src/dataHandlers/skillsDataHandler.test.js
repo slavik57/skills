@@ -88,8 +88,8 @@ describe('SkillsDataHandler', function () {
             return chai_1.expect(promise).to.eventually.fulfilled
                 .then(function () { return new teamSkillUpvote_1.TeamSkillUpvotes().fetch(); })
                 .then(function (_teamSkillUpvotesCollection) { return _teamSkillUpvotesCollection.toArray(); })
-                .then(function (_teamSkills) {
-                return _.map(_teamSkills, function (_) { return _.attributes.team_skill_id; });
+                .then(function (_teamSkillsUpvotes) {
+                return _.map(_teamSkillsUpvotes, function (_) { return _.attributes.team_skill_id; });
             })
                 .then(function (_teamSkillIds) {
                 return _.filter(testModels.teamSkills, function (_) { return _teamSkillIds.indexOf(_.id) >= 0; });

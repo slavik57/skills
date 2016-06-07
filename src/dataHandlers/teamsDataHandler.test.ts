@@ -1,3 +1,6 @@
+import {TeamSkillUpvote} from "../models/teamSkillUpvote";
+import {EnvironmentDirtifier} from "../testUtils/environmentDirtifier";
+import {ITestModels} from "../testUtils/interfaces/iTestModels";
 import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {ModelInfoComparers} from "../testUtils/modelInfoComparers";
 import {ModelVerificator} from "../testUtils/modelVerificator";
@@ -46,6 +49,101 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return ModelVerificator.verifyModelInfoAsync(teamPromise, teamInfo);
+    });
+
+  });
+
+  describe('deleteTeam', () => {
+
+    var testModels: ITestModels;
+
+    beforeEach(() => {
+      return EnvironmentDirtifier.fillAllTables()
+        .then((_testModels: ITestModels) => {
+          testModels = _testModels;
+        })
+    })
+
+    it('not existing team should not fail', () => {
+      // Act
+      var promise = TeamsDataHandler.deleteTeam(9999);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled;
+    });
+
+    it('existing team should not fail', () => {
+      // Arrange
+      var teamToDelete: Team = testModels.teams[0];
+
+      // Act
+      var promise = SkillsDataHandler.deleteSkill(teamToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled;
+    });
+
+    it('existing team should remove the relevant team skills', () => {
+      // Arrange
+      var teamToDelete: Team = testModels.teams[0];
+
+      // Act
+      var promise = TeamsDataHandler.deleteTeam(teamToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => new TeamSkills().fetch())
+        .then((_teamSkillsCollection: Collection<TeamSkill>) => _teamSkillsCollection.toArray())
+        .then((_teamSkills: TeamSkill[]) => {
+          return _.map(_teamSkills, _ => _.attributes.team_id);
+        })
+        .then((_skillIds: number[]) => {
+          expect(_skillIds).not.to.contain(teamToDelete.id);
+        });
+    });
+
+    it('existing team should remove the relevant team members', () => {
+      // Arrange
+      var teamToDelete: Team = testModels.teams[0];
+
+      // Act
+      var promise = TeamsDataHandler.deleteTeam(teamToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => new TeamMembers().fetch())
+        .then((_teamMembersCollection: Collection<TeamMember>) => _teamMembersCollection.toArray())
+        .then((_teamMembers: TeamMember[]) => {
+          return _.map(_teamMembers, _ => _.attributes.team_id);
+        })
+        .then((_skillIds: number[]) => {
+          expect(_skillIds).not.to.contain(teamToDelete.id);
+        });
+    });
+
+    it('existing team should remove the relevant team skill upvotes', () => {
+      // Arrange
+      var teamToDelete: Team = testModels.teams[0];
+
+      // Act
+      var promise = TeamsDataHandler.deleteTeam(teamToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => new TeamSkillUpvotes().fetch())
+        .then((_teamSkillUpvotesCollection: Collection<TeamSkillUpvote>) => _teamSkillUpvotesCollection.toArray())
+        .then((_teamSkillsUpvotes: TeamSkillUpvote[]) => {
+          return _.map(_teamSkillsUpvotes, _ => _.attributes.team_skill_id);
+        })
+        .then((_teamSkillIds: number[]) => {
+          return _.filter(testModels.teamSkills, _ => _teamSkillIds.indexOf(_.id) >= 0);
+        })
+        .then((_teamSkills: TeamSkill[]) => {
+          return _.map(_teamSkills, _ => _.attributes.team_id);
+        })
+        .then((_teamIds: number[]) => {
+          expect(_teamIds).not.to.contain(teamToDelete.id);
+        });
     });
 
   });

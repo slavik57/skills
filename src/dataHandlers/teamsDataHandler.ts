@@ -20,6 +20,10 @@ export class TeamsDataHandler {
     return new Team(teamInfo).save();
   }
 
+  public static deleteTeam(teamId: number): Promise<Team> {
+    return this._initializeTeamByIdQuery(teamId).destroy();
+  }
+
   public static addTeamMember(teamMemberInfo: ITeamMemberInfo): Promise<TeamMember> {
     return new TeamMember(teamMemberInfo).save();
   }

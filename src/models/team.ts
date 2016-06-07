@@ -21,6 +21,15 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
   public get tableName(): string { return 'teams'; }
   public get idAttribute(): string { return 'id'; }
   public static get nameAttribute(): string { return 'name'; }
+  public static get relatedTeamMembersAttribute(): string { return 'teamMembers'; }
+  public static get relatedTeamSkillsAttribute(): string { return 'teamSkills'; }
+
+  public static get dependents(): string[] {
+    return [
+      Team.relatedTeamMembersAttribute,
+      Team.relatedTeamSkillsAttribute
+    ];
+  }
 
   public static collection(teams?: Team[], options?: CollectionOptions<Team>): Collection<Team> {
     return new Teams(teams, options);
@@ -36,6 +45,10 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
     }
 
     return Promise.resolve(true);
+  }
+
+  public teamMembers(): Collection<TeamMember> {
+    return this.hasMany(TeamMember, TeamMember.teamIdAttribute);
   }
 
   public teamSkills(): Collection<TeamSkill> {

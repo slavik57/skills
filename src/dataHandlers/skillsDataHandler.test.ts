@@ -149,8 +149,8 @@ describe('SkillsDataHandler', () => {
       return expect(promise).to.eventually.fulfilled
         .then(() => new TeamSkillUpvotes().fetch())
         .then((_teamSkillUpvotesCollection: Collection<TeamSkillUpvote>) => _teamSkillUpvotesCollection.toArray())
-        .then((_teamSkills: TeamSkillUpvote[]) => {
-          return _.map(_teamSkills, _ => _.attributes.team_skill_id);
+        .then((_teamSkillsUpvotes: TeamSkillUpvote[]) => {
+          return _.map(_teamSkillsUpvotes, _ => _.attributes.team_skill_id);
         })
         .then((_teamSkillIds: number[]) => {
           return _.filter(testModels.teamSkills, _ => _teamSkillIds.indexOf(_.id) >= 0);
