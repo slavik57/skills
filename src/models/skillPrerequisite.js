@@ -18,6 +18,11 @@ var SkillPrerequisite = (function (_super) {
         configurable: true
     });
     Object.defineProperty(SkillPrerequisite.prototype, "idAttribute", {
+        get: function () { return SkillPrerequisite.idAttribute; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(SkillPrerequisite, "idAttribute", {
         get: function () { return 'id'; },
         enumerable: true,
         configurable: true

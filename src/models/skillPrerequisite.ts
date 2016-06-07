@@ -8,8 +8,9 @@ export class SkillPrerequisite extends bookshelf.Model<SkillPrerequisite>{
   public attributes: ISkillPrerequisiteInfo;
 
   public get tableName(): string { return 'skills_prerequisites'; }
-  public get idAttribute(): string { return 'id'; }
+  public get idAttribute(): string { return SkillPrerequisite.idAttribute; }
 
+  public static get idAttribute(): string { return 'id'; }
   public static get skillIdAttribute(): string { return 'skill_id'; }
   public static get skillPrerequisiteIdAttribute(): string { return 'skill_prerequisite_id'; }
 

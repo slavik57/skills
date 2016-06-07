@@ -25,6 +25,10 @@ export class SkillsDataHandler {
     return new SkillPrerequisite(skillPrerequisiteInfo).save();
   }
 
+  public static removeSkillPrerequisite(skillPrerequisiteId: number): Promise<SkillPrerequisite> {
+    return this._initializeSkillPrerequisiteByIdQuery(skillPrerequisiteId).destroy();
+  }
+
   public static getSkillsPrerequisites(): Promise<SkillPrerequisite[]> {
     return new SkillPrerequisites().fetch()
       .then((skillPrerequisites: Collection<SkillPrerequisite>) => {
@@ -66,6 +70,13 @@ export class SkillsDataHandler {
     queryCondition[Skill.idAttribute] = skillId;
 
     return new Skill(queryCondition);
+  }
+
+  private static _initializeSkillPrerequisiteByIdQuery(skillPrerequisiteId: number): SkillPrerequisite {
+    var queryCondition = {};
+    queryCondition[SkillPrerequisite.idAttribute] = skillPrerequisiteId;
+
+    return new SkillPrerequisite(queryCondition);
   }
 
   private static _fetchSkillPrerequisitesBySkill(skill: Skill): Promise<Collection<Skill>> {

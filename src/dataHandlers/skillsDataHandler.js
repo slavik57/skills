@@ -19,6 +19,9 @@ var SkillsDataHandler = (function () {
     SkillsDataHandler.addSkillPrerequisite = function (skillPrerequisiteInfo) {
         return new skillPrerequisite_1.SkillPrerequisite(skillPrerequisiteInfo).save();
     };
+    SkillsDataHandler.removeSkillPrerequisite = function (skillPrerequisiteId) {
+        return this._initializeSkillPrerequisiteByIdQuery(skillPrerequisiteId).destroy();
+    };
     SkillsDataHandler.getSkillsPrerequisites = function () {
         return new skillPrerequisite_1.SkillPrerequisites().fetch()
             .then(function (skillPrerequisites) {
@@ -50,6 +53,11 @@ var SkillsDataHandler = (function () {
         var queryCondition = {};
         queryCondition[skill_1.Skill.idAttribute] = skillId;
         return new skill_1.Skill(queryCondition);
+    };
+    SkillsDataHandler._initializeSkillPrerequisiteByIdQuery = function (skillPrerequisiteId) {
+        var queryCondition = {};
+        queryCondition[skillPrerequisite_1.SkillPrerequisite.idAttribute] = skillPrerequisiteId;
+        return new skillPrerequisite_1.SkillPrerequisite(queryCondition);
     };
     SkillsDataHandler._fetchSkillPrerequisitesBySkill = function (skill) {
         var fetchOptions = {

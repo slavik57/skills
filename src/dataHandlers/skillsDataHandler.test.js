@@ -57,6 +57,18 @@ describe('SkillsDataHandler', function () {
                 chai_1.expect(_skillIds).not.to.contain(skillToDelete.id);
             });
         });
+        it('existing skill should remove the relevant skill contributors', function () {
+            var skillToDelete = testModels.skills[0];
+            var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(skillToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsPrerequisites(); })
+                .then(function (_prerequisites) {
+                return _.map(_prerequisites, function (_) { return _.attributes.skill_prerequisite_id; });
+            })
+                .then(function (_skillIds) {
+                chai_1.expect(_skillIds).not.to.contain(skillToDelete.id);
+            });
+        });
         it('existing skill should remove the relevant team skills', function () {
             var skillToDelete = testModels.skills[0];
             var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(skillToDelete.id);
@@ -137,6 +149,31 @@ describe('SkillsDataHandler', function () {
                 return skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo);
             });
             return chai_1.expect(skillPrerequisitePromise).to.eventually.fulfilled;
+        });
+    });
+    describe('removeSkillPrerequisite', function () {
+        var testModels;
+        beforeEach(function () {
+            return environmentDirtifier_1.EnvironmentDirtifier.fillAllTables()
+                .then(function (_testModels) {
+                testModels = _testModels;
+            });
+        });
+        it('not existing skill prerequisite should not fail', function () {
+            var promise = skillsDataHandler_1.SkillsDataHandler.removeSkillPrerequisite(9999);
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('existing skill prerequisite should remove the prerequisite', function () {
+            var prerequisiteToRemove = testModels.skillPrerequisites[0];
+            var promise = skillsDataHandler_1.SkillsDataHandler.removeSkillPrerequisite(prerequisiteToRemove.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsPrerequisites(); })
+                .then(function (_prerequisites) {
+                return _.map(_prerequisites, function (_) { return _.id; });
+            })
+                .then(function (_prerequisitesIds) {
+                chai_1.expect(_prerequisitesIds).not.to.contain(prerequisiteToRemove.id);
+            });
         });
     });
     describe('getSkillsPrerequisites', function () {
