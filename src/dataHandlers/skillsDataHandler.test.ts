@@ -1,3 +1,6 @@
+import {ModelInfoComparers} from "../testUtils/modelInfoComparers";
+import {ModelVerificator} from "../testUtils/modelVerificator";
+import {ModelInfoVerificator} from "../testUtils/modelInfoVerificator";
 import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
 import {TeamSkillUpvotes} from "../models/teamSkillUpvote";
 import {TeamSkill, TeamSkills} from "../models/teamSkill";
@@ -45,90 +48,6 @@ describe('SkillsDataHandler', () => {
     return clearTables();
   });
 
-  function verifySkillInfoAsync(actualSkillPromise: Promise<Skill>,
-    expectedSkillInfo: ISkillInfo): Promise<void> {
-
-    return expect(actualSkillPromise).to.eventually.fulfilled
-      .then((skill: Skill) => {
-        verifySkillInfo(skill.attributes, expectedSkillInfo);
-      });
-  }
-
-  function verifySkillInfo(actual: ISkillInfo, expected: ISkillInfo): void {
-    var actualCloned: ISkillInfo = _.clone(actual);
-    var expectedCloned: ISkillInfo = _.clone(expected);
-
-    delete actualCloned['id'];
-    delete expectedCloned['id'];
-
-    expect(actualCloned).to.be.deep.equal(expectedCloned);
-  }
-
-  function verifySkillPrerequisiteInfoAsync(actualSkillPrerequisitePromise: Promise<SkillPrerequisite>,
-    expectedSkillPrerequisiteInfo: ISkillPrerequisiteInfo): Promise<void> {
-
-    return expect(actualSkillPrerequisitePromise).to.eventually.fulfilled
-      .then((skillPrerequisite: SkillPrerequisite) => {
-        verifySkillPrerequisiteInfo(skillPrerequisite.attributes, expectedSkillPrerequisiteInfo);
-      });
-  }
-
-  function verifySkillPrerequisiteInfo(actual: ISkillPrerequisiteInfo, expected: ISkillPrerequisiteInfo): void {
-    var actualCloned: ISkillPrerequisiteInfo = _.clone(actual);
-    var expectedCloned: ISkillPrerequisiteInfo = _.clone(expected);
-
-    delete actualCloned['id'];
-    delete expectedCloned['id'];
-
-    expect(actualCloned).to.be.deep.equal(expectedCloned);
-  }
-
-  function verifySkillPrerequisitesInfoWithoutOrderAsync(actualSkillPrerequisitesPromise: Promise<SkillPrerequisite[]>,
-    expectedSkillPrerequisitesInfo: ISkillPrerequisiteInfo[]): Promise<void> {
-
-    return expect(actualSkillPrerequisitesPromise).to.eventually.fulfilled
-      .then((skillPrerequisites: SkillPrerequisite[]) => {
-
-        var actualSkillPrerequisitesInfos = _.map(skillPrerequisites, _ => _.attributes);
-
-        verifyPrerequisitesInfoWithoutOrder(actualSkillPrerequisitesInfos, expectedSkillPrerequisitesInfo);
-      });
-  }
-
-  function verifyPrerequisitesInfoWithoutOrder(actual: ISkillPrerequisiteInfo[], expected: ISkillPrerequisiteInfo[]): void {
-    var actualOrdered = _.orderBy(actual, _ => _.skill_id);
-    var expectedOrdered = _.orderBy(expected, _ => _.skill_id);
-
-    expect(actualOrdered.length).to.be.equal(expectedOrdered.length);
-
-    for (var i = 0; i < expected.length; i++) {
-      verifySkillPrerequisiteInfo(actualOrdered[i], expectedOrdered[i]);
-    }
-  }
-
-  function verifySkillsInfoWithoutOrderAsync(actualSkillsPromise: Promise<Skill[]>,
-    expectedSkillsInfo: ISkillInfo[]): Promise<void> {
-
-    return expect(actualSkillsPromise).to.eventually.fulfilled
-      .then((skills: Skill[]) => {
-
-        var actualSkillInfos = _.map(skills, _ => _.attributes);
-
-        verifySkillsInfoWithoutOrder(actualSkillInfos, expectedSkillsInfo);
-      });
-  }
-
-  function verifySkillsInfoWithoutOrder(actual: ISkillInfo[], expected: ISkillInfo[]): void {
-    var actualOrdered = _.orderBy(actual, _ => _.name);
-    var expectedOrdered = _.orderBy(expected, _ => _.name);
-
-    expect(actualOrdered.length).to.be.equal(expectedOrdered.length);
-
-    for (var i = 0; i < expected.length; i++) {
-      verifySkillInfo(actualOrdered[i], expectedOrdered[i]);
-    }
-  }
-
   describe('createSkill', () => {
 
     it('should create a skill correctly', () => {
@@ -138,7 +57,7 @@ describe('SkillsDataHandler', () => {
         SkillsDataHandler.createSkill(skillInfo);
 
       // Assert
-      return verifySkillInfoAsync(skillPromise, skillInfo);
+      return ModelVerificator.verifyModelInfoAsync(skillPromise, skillInfo);
     });
 
   });
@@ -165,7 +84,7 @@ describe('SkillsDataHandler', () => {
         createSkillPromise.then(() => SkillsDataHandler.getSkill(skillInfo.name));
 
       // Assert
-      return verifySkillInfoAsync(getSkillPromise, skillInfo);
+      return ModelVerificator.verifyModelInfoAsync(getSkillPromise, skillInfo);
     });
 
   });
@@ -178,7 +97,9 @@ describe('SkillsDataHandler', () => {
 
       // Assert
       var expectedSkillsInfo: ISkillInfo[] = [];
-      return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillsInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
+        expectedSkillsInfo,
+        ModelInfoComparers.compareSkillInfos);
     });
 
     it('should return all created skills', () => {
@@ -195,12 +116,14 @@ describe('SkillsDataHandler', () => {
         ]);
 
       // Act
-      var skillsPromose: Promise<Skill[]> =
+      var skillsPromise: Promise<Skill[]> =
         createAllSkillsPromise.then(() => SkillsDataHandler.getSkills());
 
       // Assert
       var expectedSkillsInfo: ISkillInfo[] = [skillInfo1, skillInfo2, skillInfo3];
-      return verifySkillsInfoWithoutOrderAsync(skillsPromose, expectedSkillsInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
+        expectedSkillsInfo,
+        ModelInfoComparers.compareSkillInfos);
     });
 
   });
@@ -223,7 +146,8 @@ describe('SkillsDataHandler', () => {
           var skill1 = skills[0];
           var skill2 = skills[1];
 
-          var skillPrerequisiteInfo: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
+          var skillPrerequisiteInfo: ISkillPrerequisiteInfo =
+            ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
 
           return SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo);
         });
@@ -242,7 +166,9 @@ describe('SkillsDataHandler', () => {
 
       // Assert
       var expectedPrerequisitesInfo: ISkillPrerequisiteInfo[] = [];
-      return verifySkillPrerequisitesInfoWithoutOrderAsync(prerequisitesPromise, expectedPrerequisitesInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(prerequisitesPromise,
+        expectedPrerequisitesInfo,
+        ModelInfoComparers.compareSkillPrerequisiteInfos);
     });
 
     it('should return all created skill prerequisites', () => {
@@ -281,7 +207,9 @@ describe('SkillsDataHandler', () => {
       return skillPrerequisitesPromise.then(() => {
         var expectedSkillPrerequisitesInfos: ISkillPrerequisiteInfo[] = [skillPrerequisiteInfo1, skillPrerequisiteInfo2];
 
-        return verifySkillPrerequisitesInfoWithoutOrderAsync(skillPrerequisitesPromise, expectedSkillPrerequisitesInfos)
+        return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillPrerequisitesPromise,
+          expectedSkillPrerequisitesInfos,
+          ModelInfoComparers.compareSkillPrerequisiteInfos);
       });
     });
 
@@ -320,7 +248,9 @@ describe('SkillsDataHandler', () => {
 
       // Assert
       var expectedInfo: ISkillInfo[] = [];
-      return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
+        expectedInfo,
+        ModelInfoComparers.compareSkillInfos);
     });
 
     it('no skill prerequisites should return empty', () => {
@@ -330,7 +260,9 @@ describe('SkillsDataHandler', () => {
 
       // Assert
       var expectedInfo: ISkillInfo[] = [];
-      return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
+        expectedInfo,
+        ModelInfoComparers.compareSkillInfos);
     });
 
     it('should return all existing skill prerequisites', () => {
@@ -350,7 +282,9 @@ describe('SkillsDataHandler', () => {
 
       // Assert
       var expectedSkillsInfos: ISkillInfo[] = [skillInfo2, skillInfo3];
-      return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillsInfos);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
+        expectedSkillsInfos,
+        ModelInfoComparers.compareSkillInfos);
     });
 
     it('should return all existing skill prerequisites and not return other prerequisites', () => {
@@ -373,7 +307,9 @@ describe('SkillsDataHandler', () => {
 
       // Assert
       var expectedSkillsInfos: ISkillInfo[] = [skillInfo2, skillInfo3];
-      return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillsInfos);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
+        expectedSkillsInfos,
+        ModelInfoComparers.compareSkillInfos);
     });
 
   });
@@ -411,7 +347,9 @@ describe('SkillsDataHandler', () => {
 
       // Assert
       var expectedInfo: ISkillInfo[] = [];
-      return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
+        expectedInfo,
+        ModelInfoComparers.compareSkillInfos);
     });
 
     it('no skill prerequisites should return empty', () => {
@@ -421,7 +359,9 @@ describe('SkillsDataHandler', () => {
 
       // Assert
       var expectedInfo: ISkillInfo[] = [];
-      return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
+        expectedInfo,
+        ModelInfoComparers.compareSkillInfos);
     });
 
     it('no skill prerequisites leading to skill should return empty', () => {
@@ -441,7 +381,9 @@ describe('SkillsDataHandler', () => {
 
       // Assert
       var expectedInfo: ISkillInfo[] = [];
-      return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
+        expectedInfo,
+        ModelInfoComparers.compareSkillInfos);
     });
 
     it('should return all existing skills with prerequisites of this skill', () => {
@@ -461,7 +403,9 @@ describe('SkillsDataHandler', () => {
 
       // Assert
       var expectedSkillInfos: ISkillInfo[] = [skillInfo2, skillInfo3];
-      return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillInfos);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
+        expectedSkillInfos,
+        ModelInfoComparers.compareSkillInfos);
     });
 
     it('should return all existing skill with prerequisites of this skill and not return other skills', () => {
@@ -483,7 +427,9 @@ describe('SkillsDataHandler', () => {
 
       // Assert
       var expectedSkillInfos: ISkillInfo[] = [skillInfo2, skillInfo3];
-      return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillInfos);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
+        expectedSkillInfos,
+        ModelInfoComparers.compareSkillInfos);
     });
 
   });
@@ -493,36 +439,6 @@ describe('SkillsDataHandler', () => {
     interface ITeamIdToUpvotes {
       teamId: number;
       upvotingUserIds: number[];
-    }
-
-    function verifyTeamsAsync(actualTeamsPromise: Promise<ITeamOfASkill[]>,
-      expectedTeams: ITeamInfo[]): Promise<void> {
-      return expect(actualTeamsPromise).to.eventually.fulfilled
-        .then((actualTeams: ITeamOfASkill[]) => {
-          var actualTeamInfos: ITeamInfo[] = _.map(actualTeams, _ => _.team.attributes);
-
-          verifyTeams(actualTeamInfos, expectedTeams);
-        });
-    }
-
-    function verifyTeams(actual: ITeamInfo[], expected: ITeamInfo[]): void {
-      var actualOrdered: ITeamInfo[] = _.orderBy(actual, _ => _.name);
-      var expectedOrdered: ITeamInfo[] = _.orderBy(expected, _ => _.name);
-      expect(actual.length).to.be.equal(expected.length);
-
-      for (var i = 0; i < expected.length; i++) {
-        verifyTeam(actualOrdered[i], expectedOrdered[i]);
-      }
-    }
-
-    function verifyTeam(actual: ITeamInfo, expected: ITeamInfo): void {
-      var actualCloned: ITeamInfo = _.clone(actual);
-      var expectedCloned: ITeamInfo = _.clone(expected);
-
-      delete actualCloned['id'];
-      delete expectedCloned['id'];
-
-      expect(actualCloned).to.be.deep.equal(expectedCloned);
     }
 
     function verifyTeamUpvotingUsersAsync(actualTeamsOfSkillPromise: Promise<ITeamOfASkill[]>,
@@ -618,12 +534,17 @@ describe('SkillsDataHandler', () => {
         ]);
 
       // Act
-      var teamsPromise: Promise<ITeamOfASkill[]> =
-        addSkillsPromise.then(() => SkillsDataHandler.getTeams(skillInfo1.name));
+      var teamsPromise: Promise<Team[]> =
+        addSkillsPromise.then(() => SkillsDataHandler.getTeams(skillInfo1.name))
+          .then((teamsOfASkill: ITeamOfASkill[]) => {
+            return _.map(teamsOfASkill, _ => _.team);
+          });
 
       // Assert
       var expectedTeams: ITeamInfo[] = [teamInfo1, teamInfo2];
-      return verifyTeamsAsync(teamsPromise, expectedTeams);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(teamsPromise,
+        expectedTeams,
+        ModelInfoComparers.compareTeamInfos);
     });
 
     it('skill exists with teams should return correct upvoting user ids', () => {
@@ -670,12 +591,17 @@ describe('SkillsDataHandler', () => {
         ]);
 
       // Act
-      var teamsPromise: Promise<ITeamOfASkill[]> =
-        addSkillsPromise.then(() => SkillsDataHandler.getTeams(skillInfo1.name));
+      var teamsPromise: Promise<Team[]> =
+        addSkillsPromise.then(() => SkillsDataHandler.getTeams(skillInfo1.name))
+          .then((teamsOfASkill: ITeamOfASkill[]) => {
+            return _.map(teamsOfASkill, _ => _.team);
+          });
 
       // Assert
       var expectedTeams: ITeamInfo[] = [teamInfo1, teamInfo2];
-      return verifyTeamsAsync(teamsPromise, expectedTeams);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(teamsPromise,
+        expectedTeams,
+        ModelInfoComparers.compareTeamInfos);
     });
 
     it('skill exists with teams with upvotes should return correct upvoting user ids', () => {

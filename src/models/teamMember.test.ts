@@ -1,3 +1,4 @@
+import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
 import {ITeamMemberInfo} from "./interfaces/iTeamMemberInfo";
 import {ITeamInfo} from "./interfaces/iTeamInfo";
 import {IUserInfo} from "./interfaces/iUserInfo";
@@ -25,36 +26,12 @@ describe('TeamMember', () => {
         ]));
     }
 
-    function createUserInfo(userNumber: number): IUserInfo {
-      return {
-        username: 'username' + userNumber,
-        password_hash: 'password' + userNumber,
-        email: 'someMail' + userNumber + '@gmail.com',
-        firstName: 'first name' + userNumber,
-        lastName: 'last name' + userNumber
-      }
-    }
-
-    function createTeamInfo(teamName: string): ITeamInfo {
-      return {
-        name: teamName
-      }
-    }
-
-    function createTeamMemberInfo(team: Team, user: User): ITeamMemberInfo {
-      return {
-        team_id: team.id,
-        user_id: user.id,
-        is_admin: false
-      }
-    }
-
     beforeEach(() => {
       return clearTables()
         .then(() => Promise.all([
-          new User(createUserInfo(1)).save(),
-          new User(createUserInfo(2)).save(),
-          new Team(createTeamInfo('a')).save(),
+          new User(ModelInfoMockFactory.createUserInfo(1)).save(),
+          new User(ModelInfoMockFactory.createUserInfo(2)).save(),
+          new Team(ModelInfoMockFactory.createTeamInfo('a')).save(),
         ]))
         .then((usersAndTeams: any[]) => {
           user1 = usersAndTeams[0];
@@ -80,7 +57,7 @@ describe('TeamMember', () => {
 
     it('create without team_id should return error', () => {
       /// Arrange
-      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       delete teamMemberInfo.team_id;
 
       var teamMember = new TeamMember(teamMemberInfo);
@@ -94,7 +71,7 @@ describe('TeamMember', () => {
 
     it('create without user_id should return error', () => {
       /// Arrange
-      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       delete teamMemberInfo.user_id;
 
       var teamMember = new TeamMember(teamMemberInfo);
@@ -108,7 +85,7 @@ describe('TeamMember', () => {
 
     it('create without is_admin should succeed', () => {
       /// Arrange
-      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       delete teamMemberInfo.is_admin;
 
       var teamMember = new TeamMember(teamMemberInfo);
@@ -122,7 +99,7 @@ describe('TeamMember', () => {
 
     it('create with non integer team_id should return error', () => {
       // Arrange
-      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       teamMemberInfo.team_id = 1.1;
       var teamMember = new TeamMember(teamMemberInfo);
 
@@ -135,7 +112,7 @@ describe('TeamMember', () => {
 
     it('create with non integer user_id should return error', () => {
       // Arrange
-      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       teamMemberInfo.user_id = 1.1;
       var teamMember = new TeamMember(teamMemberInfo);
 
@@ -148,7 +125,7 @@ describe('TeamMember', () => {
 
     it('create with non existing team_id should return error', () => {
       // Arrange
-      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       teamMemberInfo.team_id = team1.id + 1;
       var teamMember = new TeamMember(teamMemberInfo);
 
@@ -161,7 +138,7 @@ describe('TeamMember', () => {
 
     it('create with non existing user_id name should return error', () => {
       // Arrange
-      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       teamMemberInfo.user_id = user1.id + user2.id + 1;
       var teamMember = new TeamMember(teamMemberInfo);
 
@@ -174,7 +151,7 @@ describe('TeamMember', () => {
 
     it('create with existing team_id and user_id should succeed', () => {
       // Arrange
-      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       var teamMember = new TeamMember(teamMemberInfo);
 
       // Act
@@ -186,7 +163,7 @@ describe('TeamMember', () => {
 
     it('create with existing team_id and user_id should be fetched', () => {
       // Arrange
-      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       var teamMember = new TeamMember(teamMemberInfo);
 
       // Act
@@ -209,7 +186,7 @@ describe('TeamMember', () => {
 
     it('create with is_admin false should be fetched correctly', () => {
       // Arrange
-      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       teamMemberInfo.is_admin = false;
       var teamMember = new TeamMember(teamMemberInfo);
 
@@ -233,7 +210,7 @@ describe('TeamMember', () => {
 
     it('create with is_admin true should be fetched correctly', () => {
       // Arrange
-      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       teamMemberInfo.is_admin = true;
       var teamMember = new TeamMember(teamMemberInfo);
 
@@ -257,7 +234,7 @@ describe('TeamMember', () => {
 
     it('create without is_admin should be fetched correctly', () => {
       // Arrange
-      var teamMemberInfo: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
       delete teamMemberInfo.is_admin;
       var teamMember = new TeamMember(teamMemberInfo);
 
@@ -281,8 +258,8 @@ describe('TeamMember', () => {
 
     it('create 2 different team members should succeed', () => {
       // Arrange
-      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
-      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team1, user2);
+      var teamMemberInfo1: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
+      var teamMemberInfo2: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user2);
 
       var teamMember1 = new TeamMember(teamMemberInfo1);
       var teamMember2 = new TeamMember(teamMemberInfo2);
@@ -298,8 +275,8 @@ describe('TeamMember', () => {
 
     it('create 2 different team members should be fetched', () => {
       // Arrange
-      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
-      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team1, user2);
+      var teamMemberInfo1: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
+      var teamMemberInfo2: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user2);
 
       var teamMember1 = new TeamMember(teamMemberInfo1);
       var teamMember2 = new TeamMember(teamMemberInfo2);
@@ -321,8 +298,8 @@ describe('TeamMember', () => {
 
     it('create 2 same prerequisites should return error', () => {
       // Arrange
-      var teamMemberInfo1: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
-      var teamMemberInfo2: ITeamMemberInfo = createTeamMemberInfo(team1, user1);
+      var teamMemberInfo1: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
+      var teamMemberInfo2: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
 
       var teamMember1 = new TeamMember(teamMemberInfo1);
       var teamMember2 = new TeamMember(teamMemberInfo2);

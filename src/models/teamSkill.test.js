@@ -1,4 +1,5 @@
 "use strict";
+var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
 var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
@@ -18,28 +19,12 @@ describe('TeamSkill', function () {
                 team_1.Teams.clearAll()
             ]); });
         }
-        function createSkillInfo(skillName) {
-            return {
-                name: skillName
-            };
-        }
-        function createTeamInfo(teamName) {
-            return {
-                name: teamName
-            };
-        }
-        function createTeamSkillInfo(team, skill) {
-            return {
-                team_id: team.id,
-                skill_id: skill.id
-            };
-        }
         beforeEach(function () {
             return clearTables()
                 .then(function () { return Promise.all([
-                new skill_1.Skill(createSkillInfo('skill1')).save(),
-                new skill_1.Skill(createSkillInfo('skill2')).save(),
-                new team_1.Team(createTeamInfo('a')).save(),
+                new skill_1.Skill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill1')).save(),
+                new skill_1.Skill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill2')).save(),
+                new team_1.Team(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a')).save(),
             ]); })
                 .then(function (skillsAndTeams) {
                 skill1 = skillsAndTeams[0];
@@ -56,55 +41,55 @@ describe('TeamSkill', function () {
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create without team_id should return error', function () {
-            var teamSkillInfo = createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             delete teamSkillInfo.team_id;
             var teamSkill = new teamSkill_1.TeamSkill(teamSkillInfo);
             var promise = teamSkill.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create without skill_id should return error', function () {
-            var teamSkillInfo = createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             delete teamSkillInfo.skill_id;
             var teamSkill = new teamSkill_1.TeamSkill(teamSkillInfo);
             var promise = teamSkill.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non integer team_id should return error', function () {
-            var teamSkillInfo = createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             teamSkillInfo.team_id = 1.1;
             var teamMember = new teamSkill_1.TeamSkill(teamSkillInfo);
             var promise = teamMember.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non integer skill_id should return error', function () {
-            var teamMemberInfo = createTeamSkillInfo(team1, skill1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             teamMemberInfo.skill_id = 1.1;
             var teamSkill = new teamSkill_1.TeamSkill(teamMemberInfo);
             var promise = teamSkill.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non existing team_id should return error', function () {
-            var teamSkillInfo = createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             teamSkillInfo.team_id = team1.id + 1;
             var teamSkill = new teamSkill_1.TeamSkill(teamSkillInfo);
             var promise = teamSkill.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non existing skill_id name should return error', function () {
-            var teamSkillInfo = createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             teamSkillInfo.skill_id = skill1.id + skill2.id + 1;
             var teamSkill = new teamSkill_1.TeamSkill(teamSkillInfo);
             var promise = teamSkill.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with existing team_id and skill_id should succeed', function () {
-            var teamSkillInfo = createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             var teamSkill = new teamSkill_1.TeamSkill(teamSkillInfo);
             var promise = teamSkill.save();
             return chai_1.expect(promise).to.eventually.equal(teamSkill);
         });
         it('create with existing team_id and skill_id should be fetched', function () {
-            var teamSkillInfo = createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             var teamSkill = new teamSkill_1.TeamSkill(teamSkillInfo);
             var promise = teamSkill.save();
             var teamSkillsPromise = promise.then(function () { return new teamSkill_1.TeamSkills().fetch(); });
@@ -117,8 +102,8 @@ describe('TeamSkill', function () {
             });
         });
         it('create 2 different team skills should succeed', function () {
-            var teamSkillInfo1 = createTeamSkillInfo(team1, skill1);
-            var teamSkillInfo2 = createTeamSkillInfo(team1, skill2);
+            var teamSkillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
             var teamSkill1 = new teamSkill_1.TeamSkill(teamSkillInfo1);
             var teamSkill2 = new teamSkill_1.TeamSkill(teamSkillInfo2);
             var promise = teamSkill1.save()
@@ -126,8 +111,8 @@ describe('TeamSkill', function () {
             return chai_1.expect(promise).to.eventually.equal(teamSkill2);
         });
         it('create 2 different team skills should be fetched', function () {
-            var teamSkillInfo1 = createTeamSkillInfo(team1, skill1);
-            var teamSkillInfo2 = createTeamSkillInfo(team1, skill2);
+            var teamSkillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
             var teamSkill1 = new teamSkill_1.TeamSkill(teamSkillInfo1);
             var teamSkill2 = new teamSkill_1.TeamSkill(teamSkillInfo2);
             var promise = teamSkill1.save()
@@ -139,8 +124,8 @@ describe('TeamSkill', function () {
             });
         });
         it('create 2 same skills should return error', function () {
-            var teamSkillInfo1 = createTeamSkillInfo(team1, skill1);
-            var teamSkillInfo2 = createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             var teamSkill1 = new teamSkill_1.TeamSkill(teamSkillInfo1);
             var teamSkill2 = new teamSkill_1.TeamSkill(teamSkillInfo2);
             var promise = teamSkill1.save()

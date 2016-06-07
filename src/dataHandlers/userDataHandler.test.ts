@@ -1,3 +1,5 @@
+import {ModelInfoComparers} from "../testUtils/modelInfoComparers";
+import {ModelVerificator} from "../testUtils/modelVerificator";
 import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
 import {ITeamInfo} from "../models/interfaces/iTeamInfo";
@@ -39,25 +41,6 @@ describe('userDataHandler', () => {
   afterEach(() => {
     return clearTables();
   });
-
-  function verifyUserInfoAsync(actualUserPromise: Promise<User>,
-    expectedUserInfo: IUserInfo): Promise<void> {
-
-    return expect(actualUserPromise).to.eventually.fulfilled
-      .then((user: User) => {
-        verifyUserInfo(user.attributes, expectedUserInfo);
-      });
-  }
-
-  function verifyUserInfo(actual: IUserInfo, expected: IUserInfo): void {
-    var actualCloned: IUserInfo = _.clone(actual);
-    var expectedCloned: IUserInfo = _.clone(expected);
-
-    delete actualCloned['id'];
-    delete expectedCloned['id'];
-
-    expect(actualCloned).to.be.deep.equal(expectedCloned);
-  }
 
   function verifyUserGlobalPermissionsAsync(actualPermissionsPromise: Promise<GlobalPermission[]>,
     expectedPermissions: GlobalPermission[]): Promise<void> {
@@ -102,7 +85,7 @@ describe('userDataHandler', () => {
         UserDataHandler.createUser(userInfo);
 
       // Assert
-      return verifyUserInfoAsync(userPromise, userInfo);
+      return ModelVerificator.verifyModelInfoAsync(userPromise, userInfo);
     });
 
   });
@@ -129,35 +112,12 @@ describe('userDataHandler', () => {
         createUserPromise.then(() => UserDataHandler.getUser(userInfo.username));
 
       // Assert
-      return verifyUserInfoAsync(getUserPromise, userInfo);
+      return ModelVerificator.verifyModelInfoAsync(getUserPromise, userInfo);
     });
 
   });
 
   describe('getUsers', () => {
-
-    function verifyUsersInfoWithoutOrderAsync(actualUsersPromise: Promise<User[]>,
-      expectedUsersInfo: IUserInfo[]): Promise<void> {
-
-      return expect(actualUsersPromise).to.eventually.fulfilled
-        .then((users: User[]) => {
-
-          var actualUserInfos = _.map(users, _user => _user.attributes);
-
-          verifyUsersInfoWithoutOrder(actualUserInfos, expectedUsersInfo);
-        });
-    }
-
-    function verifyUsersInfoWithoutOrder(actual: IUserInfo[], expected: IUserInfo[]): void {
-      var actualOrdered = _.orderBy(actual, _info => _info.username);
-      var expectedOrdered = _.orderBy(expected, _info => _info.username);
-
-      expect(actualOrdered.length).to.be.equal(expectedOrdered.length);
-
-      for (var i = 0; i < expected.length; i++) {
-        verifyUserInfo(actualOrdered[i], expectedOrdered[i]);
-      }
-    }
 
     it('no users should return empty', () => {
       // Act
@@ -165,7 +125,9 @@ describe('userDataHandler', () => {
 
       // Assert
       var expectedUsersInfo: IUserInfo[] = [];
-      return verifyUsersInfoWithoutOrderAsync(usersPromose, expectedUsersInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(usersPromose,
+        expectedUsersInfo,
+        ModelInfoComparers.compareUserInfos);
     });
 
     it('should return all created users', () => {
@@ -187,7 +149,9 @@ describe('userDataHandler', () => {
 
       // Assert
       var expectedUsersInfo: IUserInfo[] = [userInfo1, userInfo2, userInfo3];
-      return verifyUsersInfoWithoutOrderAsync(usersPromose, expectedUsersInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(usersPromose,
+        expectedUsersInfo,
+        ModelInfoComparers.compareUserInfos);
     });
 
   });
@@ -314,38 +278,6 @@ describe('userDataHandler', () => {
       isAdmin: boolean;
     }
 
-    function verifyTeamsAsync(actualTeamsPromise: Promise<ITeamOfAUser[]>,
-      expectedTeams: ITeamInfo[]): Promise<void> {
-
-      return expect(actualTeamsPromise).to.eventually.fulfilled
-        .then((actualTeams: ITeamOfAUser[]) => {
-          var actualTeamInfos: ITeamInfo[] = _.map(actualTeams, _ => _.team.attributes);
-
-          verifyTeams(actualTeamInfos, expectedTeams);
-        });
-    }
-
-    function verifyTeams(actual: ITeamInfo[], expected: ITeamInfo[]): void {
-      var actualOrdered: ITeamInfo[] = _.orderBy(actual, _ => _.name);
-      var expectedOrdered: ITeamInfo[] = _.orderBy(expected, _ => _.name);
-
-      expect(actual.length).to.be.equal(expected.length);
-
-      for (var i = 0; i < expected.length; i++) {
-        verifyTeam(actualOrdered[i], expectedOrdered[i]);
-      }
-    }
-
-    function verifyTeam(actual: ITeamInfo, expected: ITeamInfo): void {
-      var actualCloned: ITeamInfo = _.clone(actual);
-      var expectedCloned: ITeamInfo = _.clone(expected);
-
-      delete actualCloned['id'];
-      delete expectedCloned['id'];
-
-      expect(actualCloned).to.be.deep.equal(expectedCloned);
-    }
-
     function verifyTeamAdminSettingsAsync(actualUserTeamsPromise: Promise<ITeamOfAUser[]>,
       expectedAdminSettings: ITeamIdToIsAdmin[]): Promise<void> {
 
@@ -427,12 +359,17 @@ describe('userDataHandler', () => {
         ]);
 
       // Act
-      var teamsPromise: Promise<ITeamOfAUser[]> =
-        addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username));
+      var teamsPromise: Promise<Team[]> =
+        addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username))
+          .then((teamsOfAUser: ITeamOfAUser[]) => {
+            return _.map(teamsOfAUser, _ => _.team);
+          });
 
       // Assert
       var expectedTeams: ITeamInfo[] = [teamInfo1, teamInfo2];
-      return verifyTeamsAsync(teamsPromise, expectedTeams);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(teamsPromise,
+        expectedTeams,
+        ModelInfoComparers.compareTeamInfos);
     });
 
     it('user exists with teams should return correct admin settings', () => {
@@ -482,12 +419,17 @@ describe('userDataHandler', () => {
         ]);
 
       // Act
-      var teamsPromise: Promise<ITeamOfAUser[]> =
-        addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username));
+      var teamsPromise: Promise<Team[]> =
+        addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username))
+          .then((teamsOfAUser: ITeamOfAUser[]) => {
+            return _.map(teamsOfAUser, _ => _.team);
+          });
 
       // Assert
       var expectedTeams: ITeamInfo[] = [teamInfo1, teamInfo2];
-      return verifyTeamsAsync(teamsPromise, expectedTeams);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(teamsPromise,
+        expectedTeams,
+        ModelInfoComparers.compareTeamInfos);
     });
 
   });

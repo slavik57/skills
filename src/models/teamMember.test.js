@@ -1,4 +1,5 @@
 "use strict";
+var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
 var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
@@ -18,33 +19,12 @@ describe('TeamMember', function () {
                 team_1.Teams.clearAll()
             ]); });
         }
-        function createUserInfo(userNumber) {
-            return {
-                username: 'username' + userNumber,
-                password_hash: 'password' + userNumber,
-                email: 'someMail' + userNumber + '@gmail.com',
-                firstName: 'first name' + userNumber,
-                lastName: 'last name' + userNumber
-            };
-        }
-        function createTeamInfo(teamName) {
-            return {
-                name: teamName
-            };
-        }
-        function createTeamMemberInfo(team, user) {
-            return {
-                team_id: team.id,
-                user_id: user.id,
-                is_admin: false
-            };
-        }
         beforeEach(function () {
             return clearTables()
                 .then(function () { return Promise.all([
-                new user_1.User(createUserInfo(1)).save(),
-                new user_1.User(createUserInfo(2)).save(),
-                new team_1.Team(createTeamInfo('a')).save(),
+                new user_1.User(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1)).save(),
+                new user_1.User(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2)).save(),
+                new team_1.Team(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a')).save(),
             ]); })
                 .then(function (usersAndTeams) {
                 user1 = usersAndTeams[0];
@@ -61,62 +41,62 @@ describe('TeamMember', function () {
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create without team_id should return error', function () {
-            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             delete teamMemberInfo.team_id;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create without user_id should return error', function () {
-            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             delete teamMemberInfo.user_id;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create without is_admin should succeed', function () {
-            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             delete teamMemberInfo.is_admin;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
             return chai_1.expect(promise).to.eventually.equal(teamMember);
         });
         it('create with non integer team_id should return error', function () {
-            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             teamMemberInfo.team_id = 1.1;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non integer user_id should return error', function () {
-            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             teamMemberInfo.user_id = 1.1;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non existing team_id should return error', function () {
-            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             teamMemberInfo.team_id = team1.id + 1;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with non existing user_id name should return error', function () {
-            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             teamMemberInfo.user_id = user1.id + user2.id + 1;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
         it('create with existing team_id and user_id should succeed', function () {
-            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
             return chai_1.expect(promise).to.eventually.equal(teamMember);
         });
         it('create with existing team_id and user_id should be fetched', function () {
-            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
             var teamMembersPromise = promise.then(function () { return new teamMember_1.TeamMembers().fetch(); });
@@ -130,7 +110,7 @@ describe('TeamMember', function () {
             });
         });
         it('create with is_admin false should be fetched correctly', function () {
-            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             teamMemberInfo.is_admin = false;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
@@ -145,7 +125,7 @@ describe('TeamMember', function () {
             });
         });
         it('create with is_admin true should be fetched correctly', function () {
-            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             teamMemberInfo.is_admin = true;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
@@ -160,7 +140,7 @@ describe('TeamMember', function () {
             });
         });
         it('create without is_admin should be fetched correctly', function () {
-            var teamMemberInfo = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             delete teamMemberInfo.is_admin;
             var teamMember = new teamMember_1.TeamMember(teamMemberInfo);
             var promise = teamMember.save();
@@ -175,8 +155,8 @@ describe('TeamMember', function () {
             });
         });
         it('create 2 different team members should succeed', function () {
-            var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
-            var teamMemberInfo2 = createTeamMemberInfo(team1, user2);
+            var teamMemberInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
+            var teamMemberInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user2);
             var teamMember1 = new teamMember_1.TeamMember(teamMemberInfo1);
             var teamMember2 = new teamMember_1.TeamMember(teamMemberInfo2);
             var promise = teamMember1.save()
@@ -184,8 +164,8 @@ describe('TeamMember', function () {
             return chai_1.expect(promise).to.eventually.equal(teamMember2);
         });
         it('create 2 different team members should be fetched', function () {
-            var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
-            var teamMemberInfo2 = createTeamMemberInfo(team1, user2);
+            var teamMemberInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
+            var teamMemberInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user2);
             var teamMember1 = new teamMember_1.TeamMember(teamMemberInfo1);
             var teamMember2 = new teamMember_1.TeamMember(teamMemberInfo2);
             var promise = teamMember1.save()
@@ -197,8 +177,8 @@ describe('TeamMember', function () {
             });
         });
         it('create 2 same prerequisites should return error', function () {
-            var teamMemberInfo1 = createTeamMemberInfo(team1, user1);
-            var teamMemberInfo2 = createTeamMemberInfo(team1, user1);
+            var teamMemberInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
+            var teamMemberInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
             var teamMember1 = new teamMember_1.TeamMember(teamMemberInfo1);
             var teamMember2 = new teamMember_1.TeamMember(teamMemberInfo2);
             var promise = teamMember1.save()

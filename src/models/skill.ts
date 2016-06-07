@@ -1,3 +1,4 @@
+import {ModelBase} from "./modelBase";
 import {TeamSkillUpvote} from "./teamSkillUpvote";
 import {Team} from "./team";
 import {ITeamOfASkill} from "./interfaces/iTeamOfASkill";
@@ -10,11 +11,9 @@ import {SkillPrerequisite} from './skillPrerequisite';
 import {ISkillInfo} from './interfaces/iSkillInfo';
 import {TeamSkill} from './teamSkill';
 
-export class Skill extends bookshelf.Model<Skill> {
-  public attributes: ISkillInfo;
-
+export class Skill extends ModelBase<Skill, ISkillInfo> {
   public get tableName(): string { return 'skills'; }
-  public get idAttribute(): string { return 'id'; }
+
   public static get nameAttribute(): string { return 'name'; }
 
   public initialize(): void {

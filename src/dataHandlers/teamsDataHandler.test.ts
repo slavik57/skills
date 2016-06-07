@@ -1,3 +1,5 @@
+import {ModelInfoComparers} from "../testUtils/modelInfoComparers";
+import {ModelVerificator} from "../testUtils/modelVerificator";
 import {TeamSkillUpvotes} from "../models/teamSkillUpvote";
 import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
 import {ITeamSkillInfo} from "../models/interfaces/iTeamSkillInfo";
@@ -37,25 +39,6 @@ describe('TeamsDataHandler', () => {
       ]));
   }
 
-  function verifyTeamInfoAsync(actualTeamPromise: Promise<Team>,
-    expectedTeamInfo: ITeamInfo): Promise<void> {
-
-    return expect(actualTeamPromise).to.eventually.fulfilled
-      .then((team: Team) => {
-        verifyTeamInfo(team.attributes, expectedTeamInfo);
-      });
-  }
-
-  function verifyTeamInfo(actual: ITeamInfo, expected: ITeamInfo): void {
-    var actualCloned: ITeamInfo = _.clone(actual);
-    var expectedCloned: ITeamInfo = _.clone(expected);
-
-    delete actualCloned['id'];
-    delete expectedCloned['id'];
-
-    expect(actualCloned).to.be.deep.equal(expectedCloned);
-  }
-
   beforeEach(() => {
     return clearTables();
   });
@@ -73,7 +56,7 @@ describe('TeamsDataHandler', () => {
         TeamsDataHandler.createTeam(teamInfo);
 
       // Assert
-      return verifyTeamInfoAsync(teamPromise, teamInfo);
+      return ModelVerificator.verifyModelInfoAsync(teamPromise, teamInfo);
     });
 
   });
@@ -100,7 +83,7 @@ describe('TeamsDataHandler', () => {
         createTeamPromose.then(() => TeamsDataHandler.getTeam(teamInfo.name));
 
       // Assert
-      return verifyTeamInfoAsync(getTeamPromise, teamInfo);
+      return ModelVerificator.verifyModelInfoAsync(getTeamPromise, teamInfo);
     });
 
   });
@@ -138,39 +121,6 @@ describe('TeamsDataHandler', () => {
     interface IUserIdToIsAdmin {
       userId: number;
       isAdmin: boolean;
-    }
-
-    function verifyUsersInfoWithoutOrderAsync(actualUsersPromise: Promise<IUserOfATeam[]>,
-      expectedUsersInfo: IUserInfo[]): Promise<void> {
-
-      return expect(actualUsersPromise).to.eventually.fulfilled
-        .then((users: IUserOfATeam[]) => {
-
-          var actualUserInfos: IUserInfo[] = _.map(users, _ => _.user.attributes);
-
-          verifyUsersInfoWithoutOrder(actualUserInfos, expectedUsersInfo);
-        });
-    }
-
-    function verifyUsersInfoWithoutOrder(actual: IUserInfo[], expected: IUserInfo[]): void {
-      var actualOrdered = _.orderBy(actual, _ => _.username);
-      var expectedOrdered = _.orderBy(expected, _ => _.username);
-
-      expect(actualOrdered.length).to.be.equal(expectedOrdered.length);
-
-      for (var i = 0; i < expected.length; i++) {
-        verifyUserInfo(actualOrdered[i], expectedOrdered[i]);
-      }
-    }
-
-    function verifyUserInfo(actual: IUserInfo, expected: IUserInfo): void {
-      var actualCloned: IUserInfo = _.clone(actual);
-      var expectedCloned: IUserInfo = _.clone(expected);
-
-      delete actualCloned['id'];
-      delete expectedCloned['id'];
-
-      expect(actualCloned).to.be.deep.equal(expectedCloned);
     }
 
     function verifyUsersAdminSettingsWithoutOrderAsync(actualUserOfATeamsPromise: Promise<IUserOfATeam[]>,
@@ -253,12 +203,17 @@ describe('TeamsDataHandler', () => {
         ]);
 
       // Act
-      var teamMembersPromise: Promise<IUserOfATeam[]> =
-        createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(teamInfo1.name));
+      var usersPromise: Promise<User[]> =
+        createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(teamInfo1.name))
+          .then((teamMembers: IUserOfATeam[]) => {
+            return _.map(teamMembers, _ => _.user);
+          })
 
       // Assert
       var expectedUserInfo: IUserInfo[] = [userInfo1, userInfo2];
-      return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedUserInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(usersPromise,
+        expectedUserInfo,
+        ModelInfoComparers.compareUserInfos);
     });
 
     it('should return all existing team members with correct admin rights', () => {
@@ -307,12 +262,17 @@ describe('TeamsDataHandler', () => {
         ]);
 
       // Act
-      var teamMembersPromise: Promise<IUserOfATeam[]> =
-        createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(teamInfo1.name));
+      var usersPromise: Promise<User[]> =
+        createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(teamInfo1.name))
+          .then((usersOfATeam: IUserOfATeam[]) => {
+            return _.map(usersOfATeam, _ => _.user);
+          });
 
       // Assert
       var expectedUserInfo: IUserInfo[] = [userInfo1, userInfo2];
-      return verifyUsersInfoWithoutOrderAsync(teamMembersPromise, expectedUserInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(usersPromise,
+        expectedUserInfo,
+        ModelInfoComparers.compareUserInfos);
     });
 
   });
@@ -350,39 +310,6 @@ describe('TeamsDataHandler', () => {
     interface ISkillIdToUpvotes {
       skillId: number;
       upvotingUserIds: number[];
-    }
-
-    function verifySkillsInfoWithoutOrderAsync(actualSkillsPromise: Promise<ISkillOfATeam[]>,
-      expectedSkillsInfo: ISkillInfo[]): Promise<void> {
-
-      return expect(actualSkillsPromise).to.eventually.fulfilled
-        .then((skills: ISkillOfATeam[]) => {
-
-          var actualSkillInfo: ISkillInfo[] = _.map(skills, _ => _.skill.attributes);
-
-          verifySkillsInfoWithoutOrder(actualSkillInfo, expectedSkillsInfo);
-        });
-    }
-
-    function verifySkillsInfoWithoutOrder(actual: ISkillInfo[], expected: ISkillInfo[]): void {
-      var actualOrdered = _.orderBy(actual, _ => _.name);
-      var expectedOrdered = _.orderBy(expected, _ => _.name);
-
-      expect(actualOrdered.length).to.be.equal(expectedOrdered.length);
-
-      for (var i = 0; i < expected.length; i++) {
-        verifySkillInfo(actualOrdered[i], expectedOrdered[i]);
-      }
-    }
-
-    function verifySkillInfo(actual: ISkillInfo, expected: ISkillInfo): void {
-      var actualCloned: ISkillInfo = _.clone(actual);
-      var expectedCloned: ISkillInfo = _.clone(expected);
-
-      delete actualCloned['id'];
-      delete expectedCloned['id'];
-
-      expect(actualCloned).to.be.deep.equal(expectedCloned);
     }
 
     function verifySkillsUpvotesWithoutOrderAsync(actualSkillsOfATeamPromise: Promise<ISkillOfATeam[]>,
@@ -477,12 +404,17 @@ describe('TeamsDataHandler', () => {
         ]);
 
       // Act
-      var teamSkillsPromise: Promise<ISkillOfATeam[]> =
-        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(teamInfo1.name));
+      var skillsPromise: Promise<Skill[]> =
+        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(teamInfo1.name))
+          .then((skillsOfATeam: ISkillOfATeam[]) => {
+            return _.map(skillsOfATeam, _ => _.skill);
+          });
 
       // Assert
-      var exxpectedSkillInfo: ISkillInfo[] = [skillInfo1, skillInfo2];
-      return verifySkillsInfoWithoutOrderAsync(teamSkillsPromise, exxpectedSkillInfo);
+      var expectedSkillInfo: ISkillInfo[] = [skillInfo1, skillInfo2];
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
+        expectedSkillInfo,
+        ModelInfoComparers.compareSkillInfos);
     });
 
     it('should return all existing team skills with correct upvoting user ids', () => {
@@ -528,12 +460,17 @@ describe('TeamsDataHandler', () => {
         ]);
 
       // Act
-      var teamSkillsPromise: Promise<ISkillOfATeam[]> =
-        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(teamInfo1.name));
+      var teamSkillsPromise: Promise<Skill[]> =
+        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(teamInfo1.name))
+          .then((skillsOfATeam: ISkillOfATeam[]) => {
+            return _.map(skillsOfATeam, _ => _.skill);
+          });
 
       // Assert
       var expectedSkillsInfo: ISkillInfo[] = [skillInfo1, skillInfo2];
-      return verifySkillsInfoWithoutOrderAsync(teamSkillsPromise, expectedSkillsInfo);
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(teamSkillsPromise,
+        expectedSkillsInfo,
+        ModelInfoComparers.compareSkillInfos);
     });
 
     it('after upvoting skills should return all existing team skills with correct upvoting user ids', () => {

@@ -1,4 +1,6 @@
 "use strict";
+var modelInfoComparers_1 = require("../testUtils/modelInfoComparers");
+var modelVerificator_1 = require("../testUtils/modelVerificator");
 var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
 var globalPermission_1 = require("../models/enums/globalPermission");
 var chai = require('chai');
@@ -30,19 +32,6 @@ describe('userDataHandler', function () {
     afterEach(function () {
         return clearTables();
     });
-    function verifyUserInfoAsync(actualUserPromise, expectedUserInfo) {
-        return chai_1.expect(actualUserPromise).to.eventually.fulfilled
-            .then(function (user) {
-            verifyUserInfo(user.attributes, expectedUserInfo);
-        });
-    }
-    function verifyUserInfo(actual, expected) {
-        var actualCloned = _.clone(actual);
-        var expectedCloned = _.clone(expected);
-        delete actualCloned['id'];
-        delete expectedCloned['id'];
-        chai_1.expect(actualCloned).to.be.deep.equal(expectedCloned);
-    }
     function verifyUserGlobalPermissionsAsync(actualPermissionsPromise, expectedPermissions) {
         return chai_1.expect(actualPermissionsPromise).to.eventually.fulfilled
             .then(function (actualPermissions) {
@@ -70,7 +59,7 @@ describe('userDataHandler', function () {
         it('should create user correctly', function () {
             var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             var userPromise = userDataHandler_1.UserDataHandler.createUser(userInfo);
-            return verifyUserInfoAsync(userPromise, userInfo);
+            return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(userPromise, userInfo);
         });
     });
     describe('getUser', function () {
@@ -82,29 +71,14 @@ describe('userDataHandler', function () {
             var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             var createUserPromise = userDataHandler_1.UserDataHandler.createUser(userInfo);
             var getUserPromise = createUserPromise.then(function () { return userDataHandler_1.UserDataHandler.getUser(userInfo.username); });
-            return verifyUserInfoAsync(getUserPromise, userInfo);
+            return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(getUserPromise, userInfo);
         });
     });
     describe('getUsers', function () {
-        function verifyUsersInfoWithoutOrderAsync(actualUsersPromise, expectedUsersInfo) {
-            return chai_1.expect(actualUsersPromise).to.eventually.fulfilled
-                .then(function (users) {
-                var actualUserInfos = _.map(users, function (_user) { return _user.attributes; });
-                verifyUsersInfoWithoutOrder(actualUserInfos, expectedUsersInfo);
-            });
-        }
-        function verifyUsersInfoWithoutOrder(actual, expected) {
-            var actualOrdered = _.orderBy(actual, function (_info) { return _info.username; });
-            var expectedOrdered = _.orderBy(expected, function (_info) { return _info.username; });
-            chai_1.expect(actualOrdered.length).to.be.equal(expectedOrdered.length);
-            for (var i = 0; i < expected.length; i++) {
-                verifyUserInfo(actualOrdered[i], expectedOrdered[i]);
-            }
-        }
         it('no users should return empty', function () {
             var usersPromose = userDataHandler_1.UserDataHandler.getUsers();
             var expectedUsersInfo = [];
-            return verifyUsersInfoWithoutOrderAsync(usersPromose, expectedUsersInfo);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(usersPromose, expectedUsersInfo, modelInfoComparers_1.ModelInfoComparers.compareUserInfos);
         });
         it('should return all created users', function () {
             var userInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
@@ -117,7 +91,7 @@ describe('userDataHandler', function () {
             ]);
             var usersPromose = createAllUsersPromise.then(function () { return userDataHandler_1.UserDataHandler.getUsers(); });
             var expectedUsersInfo = [userInfo1, userInfo2, userInfo3];
-            return verifyUsersInfoWithoutOrderAsync(usersPromose, expectedUsersInfo);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(usersPromose, expectedUsersInfo, modelInfoComparers_1.ModelInfoComparers.compareUserInfos);
         });
     });
     describe('getUserGlobalPermissions', function () {
@@ -187,28 +161,6 @@ describe('userDataHandler', function () {
         });
     });
     describe('getTeams', function () {
-        function verifyTeamsAsync(actualTeamsPromise, expectedTeams) {
-            return chai_1.expect(actualTeamsPromise).to.eventually.fulfilled
-                .then(function (actualTeams) {
-                var actualTeamInfos = _.map(actualTeams, function (_) { return _.team.attributes; });
-                verifyTeams(actualTeamInfos, expectedTeams);
-            });
-        }
-        function verifyTeams(actual, expected) {
-            var actualOrdered = _.orderBy(actual, function (_) { return _.name; });
-            var expectedOrdered = _.orderBy(expected, function (_) { return _.name; });
-            chai_1.expect(actual.length).to.be.equal(expected.length);
-            for (var i = 0; i < expected.length; i++) {
-                verifyTeam(actualOrdered[i], expectedOrdered[i]);
-            }
-        }
-        function verifyTeam(actual, expected) {
-            var actualCloned = _.clone(actual);
-            var expectedCloned = _.clone(expected);
-            delete actualCloned['id'];
-            delete expectedCloned['id'];
-            chai_1.expect(actualCloned).to.be.deep.equal(expectedCloned);
-        }
         function verifyTeamAdminSettingsAsync(actualUserTeamsPromise, expectedAdminSettings) {
             return chai_1.expect(actualUserTeamsPromise).to.eventually.fulfilled
                 .then(function (actualTeams) {
@@ -264,9 +216,12 @@ describe('userDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo2)
             ]);
-            var teamsPromise = addTeamsPromise.then(function () { return userDataHandler_1.UserDataHandler.getTeams(userInfo1.username); });
+            var teamsPromise = addTeamsPromise.then(function () { return userDataHandler_1.UserDataHandler.getTeams(userInfo1.username); })
+                .then(function (teamsOfAUser) {
+                return _.map(teamsOfAUser, function (_) { return _.team; });
+            });
             var expectedTeams = [teamInfo1, teamInfo2];
-            return verifyTeamsAsync(teamsPromise, expectedTeams);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(teamsPromise, expectedTeams, modelInfoComparers_1.ModelInfoComparers.compareTeamInfos);
         });
         it('user exists with teams should return correct admin settings', function () {
             var teamMemberInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team1, user1);
@@ -297,9 +252,12 @@ describe('userDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo2),
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo3)
             ]);
-            var teamsPromise = addTeamsPromise.then(function () { return userDataHandler_1.UserDataHandler.getTeams(userInfo1.username); });
+            var teamsPromise = addTeamsPromise.then(function () { return userDataHandler_1.UserDataHandler.getTeams(userInfo1.username); })
+                .then(function (teamsOfAUser) {
+                return _.map(teamsOfAUser, function (_) { return _.team; });
+            });
             var expectedTeams = [teamInfo1, teamInfo2];
-            return verifyTeamsAsync(teamsPromise, expectedTeams);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(teamsPromise, expectedTeams, modelInfoComparers_1.ModelInfoComparers.compareTeamInfos);
         });
     });
     describe('addGlobalPermissions', function () {

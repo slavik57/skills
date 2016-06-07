@@ -1,4 +1,6 @@
 "use strict";
+var modelInfoComparers_1 = require("../testUtils/modelInfoComparers");
+var modelVerificator_1 = require("../testUtils/modelVerificator");
 var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
 var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
 var teamSkill_1 = require("../models/teamSkill");
@@ -32,67 +34,11 @@ describe('SkillsDataHandler', function () {
     afterEach(function () {
         return clearTables();
     });
-    function verifySkillInfoAsync(actualSkillPromise, expectedSkillInfo) {
-        return chai_1.expect(actualSkillPromise).to.eventually.fulfilled
-            .then(function (skill) {
-            verifySkillInfo(skill.attributes, expectedSkillInfo);
-        });
-    }
-    function verifySkillInfo(actual, expected) {
-        var actualCloned = _.clone(actual);
-        var expectedCloned = _.clone(expected);
-        delete actualCloned['id'];
-        delete expectedCloned['id'];
-        chai_1.expect(actualCloned).to.be.deep.equal(expectedCloned);
-    }
-    function verifySkillPrerequisiteInfoAsync(actualSkillPrerequisitePromise, expectedSkillPrerequisiteInfo) {
-        return chai_1.expect(actualSkillPrerequisitePromise).to.eventually.fulfilled
-            .then(function (skillPrerequisite) {
-            verifySkillPrerequisiteInfo(skillPrerequisite.attributes, expectedSkillPrerequisiteInfo);
-        });
-    }
-    function verifySkillPrerequisiteInfo(actual, expected) {
-        var actualCloned = _.clone(actual);
-        var expectedCloned = _.clone(expected);
-        delete actualCloned['id'];
-        delete expectedCloned['id'];
-        chai_1.expect(actualCloned).to.be.deep.equal(expectedCloned);
-    }
-    function verifySkillPrerequisitesInfoWithoutOrderAsync(actualSkillPrerequisitesPromise, expectedSkillPrerequisitesInfo) {
-        return chai_1.expect(actualSkillPrerequisitesPromise).to.eventually.fulfilled
-            .then(function (skillPrerequisites) {
-            var actualSkillPrerequisitesInfos = _.map(skillPrerequisites, function (_) { return _.attributes; });
-            verifyPrerequisitesInfoWithoutOrder(actualSkillPrerequisitesInfos, expectedSkillPrerequisitesInfo);
-        });
-    }
-    function verifyPrerequisitesInfoWithoutOrder(actual, expected) {
-        var actualOrdered = _.orderBy(actual, function (_) { return _.skill_id; });
-        var expectedOrdered = _.orderBy(expected, function (_) { return _.skill_id; });
-        chai_1.expect(actualOrdered.length).to.be.equal(expectedOrdered.length);
-        for (var i = 0; i < expected.length; i++) {
-            verifySkillPrerequisiteInfo(actualOrdered[i], expectedOrdered[i]);
-        }
-    }
-    function verifySkillsInfoWithoutOrderAsync(actualSkillsPromise, expectedSkillsInfo) {
-        return chai_1.expect(actualSkillsPromise).to.eventually.fulfilled
-            .then(function (skills) {
-            var actualSkillInfos = _.map(skills, function (_) { return _.attributes; });
-            verifySkillsInfoWithoutOrder(actualSkillInfos, expectedSkillsInfo);
-        });
-    }
-    function verifySkillsInfoWithoutOrder(actual, expected) {
-        var actualOrdered = _.orderBy(actual, function (_) { return _.name; });
-        var expectedOrdered = _.orderBy(expected, function (_) { return _.name; });
-        chai_1.expect(actualOrdered.length).to.be.equal(expectedOrdered.length);
-        for (var i = 0; i < expected.length; i++) {
-            verifySkillInfo(actualOrdered[i], expectedOrdered[i]);
-        }
-    }
     describe('createSkill', function () {
         it('should create a skill correctly', function () {
             var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             var skillPromise = skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo);
-            return verifySkillInfoAsync(skillPromise, skillInfo);
+            return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(skillPromise, skillInfo);
         });
     });
     describe('getSkill', function () {
@@ -104,14 +50,14 @@ describe('SkillsDataHandler', function () {
             var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             var createSkillPromise = skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo);
             var getSkillPromise = createSkillPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkill(skillInfo.name); });
-            return verifySkillInfoAsync(getSkillPromise, skillInfo);
+            return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(getSkillPromise, skillInfo);
         });
     });
     describe('getSkills', function () {
         it('no skills should return empty', function () {
             var skillsPromise = skillsDataHandler_1.SkillsDataHandler.getSkills();
             var expectedSkillsInfo = [];
-            return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillsInfo);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedSkillsInfo, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
         it('should return all created skills', function () {
             var skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
@@ -122,9 +68,9 @@ describe('SkillsDataHandler', function () {
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3)
             ]);
-            var skillsPromose = createAllSkillsPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkills(); });
+            var skillsPromise = createAllSkillsPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkills(); });
             var expectedSkillsInfo = [skillInfo1, skillInfo2, skillInfo3];
-            return verifySkillsInfoWithoutOrderAsync(skillsPromose, expectedSkillsInfo);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedSkillsInfo, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
     });
     describe('addSkillPrerequisite', function () {
@@ -148,7 +94,7 @@ describe('SkillsDataHandler', function () {
         it('no skill prerequisites should return empty', function () {
             var prerequisitesPromise = skillsDataHandler_1.SkillsDataHandler.getSkillsPrerequisites();
             var expectedPrerequisitesInfo = [];
-            return verifySkillPrerequisitesInfoWithoutOrderAsync(prerequisitesPromise, expectedPrerequisitesInfo);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(prerequisitesPromise, expectedPrerequisitesInfo, modelInfoComparers_1.ModelInfoComparers.compareSkillPrerequisiteInfos);
         });
         it('should return all created skill prerequisites', function () {
             var skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
@@ -172,7 +118,7 @@ describe('SkillsDataHandler', function () {
             var skillPrerequisitesPromise = createAllSkillPrerequisitesPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsPrerequisites(); });
             return skillPrerequisitesPromise.then(function () {
                 var expectedSkillPrerequisitesInfos = [skillPrerequisiteInfo1, skillPrerequisiteInfo2];
-                return verifySkillPrerequisitesInfoWithoutOrderAsync(skillPrerequisitesPromise, expectedSkillPrerequisitesInfos);
+                return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillPrerequisitesPromise, expectedSkillPrerequisitesInfos, modelInfoComparers_1.ModelInfoComparers.compareSkillPrerequisiteInfos);
             });
         });
     });
@@ -200,12 +146,12 @@ describe('SkillsDataHandler', function () {
         it('no such skill should return empty', function () {
             var skillsPromise = skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites('not existing skill');
             var expectedInfo = [];
-            return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedInfo, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
         it('no skill prerequisites should return empty', function () {
             var skillsPromise = skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites(skillInfo1.name);
             var expectedInfo = [];
-            return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedInfo, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
         it('should return all existing skill prerequisites', function () {
             var skill1PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
@@ -216,7 +162,7 @@ describe('SkillsDataHandler', function () {
             ]);
             var skillsPromise = createAllSkillPrerequisitesPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites(skillInfo1.name); });
             var expectedSkillsInfos = [skillInfo2, skillInfo3];
-            return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillsInfos);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedSkillsInfos, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
         it('should return all existing skill prerequisites and not return other prerequisites', function () {
             var skill1PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
@@ -229,7 +175,7 @@ describe('SkillsDataHandler', function () {
             ]);
             var skillsPromise = createAllSkillPrerequisitesPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites(skillInfo1.name); });
             var expectedSkillsInfos = [skillInfo2, skillInfo3];
-            return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillsInfos);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedSkillsInfos, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
     });
     describe('getSkillContributions', function () {
@@ -256,12 +202,12 @@ describe('SkillsDataHandler', function () {
         it('no such skill should return empty', function () {
             var skillsPromise = skillsDataHandler_1.SkillsDataHandler.getSkillContributions('not existing skill');
             var expectedInfo = [];
-            return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedInfo, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
         it('no skill prerequisites should return empty', function () {
             var skillsPromise = skillsDataHandler_1.SkillsDataHandler.getSkillContributions(skillInfo1.name);
             var expectedInfo = [];
-            return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedInfo, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
         it('no skill prerequisites leading to skill should return empty', function () {
             var skill1PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
@@ -272,7 +218,7 @@ describe('SkillsDataHandler', function () {
             ]);
             var skillsPromise = createAllSkillPrerequisitesPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillContributions(skillInfo1.name); });
             var expectedInfo = [];
-            return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedInfo);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedInfo, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
         it('should return all existing skills with prerequisites of this skill', function () {
             var skill2PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
@@ -283,7 +229,7 @@ describe('SkillsDataHandler', function () {
             ]);
             var skillsPromise = createAllSkillPrerequisitesPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillContributions(skillInfo1.name); });
             var expectedSkillInfos = [skillInfo2, skillInfo3];
-            return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillInfos);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedSkillInfos, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
         it('should return all existing skill with prerequisites of this skill and not return other skills', function () {
             var skill2PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
@@ -295,32 +241,10 @@ describe('SkillsDataHandler', function () {
             ]);
             var skillsPromise = createAllSkillPrerequisitesPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillContributions(skillInfo1.name); });
             var expectedSkillInfos = [skillInfo2, skillInfo3];
-            return verifySkillsInfoWithoutOrderAsync(skillsPromise, expectedSkillInfos);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedSkillInfos, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
     });
     describe('getTeams', function () {
-        function verifyTeamsAsync(actualTeamsPromise, expectedTeams) {
-            return chai_1.expect(actualTeamsPromise).to.eventually.fulfilled
-                .then(function (actualTeams) {
-                var actualTeamInfos = _.map(actualTeams, function (_) { return _.team.attributes; });
-                verifyTeams(actualTeamInfos, expectedTeams);
-            });
-        }
-        function verifyTeams(actual, expected) {
-            var actualOrdered = _.orderBy(actual, function (_) { return _.name; });
-            var expectedOrdered = _.orderBy(expected, function (_) { return _.name; });
-            chai_1.expect(actual.length).to.be.equal(expected.length);
-            for (var i = 0; i < expected.length; i++) {
-                verifyTeam(actualOrdered[i], expectedOrdered[i]);
-            }
-        }
-        function verifyTeam(actual, expected) {
-            var actualCloned = _.clone(actual);
-            var expectedCloned = _.clone(expected);
-            delete actualCloned['id'];
-            delete expectedCloned['id'];
-            chai_1.expect(actualCloned).to.be.deep.equal(expectedCloned);
-        }
         function verifyTeamUpvotingUsersAsync(actualTeamsOfSkillPromise, expectedSkillUpdvotes) {
             return chai_1.expect(actualTeamsOfSkillPromise).to.eventually.fulfilled
                 .then(function (actualTeams) {
@@ -386,9 +310,12 @@ describe('SkillsDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2)
             ]);
-            var teamsPromise = addSkillsPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getTeams(skillInfo1.name); });
+            var teamsPromise = addSkillsPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getTeams(skillInfo1.name); })
+                .then(function (teamsOfASkill) {
+                return _.map(teamsOfASkill, function (_) { return _.team; });
+            });
             var expectedTeams = [teamInfo1, teamInfo2];
-            return verifyTeamsAsync(teamsPromise, expectedTeams);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(teamsPromise, expectedTeams, modelInfoComparers_1.ModelInfoComparers.compareTeamInfos);
         });
         it('skill exists with teams should return correct upvoting user ids', function () {
             var teamSkillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
@@ -416,9 +343,12 @@ describe('SkillsDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo3)
             ]);
-            var teamsPromise = addSkillsPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getTeams(skillInfo1.name); });
+            var teamsPromise = addSkillsPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getTeams(skillInfo1.name); })
+                .then(function (teamsOfASkill) {
+                return _.map(teamsOfASkill, function (_) { return _.team; });
+            });
             var expectedTeams = [teamInfo1, teamInfo2];
-            return verifyTeamsAsync(teamsPromise, expectedTeams);
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(teamsPromise, expectedTeams, modelInfoComparers_1.ModelInfoComparers.compareTeamInfos);
         });
         it('skill exists with teams with upvotes should return correct upvoting user ids', function () {
             var team1SkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);

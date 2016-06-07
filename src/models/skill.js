@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var modelBase_1 = require("./modelBase");
 var team_1 = require("./team");
 var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
@@ -18,11 +19,6 @@ var Skill = (function (_super) {
     }
     Object.defineProperty(Skill.prototype, "tableName", {
         get: function () { return 'skills'; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Skill.prototype, "idAttribute", {
-        get: function () { return 'id'; },
         enumerable: true,
         configurable: true
     });
@@ -82,7 +78,7 @@ var Skill = (function (_super) {
         };
     };
     return Skill;
-}(bookshelf_1.bookshelf.Model));
+}(modelBase_1.ModelBase));
 exports.Skill = Skill;
 var Skills = (function (_super) {
     __extends(Skills, _super);

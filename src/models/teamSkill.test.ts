@@ -1,3 +1,4 @@
+import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
 import {ITeamSkillInfo} from "./interfaces/iTeamSkillInfo";
 import {ITeamInfo} from "./interfaces/iTeamInfo";
 import {ISkillInfo} from "./interfaces/iSkillInfo";
@@ -26,31 +27,12 @@ describe('TeamSkill', () => {
         ]));
     }
 
-    function createSkillInfo(skillName: string): ISkillInfo {
-      return {
-        name: skillName
-      }
-    }
-
-    function createTeamInfo(teamName: string): ITeamInfo {
-      return {
-        name: teamName
-      }
-    }
-
-    function createTeamSkillInfo(team: Team, skill: Skill): ITeamSkillInfo {
-      return {
-        team_id: team.id,
-        skill_id: skill.id
-      }
-    }
-
     beforeEach(() => {
       return clearTables()
         .then(() => Promise.all([
-          new Skill(createSkillInfo('skill1')).save(),
-          new Skill(createSkillInfo('skill2')).save(),
-          new Team(createTeamInfo('a')).save(),
+          new Skill(ModelInfoMockFactory.createSkillInfo('skill1')).save(),
+          new Skill(ModelInfoMockFactory.createSkillInfo('skill2')).save(),
+          new Team(ModelInfoMockFactory.createTeamInfo('a')).save(),
         ]))
         .then((skillsAndTeams: any[]) => {
           skill1 = skillsAndTeams[0];
@@ -76,7 +58,7 @@ describe('TeamSkill', () => {
 
     it('create without team_id should return error', () => {
       /// Arrange
-      var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
       delete teamSkillInfo.team_id;
 
       var teamSkill = new TeamSkill(teamSkillInfo);
@@ -90,7 +72,7 @@ describe('TeamSkill', () => {
 
     it('create without skill_id should return error', () => {
       /// Arrange
-      var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
       delete teamSkillInfo.skill_id;
 
       var teamSkill = new TeamSkill(teamSkillInfo);
@@ -104,7 +86,7 @@ describe('TeamSkill', () => {
 
     it('create with non integer team_id should return error', () => {
       // Arrange
-      var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
       teamSkillInfo.team_id = 1.1;
       var teamMember = new TeamSkill(teamSkillInfo);
 
@@ -117,7 +99,7 @@ describe('TeamSkill', () => {
 
     it('create with non integer skill_id should return error', () => {
       // Arrange
-      var teamMemberInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      var teamMemberInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
       teamMemberInfo.skill_id = 1.1;
       var teamSkill = new TeamSkill(teamMemberInfo);
 
@@ -130,7 +112,7 @@ describe('TeamSkill', () => {
 
     it('create with non existing team_id should return error', () => {
       // Arrange
-      var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
       teamSkillInfo.team_id = team1.id + 1;
       var teamSkill = new TeamSkill(teamSkillInfo);
 
@@ -143,7 +125,7 @@ describe('TeamSkill', () => {
 
     it('create with non existing skill_id name should return error', () => {
       // Arrange
-      var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
       teamSkillInfo.skill_id = skill1.id + skill2.id + 1;
       var teamSkill = new TeamSkill(teamSkillInfo);
 
@@ -156,7 +138,7 @@ describe('TeamSkill', () => {
 
     it('create with existing team_id and skill_id should succeed', () => {
       // Arrange
-      var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
       var teamSkill = new TeamSkill(teamSkillInfo);
 
       // Act
@@ -168,7 +150,7 @@ describe('TeamSkill', () => {
 
     it('create with existing team_id and skill_id should be fetched', () => {
       // Arrange
-      var teamSkillInfo: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
       var teamSkill = new TeamSkill(teamSkillInfo);
 
       // Act
@@ -190,8 +172,8 @@ describe('TeamSkill', () => {
 
     it('create 2 different team skills should succeed', () => {
       // Arrange
-      var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team1, skill2);
+      var teamSkillInfo1: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo2: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
 
       var teamSkill1 = new TeamSkill(teamSkillInfo1);
       var teamSkill2 = new TeamSkill(teamSkillInfo2);
@@ -207,8 +189,8 @@ describe('TeamSkill', () => {
 
     it('create 2 different team skills should be fetched', () => {
       // Arrange
-      var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team1, skill2);
+      var teamSkillInfo1: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo2: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
 
       var teamSkill1 = new TeamSkill(teamSkillInfo1);
       var teamSkill2 = new TeamSkill(teamSkillInfo2);
@@ -230,8 +212,8 @@ describe('TeamSkill', () => {
 
     it('create 2 same skills should return error', () => {
       // Arrange
-      var teamSkillInfo1: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
-      var teamSkillInfo2: ITeamSkillInfo = createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo1: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+      var teamSkillInfo2: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
 
       var teamSkill1 = new TeamSkill(teamSkillInfo1);
       var teamSkill2 = new TeamSkill(teamSkillInfo2);
