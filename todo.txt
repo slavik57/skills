@@ -1,0 +1,10 @@
+todo:
+- user ids instead of names and usernames
+- remove skill (with dependencies)
+- remove skill prerequisite (with dependencies)
+- remove team (with dependencies)
+- remove team member (with dependencies)
+- remove team skill (with dependencies)
+- remove user(with dependencies)
+- skill knowledge percentage (know/dont know) (already have the knowing teams, need to count all and devide)
+- skill graph (get all skills with its prerequisite ids)
