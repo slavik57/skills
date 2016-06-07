@@ -1,5 +1,4 @@
 todo:
-- user ids instead of names and usernames
 - remove skill (with dependencies)
 - remove skill prerequisite (with dependencies)
 - remove team (with dependencies)
