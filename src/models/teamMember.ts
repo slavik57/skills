@@ -1,4 +1,4 @@
-import {Model, Collection, EventFunction} from 'bookshelf';
+import {Model, Collection, EventFunction, CollectionOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
@@ -13,6 +13,10 @@ export class TeamMember extends bookshelf.Model<TeamMember>{
   public static get teamIdAttribute(): string { return 'team_id'; }
   public static get userIdAttribute(): string { return 'user_id'; }
   public static get isAdminAttribute(): string { return 'is_admin'; }
+
+  public static collection(teamMembers?: TeamMember[], options?: CollectionOptions<TeamMember>): Collection<TeamMember> {
+    return new TeamMembers(teamMembers, options);
+  }
 
   public initialize(): void {
     this.on('saving', (teamMember: TeamMember) => this.validateTeamMember(teamMember));

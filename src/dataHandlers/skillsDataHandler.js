@@ -7,6 +7,9 @@ var SkillsDataHandler = (function () {
     SkillsDataHandler.createSkill = function (skillInfo) {
         return new skill_1.Skill(skillInfo).save();
     };
+    SkillsDataHandler.deleteSkill = function (skillId) {
+        return this._initializeSkillByIdQuery(skillId).destroy();
+    };
     SkillsDataHandler.getSkills = function () {
         return new skill_1.Skills().fetch()
             .then(function (skills) {

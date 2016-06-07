@@ -36,15 +36,15 @@ var TeamsDataHandler = (function () {
         return new teamSkillUpvote_1.TeamSkillUpvote(upvoteInfo).save();
     };
     TeamsDataHandler.removeUpvoteForTeamSkill = function (teamSkillId, upvotedUserId) {
-        var idQuery = {};
-        idQuery[teamSkillUpvote_1.TeamSkillUpvote.teamSkillIdAttribute] = teamSkillId;
-        idQuery[teamSkillUpvote_1.TeamSkillUpvote.userIdAttribute] = upvotedUserId;
+        var query = {};
+        query[teamSkillUpvote_1.TeamSkillUpvote.teamSkillIdAttribute] = teamSkillId;
+        query[teamSkillUpvote_1.TeamSkillUpvote.userIdAttribute] = upvotedUserId;
         var destroyOptions = {
-            require: true
+            require: true,
+            cascadeDelete: false
         };
         return new teamSkillUpvote_1.TeamSkillUpvote()
-            .where(idQuery)
-            .destroy(destroyOptions);
+            .where(query).destroy(destroyOptions);
     };
     TeamsDataHandler.setAdminRights = function (teamId, userId, newAdminRights) {
         var _this = this;

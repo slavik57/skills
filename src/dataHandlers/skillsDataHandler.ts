@@ -10,6 +10,10 @@ export class SkillsDataHandler {
     return new Skill(skillInfo).save();
   }
 
+  public static deleteSkill(skillId: number): Promise<Skill> {
+    return this._initializeSkillByIdQuery(skillId).destroy();
+  }
+
   public static getSkills(): Promise<Skill[]> {
     return new Skills().fetch()
       .then((skills: Collection<Skill>) => {

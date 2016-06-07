@@ -37,6 +37,9 @@ var TeamMember = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    TeamMember.collection = function (teamMembers, options) {
+        return new TeamMembers(teamMembers, options);
+    };
     TeamMember.prototype.initialize = function () {
         var _this = this;
         this.on('saving', function (teamMember) { return _this.validateTeamMember(teamMember); });

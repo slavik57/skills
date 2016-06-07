@@ -1,3 +1,4 @@
+import {IDestroyOptions} from "./interfaces/iDestroyOptions";
 import {TeamSkillUpvote} from "../models/teamSkillUpvote";
 import {ITeamSkillUpvoteInfo} from "../models/interfaces/iTeamSkillUpvoteInfo";
 import {ISkillOfATeam} from "../models/interfaces/iSkillOfATeam";
@@ -55,17 +56,17 @@ export class TeamsDataHandler {
   }
 
   public static removeUpvoteForTeamSkill(teamSkillId: number, upvotedUserId: number): Promise<TeamSkillUpvote> {
-    var idQuery = {};
-    idQuery[TeamSkillUpvote.teamSkillIdAttribute] = teamSkillId;
-    idQuery[TeamSkillUpvote.userIdAttribute] = upvotedUserId;
+    var query = {};
+    query[TeamSkillUpvote.teamSkillIdAttribute] = teamSkillId;
+    query[TeamSkillUpvote.userIdAttribute] = upvotedUserId;
 
-    var destroyOptions: DestroyOptions = {
-      require: true
+    var destroyOptions: IDestroyOptions = {
+      require: true,
+      cascadeDelete: false
     }
 
     return new TeamSkillUpvote()
-      .where(idQuery)
-      .destroy(destroyOptions);
+      .where(query).destroy(destroyOptions);
   }
 
   public static setAdminRights(teamId: number, userId: number, newAdminRights: boolean): Promise<TeamMember> {

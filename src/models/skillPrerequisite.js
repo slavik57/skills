@@ -32,6 +32,9 @@ var SkillPrerequisite = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    SkillPrerequisite.collection = function (prerequisites, options) {
+        return new SkillPrerequisites(prerequisites, options);
+    };
     SkillPrerequisite.prototype.initialize = function () {
         var _this = this;
         this.on('saving', function (skillPrerequisite) { return _this.validateSkillPrerequisite(skillPrerequisite); });

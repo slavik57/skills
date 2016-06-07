@@ -3,7 +3,7 @@ import {TeamSkillUpvote} from "./teamSkillUpvote";
 import {Skill} from "./skill";
 import {ISkillOfATeam} from "./interfaces/iSkillOfATeam";
 import {IUserOfATeam} from "./interfaces/iUserOfATeam";
-import {Model, Collection, EventFunction, CollectionFetchOptions} from 'bookshelf';
+import {Model, Collection, EventFunction, CollectionOptions, CollectionFetchOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
@@ -21,6 +21,10 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
   public get tableName(): string { return 'teams'; }
   public get idAttribute(): string { return 'id'; }
   public static get nameAttribute(): string { return 'name'; }
+
+  public static collection(teams?: Team[], options?: CollectionOptions<Team>): Collection<Team> {
+    return new Teams(teams, options);
+  }
 
   public initialize(): void {
     this.on('saving', (team: Team) => this.validateTeam(team));

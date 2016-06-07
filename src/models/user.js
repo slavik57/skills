@@ -38,6 +38,9 @@ var User = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    User.collection = function (users, options) {
+        return new Users(users, options);
+    };
     User.prototype.initialize = function () {
         var _this = this;
         this.on('saving', function (user) { return _this._validateUser(user); });
@@ -95,7 +98,7 @@ var Users = (function (_super) {
         var promises = [];
         return new Users().fetch().then(function (users) {
             users.each(function (user) {
-                var promise = user.destroy(null);
+                var promise = user.destroy();
                 promises.push(promise);
             });
             return Promise.all(promises);

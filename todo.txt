@@ -1,5 +1,4 @@
 todo:
-- remove skill (with dependencies)
 - remove skill prerequisite (with dependencies)
 - remove team (with dependencies)
 - remove team member (with dependencies)

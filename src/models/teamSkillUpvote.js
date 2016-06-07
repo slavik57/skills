@@ -31,6 +31,9 @@ var TeamSkillUpvote = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    TeamSkillUpvote.collection = function (upvotes, options) {
+        return new TeamSkillUpvotes(upvotes, options);
+    };
     return TeamSkillUpvote;
 }(bookshelf_1.bookshelf.Model));
 exports.TeamSkillUpvote = TeamSkillUpvote;

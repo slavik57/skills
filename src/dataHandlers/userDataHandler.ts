@@ -1,3 +1,4 @@
+import {IDestroyOptions} from "./interfaces/iDestroyOptions";
 import {IUserInfo} from "../models/interfaces/iUserInfo";
 import {GlobalPermission} from "../models/enums/globalPermission";
 import {User, Users} from '../models/user';
@@ -105,8 +106,13 @@ export class UserDataHandler {
         var permissionsToDelete: UserGlobalPermissions[] =
           _.map(permissionsToDeteleQuery, _info => new UserGlobalPermissions().where(_info));
 
+        var destroyOptions: IDestroyOptions = {
+          require: false,
+          cascadeDelete: false
+        };
+
         var deleteUserPermissionsPromise: Promise<UserGlobalPermissions>[] =
-          _.map(permissionsToDelete, _permission => _permission.destroy(false));
+          _.map(permissionsToDelete, _permission => _permission.destroy(destroyOptions));
 
         return Promise.all(deleteUserPermissionsPromise);
       });

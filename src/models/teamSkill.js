@@ -50,6 +50,18 @@ var TeamSkill = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(TeamSkill, "dependents", {
+        get: function () {
+            return [
+                TeamSkill.relatedTeamSkillUpvotesAttribute
+            ];
+        },
+        enumerable: true,
+        configurable: true
+    });
+    TeamSkill.collection = function (teamSkills, options) {
+        return new TeamSkills(teamSkills, options);
+    };
     TeamSkill.prototype.initialize = function () {
         var _this = this;
         this.on('saving', function (teamSkill) { return _this._validateTeamSkill(teamSkill); });

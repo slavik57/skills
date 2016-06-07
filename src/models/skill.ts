@@ -2,7 +2,7 @@ import {ModelBase} from "./modelBase";
 import {TeamSkillUpvote} from "./teamSkillUpvote";
 import {Team} from "./team";
 import {ITeamOfASkill} from "./interfaces/iTeamOfASkill";
-import {Model, Collection, EventFunction, CollectionFetchOptions} from 'bookshelf';
+import {Model, Collection, EventFunction, CollectionOptions, CollectionFetchOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import * as _ from 'lodash';
@@ -13,19 +13,37 @@ import {TeamSkill} from './teamSkill';
 
 export class Skill extends ModelBase<Skill, ISkillInfo> {
   public get tableName(): string { return 'skills'; }
-
-  public static get nameAttribute(): string { return 'name'; }
-
-  public initialize(): void {
-    this.on('saving', (skill: Skill) => this.validateSkill(skill));
+  public static get dependents(): string[] {
+    return [
+      Skill.relatedSkillPrerequisitesAttribute,
+      Skill.relatedSkillContributorsAttribute,
+      Skill.relatedTeamSkillsAttribute
+    ];
   }
 
-  public validateSkill(skill: Skill): Promise<boolean> {
-    if (!TypesValidator.isLongEnoughString(skill.attributes.name, 1)) {
-      return Promise.reject('The skill name must not be empty');
-    }
+  public static get nameAttribute(): string { return 'name'; }
+  public static get relatedSkillPrerequisitesAttribute(): string { return 'skillPrerequisites'; }
+  public static get relatedSkillContributorsAttribute(): string { return 'skillContributors'; }
+  public static get relatedTeamSkillsAttribute(): string { return 'teamSkills'; }
 
-    return Promise.resolve(true);
+  public static collection(skills?: Skill[], options?: CollectionOptions<Skill>): Collection<Skill> {
+    return new Skills(skills, options);
+  }
+
+  public initialize(): void {
+    this.on('saving', (skill: Skill) => this._validateSkill(skill));
+  }
+
+  public skillPrerequisites(): Collection<SkillPrerequisite> {
+    return this.hasMany(SkillPrerequisite, SkillPrerequisite.skillIdAttribute);
+  }
+
+  public skillContributors(): Collection<SkillPrerequisite> {
+    return this.hasMany(SkillPrerequisite, SkillPrerequisite.skillPrerequisiteIdAttribute);
+  }
+
+  public teamSkills(): Collection<TeamSkill> {
+    return this.hasMany(TeamSkill, TeamSkill.skillIdAttribute);
   }
 
   public prerequisiteSkills(): Collection<Skill> {
@@ -36,10 +54,6 @@ export class Skill extends ModelBase<Skill, ISkillInfo> {
   public contributingSkills(): Collection<Skill> {
     return this.belongsToMany(Skill)
       .through<Skill>(SkillPrerequisite, SkillPrerequisite.skillPrerequisiteIdAttribute, SkillPrerequisite.skillIdAttribute);
-  }
-
-  public teamSkills(): Collection<TeamSkill> {
-    return this.hasMany(TeamSkill, TeamSkill.skillIdAttribute);
   }
 
   public getTeams(): Promise<ITeamOfASkill[]> {
@@ -57,6 +71,14 @@ export class Skill extends ModelBase<Skill, ISkillInfo> {
 
         return _.map(teamSkills, _skill => this._convertTeamSkillToTeamOfASkill(_skill));
       });
+  }
+
+  private _validateSkill(skill: Skill): Promise<boolean> {
+    if (!TypesValidator.isLongEnoughString(skill.attributes.name, 1)) {
+      return Promise.reject('The skill name must not be empty');
+    }
+
+    return Promise.resolve(true);
   }
 
   private _teams(): Collection<Team> {

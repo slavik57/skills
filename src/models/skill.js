@@ -22,20 +22,52 @@ var Skill = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Skill, "dependents", {
+        get: function () {
+            return [
+                Skill.relatedSkillPrerequisitesAttribute,
+                Skill.relatedSkillContributorsAttribute,
+                Skill.relatedTeamSkillsAttribute
+            ];
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(Skill, "nameAttribute", {
         get: function () { return 'name'; },
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Skill, "relatedSkillPrerequisitesAttribute", {
+        get: function () { return 'skillPrerequisites'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Skill, "relatedSkillContributorsAttribute", {
+        get: function () { return 'skillContributors'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Skill, "relatedTeamSkillsAttribute", {
+        get: function () { return 'teamSkills'; },
+        enumerable: true,
+        configurable: true
+    });
+    Skill.collection = function (skills, options) {
+        return new Skills(skills, options);
+    };
     Skill.prototype.initialize = function () {
         var _this = this;
-        this.on('saving', function (skill) { return _this.validateSkill(skill); });
+        this.on('saving', function (skill) { return _this._validateSkill(skill); });
     };
-    Skill.prototype.validateSkill = function (skill) {
-        if (!typesValidator_1.TypesValidator.isLongEnoughString(skill.attributes.name, 1)) {
-            return Promise.reject('The skill name must not be empty');
-        }
-        return Promise.resolve(true);
+    Skill.prototype.skillPrerequisites = function () {
+        return this.hasMany(skillPrerequisite_1.SkillPrerequisite, skillPrerequisite_1.SkillPrerequisite.skillIdAttribute);
+    };
+    Skill.prototype.skillContributors = function () {
+        return this.hasMany(skillPrerequisite_1.SkillPrerequisite, skillPrerequisite_1.SkillPrerequisite.skillPrerequisiteIdAttribute);
+    };
+    Skill.prototype.teamSkills = function () {
+        return this.hasMany(teamSkill_1.TeamSkill, teamSkill_1.TeamSkill.skillIdAttribute);
     };
     Skill.prototype.prerequisiteSkills = function () {
         return this.belongsToMany(Skill)
@@ -44,9 +76,6 @@ var Skill = (function (_super) {
     Skill.prototype.contributingSkills = function () {
         return this.belongsToMany(Skill)
             .through(skillPrerequisite_1.SkillPrerequisite, skillPrerequisite_1.SkillPrerequisite.skillPrerequisiteIdAttribute, skillPrerequisite_1.SkillPrerequisite.skillIdAttribute);
-    };
-    Skill.prototype.teamSkills = function () {
-        return this.hasMany(teamSkill_1.TeamSkill, teamSkill_1.TeamSkill.skillIdAttribute);
     };
     Skill.prototype.getTeams = function () {
         var _this = this;
@@ -62,6 +91,12 @@ var Skill = (function (_super) {
             var teamSkills = teamSkillsCollection.toArray();
             return _.map(teamSkills, function (_skill) { return _this._convertTeamSkillToTeamOfASkill(_skill); });
         });
+    };
+    Skill.prototype._validateSkill = function (skill) {
+        if (!typesValidator_1.TypesValidator.isLongEnoughString(skill.attributes.name, 1)) {
+            return Promise.reject('The skill name must not be empty');
+        }
+        return Promise.resolve(true);
     };
     Skill.prototype._teams = function () {
         return this.belongsToMany(team_1.Team)

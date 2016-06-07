@@ -25,6 +25,9 @@ var UserGlobalPermissions = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    UserGlobalPermissions.collection = function (permissions, options) {
+        return new UsersGlobalPermissions(permissions, options);
+    };
     return UserGlobalPermissions;
 }(bookshelf_1.bookshelf.Model));
 exports.UserGlobalPermissions = UserGlobalPermissions;

@@ -735,7 +735,7 @@ describe('TeamsDataHandler', () => {
         });
     });
 
-    it('with user who upvote should set the upvoting user ids correctly', () => {
+    it('with user who upvoted should set the upvoting user ids correctly', () => {
       // Arrange
       var teamSkillId: number = teamSkill.id;
       var userId: number = upvotedUser1.id;

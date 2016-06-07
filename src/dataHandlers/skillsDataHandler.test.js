@@ -1,8 +1,11 @@
 "use strict";
+var environmentDirtifier_1 = require("../testUtils/environmentDirtifier");
 var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var modelInfoComparers_1 = require("../testUtils/modelInfoComparers");
 var modelVerificator_1 = require("../testUtils/modelVerificator");
 var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
+var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
+var teamSkill_1 = require("../models/teamSkill");
 var teamsDataHandler_1 = require("./teamsDataHandler");
 var chai = require('chai');
 var chai_1 = require('chai');
@@ -23,6 +26,68 @@ describe('SkillsDataHandler', function () {
             var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             var skillPromise = skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo);
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(skillPromise, skillInfo);
+        });
+    });
+    describe('deleteSkill', function () {
+        var testModels;
+        beforeEach(function () {
+            return environmentDirtifier_1.EnvironmentDirtifier.fillAllTables()
+                .then(function (_testModels) {
+                testModels = _testModels;
+            });
+        });
+        it('not existing skill should not fail', function () {
+            var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(9999);
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('existing skill should not fail', function () {
+            var skillToDelete = testModels.skills[0];
+            var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(skillToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('existing skill should remove the relevant skill prerequisites', function () {
+            var skillToDelete = testModels.skills[0];
+            var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(skillToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsPrerequisites(); })
+                .then(function (_prerequisites) {
+                return _.map(_prerequisites, function (_) { return _.attributes.skill_id; });
+            })
+                .then(function (_skillIds) {
+                chai_1.expect(_skillIds).not.to.contain(skillToDelete.id);
+            });
+        });
+        it('existing skill should remove the relevant team skills', function () {
+            var skillToDelete = testModels.skills[0];
+            var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(skillToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return new teamSkill_1.TeamSkills().fetch(); })
+                .then(function (_teamSkillsCollection) { return _teamSkillsCollection.toArray(); })
+                .then(function (_teamSkills) {
+                return _.map(_teamSkills, function (_) { return _.attributes.skill_id; });
+            })
+                .then(function (_skillIds) {
+                chai_1.expect(_skillIds).not.to.contain(skillToDelete.id);
+            });
+        });
+        it('existing skill should remove the relevant team skill upvotes', function () {
+            var skillToDelete = testModels.skills[0];
+            var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(skillToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return new teamSkillUpvote_1.TeamSkillUpvotes().fetch(); })
+                .then(function (_teamSkillUpvotesCollection) { return _teamSkillUpvotesCollection.toArray(); })
+                .then(function (_teamSkills) {
+                return _.map(_teamSkills, function (_) { return _.attributes.team_skill_id; });
+            })
+                .then(function (_teamSkillIds) {
+                return _.filter(testModels.teamSkills, function (_) { return _teamSkillIds.indexOf(_.id) >= 0; });
+            })
+                .then(function (_teamSkills) {
+                return _.map(_teamSkills, function (_) { return _.attributes.skill_id; });
+            })
+                .then(function (_skillIds) {
+                chai_1.expect(_skillIds).not.to.contain(skillToDelete.id);
+            });
         });
     });
     describe('getSkill', function () {

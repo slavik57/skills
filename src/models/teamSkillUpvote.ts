@@ -1,4 +1,4 @@
-import {Model, Collection, EventFunction} from 'bookshelf';
+import {Model, Collection, EventFunction, CollectionOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
@@ -12,6 +12,10 @@ export class TeamSkillUpvote extends bookshelf.Model<TeamSkillUpvote>{
 
   public static get teamSkillIdAttribute(): string { return 'team_skill_id' }
   public static get userIdAttribute(): string { return 'user_id' }
+
+  public static collection(upvotes?: TeamSkillUpvote[], options?: CollectionOptions<TeamSkillUpvote>): Collection<TeamSkillUpvote> {
+    return new TeamSkillUpvotes(upvotes, options);
+  }
 }
 
 export class TeamSkillUpvotes extends bookshelf.Collection<TeamSkillUpvote> {

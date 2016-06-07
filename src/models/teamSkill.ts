@@ -2,7 +2,7 @@ import {Skill} from "./skill";
 import {ITeamSkillRelations} from "./interfaces/iTeamSkillRelations";
 import {Team} from "./team";
 import {TeamSkillUpvote} from "./teamSkillUpvote";
-import {Model, Collection, EventFunction} from 'bookshelf';
+import {Model, Collection, EventFunction, CollectionOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
@@ -20,6 +20,16 @@ export class TeamSkill extends bookshelf.Model<TeamSkill>{
   public static get relatedTeamSkillUpvotesAttribute(): string { return 'upvotes'; }
   public static get relatedTeamAttribute(): string { return 'team'; }
   public static get relatedSkillAttribute(): string { return 'skill'; }
+
+  public static get dependents(): string[] {
+    return [
+      TeamSkill.relatedTeamSkillUpvotesAttribute
+    ];
+  }
+
+  public static collection(teamSkills?: TeamSkill[], options?: CollectionOptions<TeamSkill>): Collection<TeamSkill> {
+    return new TeamSkills(teamSkills, options);
+  }
 
   public initialize(): void {
     this.on('saving', (teamSkill: TeamSkill) => this._validateTeamSkill(teamSkill));

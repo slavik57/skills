@@ -1,7 +1,7 @@
 import {IUserRelations} from "./interfaces/iUserRelations";
 import {ModelBase} from "./modelBase";
 import {IHasPivot} from "./interfaces/iHasPivot";
-import {Model, Collection, EventFunction} from 'bookshelf';
+import {Model, Collection, EventFunction, CollectionOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import * as validator from 'validator';
@@ -22,6 +22,10 @@ export class User extends ModelBase<User, IUserInfo> implements IHasPivot<TeamMe
   public get idAttribute(): string { return 'id'; }
   public static get usernameAttribute(): string { return 'username'; }
   public static get relatedUserGlobalPermissionsAttribute(): string { return 'globalPermissions'; }
+
+  public static collection(users?: User[], options?: CollectionOptions<User>): Collection<User> {
+    return new Users(users, options);
+  }
 
   public initialize(): void {
     this.on('saving', (user: User) => this._validateUser(user));
@@ -87,7 +91,7 @@ export class Users extends bookshelf.Collection<User> {
 
     return new Users().fetch().then((users: Collection<User>) => {
       users.each(user => {
-        var promise: Promise<User> = user.destroy(null);
+        var promise: Promise<User> = user.destroy();
         promises.push(promise);
       });
 

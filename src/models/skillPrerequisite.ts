@@ -1,4 +1,4 @@
-import {Model, Collection, EventFunction} from 'bookshelf';
+import {Model, Collection, CollectionOptions, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
@@ -12,6 +12,10 @@ export class SkillPrerequisite extends bookshelf.Model<SkillPrerequisite>{
 
   public static get skillIdAttribute(): string { return 'skill_id'; }
   public static get skillPrerequisiteIdAttribute(): string { return 'skill_prerequisite_id'; }
+
+  public static collection(prerequisites?: SkillPrerequisite[], options?: CollectionOptions<SkillPrerequisite>): Collection<SkillPrerequisite> {
+    return new SkillPrerequisites(prerequisites, options);
+  }
 
   public initialize(): void {
     this.on('saving', (skillPrerequisite: SkillPrerequisite) => this.validateSkillPrerequisite(skillPrerequisite));

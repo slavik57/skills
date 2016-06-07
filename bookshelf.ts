@@ -4,6 +4,11 @@ import * as Fs from 'fs';
 import * as KnexConfig from './knexfile';
 import * as EnvironmentConfig from './environment';
 
+var cascadeDelete = require('bookshelf-cascade-delete');
+
 var knex = Knex(KnexConfig[EnvironmentConfig.currentEnvironment]);
 
-export var bookshelf = Bookshelf(knex);
+var bookshelfInstance = Bookshelf(knex);
+bookshelfInstance.plugin(cascadeDelete.default);
+
+export var bookshelf = bookshelfInstance;

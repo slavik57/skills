@@ -80,7 +80,11 @@ var UserDataHandler = (function () {
             }
             var permissionsToDeteleQuery = _this._createUserGlobalPermissionInfos(user.id, permissionsToRemove);
             var permissionsToDelete = _.map(permissionsToDeteleQuery, function (_info) { return new usersGlobalPermissions_1.UserGlobalPermissions().where(_info); });
-            var deleteUserPermissionsPromise = _.map(permissionsToDelete, function (_permission) { return _permission.destroy(false); });
+            var destroyOptions = {
+                require: false,
+                cascadeDelete: false
+            };
+            var deleteUserPermissionsPromise = _.map(permissionsToDelete, function (_permission) { return _permission.destroy(destroyOptions); });
             return Promise.all(deleteUserPermissionsPromise);
         });
     };

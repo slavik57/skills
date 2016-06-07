@@ -453,7 +453,7 @@ describe('TeamsDataHandler', function () {
                 chai_1.expect(skillsOfATeam[0].upvotingUserIds.sort()).to.be.deep.equal([upvotedUser1.id, upvotedUser2.id].sort());
             });
         });
-        it('with user who upvote should set the upvoting user ids correctly', function () {
+        it('with user who upvoted should set the upvoting user ids correctly', function () {
             var teamSkillId = teamSkill.id;
             var userId = upvotedUser1.id;
             var removeUpvotePromise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);

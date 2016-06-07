@@ -1,4 +1,4 @@
-import {Model, Collection, EventFunction} from 'bookshelf';
+import {Model, Collection, EventFunction, CollectionOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import {IUserGlobalPermissions} from './interfaces/iUserGlobalPermissions';
 
@@ -9,6 +9,10 @@ export class UserGlobalPermissions extends bookshelf.Model<UserGlobalPermissions
   public get idAttribute(): string { return 'id'; }
 
   public static get userIdAttribute(): string { return 'user_id'; }
+
+  public static collection(permissions?: UserGlobalPermissions[], options?: CollectionOptions<UserGlobalPermissions>): Collection<UserGlobalPermissions> {
+    return new UsersGlobalPermissions(permissions, options);
+  }
 }
 
 export class UsersGlobalPermissions extends bookshelf.Collection<UserGlobalPermissions> {
