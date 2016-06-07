@@ -1,4 +1,5 @@
 "use strict";
+var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
 var chai = require('chai');
 var chai_1 = require('chai');
@@ -12,15 +13,8 @@ describe('TeamMember', function () {
         var user1;
         var user2;
         var team1;
-        function clearTables() {
-            return teamMember_1.TeamMembers.clearAll()
-                .then(function () { return Promise.all([
-                user_1.Users.clearAll(),
-                team_1.Teams.clearAll()
-            ]); });
-        }
         beforeEach(function () {
-            return clearTables()
+            return environmentCleaner_1.EnvironmentCleaner.clearTables()
                 .then(function () { return Promise.all([
                 new user_1.User(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1)).save(),
                 new user_1.User(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2)).save(),
@@ -33,7 +27,7 @@ describe('TeamMember', function () {
             });
         });
         afterEach(function () {
-            return clearTables();
+            return environmentCleaner_1.EnvironmentCleaner.clearTables();
         });
         it('create without any fields should return error', function () {
             var teamMember = new teamMember_1.TeamMember();

@@ -1,3 +1,4 @@
+import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {ModelInfoComparers} from "../testUtils/modelInfoComparers";
 import {ModelVerificator} from "../testUtils/modelVerificator";
 import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
@@ -23,23 +24,12 @@ chai.use(chaiAsPromised);
 
 describe('userDataHandler', () => {
 
-  function clearTables(): Promise<any> {
-    return Promise.all([
-      UsersGlobalPermissions.clearAll(),
-      TeamMembers.clearAll()
-    ]).then(() =>
-      Promise.all([
-        Users.clearAll(),
-        Teams.clearAll()
-      ]));
-  }
-
   beforeEach(() => {
-    return clearTables();
+    return EnvironmentCleaner.clearTables();
   });
 
   afterEach(() => {
-    return clearTables();
+    return EnvironmentCleaner.clearTables();
   });
 
   function verifyUserGlobalPermissionsAsync(actualPermissionsPromise: Promise<GlobalPermission[]>,
@@ -56,24 +46,6 @@ describe('userDataHandler', () => {
     var expectedOrdered: GlobalPermission[] = expected.sort();
 
     expect(actualOrdered).to.deep.equal(expectedOrdered);
-  }
-
-  function addUserPermissions(user: User, permissions: GlobalPermission[]): Promise<any> {
-    var permissionPromises: Promise<UserGlobalPermissions>[] = [];
-
-    permissions.forEach((permission: GlobalPermission) => {
-      var newPermission: IUserGlobalPermissions = {
-        user_id: user.id,
-        global_permissions: GlobalPermission[permission]
-      }
-
-      var newPermissionPromise: Promise<UserGlobalPermissions> =
-        new UserGlobalPermissions(newPermission).save();
-
-      permissionPromises.push(newPermissionPromise);
-    });
-
-    return Promise.all(permissionPromises);
   }
 
   describe('createUser', () => {
@@ -95,7 +67,7 @@ describe('userDataHandler', () => {
     it('no such user should return null', () => {
       // Act
       var userPromise: Promise<User> =
-        UserDataHandler.getUser('not existing user');
+        UserDataHandler.getUser(99999);
 
       // Assert
       return expect(userPromise).to.eventually.null;
@@ -109,7 +81,7 @@ describe('userDataHandler', () => {
 
       // Act
       var getUserPromise: Promise<User> =
-        createUserPromise.then(() => UserDataHandler.getUser(userInfo.username));
+        createUserPromise.then((user: User) => UserDataHandler.getUser(user.id));
 
       // Assert
       return ModelVerificator.verifyModelInfoAsync(getUserPromise, userInfo);
@@ -161,7 +133,7 @@ describe('userDataHandler', () => {
     it('no such user should return empty permissions list', () => {
       // Act
       var permissionsPromise: Promise<GlobalPermission[]> =
-        UserDataHandler.getUserGlobalPermissions('not existing username');
+        UserDataHandler.getUserGlobalPermissions(999999);
 
       // Assert
       var expectedPermissions: GlobalPermission[] = [];
@@ -176,7 +148,7 @@ describe('userDataHandler', () => {
 
       // Act
       var permissionsPromise: Promise<GlobalPermission[]> =
-        createUserPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+        createUserPromise.then((user: User) => UserDataHandler.getUserGlobalPermissions(user.id));
 
       // Assert
       var expectedPermissions: GlobalPermission[] = [];
@@ -193,13 +165,21 @@ describe('userDataHandler', () => {
           GlobalPermission.SKILLS_LIST_ADMIN
         ];
 
-      var createUserPromise: Promise<User> = UserDataHandler.createUser(userInfo);
-      var addUserPermissionsPromise: Promise<void> =
-        createUserPromise.then((user: User) => addUserPermissions(user, permissions));
+      var user: User;
+      var createUserPromise: Promise<User> =
+        UserDataHandler.createUser(userInfo)
+          .then((_user: User) => {
+            user = _user;
+            return _user;
+          });
+
+      var addUserPermissionsPromise: Promise<any> =
+        createUserPromise.then(() =>
+          UserDataHandler.addGlobalPermissions(user.id, permissions));
 
       // Act
       var permissionsPromise: Promise<GlobalPermission[]> =
-        createUserPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+        addUserPermissionsPromise.then(() => UserDataHandler.getUserGlobalPermissions(user.id));
 
       // Assert
       return verifyUserGlobalPermissionsAsync(permissionsPromise, permissions);
@@ -223,15 +203,20 @@ describe('userDataHandler', () => {
 
       var createUserPromise1: Promise<User> = UserDataHandler.createUser(userInfo1);
       var createUserPromise2: Promise<User> = UserDataHandler.createUser(userInfo2);
+
+      var user1: User;
       var addUserPermissionsPromise1: Promise<void> =
-        createUserPromise1.then((user: User) => addUserPermissions(user, permissions1));
-      var addUserPermissionsPromise2: Promise<void> =
-        createUserPromise2.then((user: User) => addUserPermissions(user, permissions2));
+        createUserPromise1.then((user: User) => {
+          user1 = user;
+          UserDataHandler.addGlobalPermissions(user.id, permissions1)
+        });
+      var addUserPermissionsPromise2: Promise<any> =
+        createUserPromise2.then((user: User) => UserDataHandler.addGlobalPermissions(user.id, permissions2));
 
       // Act
       var permissionsPromise: Promise<GlobalPermission[]> =
         Promise.all([addUserPermissionsPromise1, addUserPermissionsPromise2])
-          .then(() => UserDataHandler.getUserGlobalPermissions(userInfo1.username));
+          .then(() => UserDataHandler.getUserGlobalPermissions(user1.id));
 
       // Assert
       return verifyUserGlobalPermissionsAsync(permissionsPromise, permissions1);
@@ -255,15 +240,20 @@ describe('userDataHandler', () => {
 
       var createUserPromise1: Promise<User> = UserDataHandler.createUser(userInfo1);
       var createUserPromise2: Promise<User> = UserDataHandler.createUser(userInfo2);
-      var addUserPermissionsPromise1: Promise<void> =
-        createUserPromise1.then((user: User) => addUserPermissions(user, permissions1));
+      var addUserPermissionsPromise1: Promise<any> =
+        createUserPromise1.then((user: User) => UserDataHandler.addGlobalPermissions(user.id, permissions1));
+
+      var user2: User;
       var addUserPermissionsPromise2: Promise<void> =
-        createUserPromise2.then((user: User) => addUserPermissions(user, permissions2));
+        createUserPromise2.then((user: User) => {
+          user2 = user;
+          UserDataHandler.addGlobalPermissions(user.id, permissions2)
+        });
 
       // Act
       var permissionsPromise: Promise<GlobalPermission[]> =
         Promise.all([addUserPermissionsPromise1, addUserPermissionsPromise2])
-          .then(() => UserDataHandler.getUserGlobalPermissions(userInfo2.username));
+          .then(() => UserDataHandler.getUserGlobalPermissions(user2.id));
 
       // Assert
       return verifyUserGlobalPermissionsAsync(permissionsPromise, permissions2);
@@ -331,7 +321,7 @@ describe('userDataHandler', () => {
     it('no such user should return empty teams list', () => {
       // Act
       var teamsPromise: Promise<ITeamOfAUser[]> =
-        UserDataHandler.getTeams('not existing username');
+        UserDataHandler.getTeams(999999);
 
       // Assert
       return expect(teamsPromise).to.eventually.deep.equal([]);
@@ -340,7 +330,7 @@ describe('userDataHandler', () => {
     it('user exists but has no teams should return empty teams list', () => {
       // Act
       var teamsPromise: Promise<ITeamOfAUser[]> =
-        UserDataHandler.getTeams(userInfo1.username);
+        UserDataHandler.getTeams(user1.id);
 
       // Assert
       return expect(teamsPromise).to.eventually.deep.equal([]);
@@ -360,7 +350,7 @@ describe('userDataHandler', () => {
 
       // Act
       var teamsPromise: Promise<Team[]> =
-        addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username))
+        addTeamsPromise.then(() => UserDataHandler.getTeams(user1.id))
           .then((teamsOfAUser: ITeamOfAUser[]) => {
             return _.map(teamsOfAUser, _ => _.team);
           });
@@ -391,7 +381,7 @@ describe('userDataHandler', () => {
 
       // Act
       var teamsPromise: Promise<ITeamOfAUser[]> =
-        addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username));
+        addTeamsPromise.then(() => UserDataHandler.getTeams(user1.id));
 
       // Assert
       var expectedTeamAdminSettings: ITeamIdToIsAdmin[] =
@@ -420,7 +410,7 @@ describe('userDataHandler', () => {
 
       // Act
       var teamsPromise: Promise<Team[]> =
-        addTeamsPromise.then(() => UserDataHandler.getTeams(userInfo1.username))
+        addTeamsPromise.then(() => UserDataHandler.getTeams(user1.id))
           .then((teamsOfAUser: ITeamOfAUser[]) => {
             return _.map(teamsOfAUser, _ => _.team);
           });
@@ -458,11 +448,11 @@ describe('userDataHandler', () => {
 
       // Act
       var addPermissionPromise: Promise<any> =
-        UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd);
+        UserDataHandler.addGlobalPermissions(user.id, permissionsToAdd);
 
       // Assert
       var actualPermissionsPromise: Promise<GlobalPermission[]> =
-        addPermissionPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+        addPermissionPromise.then(() => UserDataHandler.getUserGlobalPermissions(user.id));
 
       return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, permissionsToAdd);
     });
@@ -482,11 +472,11 @@ describe('userDataHandler', () => {
 
       // Act
       var addPermissionPromise: Promise<any> =
-        UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd);
+        UserDataHandler.addGlobalPermissions(user.id, permissionsToAdd);
 
       // Assert
       var actualPermissionsPromise: Promise<GlobalPermission[]> =
-        addPermissionPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+        addPermissionPromise.then(() => UserDataHandler.getUserGlobalPermissions(user.id));
 
       var expectedPermissions =
         [
@@ -506,12 +496,12 @@ describe('userDataHandler', () => {
 
       // Act
       var addPermissionPromise: Promise<any> =
-        UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd)
-          .then(() => UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd));
+        UserDataHandler.addGlobalPermissions(user.id, permissionsToAdd)
+          .then(() => UserDataHandler.addGlobalPermissions(user.id, permissionsToAdd));
 
       // Assert
       var actualPermissionsPromise: Promise<GlobalPermission[]> =
-        addPermissionPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+        addPermissionPromise.then(() => UserDataHandler.getUserGlobalPermissions(user.id));
 
       return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, permissionsToAdd);
     });
@@ -526,8 +516,8 @@ describe('userDataHandler', () => {
 
       // Act
       var addPermissionPromise: Promise<any> =
-        UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd)
-          .then(() => UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd));
+        UserDataHandler.addGlobalPermissions(user.id, permissionsToAdd)
+          .then(() => UserDataHandler.addGlobalPermissions(user.id, permissionsToAdd));
 
       // Assert
       return expect(addPermissionPromise).to.eventually.fulfilled;
@@ -543,7 +533,7 @@ describe('userDataHandler', () => {
 
       // Act
       var addPermissionPromise: Promise<any> =
-        UserDataHandler.addGlobalPermissions('not existing username', permissionsToAdd);
+        UserDataHandler.addGlobalPermissions(999999, permissionsToAdd);
 
       // Assert
       return expect(addPermissionPromise).to.eventually.rejected;
@@ -558,7 +548,7 @@ describe('userDataHandler', () => {
         ];
 
       var existingPermissionsPromise: Promise<any> =
-        UserDataHandler.addGlobalPermissions(userInfo.username, existingPermissions);
+        UserDataHandler.addGlobalPermissions(user.id, existingPermissions);
 
       var permissionsToAdd =
         [
@@ -569,11 +559,11 @@ describe('userDataHandler', () => {
       // Act
       var addPermissionPromise: Promise<any> =
         existingPermissionsPromise
-          .then(() => UserDataHandler.addGlobalPermissions(userInfo.username, permissionsToAdd));
+          .then(() => UserDataHandler.addGlobalPermissions(user.id, permissionsToAdd));
 
       // Assert
       var actualPermissionsPromise: Promise<GlobalPermission[]> =
-        addPermissionPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+        addPermissionPromise.then(() => UserDataHandler.getUserGlobalPermissions(user.id));
 
       var expectedPermissions: GlobalPermission[] = _.union(existingPermissions, permissionsToAdd);
       return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, expectedPermissions);
@@ -605,7 +595,7 @@ describe('userDataHandler', () => {
 
       // Act
       var removePermissionsPromise: Promise<any> =
-        UserDataHandler.removeGlobalPermissions(userInfo.username, permissionsToRemove);
+        UserDataHandler.removeGlobalPermissions(user.id, permissionsToRemove);
 
       // Assert
       return expect(removePermissionsPromise).to.eventually.fulfilled;
@@ -620,16 +610,16 @@ describe('userDataHandler', () => {
         ];
 
       var existingPermissionsPromise: Promise<any> =
-        UserDataHandler.addGlobalPermissions(userInfo.username, existingPermissions);
+        UserDataHandler.addGlobalPermissions(user.id, existingPermissions);
 
       // Act
       var removePermissionsPromise: Promise<any> =
         existingPermissionsPromise
-          .then(() => UserDataHandler.removeGlobalPermissions(userInfo.username, existingPermissions));
+          .then(() => UserDataHandler.removeGlobalPermissions(user.id, existingPermissions));
 
       // Assert
       var actualPermissionsPromise: Promise<GlobalPermission[]> =
-        removePermissionsPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+        removePermissionsPromise.then(() => UserDataHandler.getUserGlobalPermissions(user.id));
 
       return expect(actualPermissionsPromise).to.eventually.deep.equal([]);
     });
@@ -645,7 +635,7 @@ describe('userDataHandler', () => {
         ];
 
       var existingPermissionsPromise: Promise<any> =
-        UserDataHandler.addGlobalPermissions(userInfo.username, existingPermissions);
+        UserDataHandler.addGlobalPermissions(user.id, existingPermissions);
 
       var permissionsToRemove =
         [
@@ -656,11 +646,11 @@ describe('userDataHandler', () => {
       // Act
       var removePermissionsPromise: Promise<any> =
         existingPermissionsPromise
-          .then(() => UserDataHandler.removeGlobalPermissions(userInfo.username, permissionsToRemove));
+          .then(() => UserDataHandler.removeGlobalPermissions(user.id, permissionsToRemove));
 
       // Assert
       var actualPermissionsPromise: Promise<GlobalPermission[]> =
-        removePermissionsPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+        removePermissionsPromise.then(() => UserDataHandler.getUserGlobalPermissions(user.id));
 
       var expectedPermissions =
         [
@@ -681,7 +671,7 @@ describe('userDataHandler', () => {
         ];
 
       var existingPermissionsPromise: Promise<any> =
-        UserDataHandler.addGlobalPermissions(userInfo.username, existingPermissions);
+        UserDataHandler.addGlobalPermissions(user.id, existingPermissions);
 
       var permissionsToRemove =
         [
@@ -698,11 +688,11 @@ describe('userDataHandler', () => {
       // Act
       var removePermissionsPromise: Promise<any> =
         existingPermissionsPromise
-          .then(() => UserDataHandler.removeGlobalPermissions(userInfo.username, permissionsToRemove));
+          .then(() => UserDataHandler.removeGlobalPermissions(user.id, permissionsToRemove));
 
       // Assert
       var actualPermissionsPromise: Promise<GlobalPermission[]> =
-        removePermissionsPromise.then(() => UserDataHandler.getUserGlobalPermissions(userInfo.username));
+        removePermissionsPromise.then(() => UserDataHandler.getUserGlobalPermissions(user.id));
 
       var expectedPermissions =
         [
@@ -722,7 +712,7 @@ describe('userDataHandler', () => {
 
       // Act
       var addPermissionPromise: Promise<any> =
-        UserDataHandler.removeGlobalPermissions('not existing username', permissionsToRemove);
+        UserDataHandler.removeGlobalPermissions(999999, permissionsToRemove);
 
       // Assert
       return expect(addPermissionPromise).to.eventually.rejected;

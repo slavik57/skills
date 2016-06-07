@@ -1,4 +1,5 @@
 "use strict";
+var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
@@ -8,8 +9,7 @@ describe('User', function () {
     describe('new', function () {
         var validUserInfo1;
         var validUserInfo2;
-        beforeEach(function (done) {
-            user_1.Users.clearAll().then(function () { return done(); });
+        beforeEach(function () {
             validUserInfo1 = {
                 username: 'slavik57',
                 password_hash: 'some hash',
@@ -24,9 +24,10 @@ describe('User', function () {
                 firstName: 'Slava2',
                 lastName: 'Shp2',
             };
+            return environmentCleaner_1.EnvironmentCleaner.clearTables();
         });
-        afterEach(function (done) {
-            user_1.Users.clearAll().then(function () { return done(); });
+        afterEach(function () {
+            environmentCleaner_1.EnvironmentCleaner.clearTables();
         });
         it('create user with empty fields - should return error', function () {
             var user = new user_1.User();

@@ -1,3 +1,4 @@
+import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {ModelInfoComparers} from "../testUtils/modelInfoComparers";
 import {ModelVerificator} from "../testUtils/modelVerificator";
 import {TeamSkillUpvotes} from "../models/teamSkillUpvote";
@@ -27,24 +28,12 @@ chai.use(chaiAsPromised);
 
 describe('TeamsDataHandler', () => {
 
-  function clearTables(): Promise<any> {
-    return TeamSkillUpvotes.clearAll()
-      .then(() => Promise.all([
-        TeamMembers.clearAll(),
-        TeamSkills.clearAll()
-      ])).then(() => Promise.all([
-        Teams.clearAll(),
-        Users.clearAll(),
-        Skills.clearAll()
-      ]));
-  }
-
   beforeEach(() => {
-    return clearTables();
+    return EnvironmentCleaner.clearTables();
   });
 
   afterEach(() => {
-    return clearTables();
+    return EnvironmentCleaner.clearTables();
   });
 
   describe('createTeam', () => {

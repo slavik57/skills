@@ -1,4 +1,5 @@
 "use strict";
+var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
@@ -15,10 +16,10 @@ describe('Team', function () {
             validTeamInfo2 = {
                 name: 'team name 2'
             };
-            return team_1.Teams.clearAll();
+            return environmentCleaner_1.EnvironmentCleaner.clearTables();
         });
         afterEach(function () {
-            return team_1.Teams.clearAll();
+            return environmentCleaner_1.EnvironmentCleaner.clearTables();
         });
         it('create team with empty fields - should return error', function () {
             var skill = new team_1.Team();

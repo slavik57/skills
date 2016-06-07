@@ -1,12 +1,9 @@
 "use strict";
+var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var userDataHandler_1 = require("../dataHandlers/userDataHandler");
 var teamsDataHandler_1 = require("../dataHandlers/teamsDataHandler");
 var skillsDataHandler_1 = require("../dataHandlers/skillsDataHandler");
 var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
-var user_1 = require("./user");
-var teamSkill_1 = require("./teamSkill");
-var team_1 = require("./team");
-var skill_1 = require("./skill");
 var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
@@ -19,17 +16,8 @@ describe('TeamSkillUpvote', function () {
         var user1;
         var user2;
         var teamSkill;
-        function clearTables() {
-            return teamSkillUpvote_1.TeamSkillUpvotes.clearAll()
-                .then(function () { return teamSkill_1.TeamSkills.clearAll(); })
-                .then(function () { return Promise.all([
-                skill_1.Skills.clearAll(),
-                team_1.Teams.clearAll(),
-                user_1.Users.clearAll()
-            ]); });
-        }
         beforeEach(function () {
-            return clearTables()
+            return environmentCleaner_1.EnvironmentCleaner.clearTables()
                 .then(function () { return Promise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill1')),
                 teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1')),
@@ -46,7 +34,7 @@ describe('TeamSkillUpvote', function () {
             });
         });
         afterEach(function () {
-            return clearTables();
+            return environmentCleaner_1.EnvironmentCleaner.clearTables();
         });
         it('create without any fields should return error', function () {
             var teamSkillUpvote = new teamSkillUpvote_1.TeamSkillUpvote();

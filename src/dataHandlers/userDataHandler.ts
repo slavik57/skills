@@ -2,7 +2,7 @@ import {IUserInfo} from "../models/interfaces/iUserInfo";
 import {GlobalPermission} from "../models/enums/globalPermission";
 import {User, Users} from '../models/user';
 import {UserGlobalPermissions, UsersGlobalPermissions} from '../models/usersGlobalPermissions';
-import {Collection} from 'bookshelf';
+import {Collection, FetchOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as _ from 'lodash';
 import {Team, Teams} from '../models/team';
@@ -21,49 +21,42 @@ export class UserDataHandler {
       });
   }
 
-  public static addGlobalPermissions(username: string, permissionsToAdd: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
-    return bookshelf.transaction(() => this._addGlobalPermissionInternal(username, permissionsToAdd));
+  public static addGlobalPermissions(userId: number, permissionsToAdd: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
+    return bookshelf.transaction(() => this._addGlobalPermissionInternal(userId, permissionsToAdd));
   }
 
-  public static removeGlobalPermissions(username: string, permissionsToRemove: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
-    return bookshelf.transaction(() => this._removeGlobalPermissionInternal(username, permissionsToRemove));
+  public static removeGlobalPermissions(userId: number, permissionsToRemove: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
+    return bookshelf.transaction(() => this._removeGlobalPermissionInternal(userId, permissionsToRemove));
   }
 
-  public static getUserGlobalPermissions(username: string): Promise<GlobalPermission[]> {
-    return this._fetchUserGlobalPermissionsByUsername(username)
+  public static getUserGlobalPermissions(userId: number): Promise<GlobalPermission[]> {
+    return this._fetchUserGlobalPermissions(userId)
       .then((usersGlobalPermissions: Collection<UserGlobalPermissions>) => {
         return this._convertPermissionsCollectionsToGlobalPermissions(usersGlobalPermissions);
       });
   }
 
-  public static getTeams(userName: string): Promise<ITeamOfAUser[]> {
-    return this.getUser(userName)
-      .then((user: User) => this._fetchUserTeams(user));
+  public static getTeams(userId: number): Promise<ITeamOfAUser[]> {
+    var user: User = this._initializeUserByIdQuery(userId);
+
+    return user.getTeams();
   }
 
-  public static getUser(username: string): Promise<User> {
-    return this._buildUserQuery(username).fetch();
+  public static getUser(userId: number): Promise<User> {
+    return this._initializeUserByIdQuery(userId).fetch();
   }
 
-  private static _buildUserQuery(username: string): User {
+  private static _initializeUserByIdQuery(teamId: number): User {
     var queryCondition = {};
-    queryCondition[User.usernameAttribute] = username;
+    queryCondition[User.idAttribute] = teamId;
 
-    return new User()
-      .query({ where: queryCondition });
+    return new User(queryCondition);
   }
 
-  private static _fetchUserGlobalPermissionsByUsername(username: string): Promise<Collection<UserGlobalPermissions>> {
-    return this.getUser(username)
-      .then((user: User) => this._fetchUserGlobalPermissions(user));
-  }
+  private static _fetchUserGlobalPermissions(userId: number): Promise<Collection<UserGlobalPermissions>> {
+    var user: User = this._initializeUserByIdQuery(userId);
 
-  private static _fetchUserGlobalPermissions(user: User): Promise<Collection<UserGlobalPermissions>> {
-    if (!user) {
-      return Promise.resolve(new UsersGlobalPermissions());
-    }
-
-    return user.getGlobalPermissions().fetch();
+    return user.globalPermissions().fetch();
   }
 
   private static _convertPermissionsCollectionsToGlobalPermissions(usersGlobalPermissions: Collection<UserGlobalPermissions>): GlobalPermission[] {
@@ -72,37 +65,38 @@ export class UserDataHandler {
     return _.map(permissions, _ => GlobalPermission[_.attributes.global_permissions]);
   }
 
-  private static _fetchUserTeams(user: User): Promise<ITeamOfAUser[]> {
-    if (!user) {
-      return Promise.resolve([]);
-    }
+  private static _addGlobalPermissionInternal(userId: number, permissionsToAdd: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
+    var fetchOptions: FetchOptions = {
+      withRelated: [User.relatedUserGlobalPermissionsAttribute],
+      require: false
+    };
 
-    return user.getTeams();
-  }
-
-  private static _addGlobalPermissionInternal(username: string, permissionsToAdd: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
-    var userPromise: Promise<User> = this.getUser(username);
-    var permissionsPromise: Promise<Collection<UserGlobalPermissions>> =
-      userPromise.then((user: User) => this._fetchUserGlobalPermissions(user));
-
-    return Promise.all([userPromise, permissionsPromise])
-      .then((results: any[]) => {
-        var user: User = results[0];
+    return this._initializeUserByIdQuery(userId)
+      .fetch(fetchOptions)
+      .then((user: User) => {
         if (!user) {
-          return Promise.reject('User [' + username + '] does not exist');
+          return Promise.reject('User does not exist');
         }
 
-        var existingPermissionsCollection: Collection<UserGlobalPermissions> = results[1];
+        var existingPermissionsCollection: Collection<UserGlobalPermissions> = user.relations.globalPermissions;
 
-        return this._addNotExistingGlobalPermissions(user.id, existingPermissionsCollection, permissionsToAdd);
+        return this._addNotExistingGlobalPermissions(user.id,
+          existingPermissionsCollection,
+          permissionsToAdd);
       });
   }
 
-  private static _removeGlobalPermissionInternal(username: string, permissionsToRemove: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
-    return this.getUser(username)
+  private static _removeGlobalPermissionInternal(userId: number, permissionsToRemove: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
+    var user: User = this._initializeUserByIdQuery(userId);
+
+    var fetchOptions: FetchOptions = {
+      require: false
+    };
+
+    return user.fetch(fetchOptions)
       .then((user: User) => {
         if (!user) {
-          return Promise.reject('User [' + username + '] does not exist');
+          return Promise.reject('User does not exist');
         }
 
         var permissionsToDeteleQuery: IUserGlobalPermissions[] =

@@ -1,3 +1,4 @@
+import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {IUserInfo} from "./interfaces/iUserInfo";
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -12,9 +13,7 @@ describe('User', () => {
     var validUserInfo1: IUserInfo;
     var validUserInfo2: IUserInfo;
 
-    beforeEach((done: Function) => {
-      Users.clearAll().then(() => done());
-
+    beforeEach(() => {
       validUserInfo1 = {
         username: 'slavik57',
         password_hash: 'some hash',
@@ -30,10 +29,12 @@ describe('User', () => {
         firstName: 'Slava2',
         lastName: 'Shp2',
       };
+
+      return EnvironmentCleaner.clearTables();
     });
 
-    afterEach((done: Function) => {
-      Users.clearAll().then(() => done());
+    afterEach(() => {
+      EnvironmentCleaner.clearTables();
     });
 
     it('create user with empty fields - should return error', () => {

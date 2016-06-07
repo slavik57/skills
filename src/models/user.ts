@@ -1,3 +1,5 @@
+import {IUserRelations} from "./interfaces/iUserRelations";
+import {ModelBase} from "./modelBase";
 import {IHasPivot} from "./interfaces/iHasPivot";
 import {Model, Collection, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
@@ -11,13 +13,15 @@ import {TeamMember} from './teamMember';
 import {ITeamOfAUser} from './interfaces/iTeamOfAUser';
 import {IUserInfo} from './interfaces/iUserInfo';
 
-export class User extends bookshelf.Model<User> implements IHasPivot<TeamMember> {
+export class User extends ModelBase<User, IUserInfo> implements IHasPivot<TeamMember> {
   public attributes: IUserInfo;
   public pivot: TeamMember;
+  public relations: IUserRelations;
 
   public get tableName(): string { return 'users'; }
   public get idAttribute(): string { return 'id'; }
   public static get usernameAttribute(): string { return 'username'; }
+  public static get relatedUserGlobalPermissionsAttribute(): string { return 'globalPermissions'; }
 
   public initialize(): void {
     this.on('saving', (user: User) => this._validateUser(user));
@@ -47,7 +51,7 @@ export class User extends bookshelf.Model<User> implements IHasPivot<TeamMember>
     return Promise.resolve(true);
   }
 
-  public getGlobalPermissions(): Collection<UserGlobalPermissions> {
+  public globalPermissions(): Collection<UserGlobalPermissions> {
     return this.hasMany(UserGlobalPermissions, UserGlobalPermissions.userIdAttribute);
   }
 

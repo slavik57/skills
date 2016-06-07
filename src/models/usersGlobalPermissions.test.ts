@@ -1,3 +1,4 @@
+import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {GlobalPermission} from "./enums/globalPermission";
 import {IUserGlobalPermissions} from "./interfaces/iUserGlobalPermissions";
 import {IUserInfo} from "./interfaces/iUserInfo";
@@ -15,11 +16,6 @@ describe('UserGlobalPermissions', () => {
     var validUserInfo: IUserInfo;
     var validUserGlobalPermissions: IUserGlobalPermissions;
 
-    function clearTables(): Promise<any> {
-      return UsersGlobalPermissions.clearAll()
-        .then(() => Users.clearAll());
-    }
-
     beforeEach(() => {
       validUserInfo = {
         username: 'slavik57',
@@ -29,7 +25,7 @@ describe('UserGlobalPermissions', () => {
         lastName: 'Shp'
       };
 
-      return clearTables()
+      return EnvironmentCleaner.clearTables()
         .then(() => new User(validUserInfo).save())
         .then((user: User) => {
           validUserGlobalPermissions = {
@@ -40,7 +36,7 @@ describe('UserGlobalPermissions', () => {
     });
 
     afterEach(() => {
-      return clearTables();
+      return EnvironmentCleaner.clearTables();
     });
 
     it('create without any fields should return error', () => {

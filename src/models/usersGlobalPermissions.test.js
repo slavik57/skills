@@ -1,4 +1,5 @@
 "use strict";
+var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var globalPermission_1 = require("./enums/globalPermission");
 var chai = require('chai');
 var chai_1 = require('chai');
@@ -10,10 +11,6 @@ describe('UserGlobalPermissions', function () {
     describe('new', function () {
         var validUserInfo;
         var validUserGlobalPermissions;
-        function clearTables() {
-            return usersGlobalPermissions_1.UsersGlobalPermissions.clearAll()
-                .then(function () { return user_1.Users.clearAll(); });
-        }
         beforeEach(function () {
             validUserInfo = {
                 username: 'slavik57',
@@ -22,7 +19,7 @@ describe('UserGlobalPermissions', function () {
                 firstName: 'Slava',
                 lastName: 'Shp'
             };
-            return clearTables()
+            return environmentCleaner_1.EnvironmentCleaner.clearTables()
                 .then(function () { return new user_1.User(validUserInfo).save(); })
                 .then(function (user) {
                 validUserGlobalPermissions = {
@@ -32,7 +29,7 @@ describe('UserGlobalPermissions', function () {
             });
         });
         afterEach(function () {
-            return clearTables();
+            return environmentCleaner_1.EnvironmentCleaner.clearTables();
         });
         it('create without any fields should return error', function () {
             var permissions = new usersGlobalPermissions_1.UserGlobalPermissions();

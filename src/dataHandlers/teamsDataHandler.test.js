@@ -1,38 +1,22 @@
 "use strict";
+var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var modelInfoComparers_1 = require("../testUtils/modelInfoComparers");
 var modelVerificator_1 = require("../testUtils/modelVerificator");
-var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
 var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
 var skillsDataHandler_1 = require("./skillsDataHandler");
-var skill_1 = require("../models/skill");
 var chai = require('chai');
 var chai_1 = require('chai');
 var _ = require('lodash');
 var chaiAsPromised = require('chai-as-promised');
-var team_1 = require('../models/team');
-var teamMember_1 = require('../models/teamMember');
-var user_1 = require('../models/user');
 var teamsDataHandler_1 = require('./teamsDataHandler');
 var userDataHandler_1 = require('./userDataHandler');
-var teamSkill_1 = require('../models/teamSkill');
 chai.use(chaiAsPromised);
 describe('TeamsDataHandler', function () {
-    function clearTables() {
-        return teamSkillUpvote_1.TeamSkillUpvotes.clearAll()
-            .then(function () { return Promise.all([
-            teamMember_1.TeamMembers.clearAll(),
-            teamSkill_1.TeamSkills.clearAll()
-        ]); }).then(function () { return Promise.all([
-            team_1.Teams.clearAll(),
-            user_1.Users.clearAll(),
-            skill_1.Skills.clearAll()
-        ]); });
-    }
     beforeEach(function () {
-        return clearTables();
+        return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
     afterEach(function () {
-        return clearTables();
+        return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
     describe('createTeam', function () {
         it('should create a team correctly', function () {

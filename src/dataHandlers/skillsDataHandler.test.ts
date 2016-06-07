@@ -1,3 +1,4 @@
+import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {ModelInfoComparers} from "../testUtils/modelInfoComparers";
 import {ModelVerificator} from "../testUtils/modelVerificator";
 import {ModelInfoVerificator} from "../testUtils/modelInfoVerificator";
@@ -27,24 +28,12 @@ chai.use(chaiAsPromised);
 
 describe('SkillsDataHandler', () => {
 
-  function clearTables(): Promise<any> {
-    return TeamSkillUpvotes.clearAll()
-      .then(() => Promise.all([
-        SkillPrerequisites.clearAll(),
-        TeamSkills.clearAll()
-      ])).then(() => Promise.all([
-        Skills.clearAll(),
-        Teams.clearAll(),
-        Users.clearAll()
-      ]));
-  }
-
   beforeEach(() => {
-    return clearTables();
+    return EnvironmentCleaner.clearTables();
   });
 
   afterEach(() => {
-    return clearTables();
+    return EnvironmentCleaner.clearTables();
   });
 
   describe('createSkill', () => {

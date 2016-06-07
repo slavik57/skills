@@ -1,3 +1,4 @@
+import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {ITeamInfo} from "./interfaces/iTeamInfo";
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -22,11 +23,11 @@ describe('Team', () => {
         name: 'team name 2'
       };
 
-      return Teams.clearAll();
+      return EnvironmentCleaner.clearTables();
     });
 
     afterEach(() => {
-      return Teams.clearAll();
+      return EnvironmentCleaner.clearTables();
     });
 
     it('create team with empty fields - should return error', () => {

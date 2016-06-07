@@ -1,3 +1,4 @@
+import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {ISkillPrerequisiteInfo} from "./interfaces/iSkillPrerequisiteInfo";
 import {ISkillInfo} from "./interfaces/iSkillInfo";
 import * as chai from 'chai';
@@ -18,11 +19,6 @@ describe('SkillPrerequisite', () => {
 
     var validSkillPrerequisiteInfo: ISkillPrerequisiteInfo;
 
-    function clearTables(): Promise<any> {
-      return SkillPrerequisites.clearAll()
-        .then(() => Skills.clearAll());
-    }
-
     beforeEach(() => {
       validSkillInfo1 = {
         name: 'skill name 1'
@@ -32,7 +28,7 @@ describe('SkillPrerequisite', () => {
         name: 'skill name 2'
       };
 
-      return clearTables()
+      return EnvironmentCleaner.clearTables()
         .then(() => Promise.all([
           new Skill(validSkillInfo1).save(),
           new Skill(validSkillInfo2).save()
@@ -49,7 +45,7 @@ describe('SkillPrerequisite', () => {
     });
 
     afterEach(() => {
-      return clearTables();
+      return EnvironmentCleaner.clearTables();
     });
 
     it('create without any fields should return error', () => {

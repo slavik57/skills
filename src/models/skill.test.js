@@ -1,4 +1,5 @@
 "use strict";
+var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
@@ -15,10 +16,10 @@ describe('Skill', function () {
             validSkillInfo2 = {
                 name: 'skill name 2'
             };
-            return skill_1.Skills.clearAll();
+            return environmentCleaner_1.EnvironmentCleaner.clearTables();
         });
         afterEach(function () {
-            return skill_1.Skills.clearAll();
+            return environmentCleaner_1.EnvironmentCleaner.clearTables();
         });
         it('create skill with empty fields - should return error', function () {
             var skill = new skill_1.Skill();

@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var modelBase_1 = require("./modelBase");
 var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
 var validator = require('validator');
@@ -32,6 +33,11 @@ var User = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(User, "relatedUserGlobalPermissionsAttribute", {
+        get: function () { return 'globalPermissions'; },
+        enumerable: true,
+        configurable: true
+    });
     User.prototype.initialize = function () {
         var _this = this;
         this.on('saving', function (user) { return _this._validateUser(user); });
@@ -54,7 +60,7 @@ var User = (function (_super) {
         }
         return Promise.resolve(true);
     };
-    User.prototype.getGlobalPermissions = function () {
+    User.prototype.globalPermissions = function () {
         return this.hasMany(usersGlobalPermissions_1.UserGlobalPermissions, usersGlobalPermissions_1.UserGlobalPermissions.userIdAttribute);
     };
     User.prototype.getTeams = function () {
@@ -77,7 +83,7 @@ var User = (function (_super) {
         };
     };
     return User;
-}(bookshelf_1.bookshelf.Model));
+}(modelBase_1.ModelBase));
 exports.User = User;
 var Users = (function (_super) {
     __extends(Users, _super);

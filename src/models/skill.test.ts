@@ -1,3 +1,4 @@
+import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {ISkillInfo} from "./interfaces/iSkillInfo";
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -22,11 +23,11 @@ describe('Skill', () => {
         name: 'skill name 2'
       };
 
-      return Skills.clearAll();
+      return EnvironmentCleaner.clearTables();
     });
 
     afterEach(() => {
-      return Skills.clearAll();
+      return EnvironmentCleaner.clearTables();
     });
 
     it('create skill with empty fields - should return error', () => {

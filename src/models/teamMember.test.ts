@@ -1,3 +1,4 @@
+import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
 import {ITeamMemberInfo} from "./interfaces/iTeamMemberInfo";
 import {ITeamInfo} from "./interfaces/iTeamInfo";
@@ -18,16 +19,10 @@ describe('TeamMember', () => {
     var user2: User;
     var team1: Team;
 
-    function clearTables(): Promise<any> {
-      return TeamMembers.clearAll()
-        .then(() => Promise.all([
-          Users.clearAll(),
-          Teams.clearAll()
-        ]));
-    }
+
 
     beforeEach(() => {
-      return clearTables()
+      return EnvironmentCleaner.clearTables()
         .then(() => Promise.all([
           new User(ModelInfoMockFactory.createUserInfo(1)).save(),
           new User(ModelInfoMockFactory.createUserInfo(2)).save(),
@@ -41,7 +36,7 @@ describe('TeamMember', () => {
     });
 
     afterEach(() => {
-      return clearTables();
+      return EnvironmentCleaner.clearTables();
     });
 
     it('create without any fields should return error', () => {

@@ -1,4 +1,5 @@
 "use strict";
+var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
@@ -12,10 +13,6 @@ describe('SkillPrerequisite', function () {
         var skill1;
         var skill2;
         var validSkillPrerequisiteInfo;
-        function clearTables() {
-            return skillPrerequisite_1.SkillPrerequisites.clearAll()
-                .then(function () { return skill_1.Skills.clearAll(); });
-        }
         beforeEach(function () {
             validSkillInfo1 = {
                 name: 'skill name 1'
@@ -23,7 +20,7 @@ describe('SkillPrerequisite', function () {
             validSkillInfo2 = {
                 name: 'skill name 2'
             };
-            return clearTables()
+            return environmentCleaner_1.EnvironmentCleaner.clearTables()
                 .then(function () { return Promise.all([
                 new skill_1.Skill(validSkillInfo1).save(),
                 new skill_1.Skill(validSkillInfo2).save()
@@ -38,7 +35,7 @@ describe('SkillPrerequisite', function () {
             });
         });
         afterEach(function () {
-            return clearTables();
+            return environmentCleaner_1.EnvironmentCleaner.clearTables();
         });
         it('create without any fields should return error', function () {
             var prerequisite = new skillPrerequisite_1.SkillPrerequisite();

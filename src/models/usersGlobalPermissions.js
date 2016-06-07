@@ -37,8 +37,8 @@ var UsersGlobalPermissions = (function (_super) {
     UsersGlobalPermissions.clearAll = function () {
         var promises = [];
         return new UsersGlobalPermissions().fetch().then(function (users) {
-            users.each(function (user) {
-                var promise = user.destroy(null);
+            users.each(function (permission) {
+                var promise = permission.destroy(null);
                 promises.push(promise);
             });
             return Promise.all(promises);

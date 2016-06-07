@@ -1,3 +1,4 @@
+import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {UserDataHandler} from "../dataHandlers/userDataHandler";
 import {TeamsDataHandler} from "../dataHandlers/teamsDataHandler";
 import {SkillsDataHandler} from "../dataHandlers/skillsDataHandler";
@@ -28,18 +29,8 @@ describe('TeamSkillUpvote', () => {
 
     var teamSkill: TeamSkill;
 
-    function clearTables(): Promise<any> {
-      return TeamSkillUpvotes.clearAll()
-        .then(() => TeamSkills.clearAll())
-        .then(() => Promise.all([
-          Skills.clearAll(),
-          Teams.clearAll(),
-          Users.clearAll()
-        ]));
-    }
-
     beforeEach(() => {
-      return clearTables()
+      return EnvironmentCleaner.clearTables()
         .then(() => Promise.all([
           SkillsDataHandler.createSkill(ModelInfoMockFactory.createSkillInfo('skill1')),
           TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1')),
@@ -58,7 +49,7 @@ describe('TeamSkillUpvote', () => {
     });
 
     afterEach(() => {
-      return clearTables();
+      return EnvironmentCleaner.clearTables();
     });
 
     it('create without any fields should return error', () => {

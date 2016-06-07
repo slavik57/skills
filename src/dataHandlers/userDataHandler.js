@@ -16,76 +16,67 @@ var UserDataHandler = (function () {
             return users.toArray();
         });
     };
-    UserDataHandler.addGlobalPermissions = function (username, permissionsToAdd) {
+    UserDataHandler.addGlobalPermissions = function (userId, permissionsToAdd) {
         var _this = this;
-        return bookshelf_1.bookshelf.transaction(function () { return _this._addGlobalPermissionInternal(username, permissionsToAdd); });
+        return bookshelf_1.bookshelf.transaction(function () { return _this._addGlobalPermissionInternal(userId, permissionsToAdd); });
     };
-    UserDataHandler.removeGlobalPermissions = function (username, permissionsToRemove) {
+    UserDataHandler.removeGlobalPermissions = function (userId, permissionsToRemove) {
         var _this = this;
-        return bookshelf_1.bookshelf.transaction(function () { return _this._removeGlobalPermissionInternal(username, permissionsToRemove); });
+        return bookshelf_1.bookshelf.transaction(function () { return _this._removeGlobalPermissionInternal(userId, permissionsToRemove); });
     };
-    UserDataHandler.getUserGlobalPermissions = function (username) {
+    UserDataHandler.getUserGlobalPermissions = function (userId) {
         var _this = this;
-        return this._fetchUserGlobalPermissionsByUsername(username)
+        return this._fetchUserGlobalPermissions(userId)
             .then(function (usersGlobalPermissions) {
             return _this._convertPermissionsCollectionsToGlobalPermissions(usersGlobalPermissions);
         });
     };
-    UserDataHandler.getTeams = function (userName) {
-        var _this = this;
-        return this.getUser(userName)
-            .then(function (user) { return _this._fetchUserTeams(user); });
+    UserDataHandler.getTeams = function (userId) {
+        var user = this._initializeUserByIdQuery(userId);
+        return user.getTeams();
     };
-    UserDataHandler.getUser = function (username) {
-        return this._buildUserQuery(username).fetch();
+    UserDataHandler.getUser = function (userId) {
+        return this._initializeUserByIdQuery(userId).fetch();
     };
-    UserDataHandler._buildUserQuery = function (username) {
+    UserDataHandler._initializeUserByIdQuery = function (teamId) {
         var queryCondition = {};
-        queryCondition[user_1.User.usernameAttribute] = username;
-        return new user_1.User()
-            .query({ where: queryCondition });
+        queryCondition[user_1.User.idAttribute] = teamId;
+        return new user_1.User(queryCondition);
     };
-    UserDataHandler._fetchUserGlobalPermissionsByUsername = function (username) {
-        var _this = this;
-        return this.getUser(username)
-            .then(function (user) { return _this._fetchUserGlobalPermissions(user); });
-    };
-    UserDataHandler._fetchUserGlobalPermissions = function (user) {
-        if (!user) {
-            return Promise.resolve(new usersGlobalPermissions_1.UsersGlobalPermissions());
-        }
-        return user.getGlobalPermissions().fetch();
+    UserDataHandler._fetchUserGlobalPermissions = function (userId) {
+        var user = this._initializeUserByIdQuery(userId);
+        return user.globalPermissions().fetch();
     };
     UserDataHandler._convertPermissionsCollectionsToGlobalPermissions = function (usersGlobalPermissions) {
         var permissions = usersGlobalPermissions.toArray();
         return _.map(permissions, function (_) { return globalPermission_1.GlobalPermission[_.attributes.global_permissions]; });
     };
-    UserDataHandler._fetchUserTeams = function (user) {
-        if (!user) {
-            return Promise.resolve([]);
-        }
-        return user.getTeams();
-    };
-    UserDataHandler._addGlobalPermissionInternal = function (username, permissionsToAdd) {
+    UserDataHandler._addGlobalPermissionInternal = function (userId, permissionsToAdd) {
         var _this = this;
-        var userPromise = this.getUser(username);
-        var permissionsPromise = userPromise.then(function (user) { return _this._fetchUserGlobalPermissions(user); });
-        return Promise.all([userPromise, permissionsPromise])
-            .then(function (results) {
-            var user = results[0];
+        var fetchOptions = {
+            withRelated: [user_1.User.relatedUserGlobalPermissionsAttribute],
+            require: false
+        };
+        return this._initializeUserByIdQuery(userId)
+            .fetch(fetchOptions)
+            .then(function (user) {
             if (!user) {
-                return Promise.reject('User [' + username + '] does not exist');
+                return Promise.reject('User does not exist');
             }
-            var existingPermissionsCollection = results[1];
+            var existingPermissionsCollection = user.relations.globalPermissions;
             return _this._addNotExistingGlobalPermissions(user.id, existingPermissionsCollection, permissionsToAdd);
         });
     };
-    UserDataHandler._removeGlobalPermissionInternal = function (username, permissionsToRemove) {
+    UserDataHandler._removeGlobalPermissionInternal = function (userId, permissionsToRemove) {
         var _this = this;
-        return this.getUser(username)
+        var user = this._initializeUserByIdQuery(userId);
+        var fetchOptions = {
+            require: false
+        };
+        return user.fetch(fetchOptions)
             .then(function (user) {
             if (!user) {
-                return Promise.reject('User [' + username + '] does not exist');
+                return Promise.reject('User does not exist');
             }
             var permissionsToDeteleQuery = _this._createUserGlobalPermissionInfos(user.id, permissionsToRemove);
             var permissionsToDelete = _.map(permissionsToDeteleQuery, function (_info) { return new usersGlobalPermissions_1.UserGlobalPermissions().where(_info); });

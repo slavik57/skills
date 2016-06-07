@@ -18,8 +18,8 @@ export class UsersGlobalPermissions extends bookshelf.Collection<UserGlobalPermi
     var promises: Promise<UserGlobalPermissions>[] = [];
 
     return new UsersGlobalPermissions().fetch().then((users: Collection<UserGlobalPermissions>) => {
-      users.each(user => {
-        var promise: Promise<UserGlobalPermissions> = user.destroy(null);
+      users.each(permission => {
+        var promise: Promise<UserGlobalPermissions> = permission.destroy(null);
         promises.push(promise);
       });
 
