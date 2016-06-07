@@ -43,13 +43,13 @@ describe('TeamsDataHandler', function () {
     });
     describe('getTeam', function () {
         it('no such team should return null', function () {
-            var teamPromise = teamsDataHandler_1.TeamsDataHandler.getTeam('not existing team');
+            var teamPromise = teamsDataHandler_1.TeamsDataHandler.getTeam(9999999);
             return chai_1.expect(teamPromise).to.eventually.null;
         });
         it('team exists should return correct team', function () {
             var teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');
             var createTeamPromose = teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo);
-            var getTeamPromise = createTeamPromose.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeam(teamInfo.name); });
+            var getTeamPromise = createTeamPromose.then(function (team) { return teamsDataHandler_1.TeamsDataHandler.getTeam(team.id); });
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(getTeamPromise, teamInfo);
         });
     });
@@ -112,11 +112,11 @@ describe('TeamsDataHandler', function () {
             });
         });
         it('not existing team should return empty', function () {
-            var teamMembersPromise = teamsDataHandler_1.TeamsDataHandler.getTeamMembers('not existing team');
+            var teamMembersPromise = teamsDataHandler_1.TeamsDataHandler.getTeamMembers(999999);
             return chai_1.expect(teamMembersPromise).to.eventually.deep.equal([]);
         });
         it('no team members should return empty', function () {
-            var teamMembersPromise = teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo1.name);
+            var teamMembersPromise = teamsDataHandler_1.TeamsDataHandler.getTeamMembers(team1.id);
             return chai_1.expect(teamMembersPromise).to.eventually.deep.equal([]);
         });
         it('should return all existing team members', function () {
@@ -126,7 +126,7 @@ describe('TeamsDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo2)
             ]);
-            var usersPromise = createAllTeamMembersPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo1.name); })
+            var usersPromise = createAllTeamMembersPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(team1.id); })
                 .then(function (teamMembers) {
                 return _.map(teamMembers, function (_) { return _.user; });
             });
@@ -145,7 +145,7 @@ describe('TeamsDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo2),
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo3)
             ]);
-            var teamMembersPromise = createAllTeamMembersPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo1.name); });
+            var teamMembersPromise = createAllTeamMembersPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(team1.id); });
             var expectedUserAdminConfigurations = [
                 { userId: teamMemberInfo1.user_id, isAdmin: teamMemberInfo1.is_admin },
                 { userId: teamMemberInfo2.user_id, isAdmin: teamMemberInfo2.is_admin },
@@ -164,7 +164,7 @@ describe('TeamsDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo3),
                 teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo4)
             ]);
-            var usersPromise = createAllTeamMembersPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo1.name); })
+            var usersPromise = createAllTeamMembersPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(team1.id); })
                 .then(function (usersOfATeam) {
                 return _.map(usersOfATeam, function (_) { return _.user; });
             });
@@ -241,11 +241,11 @@ describe('TeamsDataHandler', function () {
             });
         });
         it('not existing team should return empty', function () {
-            var teamSkillsPromise = teamsDataHandler_1.TeamsDataHandler.getTeamSkills('not existing team');
+            var teamSkillsPromise = teamsDataHandler_1.TeamsDataHandler.getTeamSkills(99999);
             return chai_1.expect(teamSkillsPromise).to.eventually.deep.equal([]);
         });
         it('no team members should return empty', function () {
-            var teamSkillsPromise = teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo1.name);
+            var teamSkillsPromise = teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team1.id);
             return chai_1.expect(teamSkillsPromise).to.eventually.deep.equal([]);
         });
         it('should return all existing team skills', function () {
@@ -255,7 +255,7 @@ describe('TeamsDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2)
             ]);
-            var skillsPromise = createAllTeamSkillsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo1.name); })
+            var skillsPromise = createAllTeamSkillsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team1.id); })
                 .then(function (skillsOfATeam) {
                 return _.map(skillsOfATeam, function (_) { return _.skill; });
             });
@@ -271,7 +271,7 @@ describe('TeamsDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo3)
             ]);
-            var teamSkillsPromise = createAllTeamSkillsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo1.name); });
+            var teamSkillsPromise = createAllTeamSkillsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team1.id); });
             var expectedSkillUpvotes = [
                 { skillId: teamSkillInfo1.skill_id, upvotingUserIds: [] },
                 { skillId: teamSkillInfo2.skill_id, upvotingUserIds: [] },
@@ -290,7 +290,7 @@ describe('TeamsDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo3),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo4)
             ]);
-            var teamSkillsPromise = createAllTeamSkillsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo1.name); })
+            var teamSkillsPromise = createAllTeamSkillsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team1.id); })
                 .then(function (skillsOfATeam) {
                 return _.map(skillsOfATeam, function (_) { return _.skill; });
             });
@@ -313,7 +313,7 @@ describe('TeamsDataHandler', function () {
                     teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamSkill2.id, user2.id)
                 ]);
             });
-            var teamSkillsPromise = createSkillsAndUpvotePromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo1.name); });
+            var teamSkillsPromise = createSkillsAndUpvotePromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team1.id); });
             var expectedSkillUpvotes = [
                 { skillId: skill1.id, upvotingUserIds: [user1.id, user2.id] },
                 { skillId: skill2.id, upvotingUserIds: [user2.id] },
@@ -324,6 +324,7 @@ describe('TeamsDataHandler', function () {
     });
     describe('upvoteTeamSkill', function () {
         var teamInfo;
+        var team;
         var user1;
         var user2;
         var teamSkill;
@@ -338,7 +339,7 @@ describe('TeamsDataHandler', function () {
                 userDataHandler_1.UserDataHandler.createUser(userInfo1),
                 userDataHandler_1.UserDataHandler.createUser(userInfo2)
             ]).then(function (teamSkillAndUser) {
-                var team = teamSkillAndUser[0];
+                team = teamSkillAndUser[0];
                 var skill = teamSkillAndUser[1];
                 user1 = teamSkillAndUser[2];
                 user2 = teamSkillAndUser[3];
@@ -365,7 +366,7 @@ describe('TeamsDataHandler', function () {
             var userId = user1.id;
             var upvotePromise = teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId);
             return chai_1.expect(upvotePromise).to.eventually.fulfilled
-                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo.name); })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team.id); })
                 .then(function (skillsOfATeam) {
                 chai_1.expect(skillsOfATeam.length).to.be.equal(1);
                 chai_1.expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([userId]);
@@ -384,7 +385,7 @@ describe('TeamsDataHandler', function () {
             var upvotePromise = teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId)
                 .then(function () { return teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId); });
             return chai_1.expect(upvotePromise).to.eventually.rejected
-                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo.name); })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team.id); })
                 .then(function (skillsOfATeam) {
                 chai_1.expect(skillsOfATeam.length).to.be.equal(1);
                 chai_1.expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([userId]);
@@ -397,7 +398,7 @@ describe('TeamsDataHandler', function () {
             var upvotePromise = teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId1)
                 .then(function () { return teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamSkillId, userId2); });
             return chai_1.expect(upvotePromise).to.eventually.fulfilled
-                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo.name); })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team.id); })
                 .then(function (skillsOfATeam) {
                 chai_1.expect(skillsOfATeam.length).to.be.equal(1);
                 chai_1.expect(skillsOfATeam[0].upvotingUserIds.sort()).to.be.deep.equal([userId1, userId2].sort());
@@ -409,6 +410,7 @@ describe('TeamsDataHandler', function () {
         var upvotedUser2;
         var notUpvotedUser;
         var teamInfo;
+        var team;
         var teamSkill;
         beforeEach(function () {
             teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team 1');
@@ -423,7 +425,7 @@ describe('TeamsDataHandler', function () {
                 userDataHandler_1.UserDataHandler.createUser(upvotedUserInfo2),
                 userDataHandler_1.UserDataHandler.createUser(notUpvotedUserInfo)
             ]).then(function (teamSkillAndUser) {
-                var team = teamSkillAndUser[0];
+                team = teamSkillAndUser[0];
                 var skill = teamSkillAndUser[1];
                 upvotedUser1 = teamSkillAndUser[2];
                 upvotedUser2 = teamSkillAndUser[3];
@@ -461,7 +463,7 @@ describe('TeamsDataHandler', function () {
             var userId = notUpvotedUser.id;
             var removeUpvotePromise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);
             return chai_1.expect(removeUpvotePromise).to.eventually.rejected
-                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo.name); })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team.id); })
                 .then(function (skillsOfATeam) {
                 chai_1.expect(skillsOfATeam.length).to.be.equal(1);
                 chai_1.expect(skillsOfATeam[0].upvotingUserIds.sort()).to.be.deep.equal([upvotedUser1.id, upvotedUser2.id].sort());
@@ -472,7 +474,7 @@ describe('TeamsDataHandler', function () {
             var userId = upvotedUser1.id;
             var removeUpvotePromise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId);
             return chai_1.expect(removeUpvotePromise).to.eventually.fulfilled
-                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo.name); })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team.id); })
                 .then(function (skillsOfATeam) {
                 chai_1.expect(skillsOfATeam.length).to.be.equal(1);
                 chai_1.expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([upvotedUser2.id]);
@@ -491,7 +493,7 @@ describe('TeamsDataHandler', function () {
             var removeUpvotePromise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId)
                 .then(function () { return teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId); });
             return chai_1.expect(removeUpvotePromise).to.eventually.rejected
-                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo.name); })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team.id); })
                 .then(function (skillsOfATeam) {
                 chai_1.expect(skillsOfATeam.length).to.be.equal(1);
                 chai_1.expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([upvotedUser2.id]);
@@ -504,7 +506,7 @@ describe('TeamsDataHandler', function () {
             var upvotePromise = teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId1)
                 .then(function () { return teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkillId, userId2); });
             return chai_1.expect(upvotePromise).to.eventually.fulfilled
-                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(teamInfo.name); })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team.id); })
                 .then(function (skillsOfATeam) {
                 chai_1.expect(skillsOfATeam.length).to.be.equal(1);
                 chai_1.expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([]);
@@ -513,6 +515,7 @@ describe('TeamsDataHandler', function () {
     });
     describe('setAdminRights', function () {
         var teamInfo;
+        var team;
         var teamMemberInfo;
         var userInfo;
         beforeEach(function () {
@@ -522,7 +525,7 @@ describe('TeamsDataHandler', function () {
                 teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
                 userDataHandler_1.UserDataHandler.createUser(userInfo)
             ]).then(function (teamAndUser) {
-                var team = teamAndUser[0];
+                team = teamAndUser[0];
                 var user = teamAndUser[1];
                 teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team, user);
                 teamMemberInfo.is_admin = false;
@@ -546,7 +549,7 @@ describe('TeamsDataHandler', function () {
             var userId = teamMemberInfo.user_id;
             var adminRightsPromise = teamsDataHandler_1.TeamsDataHandler.setAdminRights(teamId, userId, true);
             return chai_1.expect(adminRightsPromise).to.eventually.fulfilled
-                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo.name); })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(team.id); })
                 .then(function (usersOfATeam) {
                 chai_1.expect(usersOfATeam.length).to.be.equal(1);
                 chai_1.expect(usersOfATeam[0].isAdmin).to.be.true;
@@ -558,7 +561,7 @@ describe('TeamsDataHandler', function () {
             var adminRightsPromise = teamsDataHandler_1.TeamsDataHandler.setAdminRights(teamId, userId, true)
                 .then(function () { return teamsDataHandler_1.TeamsDataHandler.setAdminRights(teamId, userId, false); });
             return chai_1.expect(adminRightsPromise).to.eventually.fulfilled
-                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamInfo.name); })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(team.id); })
                 .then(function (usersOfATeam) {
                 chai_1.expect(usersOfATeam.length).to.be.equal(1);
                 chai_1.expect(usersOfATeam[0].isAdmin).to.be.false;

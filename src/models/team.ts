@@ -1,3 +1,4 @@
+import {ModelBase} from "./modelBase";
 import {TeamSkillUpvote} from "./teamSkillUpvote";
 import {Skill} from "./skill";
 import {ISkillOfATeam} from "./interfaces/iSkillOfATeam";
@@ -13,7 +14,7 @@ import {IHasPivot} from './interfaces/iHasPivot';
 import {ITeamInfo} from './interfaces/iTeamInfo';
 import {TeamSkill} from './teamSkill';
 
-export class Team extends bookshelf.Model<Team> implements IHasPivot<TeamMember> {
+export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMember> {
   public attributes: ITeamInfo;
   public pivot: TeamMember;
 

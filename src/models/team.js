@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var modelBase_1 = require("./modelBase");
 var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
 var _ = require('lodash');
@@ -87,7 +88,7 @@ var Team = (function (_super) {
         };
     };
     return Team;
-}(bookshelf_1.bookshelf.Model));
+}(modelBase_1.ModelBase));
 exports.Team = Team;
 var Teams = (function (_super) {
     __extends(Teams, _super);

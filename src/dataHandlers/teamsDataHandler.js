@@ -16,22 +16,17 @@ var TeamsDataHandler = (function () {
     TeamsDataHandler.addTeamSkill = function (teamSkillInfo) {
         return new teamSkill_1.TeamSkill(teamSkillInfo).save();
     };
-    TeamsDataHandler.getTeamMembers = function (teamName) {
-        var _this = this;
-        return this.getTeam(teamName)
-            .then(function (team) { return _this._fetchMembersOfTeam(team); });
+    TeamsDataHandler.getTeamMembers = function (teamId) {
+        var team = this._initializeTeamByIdQuery(teamId);
+        return team.getTeamMembers();
     };
-    TeamsDataHandler.getTeamSkills = function (teamName) {
-        var _this = this;
-        return this.getTeam(teamName)
-            .then(function (team) { return _this._fetchSkillsOfTeam(team); });
+    TeamsDataHandler.getTeamSkills = function (teamId) {
+        var team = this._initializeTeamByIdQuery(teamId);
+        return team.getTeamSkills();
     };
-    TeamsDataHandler.getTeam = function (teamName) {
-        var queryCondition = {};
-        queryCondition[team_1.Team.nameAttribute] = teamName;
-        return new team_1.Team()
-            .query({ where: queryCondition })
-            .fetch();
+    TeamsDataHandler.getTeam = function (teamId) {
+        var team = this._initializeTeamByIdQuery(teamId);
+        return team.fetch();
     };
     TeamsDataHandler.upvoteTeamSkill = function (teamSkillId, upvotingUserId) {
         var upvoteInfo = {
@@ -57,17 +52,10 @@ var TeamsDataHandler = (function () {
             return _this._setAdminRightsInternal(teamId, userId, newAdminRights);
         });
     };
-    TeamsDataHandler._fetchMembersOfTeam = function (team) {
-        if (!team) {
-            return Promise.resolve([]);
-        }
-        return team.getTeamMembers();
-    };
-    TeamsDataHandler._fetchSkillsOfTeam = function (team) {
-        if (!team) {
-            return Promise.resolve([]);
-        }
-        return team.getTeamSkills();
+    TeamsDataHandler._initializeTeamByIdQuery = function (teamId) {
+        var queryCondition = {};
+        queryCondition[team_1.Team.idAttribute] = teamId;
+        return new team_1.Team(queryCondition);
     };
     TeamsDataHandler._setAdminRightsInternal = function (teamId, userId, newAdminRights) {
         var queryCondition = {};

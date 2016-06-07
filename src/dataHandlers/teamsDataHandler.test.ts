@@ -66,7 +66,7 @@ describe('TeamsDataHandler', () => {
     it('no such team should return null', () => {
       // Act
       var teamPromise: Promise<Team> =
-        TeamsDataHandler.getTeam('not existing team');
+        TeamsDataHandler.getTeam(9999999);
 
       // Assert
       return expect(teamPromise).to.eventually.null;
@@ -80,7 +80,7 @@ describe('TeamsDataHandler', () => {
 
       // Act
       var getTeamPromise: Promise<Team> =
-        createTeamPromose.then(() => TeamsDataHandler.getTeam(teamInfo.name));
+        createTeamPromose.then((team: Team) => TeamsDataHandler.getTeam(team.id));
 
       // Assert
       return ModelVerificator.verifyModelInfoAsync(getTeamPromise, teamInfo);
@@ -176,7 +176,7 @@ describe('TeamsDataHandler', () => {
     it('not existing team should return empty', () => {
       // Act
       var teamMembersPromise: Promise<IUserOfATeam[]> =
-        TeamsDataHandler.getTeamMembers('not existing team');
+        TeamsDataHandler.getTeamMembers(999999);
 
       // Assert
       return expect(teamMembersPromise).to.eventually.deep.equal([]);
@@ -185,7 +185,7 @@ describe('TeamsDataHandler', () => {
     it('no team members should return empty', () => {
       // Act
       var teamMembersPromise: Promise<IUserOfATeam[]> =
-        TeamsDataHandler.getTeamMembers(teamInfo1.name);
+        TeamsDataHandler.getTeamMembers(team1.id);
 
       // Assert
       return expect(teamMembersPromise).to.eventually.deep.equal([]);
@@ -204,7 +204,7 @@ describe('TeamsDataHandler', () => {
 
       // Act
       var usersPromise: Promise<User[]> =
-        createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(teamInfo1.name))
+        createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(team1.id))
           .then((teamMembers: IUserOfATeam[]) => {
             return _.map(teamMembers, _ => _.user);
           })
@@ -234,7 +234,7 @@ describe('TeamsDataHandler', () => {
 
       // Act
       var teamMembersPromise: Promise<IUserOfATeam[]> =
-        createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(teamInfo1.name));
+        createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(team1.id));
 
       // Assert
       var expectedUserAdminConfigurations: IUserIdToIsAdmin[] = [
@@ -263,7 +263,7 @@ describe('TeamsDataHandler', () => {
 
       // Act
       var usersPromise: Promise<User[]> =
-        createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(teamInfo1.name))
+        createAllTeamMembersPromise.then(() => TeamsDataHandler.getTeamMembers(team1.id))
           .then((usersOfATeam: IUserOfATeam[]) => {
             return _.map(usersOfATeam, _ => _.user);
           });
@@ -377,7 +377,7 @@ describe('TeamsDataHandler', () => {
     it('not existing team should return empty', () => {
       // Act
       var teamSkillsPromise: Promise<ISkillOfATeam[]> =
-        TeamsDataHandler.getTeamSkills('not existing team');
+        TeamsDataHandler.getTeamSkills(99999);
 
       // Assert
       return expect(teamSkillsPromise).to.eventually.deep.equal([]);
@@ -386,7 +386,7 @@ describe('TeamsDataHandler', () => {
     it('no team members should return empty', () => {
       // Act
       var teamSkillsPromise: Promise<ISkillOfATeam[]> =
-        TeamsDataHandler.getTeamSkills(teamInfo1.name);
+        TeamsDataHandler.getTeamSkills(team1.id);
 
       // Assert
       return expect(teamSkillsPromise).to.eventually.deep.equal([]);
@@ -405,7 +405,7 @@ describe('TeamsDataHandler', () => {
 
       // Act
       var skillsPromise: Promise<Skill[]> =
-        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(teamInfo1.name))
+        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(team1.id))
           .then((skillsOfATeam: ISkillOfATeam[]) => {
             return _.map(skillsOfATeam, _ => _.skill);
           });
@@ -432,7 +432,7 @@ describe('TeamsDataHandler', () => {
 
       // Act
       var teamSkillsPromise: Promise<ISkillOfATeam[]> =
-        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(teamInfo1.name));
+        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(team1.id));
 
       // Assert
       var expectedSkillUpvotes: ISkillIdToUpvotes[] = [
@@ -461,7 +461,7 @@ describe('TeamsDataHandler', () => {
 
       // Act
       var teamSkillsPromise: Promise<Skill[]> =
-        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(teamInfo1.name))
+        createAllTeamSkillsPromise.then(() => TeamsDataHandler.getTeamSkills(team1.id))
           .then((skillsOfATeam: ISkillOfATeam[]) => {
             return _.map(skillsOfATeam, _ => _.skill);
           });
@@ -496,7 +496,7 @@ describe('TeamsDataHandler', () => {
 
       // Act
       var teamSkillsPromise: Promise<ISkillOfATeam[]> =
-        createSkillsAndUpvotePromise.then(() => TeamsDataHandler.getTeamSkills(teamInfo1.name));
+        createSkillsAndUpvotePromise.then(() => TeamsDataHandler.getTeamSkills(team1.id));
 
       // Assert
       var expectedSkillUpvotes: ISkillIdToUpvotes[] = [
@@ -512,6 +512,7 @@ describe('TeamsDataHandler', () => {
   describe('upvoteTeamSkill', () => {
 
     var teamInfo: ITeamInfo;
+    var team: Team;
 
     var user1: User;
     var user2: User;
@@ -530,7 +531,7 @@ describe('TeamsDataHandler', () => {
         UserDataHandler.createUser(userInfo1),
         UserDataHandler.createUser(userInfo2)
       ]).then((teamSkillAndUser: any[]) => {
-        var team: Team = teamSkillAndUser[0];
+        team = teamSkillAndUser[0];
         var skill: Skill = teamSkillAndUser[1];
 
         user1 = teamSkillAndUser[2];
@@ -581,7 +582,7 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return expect(upvotePromise).to.eventually.fulfilled
-        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then(() => TeamsDataHandler.getTeamSkills(team.id))
         .then((skillsOfATeam: ISkillOfATeam[]) => {
           expect(skillsOfATeam.length).to.be.equal(1);
           expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([userId]);
@@ -614,7 +615,7 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return expect(upvotePromise).to.eventually.rejected
-        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then(() => TeamsDataHandler.getTeamSkills(team.id))
         .then((skillsOfATeam: ISkillOfATeam[]) => {
           expect(skillsOfATeam.length).to.be.equal(1);
           expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([userId]);
@@ -634,7 +635,7 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return expect(upvotePromise).to.eventually.fulfilled
-        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then(() => TeamsDataHandler.getTeamSkills(team.id))
         .then((skillsOfATeam: ISkillOfATeam[]) => {
           expect(skillsOfATeam.length).to.be.equal(1);
           expect(skillsOfATeam[0].upvotingUserIds.sort()).to.be.deep.equal([userId1, userId2].sort());
@@ -650,6 +651,7 @@ describe('TeamsDataHandler', () => {
     var notUpvotedUser: User;
 
     var teamInfo: ITeamInfo;
+    var team: Team;
 
     var teamSkill: TeamSkill;
 
@@ -667,7 +669,7 @@ describe('TeamsDataHandler', () => {
         UserDataHandler.createUser(upvotedUserInfo2),
         UserDataHandler.createUser(notUpvotedUserInfo)
       ]).then((teamSkillAndUser: any[]) => {
-        var team: Team = teamSkillAndUser[0];
+        team = teamSkillAndUser[0];
         var skill: Skill = teamSkillAndUser[1];
 
         upvotedUser1 = teamSkillAndUser[2];
@@ -737,7 +739,7 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return expect(removeUpvotePromise).to.eventually.rejected
-        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then(() => TeamsDataHandler.getTeamSkills(team.id))
         .then((skillsOfATeam: ISkillOfATeam[]) => {
           expect(skillsOfATeam.length).to.be.equal(1);
           expect(skillsOfATeam[0].upvotingUserIds.sort()).to.be.deep.equal([upvotedUser1.id, upvotedUser2.id].sort());
@@ -755,7 +757,7 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return expect(removeUpvotePromise).to.eventually.fulfilled
-        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then(() => TeamsDataHandler.getTeamSkills(team.id))
         .then((skillsOfATeam: ISkillOfATeam[]) => {
           expect(skillsOfATeam.length).to.be.equal(1);
           expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([upvotedUser2.id]);
@@ -788,7 +790,7 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return expect(removeUpvotePromise).to.eventually.rejected
-        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then(() => TeamsDataHandler.getTeamSkills(team.id))
         .then((skillsOfATeam: ISkillOfATeam[]) => {
           expect(skillsOfATeam.length).to.be.equal(1);
           expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([upvotedUser2.id]);
@@ -808,7 +810,7 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return expect(upvotePromise).to.eventually.fulfilled
-        .then(() => TeamsDataHandler.getTeamSkills(teamInfo.name))
+        .then(() => TeamsDataHandler.getTeamSkills(team.id))
         .then((skillsOfATeam: ISkillOfATeam[]) => {
           expect(skillsOfATeam.length).to.be.equal(1);
           expect(skillsOfATeam[0].upvotingUserIds).to.be.deep.equal([]);
@@ -819,6 +821,8 @@ describe('TeamsDataHandler', () => {
 
   describe('setAdminRights', () => {
     var teamInfo: ITeamInfo;
+    var team: Team;
+
     var teamMemberInfo: ITeamMemberInfo;
     var userInfo: IUserInfo;
 
@@ -830,7 +834,7 @@ describe('TeamsDataHandler', () => {
         TeamsDataHandler.createTeam(teamInfo),
         UserDataHandler.createUser(userInfo)
       ]).then((teamAndUser: any[]) => {
-        var team: Team = teamAndUser[0];
+        team = teamAndUser[0];
         var user: User = teamAndUser[1];
 
         teamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team, user);
@@ -877,7 +881,7 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return expect(adminRightsPromise).to.eventually.fulfilled
-        .then(() => TeamsDataHandler.getTeamMembers(teamInfo.name))
+        .then(() => TeamsDataHandler.getTeamMembers(team.id))
         .then((usersOfATeam: IUserOfATeam[]) => {
           expect(usersOfATeam.length).to.be.equal(1);
           expect(usersOfATeam[0].isAdmin).to.be.true;
@@ -896,7 +900,7 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return expect(adminRightsPromise).to.eventually.fulfilled
-        .then(() => TeamsDataHandler.getTeamMembers(teamInfo.name))
+        .then(() => TeamsDataHandler.getTeamMembers(team.id))
         .then((usersOfATeam: IUserOfATeam[]) => {
           expect(usersOfATeam.length).to.be.equal(1);
           expect(usersOfATeam[0].isAdmin).to.be.false;
