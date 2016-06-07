@@ -1,7 +1,7 @@
 import {ITeamOfASkill} from "../models/interfaces/iTeamOfASkill";
 import {ISkillPrerequisiteInfo} from "../models/interfaces/iSkillPrerequisiteInfo";
 import {ISkillInfo} from "../models/interfaces/iSkillInfo";
-import {Collection} from 'bookshelf';
+import {Collection, FetchOptions, CollectionFetchOptions} from 'bookshelf';
 import {Skill, Skills} from '../models/skill';
 import {SkillPrerequisite, SkillPrerequisites} from '../models/skillPrerequisite';
 
@@ -28,53 +28,59 @@ export class SkillsDataHandler {
       });
   }
 
-  public static getSkillPrerequisites(skillName: string): Promise<Skill[]> {
-    return this.getSkill(skillName)
-      .then((skill: Skill) => this.fetchSkillPrerequisitesBySkill(skill))
+  public static getSkillPrerequisites(skillId: number): Promise<Skill[]> {
+    var skill: Skill = this._initializeSkillByIdQuery(skillId);
+
+    return this._fetchSkillPrerequisitesBySkill(skill)
       .then((skills: Collection<Skill>) => skills.toArray());
   }
 
-  public static getSkillContributions(skillName: string): Promise<Skill[]> {
-    return this.getSkill(skillName)
-      .then((skill: Skill) => this.fetchContributingSkillsBySkill(skill))
+  public static getSkillContributions(skillId: number): Promise<Skill[]> {
+    var skill: Skill = this._initializeSkillByIdQuery(skillId);
+
+    return this._fetchContributingSkillsBySkill(skill)
       .then((skills: Collection<Skill>) => skills.toArray());
   }
 
-  public static getSkill(skillName: string): Promise<Skill> {
+  public static getSkill(skillId: number): Promise<Skill> {
+    var fetchOptions: FetchOptions = {
+      require: false
+    }
+
+    return this._initializeSkillByIdQuery(skillId)
+      .fetch(fetchOptions);
+  }
+
+  public static getTeams(skillId: number): Promise<ITeamOfASkill[]> {
+    var skill: Skill = this._initializeSkillByIdQuery(skillId);
+
+    return this._fetchSkillTeams(skill);
+  }
+
+  private static _initializeSkillByIdQuery(skillId: number): Skill {
     var queryCondition = {};
-    queryCondition[Skill.nameAttribute] = skillName;
+    queryCondition[Skill.idAttribute] = skillId;
 
-    return new Skill()
-      .query({ where: queryCondition })
-      .fetch();
+    return new Skill(queryCondition);
   }
 
-  public static getTeams(skillName: string): Promise<ITeamOfASkill[]> {
-    return this.getSkill(skillName)
-      .then((skill: Skill) => this._fetchSkillTeams(skill));
-  }
-
-  private static fetchSkillPrerequisitesBySkill(skill: Skill): Promise<Collection<Skill>> {
-    if (!skill) {
-      return Promise.resolve(new Skills());
+  private static _fetchSkillPrerequisitesBySkill(skill: Skill): Promise<Collection<Skill>> {
+    var fetchOptions: CollectionFetchOptions = {
+      require: false
     }
 
-    return skill.prerequisiteSkills().fetch();
+    return skill.prerequisiteSkills().fetch(fetchOptions);
   }
 
-  private static fetchContributingSkillsBySkill(skill: Skill): Promise<Collection<Skill>> {
-    if (!skill) {
-      return Promise.resolve(new Skills());
+  private static _fetchContributingSkillsBySkill(skill: Skill): Promise<Collection<Skill>> {
+    var fetchOptions: CollectionFetchOptions = {
+      require: false
     }
 
-    return skill.contributingSkills().fetch();
+    return skill.contributingSkills().fetch(fetchOptions);
   }
 
   private static _fetchSkillTeams(skill: Skill): Promise<ITeamOfASkill[]> {
-    if (!skill) {
-      return Promise.resolve([]);
-    }
-
     return skill.getTeams();
   }
 }

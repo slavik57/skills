@@ -11,6 +11,11 @@ var ModelBase = (function (_super) {
         _super.apply(this, arguments);
     }
     Object.defineProperty(ModelBase.prototype, "idAttribute", {
+        get: function () { return ModelBase.idAttribute; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ModelBase, "idAttribute", {
         get: function () { return 'id'; },
         enumerable: true,
         configurable: true

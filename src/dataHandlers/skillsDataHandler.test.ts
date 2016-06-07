@@ -23,7 +23,6 @@ import {SkillsDataHandler} from './skillsDataHandler';
 import {UserDataHandler} from './userDataHandler';
 import {User, Users} from '../models/user';
 
-
 chai.use(chaiAsPromised);
 
 describe('SkillsDataHandler', () => {
@@ -67,7 +66,7 @@ describe('SkillsDataHandler', () => {
     it('no such skill should return null', () => {
       // Act
       var skillPromise: Promise<Skill> =
-        SkillsDataHandler.getSkill('not existing skill');
+        SkillsDataHandler.getSkill(1234);
 
       // Assert
       return expect(skillPromise).to.eventually.null;
@@ -81,7 +80,7 @@ describe('SkillsDataHandler', () => {
 
       // Act
       var getSkillPromise: Promise<Skill> =
-        createSkillPromise.then(() => SkillsDataHandler.getSkill(skillInfo.name));
+        createSkillPromise.then((skill: Skill) => SkillsDataHandler.getSkill(skill.id));
 
       // Assert
       return ModelVerificator.verifyModelInfoAsync(getSkillPromise, skillInfo);
@@ -244,7 +243,7 @@ describe('SkillsDataHandler', () => {
     it('no such skill should return empty', () => {
       // Act
       var skillsPromise: Promise<Skill[]> =
-        SkillsDataHandler.getSkillPrerequisites('not existing skill');
+        SkillsDataHandler.getSkillPrerequisites(99999);
 
       // Assert
       var expectedInfo: ISkillInfo[] = [];
@@ -256,7 +255,7 @@ describe('SkillsDataHandler', () => {
     it('no skill prerequisites should return empty', () => {
       // Act
       var skillsPromise: Promise<Skill[]> =
-        SkillsDataHandler.getSkillPrerequisites(skillInfo1.name);
+        SkillsDataHandler.getSkillPrerequisites(skill1.id);
 
       // Assert
       var expectedInfo: ISkillInfo[] = [];
@@ -278,7 +277,7 @@ describe('SkillsDataHandler', () => {
 
       // Act
       var skillsPromise: Promise<Skill[]> =
-        createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillPrerequisites(skillInfo1.name));
+        createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillPrerequisites(skill1.id));
 
       // Assert
       var expectedSkillsInfos: ISkillInfo[] = [skillInfo2, skillInfo3];
@@ -303,7 +302,7 @@ describe('SkillsDataHandler', () => {
 
       // Act
       var skillsPromise: Promise<Skill[]> =
-        createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillPrerequisites(skillInfo1.name));
+        createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillPrerequisites(skill1.id));
 
       // Assert
       var expectedSkillsInfos: ISkillInfo[] = [skillInfo2, skillInfo3];
@@ -343,7 +342,7 @@ describe('SkillsDataHandler', () => {
     it('no such skill should return empty', () => {
       // Act
       var skillsPromise: Promise<Skill[]> =
-        SkillsDataHandler.getSkillContributions('not existing skill');
+        SkillsDataHandler.getSkillContributions(9999999);
 
       // Assert
       var expectedInfo: ISkillInfo[] = [];
@@ -355,7 +354,7 @@ describe('SkillsDataHandler', () => {
     it('no skill prerequisites should return empty', () => {
       // Act
       var skillsPromise: Promise<Skill[]> =
-        SkillsDataHandler.getSkillContributions(skillInfo1.name);
+        SkillsDataHandler.getSkillContributions(skill1.id);
 
       // Assert
       var expectedInfo: ISkillInfo[] = [];
@@ -377,7 +376,7 @@ describe('SkillsDataHandler', () => {
 
       var skillsPromise: Promise<Skill[]> =
         createAllSkillPrerequisitesPromise.then(
-          () => SkillsDataHandler.getSkillContributions(skillInfo1.name));
+          () => SkillsDataHandler.getSkillContributions(skill1.id));
 
       // Assert
       var expectedInfo: ISkillInfo[] = [];
@@ -399,7 +398,7 @@ describe('SkillsDataHandler', () => {
 
       // Act
       var skillsPromise: Promise<Skill[]> =
-        createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillContributions(skillInfo1.name));
+        createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillContributions(skill1.id));
 
       // Assert
       var expectedSkillInfos: ISkillInfo[] = [skillInfo2, skillInfo3];
@@ -423,7 +422,7 @@ describe('SkillsDataHandler', () => {
 
       // Act
       var skillsPromise: Promise<Skill[]> =
-        createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillContributions(skillInfo1.name));
+        createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillContributions(skill1.id));
 
       // Assert
       var expectedSkillInfos: ISkillInfo[] = [skillInfo2, skillInfo3];
@@ -506,7 +505,7 @@ describe('SkillsDataHandler', () => {
     it('no such skill should return empty teams list', () => {
       // Act
       var teamsPromise: Promise<ITeamOfASkill[]> =
-        SkillsDataHandler.getTeams('not existing skill');
+        SkillsDataHandler.getTeams(99999);
 
       // Assert
       return expect(teamsPromise).to.eventually.deep.equal([]);
@@ -515,7 +514,7 @@ describe('SkillsDataHandler', () => {
     it('skill exists but has no teams should return empty teams list', () => {
       // Act
       var teamsPromise: Promise<ITeamOfASkill[]> =
-        SkillsDataHandler.getTeams(skillInfo1.name);
+        SkillsDataHandler.getTeams(skill1.id);
 
       // Assert
       return expect(teamsPromise).to.eventually.deep.equal([]);
@@ -535,7 +534,7 @@ describe('SkillsDataHandler', () => {
 
       // Act
       var teamsPromise: Promise<Team[]> =
-        addSkillsPromise.then(() => SkillsDataHandler.getTeams(skillInfo1.name))
+        addSkillsPromise.then(() => SkillsDataHandler.getTeams(skill1.id))
           .then((teamsOfASkill: ITeamOfASkill[]) => {
             return _.map(teamsOfASkill, _ => _.team);
           });
@@ -563,7 +562,7 @@ describe('SkillsDataHandler', () => {
 
       // Act
       var teamsPromise: Promise<ITeamOfASkill[]> =
-        addSkillsPromise.then(() => SkillsDataHandler.getTeams(skillInfo1.name));
+        addSkillsPromise.then(() => SkillsDataHandler.getTeams(skill1.id));
 
       // Assert
       var expectedSkillUpvotes: ITeamIdToUpvotes[] =
@@ -592,7 +591,7 @@ describe('SkillsDataHandler', () => {
 
       // Act
       var teamsPromise: Promise<Team[]> =
-        addSkillsPromise.then(() => SkillsDataHandler.getTeams(skillInfo1.name))
+        addSkillsPromise.then(() => SkillsDataHandler.getTeams(skill1.id))
           .then((teamsOfASkill: ITeamOfASkill[]) => {
             return _.map(teamsOfASkill, _ => _.team);
           });
@@ -626,7 +625,7 @@ describe('SkillsDataHandler', () => {
 
       // Act
       var teamsPromise: Promise<ITeamOfASkill[]> =
-        addSkillsAndUpvote.then(() => SkillsDataHandler.getTeams(skillInfo1.name));
+        addSkillsAndUpvote.then(() => SkillsDataHandler.getTeams(skill1.id));
 
       // Assert
       var expectedSkillUpvotes: ITeamIdToUpvotes[] =

@@ -22,46 +22,45 @@ var SkillsDataHandler = (function () {
             return skillPrerequisites.toArray();
         });
     };
-    SkillsDataHandler.getSkillPrerequisites = function (skillName) {
-        var _this = this;
-        return this.getSkill(skillName)
-            .then(function (skill) { return _this.fetchSkillPrerequisitesBySkill(skill); })
+    SkillsDataHandler.getSkillPrerequisites = function (skillId) {
+        var skill = this._initializeSkillByIdQuery(skillId);
+        return this._fetchSkillPrerequisitesBySkill(skill)
             .then(function (skills) { return skills.toArray(); });
     };
-    SkillsDataHandler.getSkillContributions = function (skillName) {
-        var _this = this;
-        return this.getSkill(skillName)
-            .then(function (skill) { return _this.fetchContributingSkillsBySkill(skill); })
+    SkillsDataHandler.getSkillContributions = function (skillId) {
+        var skill = this._initializeSkillByIdQuery(skillId);
+        return this._fetchContributingSkillsBySkill(skill)
             .then(function (skills) { return skills.toArray(); });
     };
-    SkillsDataHandler.getSkill = function (skillName) {
+    SkillsDataHandler.getSkill = function (skillId) {
+        var fetchOptions = {
+            require: false
+        };
+        return this._initializeSkillByIdQuery(skillId)
+            .fetch(fetchOptions);
+    };
+    SkillsDataHandler.getTeams = function (skillId) {
+        var skill = this._initializeSkillByIdQuery(skillId);
+        return this._fetchSkillTeams(skill);
+    };
+    SkillsDataHandler._initializeSkillByIdQuery = function (skillId) {
         var queryCondition = {};
-        queryCondition[skill_1.Skill.nameAttribute] = skillName;
-        return new skill_1.Skill()
-            .query({ where: queryCondition })
-            .fetch();
+        queryCondition[skill_1.Skill.idAttribute] = skillId;
+        return new skill_1.Skill(queryCondition);
     };
-    SkillsDataHandler.getTeams = function (skillName) {
-        var _this = this;
-        return this.getSkill(skillName)
-            .then(function (skill) { return _this._fetchSkillTeams(skill); });
+    SkillsDataHandler._fetchSkillPrerequisitesBySkill = function (skill) {
+        var fetchOptions = {
+            require: false
+        };
+        return skill.prerequisiteSkills().fetch(fetchOptions);
     };
-    SkillsDataHandler.fetchSkillPrerequisitesBySkill = function (skill) {
-        if (!skill) {
-            return Promise.resolve(new skill_1.Skills());
-        }
-        return skill.prerequisiteSkills().fetch();
-    };
-    SkillsDataHandler.fetchContributingSkillsBySkill = function (skill) {
-        if (!skill) {
-            return Promise.resolve(new skill_1.Skills());
-        }
-        return skill.contributingSkills().fetch();
+    SkillsDataHandler._fetchContributingSkillsBySkill = function (skill) {
+        var fetchOptions = {
+            require: false
+        };
+        return skill.contributingSkills().fetch(fetchOptions);
     };
     SkillsDataHandler._fetchSkillTeams = function (skill) {
-        if (!skill) {
-            return Promise.resolve([]);
-        }
         return skill.getTeams();
     };
     return SkillsDataHandler;
