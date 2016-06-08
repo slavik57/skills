@@ -1,3 +1,4 @@
+import {IDestroyOptions} from "./interfaces/iDestroyOptions";
 import {ITeamOfASkill} from "../models/interfaces/iTeamOfASkill";
 import {ISkillPrerequisiteInfo} from "../models/interfaces/iSkillPrerequisiteInfo";
 import {ISkillInfo} from "../models/interfaces/iSkillInfo";
@@ -25,8 +26,16 @@ export class SkillsDataHandler {
     return new SkillPrerequisite(skillPrerequisiteInfo).save();
   }
 
-  public static removeSkillPrerequisite(skillPrerequisiteId: number): Promise<SkillPrerequisite> {
-    return this._initializeSkillPrerequisiteByIdQuery(skillPrerequisiteId).destroy();
+  public static removeSkillPrerequisite(skillId: number, skillPrerequisiteId: number): Promise<SkillPrerequisite> {
+    var query = {};
+    query[SkillPrerequisite.skillIdAttribute] = skillId;
+    query[SkillPrerequisite.skillPrerequisiteIdAttribute] = skillPrerequisiteId;
+
+    var destroyOptions: IDestroyOptions = {
+      cascadeDelete: false
+    };
+
+    return new SkillPrerequisite().where(query).destroy(destroyOptions);
   }
 
   public static getSkillsPrerequisites(): Promise<SkillPrerequisite[]> {

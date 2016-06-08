@@ -168,13 +168,23 @@ describe('SkillsDataHandler', function () {
                 testModels = _testModels;
             });
         });
+        it('not existing skill should not fail', function () {
+            var prerequisiteToRemove = testModels.skillPrerequisites[0];
+            var skillPrerequisiteId = prerequisiteToRemove.attributes.skill_prerequisite_id;
+            var promise = skillsDataHandler_1.SkillsDataHandler.removeSkillPrerequisite(9999, skillPrerequisiteId);
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
         it('not existing skill prerequisite should not fail', function () {
-            var promise = skillsDataHandler_1.SkillsDataHandler.removeSkillPrerequisite(9999);
+            var prerequisiteToRemove = testModels.skillPrerequisites[0];
+            var skillId = prerequisiteToRemove.attributes.skill_id;
+            var promise = skillsDataHandler_1.SkillsDataHandler.removeSkillPrerequisite(skillId, 9999);
             return chai_1.expect(promise).to.eventually.fulfilled;
         });
         it('existing skill prerequisite should remove the prerequisite', function () {
             var prerequisiteToRemove = testModels.skillPrerequisites[0];
-            var promise = skillsDataHandler_1.SkillsDataHandler.removeSkillPrerequisite(prerequisiteToRemove.id);
+            var skillId = prerequisiteToRemove.attributes.skill_id;
+            var skillPrerequisiteId = prerequisiteToRemove.attributes.skill_prerequisite_id;
+            var promise = skillsDataHandler_1.SkillsDataHandler.removeSkillPrerequisite(skillId, skillPrerequisiteId);
             return chai_1.expect(promise).to.eventually.fulfilled
                 .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsPrerequisites(); })
                 .then(function (_prerequisites) {
