@@ -1,16 +1,13 @@
+import {ModelBase} from "./modelBase";
 import {Model, Collection, CollectionOptions, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {ISkillPrerequisiteInfo} from './interfaces/iSkillPrerequisiteInfo';
 
-export class SkillPrerequisite extends bookshelf.Model<SkillPrerequisite>{
-  public attributes: ISkillPrerequisiteInfo;
-
+export class SkillPrerequisite extends ModelBase<SkillPrerequisite, ISkillPrerequisiteInfo>{
   public get tableName(): string { return 'skills_prerequisites'; }
-  public get idAttribute(): string { return SkillPrerequisite.idAttribute; }
 
-  public static get idAttribute(): string { return 'id'; }
   public static get skillIdAttribute(): string { return 'skill_id'; }
   public static get skillPrerequisiteIdAttribute(): string { return 'skill_prerequisite_id'; }
 

@@ -1,3 +1,4 @@
+import {ModelBase} from "./modelBase";
 import {Skill} from "./skill";
 import {ITeamSkillRelations} from "./interfaces/iTeamSkillRelations";
 import {Team} from "./team";
@@ -8,24 +9,21 @@ import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {ITeamSkillInfo} from './interfaces/iTeamSkillInfo';
 
-export class TeamSkill extends bookshelf.Model<TeamSkill>{
-  public attributes: ITeamSkillInfo;
-  public relations: ITeamSkillRelations;
-
+export class TeamSkill extends ModelBase<TeamSkill, ITeamSkillInfo>{
   public get tableName(): string { return 'team_skills'; }
-  public get idAttribute(): string { return 'id'; }
+  public static get dependents(): string[] {
+    return [
+      TeamSkill.relatedTeamSkillUpvotesAttribute
+    ];
+  }
+
+  public relations: ITeamSkillRelations;
 
   public static get skillIdAttribute(): string { return 'skill_id' }
   public static get teamIdAttribute(): string { return 'team_id' }
   public static get relatedTeamSkillUpvotesAttribute(): string { return 'upvotes'; }
   public static get relatedTeamAttribute(): string { return 'team'; }
   public static get relatedSkillAttribute(): string { return 'skill'; }
-
-  public static get dependents(): string[] {
-    return [
-      TeamSkill.relatedTeamSkillUpvotesAttribute
-    ];
-  }
 
   public static collection(teamSkills?: TeamSkill[], options?: CollectionOptions<TeamSkill>): Collection<TeamSkill> {
     return new TeamSkills(teamSkills, options);

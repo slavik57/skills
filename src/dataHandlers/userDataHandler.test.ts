@@ -1,3 +1,6 @@
+import {TeamSkillUpvote, TeamSkillUpvotes} from "../models/teamSkillUpvote";
+import {EnvironmentDirtifier} from "../testUtils/environmentDirtifier";
+import {ITestModels} from "../testUtils/interfaces/iTestModels";
 import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {ModelInfoComparers} from "../testUtils/modelInfoComparers";
 import {ModelVerificator} from "../testUtils/modelVerificator";
@@ -58,6 +61,125 @@ describe('userDataHandler', () => {
 
       // Assert
       return ModelVerificator.verifyModelInfoAsync(userPromise, userInfo);
+    });
+
+  });
+
+  describe('deleteUser', () => {
+
+    var testModels: ITestModels;
+
+    beforeEach(() => {
+      return EnvironmentDirtifier.fillAllTables()
+        .then((_testModels: ITestModels) => {
+          testModels = _testModels;
+        })
+    })
+
+    it('not existing user should not fail', () => {
+      // Act
+      var promise: Promise<User> =
+        UserDataHandler.deleteUser(9999);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled;
+    });
+
+    it('existing user should not fail', () => {
+      // Arrange
+      var userToDelete: User = testModels.users[0];
+
+      // Act
+      var promise: Promise<User> =
+        UserDataHandler.deleteUser(userToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled;
+    });
+
+    it('existing user should remove the user', () => {
+      // Arrange
+      var userToDelete: User = testModels.users[0];
+
+      // Act
+      var promise: Promise<User> =
+        UserDataHandler.deleteUser(userToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => UserDataHandler.getUsers())
+        .then((_users: User[]) => {
+          return _.map(_users, _ => _.id);
+        })
+        .then((_userIds: number[]) => {
+          expect(_userIds).not.to.contain(userToDelete.id);
+        })
+    });
+
+    it('existing user should remove the relevant user global permissions', () => {
+      // Arrange
+      var userToDelete: User = testModels.users[0];
+
+      // Act
+      var promise: Promise<User> =
+        UserDataHandler.deleteUser(userToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => new UsersGlobalPermissions().fetch())
+        .then((_permissionsCollection: Collection<UserGlobalPermissions>) => {
+          return _permissionsCollection.toArray();
+        })
+        .then((_permissions: UserGlobalPermissions[]) => {
+          return _.map(_permissions, _ => _.attributes.user_id);
+        })
+        .then((_userIds: number[]) => {
+          expect(_userIds).not.to.contain(userToDelete.id);
+        });
+    });
+
+    it('existing user should remove the relevant team members', () => {
+      // Arrange
+      var userToDelete: User = testModels.users[0];
+
+      // Act
+      var promise: Promise<User> =
+        UserDataHandler.deleteUser(userToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => new TeamMembers().fetch())
+        .then((_teamMembersCollection: Collection<TeamMember>) => {
+          return _teamMembersCollection.toArray();
+        })
+        .then((_teamMembers: TeamMember[]) => {
+          return _.map(_teamMembers, _ => _.attributes.user_id);
+        })
+        .then((_userIds: number[]) => {
+          expect(_userIds).not.to.contain(userToDelete.id);
+        });
+    });
+
+    it('existing user should remove the relevant team skill upvotes', () => {
+      // Arrange
+      var userToDelete: User = testModels.users[0];
+
+      // Act
+      var promise: Promise<User> =
+        UserDataHandler.deleteUser(userToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => new TeamSkillUpvotes().fetch())
+        .then((_upvotesCollection: Collection<TeamSkillUpvote>) => {
+          return _upvotesCollection.toArray();
+        })
+        .then((_upvotes: TeamSkillUpvote[]) => {
+          return _.map(_upvotes, _ => _.attributes.user_id);
+        })
+        .then((_userIds: number[]) => {
+          expect(_userIds).not.to.contain(userToDelete.id);
+        });
     });
 
   });

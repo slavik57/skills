@@ -22,8 +22,13 @@ var Team = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(Team.prototype, "idAttribute", {
-        get: function () { return 'id'; },
+    Object.defineProperty(Team, "dependents", {
+        get: function () {
+            return [
+                Team.relatedTeamMembersAttribute,
+                Team.relatedTeamSkillsAttribute
+            ];
+        },
         enumerable: true,
         configurable: true
     });
@@ -39,16 +44,6 @@ var Team = (function (_super) {
     });
     Object.defineProperty(Team, "relatedTeamSkillsAttribute", {
         get: function () { return 'teamSkills'; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Team, "dependents", {
-        get: function () {
-            return [
-                Team.relatedTeamMembersAttribute,
-                Team.relatedTeamSkillsAttribute
-            ];
-        },
         enumerable: true,
         configurable: true
     });

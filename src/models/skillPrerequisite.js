@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var modelBase_1 = require("./modelBase");
 var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
 var typesValidator_1 = require('../commonUtils/typesValidator');
@@ -14,16 +15,6 @@ var SkillPrerequisite = (function (_super) {
     }
     Object.defineProperty(SkillPrerequisite.prototype, "tableName", {
         get: function () { return 'skills_prerequisites'; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SkillPrerequisite.prototype, "idAttribute", {
-        get: function () { return SkillPrerequisite.idAttribute; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(SkillPrerequisite, "idAttribute", {
-        get: function () { return 'id'; },
         enumerable: true,
         configurable: true
     });
@@ -57,7 +48,7 @@ var SkillPrerequisite = (function (_super) {
         return Promise.resolve(true);
     };
     return SkillPrerequisite;
-}(bookshelf_1.bookshelf.Model));
+}(modelBase_1.ModelBase));
 exports.SkillPrerequisite = SkillPrerequisite;
 var SkillPrerequisites = (function (_super) {
     __extends(SkillPrerequisites, _super);

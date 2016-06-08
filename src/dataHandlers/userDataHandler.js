@@ -10,6 +10,11 @@ var UserDataHandler = (function () {
     UserDataHandler.createUser = function (userInfo) {
         return new user_1.User(userInfo).save();
     };
+    UserDataHandler.deleteUser = function (userId) {
+        var idQuery = {};
+        idQuery[user_1.User.idAttribute] = userId;
+        return new user_1.User(idQuery).destroy();
+    };
     UserDataHandler.getUsers = function () {
         return new user_1.Users().fetch()
             .then(function (users) {

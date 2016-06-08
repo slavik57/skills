@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var teamSkillUpvote_1 = require("./teamSkillUpvote");
 var modelBase_1 = require("./modelBase");
 var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
@@ -23,8 +24,14 @@ var User = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(User.prototype, "idAttribute", {
-        get: function () { return 'id'; },
+    Object.defineProperty(User, "dependents", {
+        get: function () {
+            return [
+                User.relatedUserGlobalPermissionsAttribute,
+                User.relatedTeamMembersAttribute,
+                User.relatedTeamSkillUpvotesAttribute
+            ];
+        },
         enumerable: true,
         configurable: true
     });
@@ -35,6 +42,16 @@ var User = (function (_super) {
     });
     Object.defineProperty(User, "relatedUserGlobalPermissionsAttribute", {
         get: function () { return 'globalPermissions'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(User, "relatedTeamMembersAttribute", {
+        get: function () { return 'teamMembers'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(User, "relatedTeamSkillUpvotesAttribute", {
+        get: function () { return 'teamSkillUpvotes'; },
         enumerable: true,
         configurable: true
     });
@@ -65,6 +82,12 @@ var User = (function (_super) {
     };
     User.prototype.globalPermissions = function () {
         return this.hasMany(usersGlobalPermissions_1.UserGlobalPermissions, usersGlobalPermissions_1.UserGlobalPermissions.userIdAttribute);
+    };
+    User.prototype.teamMembers = function () {
+        return this.hasMany(teamMember_1.TeamMember, teamMember_1.TeamMember.userIdAttribute);
+    };
+    User.prototype.teamSkillUpvotes = function () {
+        return this.hasMany(teamSkillUpvote_1.TeamSkillUpvote, teamSkillUpvote_1.TeamSkillUpvote.userIdAttribute);
     };
     User.prototype.getTeams = function () {
         var _this = this;

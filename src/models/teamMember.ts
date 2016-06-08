@@ -1,16 +1,13 @@
+import {ModelBase} from "./modelBase";
 import {Model, Collection, EventFunction, CollectionOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {ITeamMemberInfo} from './interfaces/iTeamMemberInfo';
 
-export class TeamMember extends bookshelf.Model<TeamMember>{
-  public attributes: ITeamMemberInfo;
-
+export class TeamMember extends ModelBase<TeamMember, ITeamMemberInfo>{
   public get tableName(): string { return 'team_members'; }
-  public get idAttribute(): string { return TeamMember.idAttribute; }
 
-  public static get idAttribute(): string { return 'id'; }
   public static get teamIdAttribute(): string { return 'team_id'; }
   public static get userIdAttribute(): string { return 'user_id'; }
   public static get isAdminAttribute(): string { return 'is_admin'; }

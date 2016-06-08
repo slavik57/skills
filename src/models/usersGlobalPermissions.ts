@@ -1,12 +1,10 @@
+import {ModelBase} from "./modelBase";
 import {Model, Collection, EventFunction, CollectionOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import {IUserGlobalPermissions} from './interfaces/iUserGlobalPermissions';
 
-export class UserGlobalPermissions extends bookshelf.Model<UserGlobalPermissions>{
-  public attributes: IUserGlobalPermissions;
-
+export class UserGlobalPermissions extends ModelBase<UserGlobalPermissions, IUserGlobalPermissions>{
   public get tableName(): string { return 'users_global_permissions'; }
-  public get idAttribute(): string { return 'id'; }
 
   public static get userIdAttribute(): string { return 'user_id'; }
 

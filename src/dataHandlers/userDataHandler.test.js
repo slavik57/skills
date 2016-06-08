@@ -1,4 +1,6 @@
 "use strict";
+var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
+var environmentDirtifier_1 = require("../testUtils/environmentDirtifier");
 var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var modelInfoComparers_1 = require("../testUtils/modelInfoComparers");
 var modelVerificator_1 = require("../testUtils/modelVerificator");
@@ -9,6 +11,8 @@ var chai_1 = require('chai');
 var _ = require('lodash');
 var chaiAsPromised = require('chai-as-promised');
 var userDataHandler_1 = require('./userDataHandler');
+var usersGlobalPermissions_1 = require('../models/usersGlobalPermissions');
+var teamMember_1 = require('../models/teamMember');
 var teamsDataHandler_1 = require('./teamsDataHandler');
 chai.use(chaiAsPromised);
 describe('userDataHandler', function () {
@@ -34,6 +38,81 @@ describe('userDataHandler', function () {
             var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             var userPromise = userDataHandler_1.UserDataHandler.createUser(userInfo);
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(userPromise, userInfo);
+        });
+    });
+    describe('deleteUser', function () {
+        var testModels;
+        beforeEach(function () {
+            return environmentDirtifier_1.EnvironmentDirtifier.fillAllTables()
+                .then(function (_testModels) {
+                testModels = _testModels;
+            });
+        });
+        it('not existing user should not fail', function () {
+            var promise = userDataHandler_1.UserDataHandler.deleteUser(9999);
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('existing user should not fail', function () {
+            var userToDelete = testModels.users[0];
+            var promise = userDataHandler_1.UserDataHandler.deleteUser(userToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('existing user should remove the user', function () {
+            var userToDelete = testModels.users[0];
+            var promise = userDataHandler_1.UserDataHandler.deleteUser(userToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return userDataHandler_1.UserDataHandler.getUsers(); })
+                .then(function (_users) {
+                return _.map(_users, function (_) { return _.id; });
+            })
+                .then(function (_userIds) {
+                chai_1.expect(_userIds).not.to.contain(userToDelete.id);
+            });
+        });
+        it('existing user should remove the relevant user global permissions', function () {
+            var userToDelete = testModels.users[0];
+            var promise = userDataHandler_1.UserDataHandler.deleteUser(userToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return new usersGlobalPermissions_1.UsersGlobalPermissions().fetch(); })
+                .then(function (_permissionsCollection) {
+                return _permissionsCollection.toArray();
+            })
+                .then(function (_permissions) {
+                return _.map(_permissions, function (_) { return _.attributes.user_id; });
+            })
+                .then(function (_userIds) {
+                chai_1.expect(_userIds).not.to.contain(userToDelete.id);
+            });
+        });
+        it('existing user should remove the relevant team members', function () {
+            var userToDelete = testModels.users[0];
+            var promise = userDataHandler_1.UserDataHandler.deleteUser(userToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return new teamMember_1.TeamMembers().fetch(); })
+                .then(function (_teamMembersCollection) {
+                return _teamMembersCollection.toArray();
+            })
+                .then(function (_teamMembers) {
+                return _.map(_teamMembers, function (_) { return _.attributes.user_id; });
+            })
+                .then(function (_userIds) {
+                chai_1.expect(_userIds).not.to.contain(userToDelete.id);
+            });
+        });
+        it('existing user should remove the relevant team skill upvotes', function () {
+            var userToDelete = testModels.users[0];
+            var promise = userDataHandler_1.UserDataHandler.deleteUser(userToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return new teamSkillUpvote_1.TeamSkillUpvotes().fetch(); })
+                .then(function (_upvotesCollection) {
+                return _upvotesCollection.toArray();
+            })
+                .then(function (_upvotes) {
+                return _.map(_upvotes, function (_) { return _.attributes.user_id; });
+            })
+                .then(function (_userIds) {
+                chai_1.expect(_userIds).not.to.contain(userToDelete.id);
+            });
         });
     });
     describe('getUser', function () {

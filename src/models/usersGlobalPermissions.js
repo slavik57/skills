@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var modelBase_1 = require("./modelBase");
 var bookshelf_1 = require('../../bookshelf');
 var UserGlobalPermissions = (function (_super) {
     __extends(UserGlobalPermissions, _super);
@@ -12,11 +13,6 @@ var UserGlobalPermissions = (function (_super) {
     }
     Object.defineProperty(UserGlobalPermissions.prototype, "tableName", {
         get: function () { return 'users_global_permissions'; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(UserGlobalPermissions.prototype, "idAttribute", {
-        get: function () { return 'id'; },
         enumerable: true,
         configurable: true
     });
@@ -29,7 +25,7 @@ var UserGlobalPermissions = (function (_super) {
         return new UsersGlobalPermissions(permissions, options);
     };
     return UserGlobalPermissions;
-}(bookshelf_1.bookshelf.Model));
+}(modelBase_1.ModelBase));
 exports.UserGlobalPermissions = UserGlobalPermissions;
 var UsersGlobalPermissions = (function (_super) {
     __extends(UsersGlobalPermissions, _super);

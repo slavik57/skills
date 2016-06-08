@@ -1,14 +1,12 @@
+import {ModelBase} from "./modelBase";
 import {Model, Collection, EventFunction, CollectionOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as Promise from 'bluebird';
 import {TypesValidator} from '../commonUtils/typesValidator';
 import {ITeamSkillUpvoteInfo} from './interfaces/iTeamSkillUpvoteInfo';
 
-export class TeamSkillUpvote extends bookshelf.Model<TeamSkillUpvote>{
-  public attributes: ITeamSkillUpvoteInfo;
-
+export class TeamSkillUpvote extends ModelBase<TeamSkillUpvote, ITeamSkillUpvoteInfo>{
   public get tableName(): string { return 'team_skill_upvotes'; }
-  public get idAttribute(): string { return 'id'; }
 
   public static get teamSkillIdAttribute(): string { return 'team_skill_id' }
   public static get userIdAttribute(): string { return 'user_id' }

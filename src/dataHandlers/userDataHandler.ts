@@ -15,6 +15,13 @@ export class UserDataHandler {
     return new User(userInfo).save();
   }
 
+  public static deleteUser(userId: number): Promise<User> {
+    var idQuery = {}
+    idQuery[User.idAttribute] = userId;
+
+    return new User(idQuery).destroy();
+  }
+
   public static getUsers(): Promise<User[]> {
     return new Users().fetch()
       .then((users: Collection<User>) => {

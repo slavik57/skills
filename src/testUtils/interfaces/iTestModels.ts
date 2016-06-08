@@ -18,5 +18,4 @@ export interface ITestModels {
   teamSkills: TeamSkill[];
 
   teamSkillUpvotes: TeamSkillUpvote[];
-
 }

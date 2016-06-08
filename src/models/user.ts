@@ -1,3 +1,4 @@
+import {TeamSkillUpvote} from "./teamSkillUpvote";
 import {IUserRelations} from "./interfaces/iUserRelations";
 import {ModelBase} from "./modelBase";
 import {IHasPivot} from "./interfaces/iHasPivot";
@@ -14,14 +15,22 @@ import {ITeamOfAUser} from './interfaces/iTeamOfAUser';
 import {IUserInfo} from './interfaces/iUserInfo';
 
 export class User extends ModelBase<User, IUserInfo> implements IHasPivot<TeamMember> {
-  public attributes: IUserInfo;
+  public get tableName(): string { return 'users'; }
+  public static get dependents(): string[] {
+    return [
+      User.relatedUserGlobalPermissionsAttribute,
+      User.relatedTeamMembersAttribute,
+      User.relatedTeamSkillUpvotesAttribute
+    ];
+  }
+
   public pivot: TeamMember;
   public relations: IUserRelations;
 
-  public get tableName(): string { return 'users'; }
-  public get idAttribute(): string { return 'id'; }
   public static get usernameAttribute(): string { return 'username'; }
   public static get relatedUserGlobalPermissionsAttribute(): string { return 'globalPermissions'; }
+  public static get relatedTeamMembersAttribute(): string { return 'teamMembers'; }
+  public static get relatedTeamSkillUpvotesAttribute(): string { return 'teamSkillUpvotes'; }
 
   public static collection(users?: User[], options?: CollectionOptions<User>): Collection<User> {
     return new Users(users, options);
@@ -57,6 +66,14 @@ export class User extends ModelBase<User, IUserInfo> implements IHasPivot<TeamMe
 
   public globalPermissions(): Collection<UserGlobalPermissions> {
     return this.hasMany(UserGlobalPermissions, UserGlobalPermissions.userIdAttribute);
+  }
+
+  public teamMembers(): Collection<TeamMember> {
+    return this.hasMany(TeamMember, TeamMember.userIdAttribute);
+  }
+
+  public teamSkillUpvotes(): Collection<TeamSkillUpvote> {
+    return this.hasMany(TeamSkillUpvote, TeamSkillUpvote.userIdAttribute);
   }
 
   public getTeams(): Promise<ITeamOfAUser[]> {

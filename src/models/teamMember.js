@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var modelBase_1 = require("./modelBase");
 var bookshelf_1 = require('../../bookshelf');
 var Promise = require('bluebird');
 var typesValidator_1 = require('../commonUtils/typesValidator');
@@ -14,16 +15,6 @@ var TeamMember = (function (_super) {
     }
     Object.defineProperty(TeamMember.prototype, "tableName", {
         get: function () { return 'team_members'; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TeamMember.prototype, "idAttribute", {
-        get: function () { return TeamMember.idAttribute; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TeamMember, "idAttribute", {
-        get: function () { return 'id'; },
         enumerable: true,
         configurable: true
     });
@@ -59,7 +50,7 @@ var TeamMember = (function (_super) {
         return Promise.resolve(true);
     };
     return TeamMember;
-}(bookshelf_1.bookshelf.Model));
+}(modelBase_1.ModelBase));
 exports.TeamMember = TeamMember;
 var TeamMembers = (function (_super) {
     __extends(TeamMembers, _super);

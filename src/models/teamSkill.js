@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var modelBase_1 = require("./modelBase");
 var skill_1 = require("./skill");
 var team_1 = require("./team");
 var teamSkillUpvote_1 = require("./teamSkillUpvote");
@@ -20,8 +21,12 @@ var TeamSkill = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TeamSkill.prototype, "idAttribute", {
-        get: function () { return 'id'; },
+    Object.defineProperty(TeamSkill, "dependents", {
+        get: function () {
+            return [
+                TeamSkill.relatedTeamSkillUpvotesAttribute
+            ];
+        },
         enumerable: true,
         configurable: true
     });
@@ -47,15 +52,6 @@ var TeamSkill = (function (_super) {
     });
     Object.defineProperty(TeamSkill, "relatedSkillAttribute", {
         get: function () { return 'skill'; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TeamSkill, "dependents", {
-        get: function () {
-            return [
-                TeamSkill.relatedTeamSkillUpvotesAttribute
-            ];
-        },
         enumerable: true,
         configurable: true
     });
@@ -85,7 +81,7 @@ var TeamSkill = (function (_super) {
         return Promise.resolve(true);
     };
     return TeamSkill;
-}(bookshelf_1.bookshelf.Model));
+}(modelBase_1.ModelBase));
 exports.TeamSkill = TeamSkill;
 var TeamSkills = (function (_super) {
     __extends(TeamSkills, _super);

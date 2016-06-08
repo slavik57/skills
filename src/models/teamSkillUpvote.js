@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var modelBase_1 = require("./modelBase");
 var bookshelf_1 = require('../../bookshelf');
 var TeamSkillUpvote = (function (_super) {
     __extends(TeamSkillUpvote, _super);
@@ -12,11 +13,6 @@ var TeamSkillUpvote = (function (_super) {
     }
     Object.defineProperty(TeamSkillUpvote.prototype, "tableName", {
         get: function () { return 'team_skill_upvotes'; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TeamSkillUpvote.prototype, "idAttribute", {
-        get: function () { return 'id'; },
         enumerable: true,
         configurable: true
     });
@@ -34,7 +30,7 @@ var TeamSkillUpvote = (function (_super) {
         return new TeamSkillUpvotes(upvotes, options);
     };
     return TeamSkillUpvote;
-}(bookshelf_1.bookshelf.Model));
+}(modelBase_1.ModelBase));
 exports.TeamSkillUpvote = TeamSkillUpvote;
 var TeamSkillUpvotes = (function (_super) {
     __extends(TeamSkillUpvotes, _super);
