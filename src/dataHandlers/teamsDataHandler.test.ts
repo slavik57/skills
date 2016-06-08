@@ -235,10 +235,25 @@ describe('TeamsDataHandler', () => {
         })
     })
 
-    it('not existing team member should not fail', () => {
+    it('not existing team id should not fail', () => {
+      // Arrange
+      var teamMember: TeamMember = testModels.teamMembers[0];
+
       // Act
       var promise: Promise<TeamMember> =
-        TeamsDataHandler.removeTeamMember(9999);
+        TeamsDataHandler.removeTeamMember(9999, teamMember.attributes.user_id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled;
+    });
+
+    it('not existing user id should not fail', () => {
+      // Arrange
+      var teamMember: TeamMember = testModels.teamMembers[0];
+
+      // Act
+      var promise: Promise<TeamMember> =
+        TeamsDataHandler.removeTeamMember(teamMember.attributes.team_id, 99999);
 
       // Assert
       return expect(promise).to.eventually.fulfilled;
@@ -247,10 +262,12 @@ describe('TeamsDataHandler', () => {
     it('existing team member should not fail', () => {
       // Arrange
       var teamMemberToDelete: TeamMember = testModels.teamMembers[0];
+      var teamId: number = teamMemberToDelete.attributes.team_id;
+      var userId: number = teamMemberToDelete.attributes.user_id;
 
       // Act
       var promise: Promise<TeamMember> =
-        TeamsDataHandler.removeTeamMember(teamMemberToDelete.id);
+        TeamsDataHandler.removeTeamMember(teamId, userId);
 
       // Assert
       return expect(promise).to.eventually.fulfilled;
@@ -259,10 +276,12 @@ describe('TeamsDataHandler', () => {
     it('existing team member should remove the team member', () => {
       // Arrange
       var teamMemberToDelete: TeamMember = testModels.teamMembers[0];
+      var teamId: number = teamMemberToDelete.attributes.team_id;
+      var userId: number = teamMemberToDelete.attributes.user_id;
 
       // Act
       var promise: Promise<TeamMember> =
-        TeamsDataHandler.removeTeamMember(teamMemberToDelete.id);
+        TeamsDataHandler.removeTeamMember(teamId, userId);
 
       // Assert
       return expect(promise).to.eventually.fulfilled

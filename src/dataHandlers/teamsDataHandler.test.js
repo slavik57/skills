@@ -138,18 +138,28 @@ describe('TeamsDataHandler', function () {
                 testModels = _testModels;
             });
         });
-        it('not existing team member should not fail', function () {
-            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(9999);
+        it('not existing team id should not fail', function () {
+            var teamMember = testModels.teamMembers[0];
+            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(9999, teamMember.attributes.user_id);
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('not existing user id should not fail', function () {
+            var teamMember = testModels.teamMembers[0];
+            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(teamMember.attributes.team_id, 99999);
             return chai_1.expect(promise).to.eventually.fulfilled;
         });
         it('existing team member should not fail', function () {
             var teamMemberToDelete = testModels.teamMembers[0];
-            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(teamMemberToDelete.id);
+            var teamId = teamMemberToDelete.attributes.team_id;
+            var userId = teamMemberToDelete.attributes.user_id;
+            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(teamId, userId);
             return chai_1.expect(promise).to.eventually.fulfilled;
         });
         it('existing team member should remove the team member', function () {
             var teamMemberToDelete = testModels.teamMembers[0];
-            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(teamMemberToDelete.id);
+            var teamId = teamMemberToDelete.attributes.team_id;
+            var userId = teamMemberToDelete.attributes.user_id;
+            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(teamId, userId);
             return chai_1.expect(promise).to.eventually.fulfilled
                 .then(function () { return new teamMember_1.TeamMembers().fetch(); })
                 .then(function (_teamMembersCollection) {

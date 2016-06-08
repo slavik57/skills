@@ -16,13 +16,15 @@ var TeamsDataHandler = (function () {
     TeamsDataHandler.addTeamMember = function (teamMemberInfo) {
         return new teamMember_1.TeamMember(teamMemberInfo).save();
     };
-    TeamsDataHandler.removeTeamMember = function (teamMemberId) {
-        var idQuery = {};
-        idQuery[teamMember_1.TeamMember.idAttribute] = teamMemberId;
+    TeamsDataHandler.removeTeamMember = function (teamId, userId) {
+        var query = {};
+        query[teamMember_1.TeamMember.teamIdAttribute] = teamId;
+        query[teamMember_1.TeamMember.userIdAttribute] = userId;
         var destroyOptions = {
-            require: false
+            require: false,
+            cascadeDelete: false
         };
-        return new teamMember_1.TeamMember(idQuery).destroy(destroyOptions);
+        return new teamMember_1.TeamMember().where(query).destroy(destroyOptions);
     };
     TeamsDataHandler.addTeamSkill = function (teamSkillInfo) {
         return new teamSkill_1.TeamSkill(teamSkillInfo).save();
