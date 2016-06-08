@@ -8,8 +8,9 @@ export class TeamMember extends bookshelf.Model<TeamMember>{
   public attributes: ITeamMemberInfo;
 
   public get tableName(): string { return 'team_members'; }
-  public get idAttribute(): string { return 'id'; }
+  public get idAttribute(): string { return TeamMember.idAttribute; }
 
+  public static get idAttribute(): string { return 'id'; }
   public static get teamIdAttribute(): string { return 'team_id'; }
   public static get userIdAttribute(): string { return 'user_id'; }
   public static get isAdminAttribute(): string { return 'is_admin'; }

@@ -144,19 +144,22 @@ describe('TeamsDataHandler', function () {
         });
         it('existing team member should not fail', function () {
             var teamMemberToDelete = testModels.teamMembers[0];
-            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(teamMemberToDelete.attributes.user_id);
+            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(teamMemberToDelete.id);
             return chai_1.expect(promise).to.eventually.fulfilled;
         });
         it('existing team member should remove the team member', function () {
             var teamMemberToDelete = testModels.teamMembers[0];
-            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(teamMemberToDelete.attributes.user_id);
+            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(teamMemberToDelete.id);
             return chai_1.expect(promise).to.eventually.fulfilled
-                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamMemberToDelete.attributes.team_id); })
-                .then(function (teamMembers) {
-                return _.map(teamMembers, function (_) { return _.user.id; });
+                .then(function () { return new teamMember_1.TeamMembers().fetch(); })
+                .then(function (_teamMembersCollection) {
+                return _teamMembersCollection.toArray();
+            })
+                .then(function (_teamMembers) {
+                return _.map(_teamMembers, function (_) { return _.id; });
             })
                 .then(function (teamMemberIds) {
-                chai_1.expect(teamMemberIds).not.to.contain(teamMemberToDelete.attributes.user_id);
+                chai_1.expect(teamMemberIds).not.to.contain(teamMemberToDelete.id);
             });
         });
     });

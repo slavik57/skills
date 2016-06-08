@@ -235,7 +235,6 @@ describe('TeamsDataHandler', () => {
         })
     })
 
-
     it('not existing team member should not fail', () => {
       // Act
       var promise: Promise<TeamMember> =
@@ -251,7 +250,7 @@ describe('TeamsDataHandler', () => {
 
       // Act
       var promise: Promise<TeamMember> =
-        TeamsDataHandler.removeTeamMember(teamMemberToDelete.attributes.user_id);
+        TeamsDataHandler.removeTeamMember(teamMemberToDelete.id);
 
       // Assert
       return expect(promise).to.eventually.fulfilled;
@@ -263,16 +262,19 @@ describe('TeamsDataHandler', () => {
 
       // Act
       var promise: Promise<TeamMember> =
-        TeamsDataHandler.removeTeamMember(teamMemberToDelete.attributes.user_id);
+        TeamsDataHandler.removeTeamMember(teamMemberToDelete.id);
 
       // Assert
       return expect(promise).to.eventually.fulfilled
-        .then(() => TeamsDataHandler.getTeamMembers(teamMemberToDelete.attributes.team_id))
-        .then((teamMembers: IUserOfATeam[]) => {
-          return _.map(teamMembers, _ => _.user.id);
+        .then(() => new TeamMembers().fetch())
+        .then((_teamMembersCollection: Collection<TeamMember>) => {
+          return _teamMembersCollection.toArray();
+        })
+        .then((_teamMembers: TeamMember[]) => {
+          return _.map(_teamMembers, _ => _.id);
         })
         .then((teamMemberIds: number[]) => {
-          expect(teamMemberIds).not.to.contain(teamMemberToDelete.attributes.user_id);
+          expect(teamMemberIds).not.to.contain(teamMemberToDelete.id);
         });
     });
 

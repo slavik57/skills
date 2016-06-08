@@ -18,6 +18,11 @@ var TeamMember = (function (_super) {
         configurable: true
     });
     Object.defineProperty(TeamMember.prototype, "idAttribute", {
+        get: function () { return TeamMember.idAttribute; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TeamMember, "idAttribute", {
         get: function () { return 'id'; },
         enumerable: true,
         configurable: true
