@@ -43,8 +43,17 @@ describe('TeamsDataHandler', function () {
         });
         it('existing team should not fail', function () {
             var teamToDelete = testModels.teams[0];
-            var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(teamToDelete.id);
+            var promise = teamsDataHandler_1.TeamsDataHandler.deleteTeam(teamToDelete.id);
             return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('existing team should remove the team', function () {
+            var teamToDelete = testModels.teams[0];
+            var promise = teamsDataHandler_1.TeamsDataHandler.deleteTeam(teamToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeam(teamToDelete.id); })
+                .then(function (team) {
+                chai_1.expect(team).to.be.null;
+            });
         });
         it('existing team should remove the relevant team skills', function () {
             var teamToDelete = testModels.teams[0];
@@ -119,6 +128,36 @@ describe('TeamsDataHandler', function () {
                 return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
             });
             return chai_1.expect(teamMemberPromise).to.eventually.fulfilled;
+        });
+    });
+    describe('removeTeamMember', function () {
+        var testModels;
+        beforeEach(function () {
+            return environmentDirtifier_1.EnvironmentDirtifier.fillAllTables()
+                .then(function (_testModels) {
+                testModels = _testModels;
+            });
+        });
+        it('not existing team member should not fail', function () {
+            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(9999);
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('existing team member should not fail', function () {
+            var teamMemberToDelete = testModels.teamMembers[0];
+            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(teamMemberToDelete.attributes.user_id);
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('existing team member should remove the team member', function () {
+            var teamMemberToDelete = testModels.teamMembers[0];
+            var promise = teamsDataHandler_1.TeamsDataHandler.removeTeamMember(teamMemberToDelete.attributes.user_id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamMemberToDelete.attributes.team_id); })
+                .then(function (teamMembers) {
+                return _.map(teamMembers, function (_) { return _.user.id; });
+            })
+                .then(function (teamMemberIds) {
+                chai_1.expect(teamMemberIds).not.to.contain(teamMemberToDelete.attributes.user_id);
+            });
         });
     });
     describe('getTeamMembers', function () {

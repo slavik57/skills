@@ -45,6 +45,15 @@ describe('SkillsDataHandler', function () {
             var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(skillToDelete.id);
             return chai_1.expect(promise).to.eventually.fulfilled;
         });
+        it('existing skill should remove the skill', function () {
+            var skillToDelete = testModels.skills[0];
+            var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(skillToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkill(skillToDelete.id); })
+                .then(function (skill) {
+                chai_1.expect(skill).to.be.null;
+            });
+        });
         it('existing skill should remove the relevant skill prerequisites', function () {
             var skillToDelete = testModels.skills[0];
             var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(skillToDelete.id);

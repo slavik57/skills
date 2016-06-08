@@ -66,7 +66,8 @@ describe('TeamsDataHandler', () => {
 
     it('not existing team should not fail', () => {
       // Act
-      var promise = TeamsDataHandler.deleteTeam(9999);
+      var promise: Promise<Team> =
+        TeamsDataHandler.deleteTeam(9999);
 
       // Assert
       return expect(promise).to.eventually.fulfilled;
@@ -77,10 +78,27 @@ describe('TeamsDataHandler', () => {
       var teamToDelete: Team = testModels.teams[0];
 
       // Act
-      var promise = SkillsDataHandler.deleteSkill(teamToDelete.id);
+      var promise: Promise<Team> =
+        TeamsDataHandler.deleteTeam(teamToDelete.id);
 
       // Assert
       return expect(promise).to.eventually.fulfilled;
+    });
+
+    it('existing team should remove the team', () => {
+      // Arrange
+      var teamToDelete: Team = testModels.teams[0];
+
+      // Act
+      var promise: Promise<Team> =
+        TeamsDataHandler.deleteTeam(teamToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => TeamsDataHandler.getTeam(teamToDelete.id))
+        .then((team: Team) => {
+          expect(team).to.be.null;
+        })
     });
 
     it('existing team should remove the relevant team skills', () => {
@@ -88,7 +106,8 @@ describe('TeamsDataHandler', () => {
       var teamToDelete: Team = testModels.teams[0];
 
       // Act
-      var promise = TeamsDataHandler.deleteTeam(teamToDelete.id);
+      var promise: Promise<Team> =
+        TeamsDataHandler.deleteTeam(teamToDelete.id);
 
       // Assert
       return expect(promise).to.eventually.fulfilled
@@ -107,7 +126,8 @@ describe('TeamsDataHandler', () => {
       var teamToDelete: Team = testModels.teams[0];
 
       // Act
-      var promise = TeamsDataHandler.deleteTeam(teamToDelete.id);
+      var promise: Promise<Team> =
+        TeamsDataHandler.deleteTeam(teamToDelete.id);
 
       // Assert
       return expect(promise).to.eventually.fulfilled
@@ -126,7 +146,8 @@ describe('TeamsDataHandler', () => {
       var teamToDelete: Team = testModels.teams[0];
 
       // Act
-      var promise = TeamsDataHandler.deleteTeam(teamToDelete.id);
+      var promise: Promise<Team> =
+        TeamsDataHandler.deleteTeam(teamToDelete.id);
 
       // Assert
       return expect(promise).to.eventually.fulfilled
@@ -199,6 +220,60 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return expect(teamMemberPromise).to.eventually.fulfilled;
+    });
+
+  });
+
+  describe('removeTeamMember', () => {
+
+    var testModels: ITestModels;
+
+    beforeEach(() => {
+      return EnvironmentDirtifier.fillAllTables()
+        .then((_testModels: ITestModels) => {
+          testModels = _testModels;
+        })
+    })
+
+
+    it('not existing team member should not fail', () => {
+      // Act
+      var promise: Promise<TeamMember> =
+        TeamsDataHandler.removeTeamMember(9999);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled;
+    });
+
+    it('existing team member should not fail', () => {
+      // Arrange
+      var teamMemberToDelete: TeamMember = testModels.teamMembers[0];
+
+      // Act
+      var promise: Promise<TeamMember> =
+        TeamsDataHandler.removeTeamMember(teamMemberToDelete.attributes.user_id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled;
+    });
+
+    it('existing team member should remove the team member', () => {
+      // Arrange
+      var teamMemberToDelete: TeamMember = testModels.teamMembers[0];
+
+      // Act
+      var promise: Promise<TeamMember> =
+        TeamsDataHandler.removeTeamMember(teamMemberToDelete.attributes.user_id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => TeamsDataHandler.getTeamMembers(teamMemberToDelete.attributes.team_id))
+        .then((teamMembers: IUserOfATeam[]) => {
+          return _.map(teamMembers, _ => _.user.id);
+        })
+        .then((teamMemberIds: number[]) => {
+          expect(teamMemberIds).not.to.contain(teamMemberToDelete.attributes.user_id);
+        });
     });
 
   });

@@ -28,6 +28,18 @@ export class TeamsDataHandler {
     return new TeamMember(teamMemberInfo).save();
   }
 
+  public static removeTeamMember(userId: number): Promise<TeamMember> {
+    var userIdQuery = {}
+    userIdQuery[TeamMember.userIdAttribute] = userId;
+
+    var destroyOptions: IDestroyOptions = {
+      require: false,
+      cascadeDelete: false
+    };
+
+    return new TeamMember().where(userIdQuery).destroy(destroyOptions);
+  }
+
   public static addTeamSkill(teamSkillInfo: ITeamSkillInfo): Promise<TeamSkill> {
     return new TeamSkill(teamSkillInfo).save();
   }

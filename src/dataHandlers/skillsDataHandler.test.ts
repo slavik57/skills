@@ -66,7 +66,8 @@ describe('SkillsDataHandler', () => {
 
     it('not existing skill should not fail', () => {
       // Act
-      var promise = SkillsDataHandler.deleteSkill(9999);
+      var promise: Promise<Skill> =
+        SkillsDataHandler.deleteSkill(9999);
 
       // Assert
       return expect(promise).to.eventually.fulfilled;
@@ -77,10 +78,27 @@ describe('SkillsDataHandler', () => {
       var skillToDelete = testModels.skills[0];
 
       // Act
-      var promise = SkillsDataHandler.deleteSkill(skillToDelete.id);
+      var promise: Promise<Skill> =
+        SkillsDataHandler.deleteSkill(skillToDelete.id);
 
       // Assert
       return expect(promise).to.eventually.fulfilled;
+    });
+
+    it('existing skill should remove the skill', () => {
+      // Arrange
+      var skillToDelete = testModels.skills[0];
+
+      // Act
+      var promise: Promise<Skill> =
+        SkillsDataHandler.deleteSkill(skillToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => SkillsDataHandler.getSkill(skillToDelete.id))
+        .then((skill: Skill) => {
+          expect(skill).to.be.null;
+        })
     });
 
     it('existing skill should remove the relevant skill prerequisites', () => {
@@ -88,7 +106,8 @@ describe('SkillsDataHandler', () => {
       var skillToDelete = testModels.skills[0];
 
       // Act
-      var promise = SkillsDataHandler.deleteSkill(skillToDelete.id);
+      var promise: Promise<Skill> =
+        SkillsDataHandler.deleteSkill(skillToDelete.id);
 
       // Assert
       return expect(promise).to.eventually.fulfilled
@@ -106,7 +125,8 @@ describe('SkillsDataHandler', () => {
       var skillToDelete = testModels.skills[0];
 
       // Act
-      var promise = SkillsDataHandler.deleteSkill(skillToDelete.id);
+      var promise: Promise<Skill> =
+        SkillsDataHandler.deleteSkill(skillToDelete.id);
 
       // Assert
       return expect(promise).to.eventually.fulfilled
@@ -124,7 +144,8 @@ describe('SkillsDataHandler', () => {
       var skillToDelete = testModels.skills[0];
 
       // Act
-      var promise = SkillsDataHandler.deleteSkill(skillToDelete.id);
+      var promise: Promise<Skill> =
+        SkillsDataHandler.deleteSkill(skillToDelete.id);
 
       // Assert
       return expect(promise).to.eventually.fulfilled
@@ -143,7 +164,8 @@ describe('SkillsDataHandler', () => {
       var skillToDelete = testModels.skills[0];
 
       // Act
-      var promise = SkillsDataHandler.deleteSkill(skillToDelete.id);
+      var promise: Promise<Skill> =
+        SkillsDataHandler.deleteSkill(skillToDelete.id);
 
       // Assert
       return expect(promise).to.eventually.fulfilled
@@ -274,7 +296,8 @@ describe('SkillsDataHandler', () => {
 
     it('not existing skill prerequisite should not fail', () => {
       // Act
-      var promise = SkillsDataHandler.removeSkillPrerequisite(9999);
+      var promise: Promise<SkillPrerequisite> =
+        SkillsDataHandler.removeSkillPrerequisite(9999);
 
       // Assert
       return expect(promise).to.eventually.fulfilled;
@@ -285,7 +308,8 @@ describe('SkillsDataHandler', () => {
       var prerequisiteToRemove: SkillPrerequisite = testModels.skillPrerequisites[0];
 
       // Act
-      var promise = SkillsDataHandler.removeSkillPrerequisite(prerequisiteToRemove.id);
+      var promise: Promise<SkillPrerequisite> =
+        SkillsDataHandler.removeSkillPrerequisite(prerequisiteToRemove.id);
 
       // Assert
       return expect(promise).to.eventually.fulfilled

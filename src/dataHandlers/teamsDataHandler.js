@@ -16,6 +16,15 @@ var TeamsDataHandler = (function () {
     TeamsDataHandler.addTeamMember = function (teamMemberInfo) {
         return new teamMember_1.TeamMember(teamMemberInfo).save();
     };
+    TeamsDataHandler.removeTeamMember = function (userId) {
+        var userIdQuery = {};
+        userIdQuery[teamMember_1.TeamMember.userIdAttribute] = userId;
+        var destroyOptions = {
+            require: false,
+            cascadeDelete: false
+        };
+        return new teamMember_1.TeamMember().where(userIdQuery).destroy(destroyOptions);
+    };
     TeamsDataHandler.addTeamSkill = function (teamSkillInfo) {
         return new teamSkill_1.TeamSkill(teamSkillInfo).save();
     };
