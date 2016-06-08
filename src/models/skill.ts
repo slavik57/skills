@@ -1,3 +1,4 @@
+import {IPrerequisitesOfASkill} from "./interfaces/iPrerequisitesOfASkill";
 import {ISkillRelations} from "./interfaces/iSkillRelations";
 import {ITeamsOfASkill} from "./interfaces/iTeamsOfASkill";
 import {ModelBase} from "./modelBase";
@@ -126,29 +127,42 @@ export class Skills extends bookshelf.Collection<Skill> {
         return _skillsCollection.toArray();
       })
       .then((_skills: Skill[]) => {
-        return this._mapTeamsToSkills(_skills);
+        return _.map(_skills, _skill => this._convertToTeamsOfASkill(_skill))
       });
   }
 
-  private static _mapTeamsToSkills(skills: Skill[]): ITeamsOfASkill[] {
-    var result: ITeamsOfASkill[] = [];
+  public static getSkillsToPrerequisitesMap(): Promise<IPrerequisitesOfASkill[]> {
+    var fetchOptions: CollectionFetchOptions = {
+      withRelated: [
+        Skill.relatedSkillPrerequisitesAttribute
+      ]
+    };
 
-    skills.forEach((_skill: Skill) => {
-      var teamsOfASkill: ITeamsOfASkill = this._convertToTeamsOfASkill(_skill);
-
-      result.push(teamsOfASkill);
-    });
-
-    return result;
+    return new Skills()
+      .fetch(fetchOptions)
+      .then((_skillsCollection: Collection<Skill>) => {
+        return _skillsCollection.toArray();
+      })
+      .then((_skills: Skill[]) => {
+        return _.map(_skills, _skill => this._convertToPrerequisitesOfASkill(_skill))
+      });
   }
 
   private static _convertToTeamsOfASkill(skill: Skill): ITeamsOfASkill {
-
     var teamSkills: TeamSkill[] = skill.relations.teamSkills.toArray();
 
     return {
       skill: skill,
       teamsIds: _.map(teamSkills, _ => _.attributes.team_id)
+    }
+  }
+
+  private static _convertToPrerequisitesOfASkill(skill: Skill): IPrerequisitesOfASkill {
+    var skillPrerequisites: SkillPrerequisite[] = skill.relations.skillPrerequisites.toArray();
+
+    return {
+      skill: skill,
+      prerequisiteSkillIds: _.map(skillPrerequisites, _ => _.attributes.skill_prerequisite_id)
     }
   }
 }

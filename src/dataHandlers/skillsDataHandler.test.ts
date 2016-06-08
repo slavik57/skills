@@ -1,3 +1,4 @@
+import {IPrerequisitesOfASkill} from "../models/interfaces/iPrerequisitesOfASkill";
 import {ITeamsOfASkill} from "../models/interfaces/iTeamsOfASkill";
 import {TeamSkillUpvote} from "../models/teamSkillUpvote";
 import {ITestModels} from "../testUtils/interfaces/iTestModels";
@@ -616,6 +617,136 @@ describe('SkillsDataHandler', () => {
       return ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise,
         expectedSkillInfos,
         ModelInfoComparers.compareSkillInfos);
+    });
+
+  });
+
+  describe('getSkillsToPrerequisitesMap', () => {
+
+    function createSkillPrerequisites(skillsToPrerequisites: IPrerequisitesOfASkill[]): Promise<SkillPrerequisite[]> {
+      var skillPrerequisitePromises: Promise<SkillPrerequisite>[] = [];
+
+      skillsToPrerequisites.forEach((skillPrerequisite: IPrerequisitesOfASkill) => {
+        skillPrerequisite.prerequisiteSkillIds.forEach((_prerequisiteSkillId: number) => {
+
+          var skillPrerequisiteInfo: ISkillPrerequisiteInfo = {
+            skill_id: skillPrerequisite.skill.id,
+            skill_prerequisite_id: _prerequisiteSkillId
+          }
+
+          var skillPrerequisitePromise: Promise<SkillPrerequisite> =
+            SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo);
+
+          skillPrerequisitePromises.push(skillPrerequisitePromise);
+
+        });
+      });
+
+      return Promise.all(skillPrerequisitePromises);
+    }
+
+    function verifySkillsToPrerequisites(actual: IPrerequisitesOfASkill[], expected: IPrerequisitesOfASkill[]): void {
+      expect(actual.length).to.be.equal(expected.length);
+
+      var actualSkills: Skill[] = _.map(actual, _ => _.skill);
+      var expectedSkills: Skill[] = _.map(actual, _ => _.skill);
+
+      ModelVerificator.verifyMultipleModelsEqualById(actualSkills, expectedSkills);
+
+      verifySkillsToPrerequisitesHasCorrectPrerequisitesForEachSkill(actual, expected);
+    }
+
+    function verifySkillsToPrerequisitesHasCorrectPrerequisitesForEachSkill(actual: IPrerequisitesOfASkill[], expected: IPrerequisitesOfASkill[]): void {
+      var actualSorted: IPrerequisitesOfASkill[] = _.orderBy(actual, _ => _.skill.id);
+      var expectedSorted: IPrerequisitesOfASkill[] = _.orderBy(expected, _ => _.skill.id);
+
+      for (var i = 0; i < expected.length; i++) {
+        var actualSkillTeamIds: number[] = actualSorted[0].prerequisiteSkillIds;
+        var expectedSkillTeamIds: number[] = expectedSorted[0].prerequisiteSkillIds;
+
+        expect(actualSkillTeamIds.sort()).to.deep.equal(expectedSkillTeamIds.sort());
+      }
+    }
+
+    it('no skills should return empty mapping', () => {
+      // Act
+      var promise: Promise<IPrerequisitesOfASkill[]> =
+        SkillsDataHandler.getSkillsToPrerequisitesMap();
+
+      // Arrange
+      return expect(promise).to.eventually.deep.equal([]);
+    });
+
+    it('has skills without teams should return correct result', () => {
+      // Arrange
+      var numberOfSkills = 5;
+      var skills: Skill[];
+      var expectedSkillsToPrerequisites: IPrerequisitesOfASkill[];
+
+      var addSkillsPromise: Promise<Skill[]> =
+        EnvironmentDirtifier.createSkills(numberOfSkills)
+          .then((_skills: Skill[]) => {
+            skills = _skills;
+
+            expectedSkillsToPrerequisites =
+              _.map(_skills, _skill => {
+                return <IPrerequisitesOfASkill>{
+                  skill: _skill,
+                  prerequisiteSkillIds: []
+                }
+              });
+
+            return _skills;
+
+          });
+
+      // Act
+      var promise: Promise<IPrerequisitesOfASkill[]> =
+        addSkillsPromise.then(() => SkillsDataHandler.getSkillsToPrerequisitesMap());
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then((_skillsToPrerequisites: IPrerequisitesOfASkill[]) => {
+          verifySkillsToPrerequisites(_skillsToPrerequisites, expectedSkillsToPrerequisites);
+        });
+    });
+
+    it('has skills with teams knowing them should return correct result', () => {
+      // Arrange
+      var numberOfSkills = 5;
+      var skills: Skill[];
+      var addSkillsPromise: Promise<Skill[]> =
+        EnvironmentDirtifier.createSkills(numberOfSkills)
+          .then((_skills: Skill[]) => {
+            skills = _skills;
+            return _skills;
+          });
+
+      var expectedSkillsToPrerequisites: IPrerequisitesOfASkill[];
+
+      var addSkillPrerequisitesPromise: Promise<SkillPrerequisite[]> =
+        addSkillsPromise
+          .then(() => {
+            expectedSkillsToPrerequisites =
+              [
+                { skill: skills[0], prerequisiteSkillIds: [skills[1].id, skills[2].id, skills[3].id, skills[4].id] },
+                { skill: skills[1], prerequisiteSkillIds: [skills[0].id, skills[2].id, skills[4].id] },
+                { skill: skills[2], prerequisiteSkillIds: [skills[1].id, skills[3].id] },
+                { skill: skills[3], prerequisiteSkillIds: [skills[1].id, skills[2].id, skills[4].id] },
+                { skill: skills[4], prerequisiteSkillIds: [skills[1].id, skills[2].id, skills[3].id] },
+              ];
+          })
+          .then(() => createSkillPrerequisites(expectedSkillsToPrerequisites));
+
+      // Act
+      var promise: Promise<IPrerequisitesOfASkill[]> =
+        addSkillsPromise.then(() => SkillsDataHandler.getSkillsToPrerequisitesMap());
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then((_skillsToPrerequisites: IPrerequisitesOfASkill[]) => {
+          verifySkillsToPrerequisites(_skillsToPrerequisites, expectedSkillsToPrerequisites);
+        });
     });
 
   });

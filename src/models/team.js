@@ -133,17 +133,8 @@ var Teams = (function (_super) {
             return _teamsCollection.toArray();
         })
             .then(function (_teams) {
-            return _this._mapSkillsToTeams(_teams);
+            return _.map(_teams, function (_team) { return _this._convertToSkillsOfATeam(_team); });
         });
-    };
-    Teams._mapSkillsToTeams = function (teams) {
-        var _this = this;
-        var result = [];
-        teams.forEach(function (_team) {
-            var skillsOfATeam = _this._convertToSkillsOfATeam(_team);
-            result.push(skillsOfATeam);
-        });
-        return result;
     };
     Teams._convertToSkillsOfATeam = function (team) {
         var teamSkills = team.relations.teamSkills.toArray();

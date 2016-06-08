@@ -44,6 +44,9 @@ var SkillsDataHandler = (function () {
         return this._fetchContributingSkillsBySkill(skill)
             .then(function (skills) { return skills.toArray(); });
     };
+    SkillsDataHandler.getSkillsToPrerequisitesMap = function () {
+        return skill_1.Skills.getSkillsToPrerequisitesMap();
+    };
     SkillsDataHandler.getSkill = function (skillId) {
         var fetchOptions = {
             require: false

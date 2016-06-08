@@ -129,25 +129,11 @@ export class Teams extends bookshelf.Collection<Team> {
         return _teamsCollection.toArray();
       })
       .then((_teams: Team[]) => {
-        return this._mapSkillsToTeams(_teams);
+        return _.map(_teams, _team => this._convertToSkillsOfATeam(_team));
       });
   }
 
-
-  private static _mapSkillsToTeams(teams: Team[]): ISkillsOfATeam[] {
-    var result: ISkillsOfATeam[] = [];
-
-    teams.forEach((_team: Team) => {
-      var skillsOfATeam: ISkillsOfATeam = this._convertToSkillsOfATeam(_team);
-
-      result.push(skillsOfATeam);
-    });
-
-    return result;
-  }
-
   private static _convertToSkillsOfATeam(team: Team): ISkillsOfATeam {
-
     var teamSkills: TeamSkill[] = team.relations.teamSkills.toArray();
 
     return {

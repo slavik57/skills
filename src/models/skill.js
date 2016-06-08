@@ -137,23 +137,37 @@ var Skills = (function (_super) {
             return _skillsCollection.toArray();
         })
             .then(function (_skills) {
-            return _this._mapTeamsToSkills(_skills);
+            return _.map(_skills, function (_skill) { return _this._convertToTeamsOfASkill(_skill); });
         });
     };
-    Skills._mapTeamsToSkills = function (skills) {
+    Skills.getSkillsToPrerequisitesMap = function () {
         var _this = this;
-        var result = [];
-        skills.forEach(function (_skill) {
-            var teamsOfASkill = _this._convertToTeamsOfASkill(_skill);
-            result.push(teamsOfASkill);
+        var fetchOptions = {
+            withRelated: [
+                Skill.relatedSkillPrerequisitesAttribute
+            ]
+        };
+        return new Skills()
+            .fetch(fetchOptions)
+            .then(function (_skillsCollection) {
+            return _skillsCollection.toArray();
+        })
+            .then(function (_skills) {
+            return _.map(_skills, function (_skill) { return _this._convertToPrerequisitesOfASkill(_skill); });
         });
-        return result;
     };
     Skills._convertToTeamsOfASkill = function (skill) {
         var teamSkills = skill.relations.teamSkills.toArray();
         return {
             skill: skill,
             teamsIds: _.map(teamSkills, function (_) { return _.attributes.team_id; })
+        };
+    };
+    Skills._convertToPrerequisitesOfASkill = function (skill) {
+        var skillPrerequisites = skill.relations.skillPrerequisites.toArray();
+        return {
+            skill: skill,
+            prerequisiteSkillIds: _.map(skillPrerequisites, function (_) { return _.attributes.skill_prerequisite_id; })
         };
     };
     return Skills;

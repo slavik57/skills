@@ -349,6 +349,91 @@ describe('SkillsDataHandler', function () {
             return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedSkillInfos, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
     });
+    describe('getSkillsToPrerequisitesMap', function () {
+        function createSkillPrerequisites(skillsToPrerequisites) {
+            var skillPrerequisitePromises = [];
+            skillsToPrerequisites.forEach(function (skillPrerequisite) {
+                skillPrerequisite.prerequisiteSkillIds.forEach(function (_prerequisiteSkillId) {
+                    var skillPrerequisiteInfo = {
+                        skill_id: skillPrerequisite.skill.id,
+                        skill_prerequisite_id: _prerequisiteSkillId
+                    };
+                    var skillPrerequisitePromise = skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo);
+                    skillPrerequisitePromises.push(skillPrerequisitePromise);
+                });
+            });
+            return Promise.all(skillPrerequisitePromises);
+        }
+        function verifySkillsToPrerequisites(actual, expected) {
+            chai_1.expect(actual.length).to.be.equal(expected.length);
+            var actualSkills = _.map(actual, function (_) { return _.skill; });
+            var expectedSkills = _.map(actual, function (_) { return _.skill; });
+            modelVerificator_1.ModelVerificator.verifyMultipleModelsEqualById(actualSkills, expectedSkills);
+            verifySkillsToPrerequisitesHasCorrectPrerequisitesForEachSkill(actual, expected);
+        }
+        function verifySkillsToPrerequisitesHasCorrectPrerequisitesForEachSkill(actual, expected) {
+            var actualSorted = _.orderBy(actual, function (_) { return _.skill.id; });
+            var expectedSorted = _.orderBy(expected, function (_) { return _.skill.id; });
+            for (var i = 0; i < expected.length; i++) {
+                var actualSkillTeamIds = actualSorted[0].prerequisiteSkillIds;
+                var expectedSkillTeamIds = expectedSorted[0].prerequisiteSkillIds;
+                chai_1.expect(actualSkillTeamIds.sort()).to.deep.equal(expectedSkillTeamIds.sort());
+            }
+        }
+        it('no skills should return empty mapping', function () {
+            var promise = skillsDataHandler_1.SkillsDataHandler.getSkillsToPrerequisitesMap();
+            return chai_1.expect(promise).to.eventually.deep.equal([]);
+        });
+        it('has skills without teams should return correct result', function () {
+            var numberOfSkills = 5;
+            var skills;
+            var expectedSkillsToPrerequisites;
+            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills)
+                .then(function (_skills) {
+                skills = _skills;
+                expectedSkillsToPrerequisites =
+                    _.map(_skills, function (_skill) {
+                        return {
+                            skill: _skill,
+                            prerequisiteSkillIds: []
+                        };
+                    });
+                return _skills;
+            });
+            var promise = addSkillsPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsToPrerequisitesMap(); });
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function (_skillsToPrerequisites) {
+                verifySkillsToPrerequisites(_skillsToPrerequisites, expectedSkillsToPrerequisites);
+            });
+        });
+        it('has skills with teams knowing them should return correct result', function () {
+            var numberOfSkills = 5;
+            var skills;
+            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills)
+                .then(function (_skills) {
+                skills = _skills;
+                return _skills;
+            });
+            var expectedSkillsToPrerequisites;
+            var addSkillPrerequisitesPromise = addSkillsPromise
+                .then(function () {
+                expectedSkillsToPrerequisites =
+                    [
+                        { skill: skills[0], prerequisiteSkillIds: [skills[1].id, skills[2].id, skills[3].id, skills[4].id] },
+                        { skill: skills[1], prerequisiteSkillIds: [skills[0].id, skills[2].id, skills[4].id] },
+                        { skill: skills[2], prerequisiteSkillIds: [skills[1].id, skills[3].id] },
+                        { skill: skills[3], prerequisiteSkillIds: [skills[1].id, skills[2].id, skills[4].id] },
+                        { skill: skills[4], prerequisiteSkillIds: [skills[1].id, skills[2].id, skills[3].id] },
+                    ];
+            })
+                .then(function () { return createSkillPrerequisites(expectedSkillsToPrerequisites); });
+            var promise = addSkillsPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsToPrerequisitesMap(); });
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function (_skillsToPrerequisites) {
+                verifySkillsToPrerequisites(_skillsToPrerequisites, expectedSkillsToPrerequisites);
+            });
+        });
+    });
     describe('getTeams', function () {
         function verifyTeamUpvotingUsersAsync(actualTeamsOfSkillPromise, expectedSkillUpdvotes) {
             return chai_1.expect(actualTeamsOfSkillPromise).to.eventually.fulfilled

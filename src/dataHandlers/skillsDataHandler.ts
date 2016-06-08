@@ -1,3 +1,4 @@
+import {IPrerequisitesOfASkill} from "../models/interfaces/iPrerequisitesOfASkill";
 import {TeamSkills} from "../models/teamSkill";
 import {ITeamsOfASkill} from "../models/interfaces/iTeamsOfASkill";
 import {IDestroyOptions} from "./interfaces/iDestroyOptions";
@@ -59,6 +60,10 @@ export class SkillsDataHandler {
 
     return this._fetchContributingSkillsBySkill(skill)
       .then((skills: Collection<Skill>) => skills.toArray());
+  }
+
+  public static getSkillsToPrerequisitesMap(): Promise<IPrerequisitesOfASkill[]> {
+    return Skills.getSkillsToPrerequisitesMap();
   }
 
   public static getSkill(skillId: number): Promise<Skill> {
