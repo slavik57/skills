@@ -1,3 +1,5 @@
+import {ISkillRelations} from "./interfaces/iSkillRelations";
+import {ITeamsOfASkill} from "./interfaces/iTeamsOfASkill";
 import {ModelBase} from "./modelBase";
 import {TeamSkillUpvote} from "./teamSkillUpvote";
 import {Team} from "./team";
@@ -20,6 +22,8 @@ export class Skill extends ModelBase<Skill, ISkillInfo> {
       Skill.relatedTeamSkillsAttribute
     ];
   }
+
+  public relations: ISkillRelations;
 
   public static get nameAttribute(): string { return 'name'; }
   public static get relatedSkillPrerequisitesAttribute(): string { return 'skillPrerequisites'; }
@@ -107,5 +111,45 @@ export class Skills extends bookshelf.Collection<Skill> {
 
   public static clearAll(): Promise<any> {
     return new Skills().query().del();
+  }
+
+
+  public static getTeamsOfSkills(): Promise<ITeamsOfASkill[]> {
+    var fetchOptions: CollectionFetchOptions = {
+      withRelated: [
+        Skill.relatedTeamSkillsAttribute
+      ]
+    };
+
+    return new Skills()
+      .fetch(fetchOptions)
+      .then((_skillsCollection: Collection<Skill>) => {
+        return _skillsCollection.toArray();
+      })
+      .then((_skills: Skill[]) => {
+        return this._mapTeamsToSkills(_skills);
+      });
+  }
+
+  private static _mapTeamsToSkills(skills: Skill[]): ITeamsOfASkill[] {
+    var result: ITeamsOfASkill[] = [];
+
+    skills.forEach((_skill: Skill) => {
+      var teamsOfASkill: ITeamsOfASkill = this._convertToTeamOfASkill(_skill);
+
+      result.push(teamsOfASkill);
+    });
+
+    return result;
+  }
+
+  private static _convertToTeamOfASkill(skill: Skill): ITeamsOfASkill {
+
+    var teamSkills: TeamSkill[] = skill.relations.teamSkills.toArray();
+
+    return {
+      skill: skill,
+      teamsIds: _.map(teamSkills, _ => _.attributes.team_id)
+    }
   }
 }

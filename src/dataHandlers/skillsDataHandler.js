@@ -55,6 +55,9 @@ var SkillsDataHandler = (function () {
         var skill = this._initializeSkillByIdQuery(skillId);
         return this._fetchSkillTeams(skill);
     };
+    SkillsDataHandler.getTeamsOfSkills = function () {
+        return skill_1.Skills.getTeamsOfSkills();
+    };
     SkillsDataHandler._initializeSkillByIdQuery = function (skillId) {
         var queryCondition = {};
         queryCondition[skill_1.Skill.idAttribute] = skillId;

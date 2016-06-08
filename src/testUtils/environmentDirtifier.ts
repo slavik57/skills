@@ -52,6 +52,28 @@ export class EnvironmentDirtifier {
       .then(() => testModels);
   }
 
+  public static createSkills(numberOfSkills: number): Promise<Skill[]> {
+    var skillCreationPromises: Promise<Skill>[] = [];
+    for (var i = 0; i < numberOfSkills; i++) {
+      var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo(i.toString());
+
+      skillCreationPromises.push(SkillsDataHandler.createSkill(skillInfo));
+    }
+
+    return Promise.all(skillCreationPromises);
+  }
+
+  public static createTeams(numberOfTeams: number): Promise<Team[]> {
+    var teamCreationPromises: Promise<Team>[] = [];
+    for (var i = 0; i < numberOfTeams; i++) {
+      var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo(i.toString());
+
+      teamCreationPromises.push(TeamsDataHandler.createTeam(teamInfo));
+    }
+
+    return Promise.all(teamCreationPromises);
+  }
+
   private static _fillLevel0Tables(testModels: ITestModels): Promise<any> {
     return Promise.all([
       this._fillUsers(testModels),
@@ -88,28 +110,14 @@ export class EnvironmentDirtifier {
   }
 
   private static _fillTeams(testModels: ITestModels): Promise<any> {
-    var teamCreationPromises: Promise<Team>[] = [];
-    for (var i = 0; i < this.numberOfTeams; i++) {
-      var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo(i.toString());
-
-      teamCreationPromises.push(TeamsDataHandler.createTeam(teamInfo));
-    }
-
-    return Promise.all(teamCreationPromises)
+    return this.createTeams(this.numberOfTeams)
       .then((teams: Team[]) => {
         testModels.teams = teams;
       });
   }
 
   private static _fillSkills(testModels: ITestModels): Promise<any> {
-    var skillCreationPromises: Promise<Skill>[] = [];
-    for (var i = 0; i < this.numberOfSkills; i++) {
-      var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo(i.toString());
-
-      skillCreationPromises.push(SkillsDataHandler.createSkill(skillInfo));
-    }
-
-    return Promise.all(skillCreationPromises)
+    return this.createSkills(this.numberOfSkills)
       .then((skills: Skill[]) => {
         testModels.skills = skills;
       });

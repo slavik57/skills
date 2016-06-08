@@ -124,6 +124,38 @@ var Skills = (function (_super) {
     Skills.clearAll = function () {
         return new Skills().query().del();
     };
+    Skills.getTeamsOfSkills = function () {
+        var _this = this;
+        var fetchOptions = {
+            withRelated: [
+                Skill.relatedTeamSkillsAttribute
+            ]
+        };
+        return new Skills()
+            .fetch(fetchOptions)
+            .then(function (_skillsCollection) {
+            return _skillsCollection.toArray();
+        })
+            .then(function (_skills) {
+            return _this._mapTeamsToSkills(_skills);
+        });
+    };
+    Skills._mapTeamsToSkills = function (skills) {
+        var _this = this;
+        var result = [];
+        skills.forEach(function (_skill) {
+            var teamsOfASkill = _this._convertToTeamOfASkill(_skill);
+            result.push(teamsOfASkill);
+        });
+        return result;
+    };
+    Skills._convertToTeamOfASkill = function (skill) {
+        var teamSkills = skill.relations.teamSkills.toArray();
+        return {
+            skill: skill,
+            teamsIds: _.map(teamSkills, function (_) { return _.attributes.team_id; })
+        };
+    };
     return Skills;
 }(bookshelf_1.bookshelf.Collection));
 exports.Skills = Skills;

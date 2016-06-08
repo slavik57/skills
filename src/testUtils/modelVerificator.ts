@@ -27,4 +27,16 @@ export class ModelVerificator {
         ModelInfoVerificator.verifyInfo(model.attributes, expectedInfo);
       });
   }
+
+  public static verifyMultipleModelsEqualById<TModel extends ModelBase<TModel, IInfo>, IInfo>(
+    actual: TModel[],
+    expected: TModel[]): void {
+
+    expect(actual.length).to.be.equal(expected.length);
+
+    var sortedActual: TModel[] = _.orderBy(actual, _ => _.id);
+    var sortedExpected: TModel[] = _.orderBy(expected, _ => _.id);
+
+    expect(sortedActual).to.deep.equal(sortedExpected);
+  }
 }

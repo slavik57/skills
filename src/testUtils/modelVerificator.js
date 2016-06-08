@@ -18,6 +18,12 @@ var ModelVerificator = (function () {
             modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(model.attributes, expectedInfo);
         });
     };
+    ModelVerificator.verifyMultipleModelsEqualById = function (actual, expected) {
+        chai_1.expect(actual.length).to.be.equal(expected.length);
+        var sortedActual = _.orderBy(actual, function (_) { return _.id; });
+        var sortedExpected = _.orderBy(expected, function (_) { return _.id; });
+        chai_1.expect(sortedActual).to.deep.equal(sortedExpected);
+    };
     return ModelVerificator;
 }());
 exports.ModelVerificator = ModelVerificator;

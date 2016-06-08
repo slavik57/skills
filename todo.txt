@@ -1,4 +1,5 @@
 todo:
-- skill knowledge percentage (know/dont know) (already have the knowing teams, need to count all and devide)
+- team skill knowledge percentage (how many skills each team knows)
 - skill graph (get all skills with its prerequisite ids)
 - UI in sails for node.js?
+- Read about reddis...

@@ -52,6 +52,22 @@ var EnvironmentDirtifier = (function () {
             .then(function () { return _this._fillLevel2Tables(testModels); })
             .then(function () { return testModels; });
     };
+    EnvironmentDirtifier.createSkills = function (numberOfSkills) {
+        var skillCreationPromises = [];
+        for (var i = 0; i < numberOfSkills; i++) {
+            var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo(i.toString());
+            skillCreationPromises.push(skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo));
+        }
+        return Promise.all(skillCreationPromises);
+    };
+    EnvironmentDirtifier.createTeams = function (numberOfTeams) {
+        var teamCreationPromises = [];
+        for (var i = 0; i < numberOfTeams; i++) {
+            var teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo(i.toString());
+            teamCreationPromises.push(teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo));
+        }
+        return Promise.all(teamCreationPromises);
+    };
     EnvironmentDirtifier._fillLevel0Tables = function (testModels) {
         return Promise.all([
             this._fillUsers(testModels),
@@ -82,23 +98,13 @@ var EnvironmentDirtifier = (function () {
         });
     };
     EnvironmentDirtifier._fillTeams = function (testModels) {
-        var teamCreationPromises = [];
-        for (var i = 0; i < this.numberOfTeams; i++) {
-            var teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo(i.toString());
-            teamCreationPromises.push(teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo));
-        }
-        return Promise.all(teamCreationPromises)
+        return this.createTeams(this.numberOfTeams)
             .then(function (teams) {
             testModels.teams = teams;
         });
     };
     EnvironmentDirtifier._fillSkills = function (testModels) {
-        var skillCreationPromises = [];
-        for (var i = 0; i < this.numberOfSkills; i++) {
-            var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo(i.toString());
-            skillCreationPromises.push(skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo));
-        }
-        return Promise.all(skillCreationPromises)
+        return this.createSkills(this.numberOfSkills)
             .then(function (skills) {
             testModels.skills = skills;
         });
