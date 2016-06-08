@@ -45,6 +45,25 @@ export class TeamsDataHandler {
     return new TeamSkill(teamSkillInfo).save();
   }
 
+  public static removeTeamSkill(teamId: number, skillId: number): Promise<TeamSkill> {
+    var query = {};
+    query[TeamSkill.teamIdAttribute] = teamId;
+    query[TeamSkill.skillIdAttribute] = skillId;
+
+    /* TODO: when the issue: https://github.com/seegno/bookshelf-cascade-delete/issues/14
+            is fixed just use this line without the need for fetching:
+            new TeamSkill().where(query).destroy();
+    */
+    return new TeamSkill().where(query).fetch()
+      .then((_teamSkill: TeamSkill) => {
+        if (!_teamSkill) {
+          return Promise.resolve(null);
+        }
+
+        return _teamSkill.destroy();
+      });
+  }
+
   public static getTeamMembers(teamId: number): Promise<IUserOfATeam[]> {
     var team: Team = this._initializeTeamByIdQuery(teamId);
 
