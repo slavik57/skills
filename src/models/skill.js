@@ -144,12 +144,12 @@ var Skills = (function (_super) {
         var _this = this;
         var result = [];
         skills.forEach(function (_skill) {
-            var teamsOfASkill = _this._convertToTeamOfASkill(_skill);
+            var teamsOfASkill = _this._convertToTeamsOfASkill(_skill);
             result.push(teamsOfASkill);
         });
         return result;
     };
-    Skills._convertToTeamOfASkill = function (skill) {
+    Skills._convertToTeamsOfASkill = function (skill) {
         var teamSkills = skill.relations.teamSkills.toArray();
         return {
             skill: skill,

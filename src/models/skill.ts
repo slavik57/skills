@@ -113,7 +113,6 @@ export class Skills extends bookshelf.Collection<Skill> {
     return new Skills().query().del();
   }
 
-
   public static getTeamsOfSkills(): Promise<ITeamsOfASkill[]> {
     var fetchOptions: CollectionFetchOptions = {
       withRelated: [
@@ -135,7 +134,7 @@ export class Skills extends bookshelf.Collection<Skill> {
     var result: ITeamsOfASkill[] = [];
 
     skills.forEach((_skill: Skill) => {
-      var teamsOfASkill: ITeamsOfASkill = this._convertToTeamOfASkill(_skill);
+      var teamsOfASkill: ITeamsOfASkill = this._convertToTeamsOfASkill(_skill);
 
       result.push(teamsOfASkill);
     });
@@ -143,7 +142,7 @@ export class Skills extends bookshelf.Collection<Skill> {
     return result;
   }
 
-  private static _convertToTeamOfASkill(skill: Skill): ITeamsOfASkill {
+  private static _convertToTeamsOfASkill(skill: Skill): ITeamsOfASkill {
 
     var teamSkills: TeamSkill[] = skill.relations.teamSkills.toArray();
 

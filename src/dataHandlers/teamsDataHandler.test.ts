@@ -1,3 +1,4 @@
+import {ISkillsOfATeam} from "../models/interfaces/iSkillsOfATeam";
 import {TeamSkillUpvote} from "../models/teamSkillUpvote";
 import {EnvironmentDirtifier} from "../testUtils/environmentDirtifier";
 import {ITestModels} from "../testUtils/interfaces/iTestModels";
@@ -1186,6 +1187,142 @@ describe('TeamsDataHandler', () => {
         .then((usersOfATeam: IUserOfATeam[]) => {
           expect(usersOfATeam.length).to.be.equal(1);
           expect(usersOfATeam[0].isAdmin).to.be.false;
+        });
+    });
+
+  });
+
+
+  describe('getSkillsOfTeams', () => {
+
+    function createTeamSkills(teamsToSkills: ISkillsOfATeam[]): Promise<TeamSkill[]> {
+      var teamSkillPromises: Promise<TeamSkill>[] = [];
+
+      teamsToSkills.forEach((_skillsOfATeam: ISkillsOfATeam) => {
+        _skillsOfATeam.skillIds.forEach((_skillId: number) => {
+
+          var teamSkillInfo: ITeamSkillInfo = {
+            team_id: _skillsOfATeam.team.id,
+            skill_id: _skillId
+          }
+
+          var teamSkillPromise: Promise<TeamSkill> =
+            TeamsDataHandler.addTeamSkill(teamSkillInfo);
+
+          teamSkillPromises.push(teamSkillPromise);
+        });
+      });
+
+      return Promise.all(teamSkillPromises);
+    }
+
+    function verifyTeamsToSkills(actual: ISkillsOfATeam[], expected: ISkillsOfATeam[]): void {
+      expect(actual.length).to.be.equal(expected.length);
+
+      var actualTeams: Team[] = _.map(actual, _ => _.team);
+      var expectedTeams: Team[] = _.map(actual, _ => _.team);
+
+      ModelVerificator.verifyMultipleModelsEqualById(actualTeams, expectedTeams);
+
+      verifyTeamsToSkillsHasCorrectSkillsForEachTeam(actual, expected);
+    }
+
+    function verifyTeamsToSkillsHasCorrectSkillsForEachTeam(actual: ISkillsOfATeam[], expected: ISkillsOfATeam[]): void {
+      var actualSorted: ISkillsOfATeam[] = _.orderBy(actual, _ => _.team.id);
+      var expectedSorted: ISkillsOfATeam[] = _.orderBy(expected, _ => _.team.id);
+
+      for (var i = 0; i < expected.length; i++) {
+        var actualTeamSkillIds: number[] = actualSorted[0].skillIds;
+        var expectedTeamSkillIds: number[] = expectedSorted[0].skillIds;
+
+        expect(actualTeamSkillIds.sort()).to.deep.equal(expectedTeamSkillIds.sort());
+      }
+    }
+
+    it('no teams should return empty mapping', () => {
+      // Act
+      var promise: Promise<ISkillsOfATeam[]> =
+        TeamsDataHandler.getSkillsOfTeams();
+
+      // Arrange
+      return expect(promise).to.eventually.deep.equal([]);
+    });
+
+    it('has teams without skill should return correct result', () => {
+      // Arrange
+      var numberOfTeams = 5;
+      var teams: Team[];
+      var expectedTeamsToSkills: ISkillsOfATeam[];
+
+      var addTeamsPromise: Promise<Team[]> =
+        EnvironmentDirtifier.createTeams(numberOfTeams)
+          .then((_teams: Team[]) => {
+            teams = _teams;
+
+            expectedTeamsToSkills =
+              _.map(_teams, _team => {
+                return <ISkillsOfATeam>{
+                  team: _team,
+                  skillIds: []
+                }
+              });
+
+            return _teams;
+          });
+
+      // Act
+      var promise: Promise<ISkillsOfATeam[]> =
+        addTeamsPromise.then(() => TeamsDataHandler.getSkillsOfTeams());
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then((_teamsToSkills: ISkillsOfATeam[]) => {
+          verifyTeamsToSkills(_teamsToSkills, expectedTeamsToSkills);
+        });
+    });
+
+    it('has teams with skills should return correct result', () => {
+      // Arrange
+      var numberOfTeams = 3;
+      var teams: Team[];
+      var addTeamsPromise: Promise<Team[]> =
+        EnvironmentDirtifier.createTeams(numberOfTeams)
+          .then((_teams: Team[]) => {
+            teams = _teams;
+            return _teams;
+          });
+
+      var numberOfSkills = 5;
+      var skills: Skill[];
+      var addSkillsPromise: Promise<Skill[]> =
+        EnvironmentDirtifier.createSkills(numberOfSkills)
+          .then((_skills: Skill[]) => {
+            skills = _skills;
+            return _skills;
+          });
+
+      var expectedTeamsToSkills: ISkillsOfATeam[];
+
+      var addTeamSkillsPromise: Promise<TeamSkill[]> =
+        Promise.all([addTeamsPromise, addSkillsPromise])
+          .then(() => {
+            expectedTeamsToSkills =
+              [
+                { team: teams[0], skillIds: [skills[0].id, skills[1].id, skills[2].id, skills[3].id, skills[4].id] },
+                { team: teams[1], skillIds: [skills[0].id, skills[2].id, skills[4].id] },
+                { team: teams[2], skillIds: [skills[1].id, skills[3].id] },
+              ];
+          })
+          .then(() => createTeamSkills(expectedTeamsToSkills));
+
+      // Act
+      var promise: Promise<ISkillsOfATeam[]> =
+        addTeamsPromise.then(() => TeamsDataHandler.getSkillsOfTeams());
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then((_teamsToSkills: ISkillsOfATeam[]) => {
+          verifyTeamsToSkills(_teamsToSkills, expectedTeamsToSkills);
         });
     });
 

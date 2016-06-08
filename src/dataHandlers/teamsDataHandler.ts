@@ -1,3 +1,5 @@
+import {Teams} from "../models/team";
+import {ISkillsOfATeam} from "../models/interfaces/iSkillsOfATeam";
 import {IDestroyOptions} from "./interfaces/iDestroyOptions";
 import {TeamSkillUpvote} from "../models/teamSkillUpvote";
 import {ITeamSkillUpvoteInfo} from "../models/interfaces/iTeamSkillUpvoteInfo";
@@ -74,6 +76,10 @@ export class TeamsDataHandler {
     var team: Team = this._initializeTeamByIdQuery(teamId);
 
     return team.getTeamSkills();
+  }
+
+  public static getSkillsOfTeams(): Promise<ISkillsOfATeam[]> {
+    return Teams.getSkillsOfTeams();
   }
 
   public static getTeam(teamId: number): Promise<Team> {

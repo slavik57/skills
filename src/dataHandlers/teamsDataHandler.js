@@ -1,14 +1,15 @@
 "use strict";
+var team_1 = require("../models/team");
 var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
 var bookshelf_1 = require('../../bookshelf');
-var team_1 = require('../models/team');
+var team_2 = require('../models/team');
 var teamMember_1 = require('../models/teamMember');
 var teamSkill_1 = require('../models/teamSkill');
 var TeamsDataHandler = (function () {
     function TeamsDataHandler() {
     }
     TeamsDataHandler.createTeam = function (teamInfo) {
-        return new team_1.Team(teamInfo).save();
+        return new team_2.Team(teamInfo).save();
     };
     TeamsDataHandler.deleteTeam = function (teamId) {
         return this._initializeTeamByIdQuery(teamId).destroy();
@@ -49,6 +50,9 @@ var TeamsDataHandler = (function () {
         var team = this._initializeTeamByIdQuery(teamId);
         return team.getTeamSkills();
     };
+    TeamsDataHandler.getSkillsOfTeams = function () {
+        return team_1.Teams.getSkillsOfTeams();
+    };
     TeamsDataHandler.getTeam = function (teamId) {
         var team = this._initializeTeamByIdQuery(teamId);
         return team.fetch();
@@ -79,8 +83,8 @@ var TeamsDataHandler = (function () {
     };
     TeamsDataHandler._initializeTeamByIdQuery = function (teamId) {
         var queryCondition = {};
-        queryCondition[team_1.Team.idAttribute] = teamId;
-        return new team_1.Team(queryCondition);
+        queryCondition[team_2.Team.idAttribute] = teamId;
+        return new team_2.Team(queryCondition);
     };
     TeamsDataHandler._setAdminRightsInternal = function (teamId, userId, newAdminRights) {
         var queryCondition = {};

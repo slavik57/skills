@@ -1,6 +1,6 @@
 import {TeamSkill} from "../teamSkill";
 import {Collection} from 'bookshelf';
 
-export interface ISkillRelations {
+export interface ITeamRelations {
   teamSkills: Collection<TeamSkill>;
 }

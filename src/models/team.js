@@ -120,6 +120,38 @@ var Teams = (function (_super) {
     Teams.clearAll = function () {
         return new Teams().query().del();
     };
+    Teams.getSkillsOfTeams = function () {
+        var _this = this;
+        var fetchOptions = {
+            withRelated: [
+                Team.relatedTeamSkillsAttribute
+            ]
+        };
+        return new Teams()
+            .fetch(fetchOptions)
+            .then(function (_teamsCollection) {
+            return _teamsCollection.toArray();
+        })
+            .then(function (_teams) {
+            return _this._mapSkillsToTeams(_teams);
+        });
+    };
+    Teams._mapSkillsToTeams = function (teams) {
+        var _this = this;
+        var result = [];
+        teams.forEach(function (_team) {
+            var skillsOfATeam = _this._convertToSkillsOfATeam(_team);
+            result.push(skillsOfATeam);
+        });
+        return result;
+    };
+    Teams._convertToSkillsOfATeam = function (team) {
+        var teamSkills = team.relations.teamSkills.toArray();
+        return {
+            team: team,
+            skillIds: _.map(teamSkills, function (_) { return _.attributes.skill_id; })
+        };
+    };
     return Teams;
 }(bookshelf_1.bookshelf.Collection));
 exports.Teams = Teams;
