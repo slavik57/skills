@@ -64,15 +64,6 @@ export class TeamSkills extends bookshelf.Collection<TeamSkill> {
   model = TeamSkill;
 
   public static clearAll(): Promise<any> {
-    var promises: Promise<TeamSkill>[] = [];
-
-    return new TeamSkills().fetch().then((users: Collection<TeamSkill>) => {
-      users.each(teamSkills => {
-        var promise: Promise<TeamSkill> = teamSkills.destroy(null);
-        promises.push(promise);
-      });
-
-      return Promise.all(promises);
-    });
+    return new TeamSkills().query().del();
   }
 }

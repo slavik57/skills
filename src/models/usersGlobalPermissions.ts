@@ -19,15 +19,6 @@ export class UsersGlobalPermissions extends bookshelf.Collection<UserGlobalPermi
   model = UserGlobalPermissions;
 
   public static clearAll(): Promise<any> {
-    var promises: Promise<UserGlobalPermissions>[] = [];
-
-    return new UsersGlobalPermissions().fetch().then((users: Collection<UserGlobalPermissions>) => {
-      users.each(permission => {
-        var promise: Promise<UserGlobalPermissions> = permission.destroy(null);
-        promises.push(promise);
-      });
-
-      return Promise.all(promises);
-    });
+    return new UsersGlobalPermissions().query().del();
   }
 }

@@ -38,14 +38,7 @@ var UsersGlobalPermissions = (function (_super) {
         this.model = UserGlobalPermissions;
     }
     UsersGlobalPermissions.clearAll = function () {
-        var promises = [];
-        return new UsersGlobalPermissions().fetch().then(function (users) {
-            users.each(function (permission) {
-                var promise = permission.destroy(null);
-                promises.push(promise);
-            });
-            return Promise.all(promises);
-        });
+        return new UsersGlobalPermissions().query().del();
     };
     return UsersGlobalPermissions;
 }(bookshelf_1.bookshelf.Collection));

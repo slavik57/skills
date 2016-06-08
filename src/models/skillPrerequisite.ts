@@ -43,15 +43,6 @@ export class SkillPrerequisites extends bookshelf.Collection<SkillPrerequisite> 
   model = SkillPrerequisite;
 
   public static clearAll(): Promise<any> {
-    var promises: Promise<SkillPrerequisite>[] = [];
-
-    return new SkillPrerequisites().fetch().then((users: Collection<SkillPrerequisite>) => {
-      users.each(skillPrerequisite => {
-        var promise: Promise<SkillPrerequisite> = skillPrerequisite.destroy(null);
-        promises.push(promise);
-      });
-
-      return Promise.all(promises);
-    });
+    return new SkillPrerequisites().query().del();
   }
 }

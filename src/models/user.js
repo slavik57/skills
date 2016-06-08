@@ -95,14 +95,7 @@ var Users = (function (_super) {
         this.model = User;
     }
     Users.clearAll = function () {
-        var promises = [];
-        return new Users().fetch().then(function (users) {
-            users.each(function (user) {
-                var promise = user.destroy();
-                promises.push(promise);
-            });
-            return Promise.all(promises);
-        });
+        return new Users().query().del();
     };
     return Users;
 }(bookshelf_1.bookshelf.Collection));

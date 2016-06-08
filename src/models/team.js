@@ -123,14 +123,7 @@ var Teams = (function (_super) {
         this.model = Team;
     }
     Teams.clearAll = function () {
-        var promises = [];
-        return new Teams().fetch().then(function (teams) {
-            teams.each(function (team) {
-                var promise = team.destroy(null);
-                promises.push(promise);
-            });
-            return Promise.all(promises);
-        });
+        return new Teams().query().del();
     };
     return Teams;
 }(bookshelf_1.bookshelf.Collection));

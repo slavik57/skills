@@ -122,14 +122,7 @@ var Skills = (function (_super) {
         this.model = Skill;
     }
     Skills.clearAll = function () {
-        var promises = [];
-        return new Skills().fetch().then(function (skills) {
-            skills.each(function (skill) {
-                var promise = skill.destroy(null);
-                promises.push(promise);
-            });
-            return Promise.all(promises);
-        });
+        return new Skills().query().del();
     };
     return Skills;
 }(bookshelf_1.bookshelf.Collection));

@@ -66,14 +66,7 @@ var SkillPrerequisites = (function (_super) {
         this.model = SkillPrerequisite;
     }
     SkillPrerequisites.clearAll = function () {
-        var promises = [];
-        return new SkillPrerequisites().fetch().then(function (users) {
-            users.each(function (skillPrerequisite) {
-                var promise = skillPrerequisite.destroy(null);
-                promises.push(promise);
-            });
-            return Promise.all(promises);
-        });
+        return new SkillPrerequisites().query().del();
     };
     return SkillPrerequisites;
 }(bookshelf_1.bookshelf.Collection));

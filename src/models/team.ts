@@ -112,15 +112,6 @@ export class Teams extends bookshelf.Collection<Team> {
   model = Team;
 
   public static clearAll(): Promise<any> {
-    var promises: Promise<Team>[] = []
-
-    return new Teams().fetch().then((teams: Collection<Team>) => {
-      teams.each(team => {
-        var promise: Promise<Team> = team.destroy(null);
-        promises.push(promise);
-      });
-
-      return Promise.all(promises);
-    });
+    return new Teams().query().del();
   }
 }

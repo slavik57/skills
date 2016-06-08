@@ -106,15 +106,6 @@ export class Skills extends bookshelf.Collection<Skill> {
   model = Skill;
 
   public static clearAll(): Promise<any> {
-    var promises: Promise<Skill>[] = []
-
-    return new Skills().fetch().then((skills: Collection<Skill>) => {
-      skills.each(skill => {
-        var promise: Promise<Skill> = skill.destroy(null);
-        promises.push(promise);
-      });
-
-      return Promise.all(promises);
-    });
+    return new Skills().query().del();
   }
 }

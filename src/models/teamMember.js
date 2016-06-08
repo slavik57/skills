@@ -63,14 +63,7 @@ var TeamMembers = (function (_super) {
         this.model = TeamMember;
     }
     TeamMembers.clearAll = function () {
-        var promises = [];
-        return new TeamMembers().fetch().then(function (users) {
-            users.each(function (teamMembers) {
-                var promise = teamMembers.destroy(null);
-                promises.push(promise);
-            });
-            return Promise.all(promises);
-        });
+        return new TeamMembers().query().del();
     };
     return TeamMembers;
 }(bookshelf_1.bookshelf.Collection));

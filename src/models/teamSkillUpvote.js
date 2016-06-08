@@ -5,7 +5,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var bookshelf_1 = require('../../bookshelf');
-var Promise = require('bluebird');
 var TeamSkillUpvote = (function (_super) {
     __extends(TeamSkillUpvote, _super);
     function TeamSkillUpvote() {
@@ -44,14 +43,7 @@ var TeamSkillUpvotes = (function (_super) {
         this.model = TeamSkillUpvote;
     }
     TeamSkillUpvotes.clearAll = function () {
-        var promises = [];
-        return new TeamSkillUpvotes().fetch().then(function (users) {
-            users.each(function (teamSkillUpvotes) {
-                var promise = teamSkillUpvotes.destroy(null);
-                promises.push(promise);
-            });
-            return Promise.all(promises);
-        });
+        return new TeamSkillUpvotes().query().del();
     };
     return TeamSkillUpvotes;
 }(bookshelf_1.bookshelf.Collection));

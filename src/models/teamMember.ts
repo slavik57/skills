@@ -39,15 +39,6 @@ export class TeamMembers extends bookshelf.Collection<TeamMember> {
   model = TeamMember;
 
   public static clearAll(): Promise<any> {
-    var promises: Promise<TeamMember>[] = [];
-
-    return new TeamMembers().fetch().then((users: Collection<TeamMember>) => {
-      users.each(teamMembers => {
-        var promise: Promise<TeamMember> = teamMembers.destroy(null);
-        promises.push(promise);
-      });
-
-      return Promise.all(promises);
-    });
+    return new TeamMembers().query().del();
   }
 }

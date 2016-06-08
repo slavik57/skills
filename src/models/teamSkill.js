@@ -94,14 +94,7 @@ var TeamSkills = (function (_super) {
         this.model = TeamSkill;
     }
     TeamSkills.clearAll = function () {
-        var promises = [];
-        return new TeamSkills().fetch().then(function (users) {
-            users.each(function (teamSkills) {
-                var promise = teamSkills.destroy(null);
-                promises.push(promise);
-            });
-            return Promise.all(promises);
-        });
+        return new TeamSkills().query().del();
     };
     return TeamSkills;
 }(bookshelf_1.bookshelf.Collection));

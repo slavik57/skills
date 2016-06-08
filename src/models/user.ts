@@ -87,15 +87,6 @@ export class Users extends bookshelf.Collection<User> {
   model = User;
 
   public static clearAll(): Promise<any> {
-    var promises: Promise<User>[] = []
-
-    return new Users().fetch().then((users: Collection<User>) => {
-      users.each(user => {
-        var promise: Promise<User> = user.destroy();
-        promises.push(promise);
-      });
-
-      return Promise.all(promises);
-    });
+    return new Users().query().del();
   }
 }
