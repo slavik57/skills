@@ -23,11 +23,11 @@ var UserDataHandler = (function () {
     };
     UserDataHandler.addGlobalPermissions = function (userId, permissionsToAdd) {
         var _this = this;
-        return bookshelf_1.bookshelf.transaction(function () { return _this._addGlobalPermissionInternal(userId, permissionsToAdd); });
+        return bookshelf_1.bookshelf.transaction(function (_transaction) { return _this._addGlobalPermissionInternal(userId, permissionsToAdd, _transaction); });
     };
     UserDataHandler.removeGlobalPermissions = function (userId, permissionsToRemove) {
         var _this = this;
-        return bookshelf_1.bookshelf.transaction(function () { return _this._removeGlobalPermissionInternal(userId, permissionsToRemove); });
+        return bookshelf_1.bookshelf.transaction(function (_transaction) { return _this._removeGlobalPermissionInternal(userId, permissionsToRemove, _transaction); });
     };
     UserDataHandler.getUserGlobalPermissions = function (userId) {
         var _this = this;
@@ -56,11 +56,12 @@ var UserDataHandler = (function () {
         var permissions = usersGlobalPermissions.toArray();
         return _.map(permissions, function (_) { return globalPermission_1.GlobalPermission[_.attributes.global_permissions]; });
     };
-    UserDataHandler._addGlobalPermissionInternal = function (userId, permissionsToAdd) {
+    UserDataHandler._addGlobalPermissionInternal = function (userId, permissionsToAdd, transaction) {
         var _this = this;
         var fetchOptions = {
             withRelated: [user_1.User.relatedUserGlobalPermissionsAttribute],
-            require: false
+            require: false,
+            transacting: transaction
         };
         return this._initializeUserByIdQuery(userId)
             .fetch(fetchOptions)
@@ -69,14 +70,15 @@ var UserDataHandler = (function () {
                 return Promise.reject('User does not exist');
             }
             var existingPermissionsCollection = user.relations.globalPermissions;
-            return _this._addNotExistingGlobalPermissions(user.id, existingPermissionsCollection, permissionsToAdd);
+            return _this._addNotExistingGlobalPermissions(user.id, existingPermissionsCollection, permissionsToAdd, transaction);
         });
     };
-    UserDataHandler._removeGlobalPermissionInternal = function (userId, permissionsToRemove) {
+    UserDataHandler._removeGlobalPermissionInternal = function (userId, permissionsToRemove, transaction) {
         var _this = this;
         var user = this._initializeUserByIdQuery(userId);
         var fetchOptions = {
-            require: false
+            require: false,
+            transacting: transaction
         };
         return user.fetch(fetchOptions)
             .then(function (user) {
@@ -87,18 +89,22 @@ var UserDataHandler = (function () {
             var permissionsToDelete = _.map(permissionsToDeteleQuery, function (_info) { return new usersGlobalPermissions_1.UserGlobalPermissions().where(_info); });
             var destroyOptions = {
                 require: false,
-                cascadeDelete: false
+                cascadeDelete: false,
+                transacting: transaction
             };
             var deleteUserPermissionsPromise = _.map(permissionsToDelete, function (_permission) { return _permission.destroy(destroyOptions); });
             return Promise.all(deleteUserPermissionsPromise);
         });
     };
-    UserDataHandler._addNotExistingGlobalPermissions = function (userId, existingPermissionsCollection, permissionsToAdd) {
+    UserDataHandler._addNotExistingGlobalPermissions = function (userId, existingPermissionsCollection, permissionsToAdd, transaction) {
         var existingPermissions = this._convertPermissionsCollectionsToGlobalPermissions(existingPermissionsCollection);
         var newPermissions = _.difference(permissionsToAdd, existingPermissions);
         newPermissions = _.uniq(newPermissions);
         var newUserPermissions = this._createUserGlobalPermission(userId, newPermissions);
-        var newUserPermissionsPromise = _.map(newUserPermissions, function (_permission) { return _permission.save(); });
+        var saveOptions = {
+            transacting: transaction
+        };
+        var newUserPermissionsPromise = _.map(newUserPermissions, function (_permission) { return _permission.save({}, saveOptions); });
         return Promise.all(newUserPermissionsPromise);
     };
     UserDataHandler._createUserGlobalPermission = function (userId, permissions) {

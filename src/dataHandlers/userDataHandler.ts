@@ -3,12 +3,13 @@ import {IUserInfo} from "../models/interfaces/iUserInfo";
 import {GlobalPermission} from "../models/enums/globalPermission";
 import {User, Users} from '../models/user';
 import {UserGlobalPermissions, UsersGlobalPermissions} from '../models/usersGlobalPermissions';
-import {Collection, FetchOptions} from 'bookshelf';
+import {Collection, FetchOptions, SaveOptions} from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import * as _ from 'lodash';
 import {Team, Teams} from '../models/team';
 import {ITeamOfAUser} from '../models/interfaces/iTeamOfAUser';
 import {IUserGlobalPermissions} from '../models/interfaces/iUserGlobalPermissions';
+import {Transaction} from 'knex';
 
 export class UserDataHandler {
   public static createUser(userInfo: IUserInfo): Promise<User> {
@@ -30,11 +31,11 @@ export class UserDataHandler {
   }
 
   public static addGlobalPermissions(userId: number, permissionsToAdd: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
-    return bookshelf.transaction(() => this._addGlobalPermissionInternal(userId, permissionsToAdd));
+    return bookshelf.transaction((_transaction: Transaction) => this._addGlobalPermissionInternal(userId, permissionsToAdd, _transaction));
   }
 
   public static removeGlobalPermissions(userId: number, permissionsToRemove: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
-    return bookshelf.transaction(() => this._removeGlobalPermissionInternal(userId, permissionsToRemove));
+    return bookshelf.transaction((_transaction: Transaction) => this._removeGlobalPermissionInternal(userId, permissionsToRemove, _transaction));
   }
 
   public static getUserGlobalPermissions(userId: number): Promise<GlobalPermission[]> {
@@ -73,10 +74,11 @@ export class UserDataHandler {
     return _.map(permissions, _ => GlobalPermission[_.attributes.global_permissions]);
   }
 
-  private static _addGlobalPermissionInternal(userId: number, permissionsToAdd: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
+  private static _addGlobalPermissionInternal(userId: number, permissionsToAdd: GlobalPermission[], transaction: Transaction): Promise<UserGlobalPermissions[]> {
     var fetchOptions: FetchOptions = {
       withRelated: [User.relatedUserGlobalPermissionsAttribute],
-      require: false
+      require: false,
+      transacting: transaction
     };
 
     return this._initializeUserByIdQuery(userId)
@@ -90,15 +92,17 @@ export class UserDataHandler {
 
         return this._addNotExistingGlobalPermissions(user.id,
           existingPermissionsCollection,
-          permissionsToAdd);
+          permissionsToAdd,
+          transaction);
       });
   }
 
-  private static _removeGlobalPermissionInternal(userId: number, permissionsToRemove: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
+  private static _removeGlobalPermissionInternal(userId: number, permissionsToRemove: GlobalPermission[], transaction: Transaction): Promise<UserGlobalPermissions[]> {
     var user: User = this._initializeUserByIdQuery(userId);
 
     var fetchOptions: FetchOptions = {
-      require: false
+      require: false,
+      transacting: transaction
     };
 
     return user.fetch(fetchOptions)
@@ -115,7 +119,8 @@ export class UserDataHandler {
 
         var destroyOptions: IDestroyOptions = {
           require: false,
-          cascadeDelete: false
+          cascadeDelete: false,
+          transacting: transaction
         };
 
         var deleteUserPermissionsPromise: Promise<UserGlobalPermissions>[] =
@@ -127,7 +132,8 @@ export class UserDataHandler {
 
   private static _addNotExistingGlobalPermissions(userId: number,
     existingPermissionsCollection: Collection<UserGlobalPermissions>,
-    permissionsToAdd: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
+    permissionsToAdd: GlobalPermission[],
+    transaction: Transaction): Promise<UserGlobalPermissions[]> {
 
     var existingPermissions: GlobalPermission[] =
       this._convertPermissionsCollectionsToGlobalPermissions(existingPermissionsCollection);
@@ -138,8 +144,12 @@ export class UserDataHandler {
     var newUserPermissions: UserGlobalPermissions[] =
       this._createUserGlobalPermission(userId, newPermissions);
 
+    var saveOptions: SaveOptions = {
+      transacting: transaction
+    }
+
     var newUserPermissionsPromise: Promise<UserGlobalPermissions>[] =
-      _.map(newUserPermissions, _permission => _permission.save());
+      _.map(newUserPermissions, _permission => _permission.save({}, saveOptions));
 
     return Promise.all(newUserPermissionsPromise);
   }

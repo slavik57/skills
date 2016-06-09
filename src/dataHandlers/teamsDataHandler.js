@@ -77,8 +77,8 @@ var TeamsDataHandler = (function () {
     };
     TeamsDataHandler.setAdminRights = function (teamId, userId, newAdminRights) {
         var _this = this;
-        return bookshelf_1.bookshelf.transaction(function () {
-            return _this._setAdminRightsInternal(teamId, userId, newAdminRights);
+        return bookshelf_1.bookshelf.transaction(function (_transaction) {
+            return _this._setAdminRightsInternal(teamId, userId, newAdminRights, _transaction);
         });
     };
     TeamsDataHandler._initializeTeamByIdQuery = function (teamId) {
@@ -86,7 +86,7 @@ var TeamsDataHandler = (function () {
         queryCondition[team_2.Team.idAttribute] = teamId;
         return new team_2.Team(queryCondition);
     };
-    TeamsDataHandler._setAdminRightsInternal = function (teamId, userId, newAdminRights) {
+    TeamsDataHandler._setAdminRightsInternal = function (teamId, userId, newAdminRights, transaction) {
         var queryCondition = {};
         queryCondition[teamMember_1.TeamMember.teamIdAttribute] = teamId;
         queryCondition[teamMember_1.TeamMember.userIdAttribute] = userId;
@@ -94,10 +94,14 @@ var TeamsDataHandler = (function () {
         updateAttributes[teamMember_1.TeamMember.isAdminAttribute] = newAdminRights;
         var saveOptions = {
             patch: true,
-            method: 'update'
+            method: 'update',
+            transacting: transaction
+        };
+        var fetchOptions = {
+            transacting: transaction
         };
         return new teamMember_1.TeamMember(queryCondition)
-            .fetch()
+            .fetch(fetchOptions)
             .then(function (teamMember) {
             return teamMember.save(updateAttributes, saveOptions);
         });

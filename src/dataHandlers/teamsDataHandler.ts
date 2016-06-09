@@ -8,13 +8,14 @@ import {ITeamSkillInfo} from "../models/interfaces/iTeamSkillInfo";
 import {IUserOfATeam} from "../models/interfaces/iUserOfATeam";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
 import {ITeamInfo} from "../models/interfaces/iTeamInfo";
-import {Collection, SaveOptions, DestroyOptions, CollectionFetchOptions } from 'bookshelf';
+import {Collection, SaveOptions, DestroyOptions, FetchOptions, CollectionFetchOptions } from 'bookshelf';
 import {bookshelf} from '../../bookshelf';
 import {Team} from '../models/team';
 import {} from '../models/user';
 import {TeamMember} from '../models/teamMember';
 import {User, Users} from '../models/user';
 import {TeamSkill, TeamSkills} from '../models/teamSkill';
+import {Transaction}from 'knex';
 
 export class TeamsDataHandler {
 
@@ -112,8 +113,8 @@ export class TeamsDataHandler {
   }
 
   public static setAdminRights(teamId: number, userId: number, newAdminRights: boolean): Promise<TeamMember> {
-    return bookshelf.transaction(() => {
-      return this._setAdminRightsInternal(teamId, userId, newAdminRights);
+    return bookshelf.transaction((_transaction: Transaction) => {
+      return this._setAdminRightsInternal(teamId, userId, newAdminRights, _transaction);
     });
   }
 
@@ -124,7 +125,7 @@ export class TeamsDataHandler {
     return new Team(queryCondition);
   }
 
-  private static _setAdminRightsInternal(teamId: number, userId: number, newAdminRights: boolean): Promise<TeamMember> {
+  private static _setAdminRightsInternal(teamId: number, userId: number, newAdminRights: boolean, transaction: Transaction): Promise<TeamMember> {
     var queryCondition = {};
     queryCondition[TeamMember.teamIdAttribute] = teamId;
     queryCondition[TeamMember.userIdAttribute] = userId;
@@ -134,11 +135,16 @@ export class TeamsDataHandler {
 
     var saveOptions: SaveOptions = {
       patch: true,
-      method: 'update'
+      method: 'update',
+      transacting: transaction
+    }
+
+    var fetchOptions: FetchOptions = {
+      transacting: transaction
     }
 
     return new TeamMember(queryCondition)
-      .fetch()
+      .fetch(fetchOptions)
       .then((teamMember: TeamMember) => {
         return teamMember.save(updateAttributes, saveOptions);
       });
