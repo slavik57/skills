@@ -486,13 +486,13 @@ describe('userDataHandler', function () {
             ];
             return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, expectedPermissions);
         });
-        it('removing from not existing user should fail', function () {
+        it('removing from not existing user should not fail', function () {
             var permissionsToRemove = [
                 globalPermission_1.GlobalPermission.ADMIN,
                 globalPermission_1.GlobalPermission.READER
             ];
             var addPermissionPromise = userDataHandler_1.UserDataHandler.removeGlobalPermissions(999999, permissionsToRemove);
-            return chai_1.expect(addPermissionPromise).to.eventually.rejected;
+            return chai_1.expect(addPermissionPromise).to.eventually.fulfilled;
         });
     });
 });

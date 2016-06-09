@@ -74,27 +74,16 @@ var UserDataHandler = (function () {
         });
     };
     UserDataHandler._removeGlobalPermissionInternal = function (userId, permissionsToRemove, transaction) {
-        var _this = this;
         var user = this._initializeUserByIdQuery(userId);
-        var fetchOptions = {
+        var permissionsToDeteleQuery = this._createUserGlobalPermissionInfos(userId, permissionsToRemove);
+        var permissionsToDelete = _.map(permissionsToDeteleQuery, function (_info) { return new usersGlobalPermissions_1.UserGlobalPermissions().where(_info); });
+        var destroyOptions = {
             require: false,
+            cascadeDelete: false,
             transacting: transaction
         };
-        return user.fetch(fetchOptions)
-            .then(function (user) {
-            if (!user) {
-                return Promise.reject('User does not exist');
-            }
-            var permissionsToDeteleQuery = _this._createUserGlobalPermissionInfos(user.id, permissionsToRemove);
-            var permissionsToDelete = _.map(permissionsToDeteleQuery, function (_info) { return new usersGlobalPermissions_1.UserGlobalPermissions().where(_info); });
-            var destroyOptions = {
-                require: false,
-                cascadeDelete: false,
-                transacting: transaction
-            };
-            var deleteUserPermissionsPromise = _.map(permissionsToDelete, function (_permission) { return _permission.destroy(destroyOptions); });
-            return Promise.all(deleteUserPermissionsPromise);
-        });
+        var deleteUserPermissionsPromise = _.map(permissionsToDelete, function (_permission) { return _permission.destroy(destroyOptions); });
+        return Promise.all(deleteUserPermissionsPromise);
     };
     UserDataHandler._addNotExistingGlobalPermissions = function (userId, existingPermissionsCollection, permissionsToAdd, transaction) {
         var existingPermissions = this._convertPermissionsCollectionsToGlobalPermissions(existingPermissionsCollection);

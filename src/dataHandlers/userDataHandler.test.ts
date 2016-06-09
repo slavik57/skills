@@ -824,7 +824,7 @@ describe('userDataHandler', () => {
       return verifyUserGlobalPermissionsAsync(actualPermissionsPromise, expectedPermissions);
     });
 
-    it('removing from not existing user should fail', () => {
+    it('removing from not existing user should not fail', () => {
       // Arrange
       var permissionsToRemove =
         [
@@ -837,7 +837,7 @@ describe('userDataHandler', () => {
         UserDataHandler.removeGlobalPermissions(999999, permissionsToRemove);
 
       // Assert
-      return expect(addPermissionPromise).to.eventually.rejected;
+      return expect(addPermissionPromise).to.eventually.fulfilled;
     });
 
   });

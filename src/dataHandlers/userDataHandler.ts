@@ -100,34 +100,22 @@ export class UserDataHandler {
   private static _removeGlobalPermissionInternal(userId: number, permissionsToRemove: GlobalPermission[], transaction: Transaction): Promise<UserGlobalPermissions[]> {
     var user: User = this._initializeUserByIdQuery(userId);
 
-    var fetchOptions: FetchOptions = {
+    var permissionsToDeteleQuery: IUserGlobalPermissions[] =
+      this._createUserGlobalPermissionInfos(userId, permissionsToRemove);
+
+    var permissionsToDelete: UserGlobalPermissions[] =
+      _.map(permissionsToDeteleQuery, _info => new UserGlobalPermissions().where(_info));
+
+    var destroyOptions: IDestroyOptions = {
       require: false,
+      cascadeDelete: false,
       transacting: transaction
     };
 
-    return user.fetch(fetchOptions)
-      .then((user: User) => {
-        if (!user) {
-          return Promise.reject('User does not exist');
-        }
+    var deleteUserPermissionsPromise: Promise<UserGlobalPermissions>[] =
+      _.map(permissionsToDelete, _permission => _permission.destroy(destroyOptions));
 
-        var permissionsToDeteleQuery: IUserGlobalPermissions[] =
-          this._createUserGlobalPermissionInfos(user.id, permissionsToRemove);
-
-        var permissionsToDelete: UserGlobalPermissions[] =
-          _.map(permissionsToDeteleQuery, _info => new UserGlobalPermissions().where(_info));
-
-        var destroyOptions: IDestroyOptions = {
-          require: false,
-          cascadeDelete: false,
-          transacting: transaction
-        };
-
-        var deleteUserPermissionsPromise: Promise<UserGlobalPermissions>[] =
-          _.map(permissionsToDelete, _permission => _permission.destroy(destroyOptions));
-
-        return Promise.all(deleteUserPermissionsPromise);
-      });
+    return Promise.all(deleteUserPermissionsPromise);
   }
 
   private static _addNotExistingGlobalPermissions(userId: number,
