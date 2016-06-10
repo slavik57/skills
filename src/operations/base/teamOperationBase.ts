@@ -4,8 +4,8 @@ import {AuthenticatedOperationBase} from "./authenticatedOperationBase";
 import * as _ from 'lodash';
 
 export class TeamOperationBase extends AuthenticatedOperationBase {
-  constructor(userId: number, private _teamId) {
-    super(userId);
+  constructor(executingUserId: number, private _teamId) {
+    super(executingUserId);
   }
 
   protected get teamId(): number { return this._teamId; }

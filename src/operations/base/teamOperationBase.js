@@ -8,8 +8,8 @@ var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
 var authenticatedOperationBase_1 = require("./authenticatedOperationBase");
 var TeamOperationBase = (function (_super) {
     __extends(TeamOperationBase, _super);
-    function TeamOperationBase(userId, _teamId) {
-        _super.call(this, userId);
+    function TeamOperationBase(executingUserId, _teamId) {
+        _super.call(this, executingUserId);
         this._teamId = _teamId;
     }
     Object.defineProperty(TeamOperationBase.prototype, "teamId", {
