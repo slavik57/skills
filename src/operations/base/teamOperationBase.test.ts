@@ -50,6 +50,10 @@ describe('TeamOperationBase', () => {
     return EnvironmentCleaner.clearTables();
   });
 
+  afterEach(() => {
+    return EnvironmentCleaner.clearTables();
+  });
+
   describe('new', () => {
 
     it('should initialize properties correctly', () => {

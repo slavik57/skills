@@ -45,6 +45,9 @@ describe('AuthenticatedOperationBase', function () {
     beforeEach(function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
+    afterEach(function () {
+        return environmentCleaner_1.EnvironmentCleaner.clearTables();
+    });
     describe('new', function () {
         it('should initialize properties correctly', function () {
             var userId = 123456;
