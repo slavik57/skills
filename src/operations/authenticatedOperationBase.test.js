@@ -18,22 +18,25 @@ var TestAuthenticatedOperation = (function (_super) {
     function TestAuthenticatedOperation(userId) {
         _super.call(this, userId);
         this.wasExecuted = false;
-        this.operationRequiredPermissionsToReturn = [];
+        this.operationPermissionsToReturn = [];
     }
     Object.defineProperty(TestAuthenticatedOperation.prototype, "actualUserId", {
         get: function () { return this.userId; },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TestAuthenticatedOperation.prototype, "operationRequiredPermissions", {
+    Object.defineProperty(TestAuthenticatedOperation.prototype, "operationPermissions", {
         get: function () {
-            return this.operationRequiredPermissionsToReturn;
+            return this.operationPermissionsToReturn;
         },
         enumerable: true,
         configurable: true
     });
-    TestAuthenticatedOperation.prototype.executeOperation = function () {
+    TestAuthenticatedOperation.prototype.doWork = function () {
         this.wasExecuted = true;
+        if (this.executeOperationErrorToThrow) {
+            throw this.executeOperationErrorToThrow;
+        }
         return this.executeOperationResult;
     };
     return TestAuthenticatedOperation;
@@ -63,6 +66,15 @@ describe('AuthenticatedOperationBase', function () {
             var operation = new TestAuthenticatedOperation(userId);
             var executionPromise = operation.execute();
             return chai_1.expect(executionPromise).to.eventually.rejected;
+        });
+        it('executing with not existing user id should not execute', function () {
+            var userId = 12345;
+            var operation = new TestAuthenticatedOperation(userId);
+            var executionPromise = operation.execute();
+            return chai_1.expect(executionPromise).to.eventually.rejected
+                .then(function () {
+                chai_1.expect(operation.wasExecuted).to.be.false;
+            });
         });
         it('executing with existing user id that has no global permissions should fail', function () {
             var userCreationPromise = userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1));
@@ -95,7 +107,7 @@ describe('AuthenticatedOperationBase', function () {
             ];
             var createAdminPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
             var operation = new TestAuthenticatedOperation(user.id);
-            operation.operationRequiredPermissionsToReturn =
+            operation.operationPermissionsToReturn =
                 [
                     globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
                     globalPermission_1.GlobalPermission.READER
@@ -112,7 +124,7 @@ describe('AuthenticatedOperationBase', function () {
             ];
             var createUserPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
             var operation = new TestAuthenticatedOperation(user.id);
-            operation.operationRequiredPermissionsToReturn =
+            operation.operationPermissionsToReturn =
                 [
                     globalPermission_1.GlobalPermission.GUEST,
                     globalPermission_1.GlobalPermission.READER
@@ -153,7 +165,7 @@ describe('AuthenticatedOperationBase', function () {
             ];
             var createUserPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
             var operation = new TestAuthenticatedOperation(user.id);
-            operation.operationRequiredPermissionsToReturn =
+            operation.operationPermissionsToReturn =
                 [
                     globalPermission_1.GlobalPermission.GUEST,
                     globalPermission_1.GlobalPermission.READER
@@ -173,13 +185,77 @@ describe('AuthenticatedOperationBase', function () {
             ];
             var createUserPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
             var operation = new TestAuthenticatedOperation(user.id);
-            operation.operationRequiredPermissionsToReturn =
+            operation.operationPermissionsToReturn =
                 [
                     globalPermission_1.GlobalPermission.GUEST,
                     globalPermission_1.GlobalPermission.READER
                 ];
             var expectedError = {};
             operation.executeOperationResult = Promise.reject(expectedError);
+            var executionPromise = createUserPermissions.then(function () { return operation.execute(); });
+            return chai_1.expect(executionPromise).to.eventually.rejected
+                .then(function (_actualError) {
+                chai_1.expect(operation.wasExecuted).to.be.true;
+                chai_1.expect(_actualError).to.be.equal(expectedError);
+            });
+        });
+        it('executing with existing user id that has admin permissions and operation returning result should execute and resolve the correct result', function () {
+            var createAdminPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.ADMIN]);
+            var operation = new TestAuthenticatedOperation(user.id);
+            var expectedResult = {};
+            operation.executeOperationResult = expectedResult;
+            var executionPromise = createAdminPermissions.then(function () { return operation.execute(); });
+            return chai_1.expect(executionPromise).to.eventually.fulfilled
+                .then(function (_actualResult) {
+                chai_1.expect(operation.wasExecuted).to.be.true;
+                chai_1.expect(_actualResult).to.be.equal(expectedResult);
+            });
+        });
+        it('executing with existing user id that has admin permissions and operation throwing error promise should execute and reject with the correct error', function () {
+            var createAdminPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.ADMIN]);
+            var operation = new TestAuthenticatedOperation(user.id);
+            var expectedError = {};
+            operation.executeOperationErrorToThrow = expectedError;
+            var executionPromise = createAdminPermissions.then(function () { return operation.execute(); });
+            return chai_1.expect(executionPromise).to.eventually.rejected
+                .then(function (actualError) {
+                chai_1.expect(operation.wasExecuted).to.be.true;
+                chai_1.expect(actualError).to.be.equal(expectedError);
+            });
+        });
+        it('executing with existing user id that has sufficient permissions and operation returning result should execute and resolve the correct result', function () {
+            var uerPermissions = [
+                globalPermission_1.GlobalPermission.GUEST
+            ];
+            var createUserPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
+            var operation = new TestAuthenticatedOperation(user.id);
+            operation.operationPermissionsToReturn =
+                [
+                    globalPermission_1.GlobalPermission.GUEST,
+                    globalPermission_1.GlobalPermission.READER
+                ];
+            var expectedResult = {};
+            operation.executeOperationResult = expectedResult;
+            var executionPromise = createUserPermissions.then(function () { return operation.execute(); });
+            return chai_1.expect(executionPromise).to.eventually.fulfilled
+                .then(function (_actualResult) {
+                chai_1.expect(operation.wasExecuted).to.be.true;
+                chai_1.expect(_actualResult).to.be.equal(expectedResult);
+            });
+        });
+        it('executing with existing user id that has sufficient permissions and operation throwing error promise should execite and reject with the correct error', function () {
+            var uerPermissions = [
+                globalPermission_1.GlobalPermission.GUEST
+            ];
+            var createUserPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
+            var operation = new TestAuthenticatedOperation(user.id);
+            operation.operationPermissionsToReturn =
+                [
+                    globalPermission_1.GlobalPermission.GUEST,
+                    globalPermission_1.GlobalPermission.READER
+                ];
+            var expectedError = {};
+            operation.executeOperationErrorToThrow = expectedError;
             var executionPromise = createUserPermissions.then(function () { return operation.execute(); });
             return chai_1.expect(executionPromise).to.eventually.rejected
                 .then(function (_actualError) {

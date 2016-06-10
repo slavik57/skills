@@ -12,8 +12,9 @@ chai.use(chaiAsPromised);
 
 class TestAuthenticatedOperation extends AuthenticatedOperationBase {
   public wasExecuted = false;
-  public operationRequiredPermissionsToReturn: GlobalPermission[] = [];
+  public operationPermissionsToReturn: GlobalPermission[] = [];
   public executeOperationResult: any;
+  public executeOperationErrorToThrow: any;
 
   constructor(userId: number) {
     super(userId);
@@ -21,12 +22,16 @@ class TestAuthenticatedOperation extends AuthenticatedOperationBase {
 
   public get actualUserId(): number { return this.userId; }
 
-  protected get operationRequiredPermissions(): GlobalPermission[] {
-    return this.operationRequiredPermissionsToReturn;
+  protected get operationPermissions(): GlobalPermission[] {
+    return this.operationPermissionsToReturn;
   }
 
-  protected executeOperation(): void | Promise<any> {
+  protected doWork(): void | Promise<any> {
     this.wasExecuted = true;
+
+    if (this.executeOperationErrorToThrow) {
+      throw this.executeOperationErrorToThrow;
+    }
 
     return this.executeOperationResult;
   }
@@ -78,6 +83,22 @@ describe('AuthenticatedOperationBase', () => {
 
       // Assert
       return expect(executionPromise).to.eventually.rejected;
+    });
+
+    it('executing with not existing user id should not execute', () => {
+      // Arrange
+      var userId = 12345;
+
+      var operation = new TestAuthenticatedOperation(userId);
+
+      // Act
+      var executionPromise: Promise<any> = operation.execute();
+
+      // Assert
+      return expect(executionPromise).to.eventually.rejected
+        .then(() => {
+          expect(operation.wasExecuted).to.be.false;
+        });
     });
 
     it('executing with existing user id that has no global permissions should fail', () => {
@@ -139,7 +160,7 @@ describe('AuthenticatedOperationBase', () => {
         UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
       var operation = new TestAuthenticatedOperation(user.id);
-      operation.operationRequiredPermissionsToReturn =
+      operation.operationPermissionsToReturn =
         [
           GlobalPermission.TEAMS_LIST_ADMIN,
           GlobalPermission.READER
@@ -167,7 +188,7 @@ describe('AuthenticatedOperationBase', () => {
         UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
       var operation = new TestAuthenticatedOperation(user.id);
-      operation.operationRequiredPermissionsToReturn =
+      operation.operationPermissionsToReturn =
         [
           GlobalPermission.GUEST,
           GlobalPermission.READER
@@ -239,7 +260,7 @@ describe('AuthenticatedOperationBase', () => {
         UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
       var operation = new TestAuthenticatedOperation(user.id);
-      operation.operationRequiredPermissionsToReturn =
+      operation.operationPermissionsToReturn =
         [
           GlobalPermission.GUEST,
           GlobalPermission.READER
@@ -272,7 +293,7 @@ describe('AuthenticatedOperationBase', () => {
         UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
       var operation = new TestAuthenticatedOperation(user.id);
-      operation.operationRequiredPermissionsToReturn =
+      operation.operationPermissionsToReturn =
         [
           GlobalPermission.GUEST,
           GlobalPermission.READER
@@ -280,6 +301,115 @@ describe('AuthenticatedOperationBase', () => {
 
       var expectedError = {};
       operation.executeOperationResult = Promise.reject(expectedError);
+
+      // Act
+      var executionPromise: Promise<any> =
+        createUserPermissions.then(() => operation.execute());
+
+      // Assert
+      return expect(executionPromise).to.eventually.rejected
+        .then((_actualError: any) => {
+          expect(operation.wasExecuted).to.be.true;
+          expect(_actualError).to.be.equal(expectedError);
+        });
+    });
+
+    it('executing with existing user id that has admin permissions and operation returning result should execute and resolve the correct result', () => {
+      // Arrange
+      var createAdminPermissions: Promise<any> =
+        UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
+
+      var operation = new TestAuthenticatedOperation(user.id);
+
+      var expectedResult = {};
+      operation.executeOperationResult = expectedResult;
+
+      // Act
+      var executionPromise: Promise<any> =
+        createAdminPermissions.then(() => operation.execute());
+
+      // Assert
+      return expect(executionPromise).to.eventually.fulfilled
+        .then((_actualResult: any) => {
+          expect(operation.wasExecuted).to.be.true;
+          expect(_actualResult).to.be.equal(expectedResult);
+        });
+    });
+
+    it('executing with existing user id that has admin permissions and operation throwing error promise should execute and reject with the correct error', () => {
+      // Arrange
+      var createAdminPermissions: Promise<any> =
+        UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
+
+      var operation = new TestAuthenticatedOperation(user.id);
+
+      var expectedError = {};
+      operation.executeOperationErrorToThrow = expectedError;
+
+      // Act
+      var executionPromise: Promise<any> =
+        createAdminPermissions.then(() => operation.execute());
+
+      // Assert
+      return expect(executionPromise).to.eventually.rejected
+        .then((actualError: any) => {
+          expect(operation.wasExecuted).to.be.true;
+          expect(actualError).to.be.equal(expectedError);
+        });
+    });
+
+    it('executing with existing user id that has sufficient permissions and operation returning result should execute and resolve the correct result', () => {
+      // Arrange
+      var uerPermissions: GlobalPermission[] =
+        [
+          GlobalPermission.GUEST
+        ];
+
+      var createUserPermissions: Promise<any> =
+        UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
+
+      var operation = new TestAuthenticatedOperation(user.id);
+      operation.operationPermissionsToReturn =
+        [
+          GlobalPermission.GUEST,
+          GlobalPermission.READER
+        ];
+
+      var expectedResult = {};
+      operation.executeOperationResult = expectedResult;
+
+
+      // Act
+      var executionPromise: Promise<any> =
+        createUserPermissions.then(() => operation.execute());
+
+      // Assert
+      return expect(executionPromise).to.eventually.fulfilled
+        .then((_actualResult: any) => {
+          expect(operation.wasExecuted).to.be.true;
+          expect(_actualResult).to.be.equal(expectedResult);
+        });
+    });
+
+    it('executing with existing user id that has sufficient permissions and operation throwing error promise should execite and reject with the correct error', () => {
+      // Arrange
+      var uerPermissions: GlobalPermission[] =
+        [
+          GlobalPermission.GUEST
+        ];
+
+      var createUserPermissions: Promise<any> =
+        UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
+
+      var operation = new TestAuthenticatedOperation(user.id);
+      operation.operationPermissionsToReturn =
+        [
+          GlobalPermission.GUEST,
+          GlobalPermission.READER
+        ];
+
+      var expectedError = {};
+      operation.executeOperationErrorToThrow = expectedError;
 
       // Act
       var executionPromise: Promise<any> =

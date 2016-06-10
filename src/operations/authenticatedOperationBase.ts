@@ -1,0 +1,45 @@
+import {OperationBase} from "./operationBase";
+import {UserDataHandler} from "../dataHandlers/userDataHandler";
+import {GlobalPermission} from "../models/enums/globalPermission";
+
+export class AuthenticatedOperationBase extends OperationBase {
+  constructor(private _userId: number) {
+    super();
+  }
+
+  protected get userId(): number { return this._userId; }
+  protected get operationPermissions(): GlobalPermission[] { return []; }
+
+  protected canExecute(): Promise<any> {
+    var userPermissionsPromise: Promise<GlobalPermission[]> =
+      UserDataHandler.getUserGlobalPermissions(this.userId);
+
+    return super.canExecute()
+      .then(() => userPermissionsPromise)
+      .then((_permissions: GlobalPermission[]) => {
+        if (this._userHasPermissions(_permissions)) {
+          return Promise.resolve();
+        } else {
+          return Promise.reject('User does not have sufficient permissions');
+        }
+      });
+  }
+
+  private _userHasPermissions(userPermissions: GlobalPermission[]): boolean {
+    if (userPermissions.indexOf(GlobalPermission.ADMIN) >= 0) {
+      return true;
+    }
+
+    var requiredPermissions: GlobalPermission[] = this.operationPermissions;
+
+    for (var i = 0; i < userPermissions.length; i++) {
+      var userPermission: GlobalPermission = userPermissions[i];
+
+      if (requiredPermissions.indexOf(userPermission) >= 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+}

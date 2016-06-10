@@ -1,8 +1,16 @@
 "use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var operationBase_1 = require("./operationBase");
 var userDataHandler_1 = require("../dataHandlers/userDataHandler");
 var globalPermission_1 = require("../models/enums/globalPermission");
-var AuthenticatedOperationBase = (function () {
+var AuthenticatedOperationBase = (function (_super) {
+    __extends(AuthenticatedOperationBase, _super);
     function AuthenticatedOperationBase(_userId) {
+        _super.call(this);
         this._userId = _userId;
     }
     Object.defineProperty(AuthenticatedOperationBase.prototype, "userId", {
@@ -10,32 +18,30 @@ var AuthenticatedOperationBase = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(AuthenticatedOperationBase.prototype, "operationRequiredPermissions", {
+    Object.defineProperty(AuthenticatedOperationBase.prototype, "operationPermissions", {
         get: function () { return []; },
         enumerable: true,
         configurable: true
     });
-    AuthenticatedOperationBase.prototype.execute = function () {
+    AuthenticatedOperationBase.prototype.canExecute = function () {
         var _this = this;
         var userPermissionsPromise = userDataHandler_1.UserDataHandler.getUserGlobalPermissions(this.userId);
-        return userPermissionsPromise.then(function (_permissions) {
-            return _this._executeIfSufficientPermissions(_permissions);
+        return _super.prototype.canExecute.call(this)
+            .then(function () { return userPermissionsPromise; })
+            .then(function (_permissions) {
+            if (_this._userHasPermissions(_permissions)) {
+                return Promise.resolve();
+            }
+            else {
+                return Promise.reject('User does not have sufficient permissions');
+            }
         });
-    };
-    AuthenticatedOperationBase.prototype.executeOperation = function () {
-        throw 'Override the executeOperation method with the operation execution';
-    };
-    AuthenticatedOperationBase.prototype._executeIfSufficientPermissions = function (userPermissions) {
-        if (!this._userHasPermissions(userPermissions)) {
-            return Promise.reject('The user does not have sufficient permissions');
-        }
-        return this.executeOperation();
     };
     AuthenticatedOperationBase.prototype._userHasPermissions = function (userPermissions) {
         if (userPermissions.indexOf(globalPermission_1.GlobalPermission.ADMIN) >= 0) {
             return true;
         }
-        var requiredPermissions = this.operationRequiredPermissions;
+        var requiredPermissions = this.operationPermissions;
         for (var i = 0; i < userPermissions.length; i++) {
             var userPermission = userPermissions[i];
             if (requiredPermissions.indexOf(userPermission) >= 0) {
@@ -45,5 +51,5 @@ var AuthenticatedOperationBase = (function () {
         return false;
     };
     return AuthenticatedOperationBase;
-}());
+}(operationBase_1.OperationBase));
 exports.AuthenticatedOperationBase = AuthenticatedOperationBase;
