@@ -10,9 +10,9 @@ var globalPermission_1 = require("../../models/enums/globalPermission");
 var _ = require('lodash');
 var ModifyUserPermissionsOperationBase = (function (_super) {
     __extends(ModifyUserPermissionsOperationBase, _super);
-    function ModifyUserPermissionsOperationBase(_userIdToAddPermissionsTo, _permissionsToModify, _executingUserId) {
+    function ModifyUserPermissionsOperationBase(_userIdToModifyPermissionsOf, _permissionsToModify, _executingUserId) {
         _super.call(this);
-        this._userIdToAddPermissionsTo = _userIdToAddPermissionsTo;
+        this._userIdToModifyPermissionsOf = _userIdToModifyPermissionsOf;
         this._permissionsToModify = _permissionsToModify;
         this._executingUserId = _executingUserId;
     }

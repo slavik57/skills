@@ -11,7 +11,7 @@ export class ModifyUserPermissionsOperationBase extends OperationBase {
 
   private static _allowedPermissionModificationMap: IAllowedPermissionModificationMap;
 
-  constructor(private _userIdToAddPermissionsTo: number,
+  constructor(private _userIdToModifyPermissionsOf: number,
     private _permissionsToModify: GlobalPermission[],
     private _executingUserId: number) {
 
