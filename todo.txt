@@ -1,4 +1,13 @@
 todo:
-- authenticated operations for every operation...
+- get skill prerequisites/contributors operation
+- AddTeamOperation/RemoveTeamOperation 
+- Add/Remove team skill operation
+- up/down vote team skill operation
+- get user teams operation
+- get teams skills statistics operation
+- get team skill statistics operation
+- get skills teams statistics operation
+- get skill teams statistics operation
+- get skill map operation
 - expose the can execute of the operation to use it to enable and disable the buttons
 - UI in sails for node.js?
