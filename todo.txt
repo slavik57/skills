@@ -1,4 +1,4 @@
 todo:
-- add base operation for team operations
 - authenticated operations for every operation...
+- expose the can execute of the operation to use it to enable and disable the buttons
 - UI in sails for node.js?
