@@ -1,5 +1,5 @@
-import {IUserOfATeam} from "../models/interfaces/iUserOfATeam";
-import {TeamsDataHandler} from "../dataHandlers/teamsDataHandler";
+import {IUserOfATeam} from "../../models/interfaces/iUserOfATeam";
+import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {AuthenticatedOperationBase} from "./authenticatedOperationBase";
 import * as _ from 'lodash';
 

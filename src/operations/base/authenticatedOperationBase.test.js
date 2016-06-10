@@ -4,10 +4,10 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var environmentCleaner_1 = require("../testUtils/environmentCleaner");
-var globalPermission_1 = require("../models/enums/globalPermission");
-var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
-var userDataHandler_1 = require("../dataHandlers/userDataHandler");
+var environmentCleaner_1 = require("../../testUtils/environmentCleaner");
+var globalPermission_1 = require("../../models/enums/globalPermission");
+var modelInfoMockFactory_1 = require("../../testUtils/modelInfoMockFactory");
+var userDataHandler_1 = require("../../dataHandlers/userDataHandler");
 var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');

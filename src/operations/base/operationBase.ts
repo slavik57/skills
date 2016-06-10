@@ -1,4 +1,4 @@
-import {IOperationExecutionError} from "./interfaces/iOperationExecutionError";
+import {IOperationExecutionError} from "../interfaces/iOperationExecutionError";
 
 export class OperationBase {
 

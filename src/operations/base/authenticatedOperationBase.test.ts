@@ -1,8 +1,8 @@
-import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
-import {GlobalPermission} from "../models/enums/globalPermission";
-import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
-import {UserDataHandler} from "../dataHandlers/userDataHandler";
-import {User} from "../models/user";
+import {EnvironmentCleaner} from "../../testUtils/environmentCleaner";
+import {GlobalPermission} from "../../models/enums/globalPermission";
+import {ModelInfoMockFactory} from "../../testUtils/modelInfoMockFactory";
+import {UserDataHandler} from "../../dataHandlers/userDataHandler";
+import {User} from "../../models/user";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised'

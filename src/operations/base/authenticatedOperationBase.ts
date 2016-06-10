@@ -1,6 +1,6 @@
 import {OperationBase} from "./operationBase";
-import {UserDataHandler} from "../dataHandlers/userDataHandler";
-import {GlobalPermission} from "../models/enums/globalPermission";
+import {UserDataHandler} from "../../dataHandlers/userDataHandler";
+import {GlobalPermission} from "../../models/enums/globalPermission";
 
 export class AuthenticatedOperationBase extends OperationBase {
   constructor(private _userId: number) {

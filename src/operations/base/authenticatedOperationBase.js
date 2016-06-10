@@ -5,8 +5,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var operationBase_1 = require("./operationBase");
-var userDataHandler_1 = require("../dataHandlers/userDataHandler");
-var globalPermission_1 = require("../models/enums/globalPermission");
+var userDataHandler_1 = require("../../dataHandlers/userDataHandler");
+var globalPermission_1 = require("../../models/enums/globalPermission");
 var AuthenticatedOperationBase = (function (_super) {
     __extends(AuthenticatedOperationBase, _super);
     function AuthenticatedOperationBase(_userId) {
