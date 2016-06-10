@@ -9,5 +9,13 @@ todo:
 - get skills teams statistics operation
 - get skill teams statistics operation
 - get skill map operation
-- expose the can execute of the operation to use it to enable and disable the buttons
+- remove the not null constraint on the user.email
+- update the create user operation:
+	check if user exists
+	get the parameters separately
+	hash the password
+- create login operation(password hash verification)
+- look in all the create/add operations and return the information needed after the creation 
+	(id/some display name/number of likes for team skill and so on)
+- expose the can execute of the operation to use it to enable and disable the buttons??
 - UI in sails for node.js?
