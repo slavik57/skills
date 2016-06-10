@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/bb5d8ea26cc18a5c956ee836266b6d6b972340c9/bookshelf/bookshelf.d.ts",
+    "raw": "registry:dt/bookshelf#0.8.2+20160514174357",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/bb5d8ea26cc18a5c956ee836266b6d6b972340c9/bookshelf/bookshelf.d.ts"
+  }
+}

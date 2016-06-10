@@ -1,0 +1,4 @@
+todo:
+- add base operation for team operations
+- authenticated operations for every operation...
+- UI in sails for node.js?

@@ -1,0 +1,10 @@
+"use strict";
+var Knex = require('knex');
+var Bookshelf = require('bookshelf');
+var KnexConfig = require('./knexfile');
+var EnvironmentConfig = require('./environment');
+var cascadeDelete = require('bookshelf-cascade-delete');
+var knex = Knex(KnexConfig[EnvironmentConfig.currentEnvironment]);
+var bookshelfInstance = Bookshelf(knex);
+bookshelfInstance.plugin(cascadeDelete.default);
+exports.bookshelf = bookshelfInstance;
