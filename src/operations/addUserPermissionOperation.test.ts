@@ -64,6 +64,48 @@ describe('AddUserPermissionOperation', () => {
           });
       });
 
+      it('adding READER permissions should fail and not add', () => {
+        // Arrange
+        var permissionsToAdd = [
+          GlobalPermission.READER
+        ];
+
+        var operation = new AddUserPermissionOperation(userToAddPermissionsTo.id,
+          permissionsToAdd,
+          executingUser.id);
+
+        // Act
+        var resultPromise: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected
+          .then(() => UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id))
+          .then((_actualPermissions: GlobalPermission[]) => {
+            expect(_actualPermissions).to.be.deep.equal([]);
+          });
+      });
+
+      it('adding GUEST permissions should fail and not add', () => {
+        // Arrange
+        var permissionsToAdd = [
+          GlobalPermission.GUEST
+        ];
+
+        var operation = new AddUserPermissionOperation(userToAddPermissionsTo.id,
+          permissionsToAdd,
+          executingUser.id);
+
+        // Act
+        var resultPromise: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected
+          .then(() => UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id))
+          .then((_actualPermissions: GlobalPermission[]) => {
+            expect(_actualPermissions).to.be.deep.equal([]);
+          });
+      });
+
       it('adding all permissions the user can add should add them all', () => {
         // Arrange
         var permissionsToAdd: GlobalPermission[];
@@ -161,6 +203,48 @@ describe('AddUserPermissionOperation', () => {
           .then(() => UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id))
           .then((_actualPermissions: GlobalPermission[]) => {
             expect(_actualPermissions.sort()).to.be.deep.equal([]);
+          });
+      });
+
+      it('adding READER permissions should fail and not add', () => {
+        // Arrange
+        var permissionsToAdd = [
+          GlobalPermission.READER
+        ];
+
+        var operation = new AddUserPermissionOperation(userToAddPermissionsTo.id,
+          permissionsToAdd,
+          executingUser.id);
+
+        // Act
+        var resultPromise: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected
+          .then(() => UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id))
+          .then((_actualPermissions: GlobalPermission[]) => {
+            expect(_actualPermissions).to.be.deep.equal([]);
+          });
+      });
+
+      it('adding GUEST permissions should fail and not add', () => {
+        // Arrange
+        var permissionsToAdd = [
+          GlobalPermission.GUEST
+        ];
+
+        var operation = new AddUserPermissionOperation(userToAddPermissionsTo.id,
+          permissionsToAdd,
+          executingUser.id);
+
+        // Act
+        var resultPromise: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected
+          .then(() => UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id))
+          .then((_actualPermissions: GlobalPermission[]) => {
+            expect(_actualPermissions).to.be.deep.equal([]);
           });
       });
 
@@ -263,6 +347,48 @@ describe('AddUserPermissionOperation', () => {
           });
       });
 
+      it('adding READER permissions should fail and not add', () => {
+        // Arrange
+        var permissionsToAdd = [
+          GlobalPermission.READER
+        ];
+
+        var operation = new AddUserPermissionOperation(userToAddPermissionsTo.id,
+          permissionsToAdd,
+          executingUser.id);
+
+        // Act
+        var resultPromise: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected
+          .then(() => UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id))
+          .then((_actualPermissions: GlobalPermission[]) => {
+            expect(_actualPermissions).to.be.deep.equal([]);
+          });
+      });
+
+      it('adding GUEST permissions should fail and not add', () => {
+        // Arrange
+        var permissionsToAdd = [
+          GlobalPermission.GUEST
+        ];
+
+        var operation = new AddUserPermissionOperation(userToAddPermissionsTo.id,
+          permissionsToAdd,
+          executingUser.id);
+
+        // Act
+        var resultPromise: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected
+          .then(() => UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id))
+          .then((_actualPermissions: GlobalPermission[]) => {
+            expect(_actualPermissions).to.be.deep.equal([]);
+          });
+      });
+
       it('adding all permissions the user can add should add them all', () => {
         // Arrange
         var permissionsToAdd: GlobalPermission[];
@@ -341,6 +467,48 @@ describe('AddUserPermissionOperation', () => {
           });
       });
 
+      it('adding READER permissions should fail and not add', () => {
+        // Arrange
+        var permissionsToAdd = [
+          GlobalPermission.READER
+        ];
+
+        var operation = new AddUserPermissionOperation(userToAddPermissionsTo.id,
+          permissionsToAdd,
+          executingUser.id);
+
+        // Act
+        var resultPromise: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected
+          .then(() => UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id))
+          .then((_actualPermissions: GlobalPermission[]) => {
+            expect(_actualPermissions).to.be.deep.equal([]);
+          });
+      });
+
+      it('adding GUEST permissions should fail and not add', () => {
+        // Arrange
+        var permissionsToAdd = [
+          GlobalPermission.GUEST
+        ];
+
+        var operation = new AddUserPermissionOperation(userToAddPermissionsTo.id,
+          permissionsToAdd,
+          executingUser.id);
+
+        // Act
+        var resultPromise: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected
+          .then(() => UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id))
+          .then((_actualPermissions: GlobalPermission[]) => {
+            expect(_actualPermissions).to.be.deep.equal([]);
+          });
+      });
+
       it('adding all permissions the user can add should add them all', () => {
         // Arrange
         var permissionsToAdd: GlobalPermission[];
@@ -416,6 +584,48 @@ describe('AddUserPermissionOperation', () => {
           .then(() => UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id))
           .then((_actualPermissions: GlobalPermission[]) => {
             expect(_actualPermissions.sort()).to.be.deep.equal([]);
+          });
+      });
+
+      it('adding READER permissions should fail and not add', () => {
+        // Arrange
+        var permissionsToAdd = [
+          GlobalPermission.READER
+        ];
+
+        var operation = new AddUserPermissionOperation(userToAddPermissionsTo.id,
+          permissionsToAdd,
+          executingUser.id);
+
+        // Act
+        var resultPromise: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected
+          .then(() => UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id))
+          .then((_actualPermissions: GlobalPermission[]) => {
+            expect(_actualPermissions).to.be.deep.equal([]);
+          });
+      });
+
+      it('adding GUEST permissions should fail and not add', () => {
+        // Arrange
+        var permissionsToAdd = [
+          GlobalPermission.GUEST
+        ];
+
+        var operation = new AddUserPermissionOperation(userToAddPermissionsTo.id,
+          permissionsToAdd,
+          executingUser.id);
+
+        // Act
+        var resultPromise: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected
+          .then(() => UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id))
+          .then((_actualPermissions: GlobalPermission[]) => {
+            expect(_actualPermissions).to.be.deep.equal([]);
           });
       });
 

@@ -43,6 +43,30 @@ describe('AddUserPermissionOperation', function () {
                     chai_1.expect(_actualPermissions.sort()).to.be.deep.equal(permissionsToAdd.sort());
                 });
             });
+            it('adding READER permissions should fail and not add', function () {
+                var permissionsToAdd = [
+                    globalPermission_1.GlobalPermission.READER
+                ];
+                var operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
+                var resultPromise = operation.execute();
+                return chai_1.expect(resultPromise).to.eventually.rejected
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id); })
+                    .then(function (_actualPermissions) {
+                    chai_1.expect(_actualPermissions).to.be.deep.equal([]);
+                });
+            });
+            it('adding GUEST permissions should fail and not add', function () {
+                var permissionsToAdd = [
+                    globalPermission_1.GlobalPermission.GUEST
+                ];
+                var operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
+                var resultPromise = operation.execute();
+                return chai_1.expect(resultPromise).to.eventually.rejected
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id); })
+                    .then(function (_actualPermissions) {
+                    chai_1.expect(_actualPermissions).to.be.deep.equal([]);
+                });
+            });
             it('adding all permissions the user can add should add them all', function () {
                 var permissionsToAdd;
                 var operation;
@@ -98,6 +122,30 @@ describe('AddUserPermissionOperation', function () {
                     .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id); })
                     .then(function (_actualPermissions) {
                     chai_1.expect(_actualPermissions.sort()).to.be.deep.equal([]);
+                });
+            });
+            it('adding READER permissions should fail and not add', function () {
+                var permissionsToAdd = [
+                    globalPermission_1.GlobalPermission.READER
+                ];
+                var operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
+                var resultPromise = operation.execute();
+                return chai_1.expect(resultPromise).to.eventually.rejected
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id); })
+                    .then(function (_actualPermissions) {
+                    chai_1.expect(_actualPermissions).to.be.deep.equal([]);
+                });
+            });
+            it('adding GUEST permissions should fail and not add', function () {
+                var permissionsToAdd = [
+                    globalPermission_1.GlobalPermission.GUEST
+                ];
+                var operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
+                var resultPromise = operation.execute();
+                return chai_1.expect(resultPromise).to.eventually.rejected
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id); })
+                    .then(function (_actualPermissions) {
+                    chai_1.expect(_actualPermissions).to.be.deep.equal([]);
                 });
             });
             it('adding all permissions the user can add should add them all', function () {
@@ -157,6 +205,30 @@ describe('AddUserPermissionOperation', function () {
                     chai_1.expect(_actualPermissions.sort()).to.be.deep.equal([]);
                 });
             });
+            it('adding READER permissions should fail and not add', function () {
+                var permissionsToAdd = [
+                    globalPermission_1.GlobalPermission.READER
+                ];
+                var operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
+                var resultPromise = operation.execute();
+                return chai_1.expect(resultPromise).to.eventually.rejected
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id); })
+                    .then(function (_actualPermissions) {
+                    chai_1.expect(_actualPermissions).to.be.deep.equal([]);
+                });
+            });
+            it('adding GUEST permissions should fail and not add', function () {
+                var permissionsToAdd = [
+                    globalPermission_1.GlobalPermission.GUEST
+                ];
+                var operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
+                var resultPromise = operation.execute();
+                return chai_1.expect(resultPromise).to.eventually.rejected
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id); })
+                    .then(function (_actualPermissions) {
+                    chai_1.expect(_actualPermissions).to.be.deep.equal([]);
+                });
+            });
             it('adding all permissions the user can add should add them all', function () {
                 var permissionsToAdd;
                 var operation;
@@ -202,6 +274,30 @@ describe('AddUserPermissionOperation', function () {
                     chai_1.expect(_actualPermissions.sort()).to.be.deep.equal([]);
                 });
             });
+            it('adding READER permissions should fail and not add', function () {
+                var permissionsToAdd = [
+                    globalPermission_1.GlobalPermission.READER
+                ];
+                var operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
+                var resultPromise = operation.execute();
+                return chai_1.expect(resultPromise).to.eventually.rejected
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id); })
+                    .then(function (_actualPermissions) {
+                    chai_1.expect(_actualPermissions).to.be.deep.equal([]);
+                });
+            });
+            it('adding GUEST permissions should fail and not add', function () {
+                var permissionsToAdd = [
+                    globalPermission_1.GlobalPermission.GUEST
+                ];
+                var operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
+                var resultPromise = operation.execute();
+                return chai_1.expect(resultPromise).to.eventually.rejected
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id); })
+                    .then(function (_actualPermissions) {
+                    chai_1.expect(_actualPermissions).to.be.deep.equal([]);
+                });
+            });
             it('adding all permissions the user can add should add them all', function () {
                 var permissionsToAdd;
                 var operation;
@@ -245,6 +341,30 @@ describe('AddUserPermissionOperation', function () {
                     .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id); })
                     .then(function (_actualPermissions) {
                     chai_1.expect(_actualPermissions.sort()).to.be.deep.equal([]);
+                });
+            });
+            it('adding READER permissions should fail and not add', function () {
+                var permissionsToAdd = [
+                    globalPermission_1.GlobalPermission.READER
+                ];
+                var operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
+                var resultPromise = operation.execute();
+                return chai_1.expect(resultPromise).to.eventually.rejected
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id); })
+                    .then(function (_actualPermissions) {
+                    chai_1.expect(_actualPermissions).to.be.deep.equal([]);
+                });
+            });
+            it('adding GUEST permissions should fail and not add', function () {
+                var permissionsToAdd = [
+                    globalPermission_1.GlobalPermission.GUEST
+                ];
+                var operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
+                var resultPromise = operation.execute();
+                return chai_1.expect(resultPromise).to.eventually.rejected
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToAddPermissionsTo.id); })
+                    .then(function (_actualPermissions) {
+                    chai_1.expect(_actualPermissions).to.be.deep.equal([]);
                 });
             });
             it('adding all permissions the user can add should add them all', function () {
