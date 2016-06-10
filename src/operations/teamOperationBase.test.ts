@@ -27,7 +27,7 @@ class TestTeamOperationBase extends TeamOperationBase {
   public get actualUserId(): number { return this.userId; }
   public get actualTeamId(): number { return this.teamId; }
 
-  protected get operationPermissions(): GlobalPermission[] {
+  protected get sufficientOperationGlobalPermissions(): GlobalPermission[] {
     return this.operationPermissionsToReturn;
   }
 

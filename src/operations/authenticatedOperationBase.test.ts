@@ -22,7 +22,7 @@ class TestAuthenticatedOperation extends AuthenticatedOperationBase {
 
   public get actualUserId(): number { return this.userId; }
 
-  protected get operationPermissions(): GlobalPermission[] {
+  protected get sufficientOperationGlobalPermissions(): GlobalPermission[] {
     return this.operationPermissionsToReturn;
   }
 

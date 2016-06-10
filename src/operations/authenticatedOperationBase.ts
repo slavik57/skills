@@ -8,7 +8,7 @@ export class AuthenticatedOperationBase extends OperationBase {
   }
 
   protected get userId(): number { return this._userId; }
-  protected get operationPermissions(): GlobalPermission[] { return []; }
+  protected get sufficientOperationGlobalPermissions(): GlobalPermission[] { return []; }
 
   protected canExecute(): Promise<any> {
     var userPermissionsPromise: Promise<GlobalPermission[]> =
@@ -30,7 +30,7 @@ export class AuthenticatedOperationBase extends OperationBase {
       return true;
     }
 
-    var requiredPermissions: GlobalPermission[] = this.operationPermissions;
+    var requiredPermissions: GlobalPermission[] = this.sufficientOperationGlobalPermissions;
 
     for (var i = 0; i < userPermissions.length; i++) {
       var userPermission: GlobalPermission = userPermissions[i];

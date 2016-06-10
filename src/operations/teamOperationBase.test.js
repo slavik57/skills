@@ -32,7 +32,7 @@ var TestTeamOperationBase = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TestTeamOperationBase.prototype, "operationPermissions", {
+    Object.defineProperty(TestTeamOperationBase.prototype, "sufficientOperationGlobalPermissions", {
         get: function () {
             return this.operationPermissionsToReturn;
         },

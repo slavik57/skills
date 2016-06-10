@@ -25,7 +25,7 @@ var TestAuthenticatedOperation = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(TestAuthenticatedOperation.prototype, "operationPermissions", {
+    Object.defineProperty(TestAuthenticatedOperation.prototype, "sufficientOperationGlobalPermissions", {
         get: function () {
             return this.operationPermissionsToReturn;
         },

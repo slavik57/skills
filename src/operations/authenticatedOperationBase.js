@@ -18,7 +18,7 @@ var AuthenticatedOperationBase = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(AuthenticatedOperationBase.prototype, "operationPermissions", {
+    Object.defineProperty(AuthenticatedOperationBase.prototype, "sufficientOperationGlobalPermissions", {
         get: function () { return []; },
         enumerable: true,
         configurable: true
@@ -41,7 +41,7 @@ var AuthenticatedOperationBase = (function (_super) {
         if (userPermissions.indexOf(globalPermission_1.GlobalPermission.ADMIN) >= 0) {
             return true;
         }
-        var requiredPermissions = this.operationPermissions;
+        var requiredPermissions = this.sufficientOperationGlobalPermissions;
         for (var i = 0; i < userPermissions.length; i++) {
             var userPermission = userPermissions[i];
             if (requiredPermissions.indexOf(userPermission) >= 0) {
