@@ -1,4 +1,5 @@
 import {IOperationExecutionError} from "./interfaces/iOperationExecutionError";
+
 export class OperationBase {
 
   constructor() {
