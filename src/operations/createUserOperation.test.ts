@@ -1,3 +1,4 @@
+import {GlobalPermission} from "../models/enums/globalPermission";
 import {CreateUserOperation} from "./createUserOperation";
 import {IUserInfo} from "../models/interfaces/iUserInfo";
 import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
@@ -90,7 +91,7 @@ describe('CreateUserOperation', () => {
         return expect(result).to.eventually.fulfilled;
       });
 
-      it('should not create a correct user', () => {
+      it('should create a correct user', () => {
         // Act
         var result: Promise<any> = operation.execute();
 
@@ -102,6 +103,20 @@ describe('CreateUserOperation', () => {
 
             ModelInfoVerificator.verifyInfo(_users[0].attributes, userInfo);
           });
+      });
+
+      it('should add READER global permissions to the user', () => {
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled
+          .then(() => UserDataHandler.getUsers())
+          .then((_users: User[]) => _users[0])
+          .then((_user: User) => UserDataHandler.getUserGlobalPermissions(_user.id))
+          .then((_permissions: GlobalPermission[]) => {
+            expect(_permissions).to.be.deep.equal([GlobalPermission.READER]);
+          })
       });
 
     });

@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var globalPermission_1 = require("../models/enums/globalPermission");
 var userDataHandler_1 = require("../dataHandlers/userDataHandler");
 var operationBase_1 = require("./base/operationBase");
 var CreateUserOperation = (function (_super) {
@@ -18,7 +19,8 @@ var CreateUserOperation = (function (_super) {
         configurable: true
     });
     CreateUserOperation.prototype.doWork = function () {
-        return userDataHandler_1.UserDataHandler.createUser(this._userInfo);
+        var readerPermissions = [globalPermission_1.GlobalPermission.READER];
+        return userDataHandler_1.UserDataHandler.createUserWithPermissions(this._userInfo, readerPermissions);
     };
     return CreateUserOperation;
 }(operationBase_1.OperationBase));

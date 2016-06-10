@@ -1,4 +1,5 @@
 "use strict";
+var globalPermission_1 = require("../models/enums/globalPermission");
 var createUserOperation_1 = require("./createUserOperation");
 var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var modelInfoVerificator_1 = require("../testUtils/modelInfoVerificator");
@@ -54,13 +55,23 @@ describe('CreateUserOperation', function () {
                 var result = operation.execute();
                 return chai_1.expect(result).to.eventually.fulfilled;
             });
-            it('should not create a correct user', function () {
+            it('should create a correct user', function () {
                 var result = operation.execute();
                 return chai_1.expect(result).to.eventually.fulfilled
                     .then(function () { return userDataHandler_1.UserDataHandler.getUsers(); })
                     .then(function (_users) {
                     chai_1.expect(_users).to.be.length(1);
                     modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_users[0].attributes, userInfo);
+                });
+            });
+            it('should add READER global permissions to the user', function () {
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.fulfilled
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUsers(); })
+                    .then(function (_users) { return _users[0]; })
+                    .then(function (_user) { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(_user.id); })
+                    .then(function (_permissions) {
+                    chai_1.expect(_permissions).to.be.deep.equal([globalPermission_1.GlobalPermission.READER]);
                 });
             });
         });
