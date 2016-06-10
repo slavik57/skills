@@ -1,3 +1,4 @@
+import {ModelInfoVerificator} from "../testUtils/modelInfoVerificator";
 import {TeamSkillUpvote, TeamSkillUpvotes} from "../models/teamSkillUpvote";
 import {EnvironmentDirtifier} from "../testUtils/environmentDirtifier";
 import {ITestModels} from "../testUtils/interfaces/iTestModels";
@@ -12,6 +13,7 @@ import {GlobalPermission} from "../models/enums/globalPermission";
 import {IUserInfo} from "../models/interfaces/iUserInfo";
 import * as chai from 'chai';
 import { expect } from 'chai';
+import {bookshelf} from '../../bookshelf';
 import { Collection } from 'bookshelf';
 import * as _ from 'lodash';
 import * as chaiAsPromised from 'chai-as-promised'
@@ -22,6 +24,7 @@ import {Team, Teams} from '../models/team';
 import {TeamMember, TeamMembers} from '../models/teamMember';
 import {TeamsDataHandler} from './teamsDataHandler';
 import {ITeamOfAUser} from '../models/interfaces/iTeamOfAUser';
+import {Transaction} from 'knex';
 
 chai.use(chaiAsPromised);
 
@@ -61,6 +64,48 @@ describe('userDataHandler', () => {
 
       // Assert
       return ModelVerificator.verifyModelInfoAsync(userPromise, userInfo);
+    });
+
+  });
+
+  describe('createUserWithPermissions', () => {
+
+    it('should create user correctly', () => {
+      // Act
+      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
+      var globalPermissions: GlobalPermission[] =
+        [
+          GlobalPermission.ADMIN,
+          GlobalPermission.TEAMS_LIST_ADMIN,
+          GlobalPermission.SKILLS_LIST_ADMIN
+        ];
+
+      var userPromise: Promise<User> =
+        UserDataHandler.createUserWithPermissions(userInfo, globalPermissions);
+
+      // Assert
+      return ModelVerificator.verifyModelInfoAsync(userPromise, userInfo);
+    });
+
+    it('should set the user permissions correctly', () => {
+      // Act
+      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
+      var expectedPermissions: GlobalPermission[] =
+        [
+          GlobalPermission.ADMIN,
+          GlobalPermission.TEAMS_LIST_ADMIN,
+          GlobalPermission.SKILLS_LIST_ADMIN
+        ];
+
+      var userPromise: Promise<User> =
+        UserDataHandler.createUserWithPermissions(userInfo, expectedPermissions);
+
+      // Assert
+      return expect(userPromise).to.eventually.fulfilled
+        .then((_user: User) => UserDataHandler.getUserGlobalPermissions(_user.id))
+        .then((_actualPermissions: GlobalPermission[]) => {
+          expect(_actualPermissions.sort()).to.be.deep.equal(expectedPermissions.sort());
+        });
     });
 
   });

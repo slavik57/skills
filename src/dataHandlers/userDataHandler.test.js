@@ -40,6 +40,32 @@ describe('userDataHandler', function () {
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(userPromise, userInfo);
         });
     });
+    describe('createUserWithPermissions', function () {
+        it('should create user correctly', function () {
+            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+            var globalPermissions = [
+                globalPermission_1.GlobalPermission.ADMIN,
+                globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
+                globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
+            ];
+            var userPromise = userDataHandler_1.UserDataHandler.createUserWithPermissions(userInfo, globalPermissions);
+            return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(userPromise, userInfo);
+        });
+        it('should set the user permissions correctly', function () {
+            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+            var expectedPermissions = [
+                globalPermission_1.GlobalPermission.ADMIN,
+                globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
+                globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
+            ];
+            var userPromise = userDataHandler_1.UserDataHandler.createUserWithPermissions(userInfo, expectedPermissions);
+            return chai_1.expect(userPromise).to.eventually.fulfilled
+                .then(function (_user) { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(_user.id); })
+                .then(function (_actualPermissions) {
+                chai_1.expect(_actualPermissions.sort()).to.be.deep.equal(expectedPermissions.sort());
+            });
+        });
+    });
     describe('deleteUser', function () {
         var testModels;
         beforeEach(function () {

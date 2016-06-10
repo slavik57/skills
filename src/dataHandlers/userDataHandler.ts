@@ -16,6 +16,12 @@ export class UserDataHandler {
     return new User(userInfo).save();
   }
 
+  public static createUserWithPermissions(userInfo: IUserInfo, permissionsToAdd: GlobalPermission[]): Promise<User> {
+    return bookshelf.transaction((_transaction: Transaction) => {
+      return this._createUserWithPermissions(userInfo, permissionsToAdd, _transaction);
+    });
+  }
+
   public static deleteUser(userId: number): Promise<User> {
     var idQuery = {}
     idQuery[User.idAttribute] = userId;
@@ -53,6 +59,18 @@ export class UserDataHandler {
 
   public static getUser(userId: number): Promise<User> {
     return this._initializeUserByIdQuery(userId).fetch();
+  }
+
+  private static _createUserWithPermissions(userInfo: IUserInfo, permissionsToAdd: GlobalPermission[], transaction: Transaction): Promise<User> {
+    var saveOptions: SaveOptions = {
+      transacting: transaction
+    }
+
+    return new User(userInfo).save(null, saveOptions)
+      .then((_user: User) => {
+        return this._addGlobalPermissionInternal(_user.id, permissionsToAdd, transaction)
+          .then(() => _user);
+      });
   }
 
   private static _initializeUserByIdQuery(teamId: number): User {
@@ -137,7 +155,7 @@ export class UserDataHandler {
     }
 
     var newUserPermissionsPromise: Promise<UserGlobalPermissions>[] =
-      _.map(newUserPermissions, _permission => _permission.save({}, saveOptions));
+      _.map(newUserPermissions, _permission => _permission.save(null, saveOptions));
 
     return Promise.all(newUserPermissionsPromise);
   }

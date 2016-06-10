@@ -10,6 +10,12 @@ var UserDataHandler = (function () {
     UserDataHandler.createUser = function (userInfo) {
         return new user_1.User(userInfo).save();
     };
+    UserDataHandler.createUserWithPermissions = function (userInfo, permissionsToAdd) {
+        var _this = this;
+        return bookshelf_1.bookshelf.transaction(function (_transaction) {
+            return _this._createUserWithPermissions(userInfo, permissionsToAdd, _transaction);
+        });
+    };
     UserDataHandler.deleteUser = function (userId) {
         var idQuery = {};
         idQuery[user_1.User.idAttribute] = userId;
@@ -42,6 +48,17 @@ var UserDataHandler = (function () {
     };
     UserDataHandler.getUser = function (userId) {
         return this._initializeUserByIdQuery(userId).fetch();
+    };
+    UserDataHandler._createUserWithPermissions = function (userInfo, permissionsToAdd, transaction) {
+        var _this = this;
+        var saveOptions = {
+            transacting: transaction
+        };
+        return new user_1.User(userInfo).save(null, saveOptions)
+            .then(function (_user) {
+            return _this._addGlobalPermissionInternal(_user.id, permissionsToAdd, transaction)
+                .then(function () { return _user; });
+        });
     };
     UserDataHandler._initializeUserByIdQuery = function (teamId) {
         var queryCondition = {};
@@ -93,7 +110,7 @@ var UserDataHandler = (function () {
         var saveOptions = {
             transacting: transaction
         };
-        var newUserPermissionsPromise = _.map(newUserPermissions, function (_permission) { return _permission.save({}, saveOptions); });
+        var newUserPermissionsPromise = _.map(newUserPermissions, function (_permission) { return _permission.save(null, saveOptions); });
         return Promise.all(newUserPermissionsPromise);
     };
     UserDataHandler._createUserGlobalPermission = function (userId, permissions) {
