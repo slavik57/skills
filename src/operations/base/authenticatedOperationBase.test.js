@@ -108,13 +108,14 @@ describe('AuthenticatedOperationBase', function () {
                 globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
                 globalPermission_1.GlobalPermission.GUEST
             ];
-            var createPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
+            var createAdminPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
             var operation = new TestAuthenticatedOperation(user.id);
             operation.operationPermissionsToReturn =
                 [
-                    globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN
+                    globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
+                    globalPermission_1.GlobalPermission.READER
                 ];
-            var executionPromise = createPermissions.then(function () { return operation.execute(); });
+            var executionPromise = createAdminPermissions.then(function () { return operation.execute(); });
             return chai_1.expect(executionPromise).to.eventually.rejected
                 .then(function () {
                 chai_1.expect(operation.wasExecuted).to.be.false;
