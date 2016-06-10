@@ -3,16 +3,16 @@ import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 
 export class AuthenticatedOperationBase extends OperationBase {
-  constructor(private _userId: number) {
+  constructor(private _executingUserId: number) {
     super();
   }
 
-  protected get userId(): number { return this._userId; }
+  protected get executingUserId(): number { return this._executingUserId; }
   protected get sufficientOperationGlobalPermissions(): GlobalPermission[] { return []; }
 
   protected canExecute(): Promise<any> {
     var userPermissionsPromise: Promise<GlobalPermission[]> =
-      UserDataHandler.getUserGlobalPermissions(this.userId);
+      UserDataHandler.getUserGlobalPermissions(this.executingUserId);
 
     return super.canExecute()
       .then(() => userPermissionsPromise)

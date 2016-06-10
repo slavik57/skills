@@ -18,7 +18,7 @@ var TeamOperationBase = (function (_super) {
         configurable: true
     });
     Object.defineProperty(TeamOperationBase.prototype, "isRegularTeamMemberAlowedToExecute", {
-        get: function () { return true; },
+        get: function () { return false; },
         enumerable: true,
         configurable: true
     });
@@ -37,7 +37,7 @@ var TeamOperationBase = (function (_super) {
             var teamUser = teamUsers[i];
             var userId = teamUser.user.id;
             var isAdmin = teamUser.isAdmin;
-            if (userId !== this.userId) {
+            if (userId !== this.executingUserId) {
                 continue;
             }
             return this._userHasSufficientAdminRights(isAdmin);

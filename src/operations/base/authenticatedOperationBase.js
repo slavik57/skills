@@ -9,12 +9,12 @@ var userDataHandler_1 = require("../../dataHandlers/userDataHandler");
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var AuthenticatedOperationBase = (function (_super) {
     __extends(AuthenticatedOperationBase, _super);
-    function AuthenticatedOperationBase(_userId) {
+    function AuthenticatedOperationBase(_executingUserId) {
         _super.call(this);
-        this._userId = _userId;
+        this._executingUserId = _executingUserId;
     }
-    Object.defineProperty(AuthenticatedOperationBase.prototype, "userId", {
-        get: function () { return this._userId; },
+    Object.defineProperty(AuthenticatedOperationBase.prototype, "executingUserId", {
+        get: function () { return this._executingUserId; },
         enumerable: true,
         configurable: true
     });
@@ -25,7 +25,7 @@ var AuthenticatedOperationBase = (function (_super) {
     });
     AuthenticatedOperationBase.prototype.canExecute = function () {
         var _this = this;
-        var userPermissionsPromise = userDataHandler_1.UserDataHandler.getUserGlobalPermissions(this.userId);
+        var userPermissionsPromise = userDataHandler_1.UserDataHandler.getUserGlobalPermissions(this.executingUserId);
         return _super.prototype.canExecute.call(this)
             .then(function () { return userPermissionsPromise; })
             .then(function (_permissions) {

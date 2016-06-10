@@ -20,7 +20,7 @@ class TestAuthenticatedOperation extends AuthenticatedOperationBase {
     super(userId);
   }
 
-  public get actualUserId(): number { return this.userId; }
+  public get actualUserId(): number { return this.executingUserId; }
 
   protected get sufficientOperationGlobalPermissions(): GlobalPermission[] {
     return this.operationPermissionsToReturn;

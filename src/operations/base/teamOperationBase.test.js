@@ -23,7 +23,7 @@ var TestTeamOperationBase = (function (_super) {
         this.isRegularTeamMemberAlowedToExecuteToReturn = false;
     }
     Object.defineProperty(TestTeamOperationBase.prototype, "actualUserId", {
-        get: function () { return this.userId; },
+        get: function () { return this.executingUserId; },
         enumerable: true,
         configurable: true
     });

@@ -10,7 +10,7 @@ export class TeamOperationBase extends AuthenticatedOperationBase {
 
   protected get teamId(): number { return this._teamId; }
 
-  protected get isRegularTeamMemberAlowedToExecute(): boolean { return true; }
+  protected get isRegularTeamMemberAlowedToExecute(): boolean { return false; }
 
   protected canExecute(): Promise<any> {
     return super.canExecute()
@@ -33,7 +33,7 @@ export class TeamOperationBase extends AuthenticatedOperationBase {
       var userId: number = teamUser.user.id;
       var isAdmin: boolean = teamUser.isAdmin;
 
-      if (userId !== this.userId) {
+      if (userId !== this.executingUserId) {
         continue;
       }
 

@@ -21,7 +21,7 @@ var TestAuthenticatedOperation = (function (_super) {
         this.operationPermissionsToReturn = [];
     }
     Object.defineProperty(TestAuthenticatedOperation.prototype, "actualUserId", {
-        get: function () { return this.userId; },
+        get: function () { return this.executingUserId; },
         enumerable: true,
         configurable: true
     });
