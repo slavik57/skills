@@ -1,8 +1,8 @@
-import {TeamOperationBase} from "./base/teamOperationBase";
-import {GlobalPermission} from "../models/enums/globalPermission";
-import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
-import {TeamsDataHandler} from "../dataHandlers/teamsDataHandler";
-import {IUserInfo} from "../models/interfaces/iUserInfo";
+import {TeamOperationBase} from "../base/teamOperationBase";
+import {GlobalPermission} from "../../models/enums/globalPermission";
+import {ITeamMemberInfo} from "../../models/interfaces/iTeamMemberInfo";
+import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
+import {IUserInfo} from "../../models/interfaces/iUserInfo";
 
 export class AddUserToTeamOperation extends TeamOperationBase {
 

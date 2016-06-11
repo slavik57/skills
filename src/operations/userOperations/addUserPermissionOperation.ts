@@ -1,7 +1,7 @@
-import {ModifyUserPermissionsOperationBase} from "./base/modifyUserPermissionsOperationBase";
-import {UserDataHandler} from "../dataHandlers/userDataHandler";
-import {OperationBase} from "./base/operationBase";
-import {GlobalPermission} from "../models/enums/globalPermission";
+import {ModifyUserPermissionsOperationBase} from "../base/modifyUserPermissionsOperationBase";
+import {UserDataHandler} from "../../dataHandlers/userDataHandler";
+import {OperationBase} from "../base/operationBase";
+import {GlobalPermission} from "../../models/enums/globalPermission";
 import * as _ from 'lodash';
 
 export class AddUserPermissionOperation extends ModifyUserPermissionsOperationBase {

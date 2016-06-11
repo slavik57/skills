@@ -1,20 +1,19 @@
-import {ModelInfoVerificator} from "../testUtils/modelInfoVerificator";
-import {Skill} from "../models/skill";
-import {SkillsDataHandler} from "../dataHandlers/skillsDataHandler";
-import {ISkillInfo} from "../models/interfaces/iSkillInfo";
-import {GlobalPermission} from "../models/enums/globalPermission";
-import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
-import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
-import {UserDataHandler} from "../dataHandlers/userDataHandler";
-import {User} from "../models/user";
+import {Skill} from "../../models/skill";
+import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
+import {ISkillInfo} from "../../models/interfaces/iSkillInfo";
+import {GlobalPermission} from "../../models/enums/globalPermission";
+import {EnvironmentCleaner} from "../../testUtils/environmentCleaner";
+import {ModelInfoMockFactory} from "../../testUtils/modelInfoMockFactory";
+import {UserDataHandler} from "../../dataHandlers/userDataHandler";
+import {User} from "../../models/user";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised'
-import {AddSkillOperation} from './addSkillOperation';
+import {RemoveSkillOperation} from './removeSkillInfoOperation';
 
 chai.use(chaiAsPromised);
 
-describe('AddSkillOperation', () => {
+describe('RemoveSkillOperation', () => {
 
   beforeEach(() => {
     return EnvironmentCleaner.clearTables();
@@ -27,21 +26,33 @@ describe('AddSkillOperation', () => {
   describe('execute', () => {
 
     var executingUser: User;
-    var operation: AddSkillOperation;
-    var skillInfo: ISkillInfo;
+    var operation: RemoveSkillOperation;
+    var skillToRemove: Skill;
 
     beforeEach(() => {
-      skillInfo = ModelInfoMockFactory.createSkillInfo('skill');
-
       var userCreationPromise: Promise<any> =
         UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1))
           .then((_user: User) => {
             executingUser = _user;
 
-            operation = new AddSkillOperation(executingUser.id, skillInfo);
           });
 
-      return userCreationPromise;
+      var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('skill');
+
+      var createSkillPromise: Promise<any> =
+        SkillsDataHandler.createSkill(skillInfo)
+          .then((_skill) => {
+            skillToRemove = _skill;
+
+            operation = new RemoveSkillOperation(executingUser.id, skillToRemove.id);
+          });
+
+      return Promise.all(
+        [
+          userCreationPromise,
+          createSkillPromise
+        ]
+      );
     });
 
     describe('executing user has insufficient global permissions', () => {
@@ -56,7 +67,7 @@ describe('AddSkillOperation', () => {
         return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
       });
 
-      it('should fail and not add skill', () => {
+      it('should fail and not remove skill', () => {
         // Act
         var resultPromise: Promise<any> = operation.execute();
 
@@ -64,7 +75,9 @@ describe('AddSkillOperation', () => {
         return expect(resultPromise).to.eventually.rejected
           .then(() => SkillsDataHandler.getSkills())
           .then((_skills: Skill[]) => {
-            expect(_skills).to.be.length(0);
+            expect(_skills).to.be.length(1);
+
+            expect(_skills[0].id).to.be.equal(skillToRemove.id);
           });
       });
 
@@ -80,7 +93,7 @@ describe('AddSkillOperation', () => {
         return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
       });
 
-      it('should succeed and add skill', () => {
+      it('should succeed and remove skill', () => {
         // Act
         var resultPromise: Promise<any> = operation.execute();
 
@@ -88,9 +101,7 @@ describe('AddSkillOperation', () => {
         return expect(resultPromise).to.eventually.fulfilled
           .then(() => SkillsDataHandler.getSkills())
           .then((_skills: Skill[]) => {
-            expect(_skills).to.be.length(1);
-
-            ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillInfo);
+            expect(_skills).to.be.length(0);
           });
       });
 
@@ -106,7 +117,7 @@ describe('AddSkillOperation', () => {
         return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
       });
 
-      it('should succeed and add skill', () => {
+      it('should succeed and remove skill', () => {
         // Act
         var resultPromise: Promise<any> = operation.execute();
 
@@ -114,9 +125,7 @@ describe('AddSkillOperation', () => {
         return expect(resultPromise).to.eventually.fulfilled
           .then(() => SkillsDataHandler.getSkills())
           .then((_skills: Skill[]) => {
-            expect(_skills).to.be.length(1);
-
-            ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillInfo);
+            expect(_skills).to.be.length(0);
           });
       });
 

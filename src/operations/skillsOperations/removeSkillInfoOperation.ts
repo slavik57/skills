@@ -1,5 +1,5 @@
-import {SkillsDataHandler} from "../dataHandlers/skillsDataHandler";
-import {SkillOperationBase} from "./base/skillOperationBase";
+import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
+import {SkillOperationBase} from "../base/skillOperationBase";
 
 export class RemoveSkillOperation extends SkillOperationBase {
 

@@ -1,6 +1,6 @@
-import {SkillsDataHandler} from "../dataHandlers/skillsDataHandler";
-import {ISkillInfo} from "../models/interfaces/iSkillInfo";
-import {SkillOperationBase} from "./base/skillOperationBase";
+import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
+import {ISkillInfo} from "../../models/interfaces/iSkillInfo";
+import {SkillOperationBase} from "../base/skillOperationBase";
 
 export class AddSkillOperation extends SkillOperationBase {
 

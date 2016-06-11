@@ -1,13 +1,13 @@
-import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
-import {IUserOfATeam} from "../models/interfaces/iUserOfATeam";
-import {GlobalPermission} from "../models/enums/globalPermission";
-import {RemoveUserFromTeamOperation} from "./removeUserFromTeamOperation";
-import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
-import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
-import {UserDataHandler} from "../dataHandlers/userDataHandler";
-import {TeamsDataHandler} from "../dataHandlers/teamsDataHandler";
-import {User} from "../models/user";
-import {Team} from "../models/team";
+import {ITeamMemberInfo} from "../../models/interfaces/iTeamMemberInfo";
+import {IUserOfATeam} from "../../models/interfaces/iUserOfATeam";
+import {GlobalPermission} from "../../models/enums/globalPermission";
+import {UpdateUserTeamAdminRightsOperation} from "./updateUserTeamAdminRightsOperation";
+import {EnvironmentCleaner} from "../../testUtils/environmentCleaner";
+import {ModelInfoMockFactory} from "../../testUtils/modelInfoMockFactory";
+import {UserDataHandler} from "../../dataHandlers/userDataHandler";
+import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
+import {User} from "../../models/user";
+import {Team} from "../../models/team";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -59,16 +59,10 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
 
   describe('execute', () => {
 
-    function verifyUserIsNotInTheTeam(modifiedUser: User, teamMembers: IUserOfATeam[]) {
+    function verifyTeamMemberAdminRights(modifiedUser: User, shouldBeAdmin: boolean, teamMembers: IUserOfATeam[]) {
       var teamMember: IUserOfATeam = _.find(teamMembers, _teamMember => _teamMember.user.id === modifiedUser.id);
 
-      expect(teamMember).to.be.undefined;
-    }
-
-    function verifyUserIsInTheTeam(modifiedUser: User, teamMembers: IUserOfATeam[]) {
-      var teamMember: IUserOfATeam = _.find(teamMembers, _teamMember => _teamMember.user.id === modifiedUser.id);
-
-      expect(teamMember).to.not.be.undefined;
+      expect(teamMember.isAdmin).to.be.equal(shouldBeAdmin);
     }
 
     describe('executing user is not part of the team and has insufficient global permissions', () => {
@@ -84,34 +78,26 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return UserDataHandler.addGlobalPermissions(executingUser.id, permissions)
       });
 
-      it('removing not admin user should reject and not remove', () => {
+      it('not admin to admin should reject', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+        var operation = new UpdateUserTeamAdminRightsOperation(notAdminUser.id, teamOfTheUser.id, true, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
 
         // Assert
-        return expect(result).to.eventually.rejected
-          .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsInTheTeam(notAdminUser, _teamMembers);
-          });
+        return expect(result).to.eventually.rejected;
       });
 
-      it('removing admin user should reject and not remove', () => {
+      it('admin not to admin should reject', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+        var operation = new UpdateUserTeamAdminRightsOperation(adminUser.id, teamOfTheUser.id, false, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
 
         // Assert
-        return expect(result).to.eventually.rejected
-          .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsInTheTeam(adminUser, _teamMembers);
-          });
+        return expect(result).to.eventually.rejected;
       });
 
     });
@@ -127,9 +113,10 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
       });
 
-      it('removing not admin user should remove', () => {
+      it('not admin to admin should set as admin', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+        var shouldBeAdmin = true;
+        var operation = new UpdateUserTeamAdminRightsOperation(notAdminUser.id, teamOfTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
@@ -138,13 +125,14 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return expect(result).to.eventually.fulfilled
           .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
           .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsNotInTheTeam(notAdminUser, _teamMembers);
+            verifyTeamMemberAdminRights(notAdminUser, shouldBeAdmin, _teamMembers);
           });
       });
 
-      it('removing admin user should remove', () => {
+      it('admin to not admin should set as not admin', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+        var shouldBeAdmin = false;
+        var operation = new UpdateUserTeamAdminRightsOperation(adminUser.id, teamOfTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
@@ -153,7 +141,7 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return expect(result).to.eventually.fulfilled
           .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
           .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsNotInTheTeam(adminUser, _teamMembers);
+            verifyTeamMemberAdminRights(adminUser, shouldBeAdmin, _teamMembers);
           });
       });
 
@@ -170,9 +158,10 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
       });
 
-      it('removing not admin user shoud remove', () => {
+      it('not admin to admin should set as admin', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+        var shouldBeAdmin = true;
+        var operation = new UpdateUserTeamAdminRightsOperation(notAdminUser.id, teamOfTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
@@ -181,13 +170,14 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return expect(result).to.eventually.fulfilled
           .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
           .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsNotInTheTeam(notAdminUser, _teamMembers);
+            verifyTeamMemberAdminRights(notAdminUser, shouldBeAdmin, _teamMembers);
           });
       });
 
-      it('removing admin user shoud remove', () => {
+      it('admin to not admin should set as not admin', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+        var shouldBeAdmin = false;
+        var operation = new UpdateUserTeamAdminRightsOperation(adminUser.id, teamOfTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
@@ -196,7 +186,7 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return expect(result).to.eventually.fulfilled
           .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
           .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsNotInTheTeam(adminUser, _teamMembers);
+            verifyTeamMemberAdminRights(adminUser, shouldBeAdmin, _teamMembers);
           });
       });
 
@@ -213,35 +203,28 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return TeamsDataHandler.addTeamMember(teamMemberInfo);
       });
 
-      it('removing admin user should reject and not remove', () => {
+      it('admin to not admin should reject', () => {
         // Arrange
         var shouldBeAdmin = false;
-        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+        var operation = new UpdateUserTeamAdminRightsOperation(adminUser.id, teamOfTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
 
         // Assert
-        return expect(result).to.eventually.rejected
-          .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsInTheTeam(adminUser, _teamMembers);
-          });
+        return expect(result).to.eventually.rejected;
       });
 
-      it('removing not admin user should reject and not remove', () => {
+      it('not admin to admin should reject', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+        var shouldBeAdmin = true;
+        var operation = new UpdateUserTeamAdminRightsOperation(notAdminUser.id, teamOfTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
 
         // Assert
-        return expect(result).to.eventually.rejected
-          .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsInTheTeam(notAdminUser, _teamMembers);
-          });
+        return expect(result).to.eventually.rejected;
       });
 
     });
@@ -257,9 +240,10 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return TeamsDataHandler.addTeamMember(teamMemberInfo);
       });
 
-      it('removing not admin user should remove', () => {
+      it('not admin to admin should set as admin', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+        var shouldBeAdmin = true;
+        var operation = new UpdateUserTeamAdminRightsOperation(notAdminUser.id, teamOfTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
@@ -268,13 +252,14 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return expect(result).to.eventually.fulfilled
           .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
           .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsNotInTheTeam(notAdminUser, _teamMembers);
+            verifyTeamMemberAdminRights(notAdminUser, shouldBeAdmin, _teamMembers);
           });
       });
 
-      it('removing admin user should remove', () => {
+      it('admin to not admin should set as not admin', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+        var shouldBeAdmin = false;
+        var operation = new UpdateUserTeamAdminRightsOperation(adminUser.id, teamOfTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
@@ -283,7 +268,7 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return expect(result).to.eventually.fulfilled
           .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
           .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsNotInTheTeam(adminUser, _teamMembers);
+            verifyTeamMemberAdminRights(adminUser, shouldBeAdmin, _teamMembers);
           });
       });
 
@@ -300,34 +285,28 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return TeamsDataHandler.addTeamMember(teamMemberInfo);
       });
 
-      it('removing admin user should reject and not remove', () => {
+      it('admin to not admin should reject', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+        var shouldBeAdmin = false;
+        var operation = new UpdateUserTeamAdminRightsOperation(adminUser.id, teamOfTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
 
         // Assert
-        return expect(result).to.eventually.rejected
-          .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsInTheTeam(adminUser, _teamMembers);
-          });
+        return expect(result).to.eventually.rejected;
       });
 
-      it('removing not admin user should reject and not remove', () => {
+      it('admin to not admin should reject', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+        var shouldBeAdmin = true;
+        var operation = new UpdateUserTeamAdminRightsOperation(notAdminUser.id, teamOfTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
 
         // Assert
-        return expect(result).to.eventually.rejected
-          .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsInTheTeam(notAdminUser, _teamMembers);
-          });
+        return expect(result).to.eventually.rejected;
       });
 
     });
@@ -343,34 +322,28 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
         return TeamsDataHandler.addTeamMember(teamMemberInfo);
       });
 
-      it('removing admin user should reject and not remove', () => {
+      it('admin to not admin should reject', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+        var shouldBeAdmin = false;
+        var operation = new UpdateUserTeamAdminRightsOperation(adminUser.id, teamOfTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
 
         // Assert
-        return expect(result).to.eventually.rejected
-          .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsInTheTeam(adminUser, _teamMembers);
-          });
+        return expect(result).to.eventually.rejected;
       });
 
-      it('removing not admin user should reject and not remove', () => {
+      it('not admin to admin should reject', () => {
         // Arrange
-        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+        var shouldBeAdmin = true;
+        var operation = new UpdateUserTeamAdminRightsOperation(notAdminUser.id, teamOfTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.execute();
 
         // Assert
-        return expect(result).to.eventually.rejected
-          .then(() => TeamsDataHandler.getTeamMembers(teamOfTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsInTheTeam(notAdminUser, _teamMembers);
-          });
+        return expect(result).to.eventually.rejected;
       });
 
     });

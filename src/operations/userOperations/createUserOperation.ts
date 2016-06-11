@@ -1,7 +1,7 @@
-import {GlobalPermission} from "../models/enums/globalPermission";
-import {UserDataHandler} from "../dataHandlers/userDataHandler";
-import {OperationBase} from "./base/operationBase";
-import {IUserInfo} from "../models/interfaces/iUserInfo";
+import {GlobalPermission} from "../../models/enums/globalPermission";
+import {UserDataHandler} from "../../dataHandlers/userDataHandler";
+import {OperationBase} from "../base/operationBase";
+import {IUserInfo} from "../../models/interfaces/iUserInfo";
 
 export class CreateUserOperation extends OperationBase {
 

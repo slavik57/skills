@@ -1,11 +1,11 @@
-import {GlobalPermission} from "../models/enums/globalPermission";
+import {GlobalPermission} from "../../models/enums/globalPermission";
 import {CreateUserOperation} from "./createUserOperation";
-import {IUserInfo} from "../models/interfaces/iUserInfo";
-import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
-import {ModelInfoVerificator} from "../testUtils/modelInfoVerificator";
-import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
-import {UserDataHandler} from "../dataHandlers/userDataHandler";
-import {User} from "../models/user";
+import {IUserInfo} from "../../models/interfaces/iUserInfo";
+import {EnvironmentCleaner} from "../../testUtils/environmentCleaner";
+import {ModelInfoVerificator} from "../../testUtils/modelInfoVerificator";
+import {ModelInfoMockFactory} from "../../testUtils/modelInfoMockFactory";
+import {UserDataHandler} from "../../dataHandlers/userDataHandler";
+import {User} from "../../models/user";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';

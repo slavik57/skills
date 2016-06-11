@@ -1,6 +1,6 @@
-import {ISkillPrerequisiteInfo} from "../models/interfaces/iSkillPrerequisiteInfo";
-import {SkillsDataHandler} from "../dataHandlers/skillsDataHandler";
-import {SkillOperationBase} from "./base/skillOperationBase";
+import {ISkillPrerequisiteInfo} from "../../models/interfaces/iSkillPrerequisiteInfo";
+import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
+import {SkillOperationBase} from "../base/skillOperationBase";
 
 export class AddSkillPrerequisiteOperation extends SkillOperationBase {
 

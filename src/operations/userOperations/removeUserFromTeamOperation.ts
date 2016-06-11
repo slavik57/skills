@@ -1,6 +1,6 @@
-import {GlobalPermission} from "../models/enums/globalPermission";
-import {TeamsDataHandler} from "../dataHandlers/teamsDataHandler";
-import {TeamOperationBase} from "./base/teamOperationBase";
+import {GlobalPermission} from "../../models/enums/globalPermission";
+import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
+import {TeamOperationBase} from "../base/teamOperationBase";
 
 export class RemoveUserFromTeamOperation extends TeamOperationBase {
 

@@ -1,6 +1,6 @@
-import {UserDataHandler} from "../dataHandlers/userDataHandler";
-import {ModifyUserPermissionsOperationBase} from "./base/modifyUserPermissionsOperationBase";
-import {GlobalPermission} from "../models/enums/globalPermission";
+import {UserDataHandler} from "../../dataHandlers/userDataHandler";
+import {ModifyUserPermissionsOperationBase} from "../base/modifyUserPermissionsOperationBase";
+import {GlobalPermission} from "../../models/enums/globalPermission";
 
 export class RemoveUserPermissionOperation extends ModifyUserPermissionsOperationBase {
 

@@ -1,12 +1,12 @@
-import {ModelInfoVerificator} from "../testUtils/modelInfoVerificator";
-import {Skill} from "../models/skill";
-import {SkillsDataHandler} from "../dataHandlers/skillsDataHandler";
-import {ISkillInfo} from "../models/interfaces/iSkillInfo";
-import {GlobalPermission} from "../models/enums/globalPermission";
-import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
-import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
-import {UserDataHandler} from "../dataHandlers/userDataHandler";
-import {User} from "../models/user";
+import {ModelInfoVerificator} from "../../testUtils/modelInfoVerificator";
+import {Skill} from "../../models/skill";
+import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
+import {ISkillInfo} from "../../models/interfaces/iSkillInfo";
+import {GlobalPermission} from "../../models/enums/globalPermission";
+import {EnvironmentCleaner} from "../../testUtils/environmentCleaner";
+import {ModelInfoMockFactory} from "../../testUtils/modelInfoMockFactory";
+import {UserDataHandler} from "../../dataHandlers/userDataHandler";
+import {User} from "../../models/user";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised'
