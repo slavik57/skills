@@ -1,15 +1,11 @@
-import {TeamOperationBase} from "../base/teamOperationBase";
+import {AddRemoveTeamSkillOperationBase} from "../base/addRemoveTeamSkillOperationBase";
 import {ITeamSkillInfo} from "../../models/interfaces/iTeamSkillInfo";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 
-export class AddTeamSkillOperation extends TeamOperationBase {
+export class AddTeamSkillOperation extends AddRemoveTeamSkillOperationBase {
 
   constructor(private _skillIdToAdd: number, teamId: number, executingUserId: number) {
     super(teamId, executingUserId);
-  }
-
-  protected get isRegularTeamMemberAlowedToExecute(): boolean {
-    return true;
   }
 
   protected doWork(): void | Promise<any> {

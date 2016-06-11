@@ -1,15 +1,11 @@
+import {AddRemoveTeamSkillOperationBase} from "../base/addRemoveTeamSkillOperationBase";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
-import {TeamOperationBase} from "../base/teamOperationBase";
 import {OperationBase} from "../base/operationBase";
 
-export class RemoveTeamSkillOperation extends TeamOperationBase {
+export class RemoveTeamSkillOperation extends AddRemoveTeamSkillOperationBase {
 
   constructor(private _skillIdToRemove: number, teamId: number, executingUserId: number) {
     super(teamId, executingUserId);
-  }
-
-  protected get isRegularTeamMemberAlowedToExecute(): boolean {
-    return true;
   }
 
   protected doWork(): void | Promise<any> {

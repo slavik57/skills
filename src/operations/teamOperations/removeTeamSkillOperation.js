@@ -4,24 +4,17 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var addRemoveTeamSkillOperationBase_1 = require("../base/addRemoveTeamSkillOperationBase");
 var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
-var teamOperationBase_1 = require("../base/teamOperationBase");
 var RemoveTeamSkillOperation = (function (_super) {
     __extends(RemoveTeamSkillOperation, _super);
     function RemoveTeamSkillOperation(_skillIdToRemove, teamId, executingUserId) {
         _super.call(this, teamId, executingUserId);
         this._skillIdToRemove = _skillIdToRemove;
     }
-    Object.defineProperty(RemoveTeamSkillOperation.prototype, "isRegularTeamMemberAlowedToExecute", {
-        get: function () {
-            return true;
-        },
-        enumerable: true,
-        configurable: true
-    });
     RemoveTeamSkillOperation.prototype.doWork = function () {
         return teamsDataHandler_1.TeamsDataHandler.removeTeamSkill(this.teamId, this._skillIdToRemove);
     };
     return RemoveTeamSkillOperation;
-}(teamOperationBase_1.TeamOperationBase));
+}(addRemoveTeamSkillOperationBase_1.AddRemoveTeamSkillOperationBase));
 exports.RemoveTeamSkillOperation = RemoveTeamSkillOperation;

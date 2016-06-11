@@ -1,5 +1,4 @@
 todo:
-- get can the user add/remove skills to/from the team
 - get can the user like/unline the skills of a team
 - get teams skills statistics operation
 - get team skill statistics operation
