@@ -43,6 +43,219 @@ describe('AddUserToTeamOperation', () => {
     return EnvironmentCleaner.clearTables();
   });
 
+  describe('canExecute', () => {
+
+    describe('executing user is not part of the team and has insufficient global permissions', () => {
+
+      beforeEach(() => {
+        var permissions: GlobalPermission[] =
+          [
+            GlobalPermission.SKILLS_LIST_ADMIN,
+            GlobalPermission.READER,
+            GlobalPermission.GUEST
+          ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions)
+      });
+
+      it('should reject', () => {
+        // Arrange
+        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    });
+
+    describe('executing user is global admin', () => {
+
+      beforeEach(() => {
+        var permissions: GlobalPermission[] =
+          [
+            GlobalPermission.ADMIN
+          ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+      });
+
+      it('add as admin should fulfil', () => {
+        // Arrange
+        var shouldBeAdmin = true;
+        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+      it('add not as admin should fulfil', () => {
+        // Arrange
+        var shouldBeAdmin = false;
+        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('executing user is teams list admin', () => {
+
+      beforeEach(() => {
+        var permissions: GlobalPermission[] =
+          [
+            GlobalPermission.TEAMS_LIST_ADMIN
+          ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+      });
+
+      it('add as admin should fulfil', () => {
+        // Arrange
+        var shouldBeAdmin = true;
+        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+      it('add not as admin should fulfil', () => {
+        // Arrange
+        var shouldBeAdmin = false;
+        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('executing user is a simple team member', () => {
+
+      beforeEach(() => {
+        var teamMemberInfo: ITeamMemberInfo =
+          ModelInfoMockFactory.createTeamMemberInfo(teamToAddTheUser, executingUser);
+
+        teamMemberInfo.is_admin = false;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+
+      it('should reject', () => {
+        // Arrange
+        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    });
+
+    describe('executing user is a team admin', () => {
+
+      beforeEach(() => {
+        var teamMemberInfo: ITeamMemberInfo =
+          ModelInfoMockFactory.createTeamMemberInfo(teamToAddTheUser, executingUser);
+
+        teamMemberInfo.is_admin = true;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+
+      it('add as admin should fulfil', () => {
+        // Arrange
+        var shouldBeAdmin = true;
+        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+      it('add not as admin should fulfil', () => {
+        // Arrange
+        var shouldBeAdmin = false;
+        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('executing user is a simple team member of another team', () => {
+
+      beforeEach(() => {
+        var teamMemberInfo: ITeamMemberInfo =
+          ModelInfoMockFactory.createTeamMemberInfo(otherTeam, executingUser);
+
+        teamMemberInfo.is_admin = false;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+
+      it('should reject', () => {
+        // Arrange
+        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    });
+
+    describe('executing user is a team admin of another team', () => {
+
+      beforeEach(() => {
+        var teamMemberInfo: ITeamMemberInfo =
+          ModelInfoMockFactory.createTeamMemberInfo(otherTeam, executingUser);
+
+        teamMemberInfo.is_admin = true;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+
+      it('should reject', () => {
+        // Arrange
+        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    });
+
+  });
+
   describe('execute', () => {
 
     function verifyUserIsTeamMember(userToAdd: User, shouldBeAdmin: boolean, teamMembers: IUserOfATeam[]) {

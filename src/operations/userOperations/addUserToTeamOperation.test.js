@@ -32,6 +32,118 @@ describe('AddUserToTeamOperation', function () {
     afterEach(function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
+    describe('canExecute', function () {
+        describe('executing user is not part of the team and has insufficient global permissions', function () {
+            beforeEach(function () {
+                var permissions = [
+                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
+                    globalPermission_1.GlobalPermission.READER,
+                    globalPermission_1.GlobalPermission.GUEST
+                ];
+                return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+            });
+            it('should reject', function () {
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+                var result = operation.canExecute();
+                return chai_1.expect(result).to.eventually.rejected;
+            });
+        });
+        describe('executing user is global admin', function () {
+            beforeEach(function () {
+                var permissions = [
+                    globalPermission_1.GlobalPermission.ADMIN
+                ];
+                return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+            });
+            it('add as admin should fulfil', function () {
+                var shouldBeAdmin = true;
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var result = operation.canExecute();
+                return chai_1.expect(result).to.eventually.fulfilled;
+            });
+            it('add not as admin should fulfil', function () {
+                var shouldBeAdmin = false;
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var result = operation.canExecute();
+                return chai_1.expect(result).to.eventually.fulfilled;
+            });
+        });
+        describe('executing user is teams list admin', function () {
+            beforeEach(function () {
+                var permissions = [
+                    globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN
+                ];
+                return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+            });
+            it('add as admin should fulfil', function () {
+                var shouldBeAdmin = true;
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var result = operation.canExecute();
+                return chai_1.expect(result).to.eventually.fulfilled;
+            });
+            it('add not as admin should fulfil', function () {
+                var shouldBeAdmin = false;
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var result = operation.canExecute();
+                return chai_1.expect(result).to.eventually.fulfilled;
+            });
+        });
+        describe('executing user is a simple team member', function () {
+            beforeEach(function () {
+                var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(teamToAddTheUser, executingUser);
+                teamMemberInfo.is_admin = false;
+                return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+            });
+            it('should reject', function () {
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+                var result = operation.canExecute();
+                return chai_1.expect(result).to.eventually.rejected;
+            });
+        });
+        describe('executing user is a team admin', function () {
+            beforeEach(function () {
+                var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(teamToAddTheUser, executingUser);
+                teamMemberInfo.is_admin = true;
+                return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+            });
+            it('add as admin should fulfil', function () {
+                var shouldBeAdmin = true;
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var result = operation.canExecute();
+                return chai_1.expect(result).to.eventually.fulfilled;
+            });
+            it('add not as admin should fulfil', function () {
+                var shouldBeAdmin = false;
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var result = operation.canExecute();
+                return chai_1.expect(result).to.eventually.fulfilled;
+            });
+        });
+        describe('executing user is a simple team member of another team', function () {
+            beforeEach(function () {
+                var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(otherTeam, executingUser);
+                teamMemberInfo.is_admin = false;
+                return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+            });
+            it('should reject', function () {
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+                var result = operation.canExecute();
+                return chai_1.expect(result).to.eventually.rejected;
+            });
+        });
+        describe('executing user is a team admin of another team', function () {
+            beforeEach(function () {
+                var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(otherTeam, executingUser);
+                teamMemberInfo.is_admin = true;
+                return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+            });
+            it('should reject', function () {
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+                var result = operation.canExecute();
+                return chai_1.expect(result).to.eventually.rejected;
+            });
+        });
+    });
     describe('execute', function () {
         function verifyUserIsTeamMember(userToAdd, shouldBeAdmin, teamMembers) {
             var teamMember = _.find(teamMembers, function (_teamMember) { return _teamMember.user.id === userToAdd.id; });

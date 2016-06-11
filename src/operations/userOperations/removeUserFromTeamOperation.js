@@ -13,6 +13,9 @@ var RemoveUserFromTeamOperation = (function (_super) {
         _super.call(this, _executingUserId, _teamId);
         this._userIdToRemove = _userIdToRemove;
     }
+    RemoveUserFromTeamOperation.prototype.canExecute = function () {
+        return _super.prototype.canExecute.call(this);
+    };
     Object.defineProperty(RemoveUserFromTeamOperation.prototype, "sufficientOperationGlobalPermissions", {
         get: function () {
             return [globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN];

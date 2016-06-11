@@ -57,6 +57,258 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
     return EnvironmentCleaner.clearTables();
   });
 
+  describe('canExecute', () => {
+
+    describe('executing user is not part of the team and has insufficient global permissions', () => {
+
+      beforeEach(() => {
+        var permissions: GlobalPermission[] =
+          [
+            GlobalPermission.SKILLS_LIST_ADMIN,
+            GlobalPermission.READER,
+            GlobalPermission.GUEST
+          ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions)
+      });
+
+      it('removing not admin user should reject', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+      it('removing admin user should reject', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    });
+
+    describe('executing user is global admin', () => {
+
+      beforeEach(() => {
+        var permissions: GlobalPermission[] =
+          [
+            GlobalPermission.ADMIN
+          ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+      });
+
+      it('removing not admin user should fulfil', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+      it('removing admin user should fulfil', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('executing user is teams list admin', () => {
+
+      beforeEach(() => {
+        var permissions: GlobalPermission[] =
+          [
+            GlobalPermission.TEAMS_LIST_ADMIN
+          ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+      });
+
+      it('removing not admin user shoud fulfil', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+      it('removing admin user shoud fulfil', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('executing user is a simple team member', () => {
+
+      beforeEach(() => {
+        var teamMemberInfo: ITeamMemberInfo =
+          ModelInfoMockFactory.createTeamMemberInfo(teamOfTheUser, executingUser);
+
+        teamMemberInfo.is_admin = false;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+
+      it('removing admin user should reject', () => {
+        // Arrange
+        var shouldBeAdmin = false;
+        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+      it('removing not admin user should reject', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    });
+
+    describe('executing user is a team admin', () => {
+
+      beforeEach(() => {
+        var teamMemberInfo: ITeamMemberInfo =
+          ModelInfoMockFactory.createTeamMemberInfo(teamOfTheUser, executingUser);
+
+        teamMemberInfo.is_admin = true;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+
+      it('removing not admin user should fulfil', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+      it('removing admin user should fulfil', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('executing user is a simple team member of another team', () => {
+
+      beforeEach(() => {
+        var teamMemberInfo: ITeamMemberInfo =
+          ModelInfoMockFactory.createTeamMemberInfo(otherTeam, executingUser);
+
+        teamMemberInfo.is_admin = false;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+
+      it('removing admin user should reject', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+      it('removing not admin user should reject', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    });
+
+    describe('executing user is a team admin of another team', () => {
+
+      beforeEach(() => {
+        var teamMemberInfo: ITeamMemberInfo =
+          ModelInfoMockFactory.createTeamMemberInfo(otherTeam, executingUser);
+
+        teamMemberInfo.is_admin = true;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+
+      it('removing admin user should reject', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(adminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+      it('removing not admin user should reject', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(notAdminUser.id, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    });
+
+  });
+
   describe('execute', () => {
 
     function verifyUserIsNotInTheTeam(modifiedUser: User, teamMembers: IUserOfATeam[]) {
