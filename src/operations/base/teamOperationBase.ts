@@ -10,7 +10,9 @@ export class TeamOperationBase extends AuthenticatedOperationBase {
 
   protected get teamId(): number { return this._teamId; }
 
-  protected get isRegularTeamMemberAlowedToExecute(): boolean { return false; }
+  protected get isRegularTeamMemberAlowedToExecute(): boolean {
+    return false;
+  }
 
   protected canExecute(): Promise<any> {
     return super.canExecute()

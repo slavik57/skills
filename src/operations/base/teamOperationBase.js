@@ -18,7 +18,9 @@ var TeamOperationBase = (function (_super) {
         configurable: true
     });
     Object.defineProperty(TeamOperationBase.prototype, "isRegularTeamMemberAlowedToExecute", {
-        get: function () { return false; },
+        get: function () {
+            return false;
+        },
         enumerable: true,
         configurable: true
     });
