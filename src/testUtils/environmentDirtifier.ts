@@ -52,6 +52,17 @@ export class EnvironmentDirtifier {
       .then(() => testModels);
   }
 
+  public static createUsers(numberOfUsers: number): Promise<User[]> {
+    var userCreationPromises: Promise<User>[] = [];
+    for (var i = 0; i < numberOfUsers; i++) {
+      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(i);
+
+      userCreationPromises.push(UserDataHandler.createUser(userInfo));
+    }
+
+    return Promise.all(userCreationPromises);
+  }
+
   public static createSkills(numberOfSkills: number): Promise<Skill[]> {
     var skillCreationPromises: Promise<Skill>[] = [];
     for (var i = 0; i < numberOfSkills; i++) {
@@ -61,6 +72,25 @@ export class EnvironmentDirtifier {
     }
 
     return Promise.all(skillCreationPromises);
+  }
+
+  public static createSkillPrerequisites(skills: Skill[]): Promise<SkillPrerequisite[]> {
+    var skillPrerequisitesCreationPromises: Promise<SkillPrerequisite>[] = [];
+
+    skills.forEach((_skill1: Skill) => {
+      skills.forEach((_skill2: Skill) => {
+        if (_skill1.id === _skill2.id) {
+          return;
+        }
+
+        var skillPrerequisiteInfo: ISkillPrerequisiteInfo =
+          ModelInfoMockFactory.createSkillPrerequisiteInfo(_skill2, _skill1);
+
+        skillPrerequisitesCreationPromises.push(SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo));
+      });
+    });
+
+    return Promise.all(skillPrerequisitesCreationPromises);
   }
 
   public static createTeams(numberOfTeams: number): Promise<Team[]> {
@@ -96,14 +126,7 @@ export class EnvironmentDirtifier {
   }
 
   private static _fillUsers(testModels: ITestModels): Promise<any> {
-    var userCreationPromises: Promise<User>[] = [];
-    for (var i = 0; i < this.numberOfUsers; i++) {
-      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(i);
-
-      userCreationPromises.push(UserDataHandler.createUser(userInfo));
-    }
-
-    return Promise.all(userCreationPromises)
+    return this.createUsers(this.numberOfUsers)
       .then((users: User[]) => {
         testModels.users = users;
       });
@@ -158,22 +181,7 @@ export class EnvironmentDirtifier {
   }
 
   private static _fillSkillPrerequisites(testModels: ITestModels): Promise<any> {
-    var skillPrerequisitesCreationPromises: Promise<SkillPrerequisite>[] = [];
-
-    testModels.skills.forEach((_skill1: Skill) => {
-      testModels.skills.forEach((_skill2: Skill) => {
-        if (_skill1.id === _skill2.id) {
-          return;
-        }
-
-        var skillPrerequisiteInfo: ISkillPrerequisiteInfo =
-          ModelInfoMockFactory.createSkillPrerequisiteInfo(_skill2, _skill1);
-
-        skillPrerequisitesCreationPromises.push(SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo));
-      });
-    });
-
-    return Promise.all(skillPrerequisitesCreationPromises)
+    return this.createSkillPrerequisites(testModels.skills)
       .then((skillPrerequisites: SkillPrerequisite[]) => {
         testModels.skillPrerequisites = skillPrerequisites;
       });

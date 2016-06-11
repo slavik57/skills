@@ -12,7 +12,7 @@ import {EnvironmentCleaner} from "../../testUtils/environmentCleaner";
 import {DownvoteTeamSkillOperation} from './downvoteTeamSkillOperation';
 import * as chai from 'chai';
 import { expect } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised'
+import * as chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
 

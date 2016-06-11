@@ -52,6 +52,14 @@ var EnvironmentDirtifier = (function () {
             .then(function () { return _this._fillLevel2Tables(testModels); })
             .then(function () { return testModels; });
     };
+    EnvironmentDirtifier.createUsers = function (numberOfUsers) {
+        var userCreationPromises = [];
+        for (var i = 0; i < numberOfUsers; i++) {
+            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(i);
+            userCreationPromises.push(userDataHandler_1.UserDataHandler.createUser(userInfo));
+        }
+        return Promise.all(userCreationPromises);
+    };
     EnvironmentDirtifier.createSkills = function (numberOfSkills) {
         var skillCreationPromises = [];
         for (var i = 0; i < numberOfSkills; i++) {
@@ -59,6 +67,19 @@ var EnvironmentDirtifier = (function () {
             skillCreationPromises.push(skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo));
         }
         return Promise.all(skillCreationPromises);
+    };
+    EnvironmentDirtifier.createSkillPrerequisites = function (skills) {
+        var skillPrerequisitesCreationPromises = [];
+        skills.forEach(function (_skill1) {
+            skills.forEach(function (_skill2) {
+                if (_skill1.id === _skill2.id) {
+                    return;
+                }
+                var skillPrerequisiteInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(_skill2, _skill1);
+                skillPrerequisitesCreationPromises.push(skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo));
+            });
+        });
+        return Promise.all(skillPrerequisitesCreationPromises);
     };
     EnvironmentDirtifier.createTeams = function (numberOfTeams) {
         var teamCreationPromises = [];
@@ -87,12 +108,7 @@ var EnvironmentDirtifier = (function () {
         return this._fillTeamSkillUpvotes(testModels);
     };
     EnvironmentDirtifier._fillUsers = function (testModels) {
-        var userCreationPromises = [];
-        for (var i = 0; i < this.numberOfUsers; i++) {
-            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(i);
-            userCreationPromises.push(userDataHandler_1.UserDataHandler.createUser(userInfo));
-        }
-        return Promise.all(userCreationPromises)
+        return this.createUsers(this.numberOfUsers)
             .then(function (users) {
             testModels.users = users;
         });
@@ -135,17 +151,7 @@ var EnvironmentDirtifier = (function () {
         });
     };
     EnvironmentDirtifier._fillSkillPrerequisites = function (testModels) {
-        var skillPrerequisitesCreationPromises = [];
-        testModels.skills.forEach(function (_skill1) {
-            testModels.skills.forEach(function (_skill2) {
-                if (_skill1.id === _skill2.id) {
-                    return;
-                }
-                var skillPrerequisiteInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(_skill2, _skill1);
-                skillPrerequisitesCreationPromises.push(skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo));
-            });
-        });
-        return Promise.all(skillPrerequisitesCreationPromises)
+        return this.createSkillPrerequisites(testModels.skills)
             .then(function (skillPrerequisites) {
             testModels.skillPrerequisites = skillPrerequisites;
         });
