@@ -42,23 +42,6 @@ describe('UpvoteTeamSkillOperation', function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
     describe('canExecute', function () {
-        describe('skill is not a team skill', function () {
-            beforeEach(function () {
-                return teamsDataHandler_1.TeamsDataHandler.removeTeamSkill(team.id, skillToUpvote.id);
-            });
-            it('executing user has all permissions should fail', function () {
-                var permissions = [
-                    globalPermission_1.GlobalPermission.ADMIN,
-                    globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
-                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
-                    globalPermission_1.GlobalPermission.READER,
-                    globalPermission_1.GlobalPermission.GUEST
-                ];
-                var permissionsPromise = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
-                var resultPromise = permissionsPromise.then(function () { return operation.canExecute(); });
-                return chai_1.expect(resultPromise).to.eventually.rejected;
-            });
-        });
         describe('skill has no upvotes', function () {
             it('executing user has no permissions should fail', function () {
                 var resultPromise = operation.canExecute();
@@ -158,23 +141,6 @@ describe('UpvoteTeamSkillOperation', function () {
                 var permissionsPromise = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
                 var resultPromise = permissionsPromise.then(function () { return operation.canExecute(); });
                 return chai_1.expect(resultPromise).to.eventually.fulfilled;
-            });
-        });
-        describe('skill has upvote from executing user', function () {
-            beforeEach(function () {
-                return teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamSkillToUpvote.id, executingUser.id);
-            });
-            it('executing user has all permissions should fail', function () {
-                var permissions = [
-                    globalPermission_1.GlobalPermission.ADMIN,
-                    globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
-                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
-                    globalPermission_1.GlobalPermission.READER,
-                    globalPermission_1.GlobalPermission.GUEST
-                ];
-                var permissionsPromise = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
-                var resultPromise = permissionsPromise.then(function () { return operation.canExecute(); });
-                return chai_1.expect(resultPromise).to.eventually.rejected;
             });
         });
     });

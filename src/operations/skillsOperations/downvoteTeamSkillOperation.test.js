@@ -42,60 +42,6 @@ describe('DownvoteTeamSkillOperation', function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
     describe('canExecute', function () {
-        describe('skill is not a team skill', function () {
-            beforeEach(function () {
-                return teamsDataHandler_1.TeamsDataHandler.removeTeamSkill(team.id, skillToDownvote.id);
-            });
-            it('executing user has all permissions should fail', function () {
-                var permissions = [
-                    globalPermission_1.GlobalPermission.ADMIN,
-                    globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
-                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
-                    globalPermission_1.GlobalPermission.READER,
-                    globalPermission_1.GlobalPermission.GUEST
-                ];
-                var permissionsPromise = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
-                var resultPromise = permissionsPromise.then(function () { return operation.canExecute(); });
-                return chai_1.expect(resultPromise).to.eventually.rejected;
-            });
-        });
-        describe('skill has no upvotes', function () {
-            it('executing user has all permissions should fail', function () {
-                var permissions = [
-                    globalPermission_1.GlobalPermission.ADMIN,
-                    globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
-                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
-                    globalPermission_1.GlobalPermission.READER,
-                    globalPermission_1.GlobalPermission.GUEST
-                ];
-                var permissionsPromise = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
-                var resultPromise = permissionsPromise.then(function () { return operation.canExecute(); });
-                return chai_1.expect(resultPromise).to.eventually.rejected;
-            });
-        });
-        describe('skill has upvote from different user', function () {
-            var otherUser;
-            beforeEach(function () {
-                var createOtherUserPromise = userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2))
-                    .then(function (_user) {
-                    otherUser = _user;
-                });
-                return createOtherUserPromise
-                    .then(function () { return teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamSkillToDownvote.id, otherUser.id); });
-            });
-            it('executing user has all permissions should fail', function () {
-                var permissions = [
-                    globalPermission_1.GlobalPermission.ADMIN,
-                    globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
-                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
-                    globalPermission_1.GlobalPermission.READER,
-                    globalPermission_1.GlobalPermission.GUEST
-                ];
-                var permissionsPromise = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
-                var resultPromise = permissionsPromise.then(function () { return operation.canExecute(); });
-                return chai_1.expect(resultPromise).to.eventually.rejected;
-            });
-        });
         describe('skill has upvote from executing user', function () {
             beforeEach(function () {
                 return teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamSkillToDownvote.id, executingUser.id);

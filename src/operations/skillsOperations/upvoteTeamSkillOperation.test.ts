@@ -53,35 +53,6 @@ describe('UpvoteTeamSkillOperation', () => {
 
   describe('canExecute', () => {
 
-    describe('skill is not a team skill', () => {
-
-      beforeEach(() => {
-        return TeamsDataHandler.removeTeamSkill(team.id, skillToUpvote.id);
-      });
-
-      it('executing user has all permissions should fail', () => {
-        // Arrange
-        var permissions = [
-          GlobalPermission.ADMIN,
-          GlobalPermission.TEAMS_LIST_ADMIN,
-          GlobalPermission.SKILLS_LIST_ADMIN,
-          GlobalPermission.READER,
-          GlobalPermission.GUEST
-        ];
-
-        var permissionsPromise: Promise<any> =
-          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
-
-        // Act
-        var resultPromise: Promise<any> =
-          permissionsPromise.then(() => operation.canExecute());
-
-        // Assert
-        return expect(resultPromise).to.eventually.rejected;
-      });
-
-    });
-
     describe('skill has no upvotes', () => {
 
       it('executing user has no permissions should fail', () => {
@@ -285,35 +256,6 @@ describe('UpvoteTeamSkillOperation', () => {
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled;
-      });
-
-    });
-
-    describe('skill has upvote from executing user', () => {
-
-      beforeEach(() => {
-        return TeamsDataHandler.upvoteTeamSkill(teamSkillToUpvote.id, executingUser.id);
-      });
-
-      it('executing user has all permissions should fail', () => {
-        // Arrange
-        var permissions = [
-          GlobalPermission.ADMIN,
-          GlobalPermission.TEAMS_LIST_ADMIN,
-          GlobalPermission.SKILLS_LIST_ADMIN,
-          GlobalPermission.READER,
-          GlobalPermission.GUEST
-        ];
-
-        var permissionsPromise: Promise<any> =
-          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
-
-        // Act
-        var resultPromise: Promise<any> =
-          permissionsPromise.then(() => operation.canExecute());
-
-        // Assert
-        return expect(resultPromise).to.eventually.rejected;
       });
 
     });
