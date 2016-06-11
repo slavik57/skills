@@ -32,7 +32,7 @@ var config = {
             databaseHost: ''
         }
     },
-    currentEnvironment: 'tests',
+    currentEnvironment: 'production',
     getCurrentEnvironment: function () {
         var nodeEnviroment = process.env.NODE_ENV;
         if (nodeEnviroment !== undefined) {

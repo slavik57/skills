@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "pretest": "set NODE_ENV=tests&& knex migrate:latest",
-    "test": "mocha -c -b src/**/*.test.js",
+    "test": "set NODE_ENV=tests&& mocha -c -b src/**/*.test.js",
     "prestart": "set NODE_ENV=development&& knex migrate:latest"
   },
   "repository": {
