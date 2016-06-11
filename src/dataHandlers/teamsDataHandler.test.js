@@ -425,6 +425,20 @@ describe('TeamsDataHandler', function () {
             var expectedSkillInfo = [skillInfo1, skillInfo2];
             return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedSkillInfo, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
         });
+        it('should return correct teamSkills', function () {
+            var teamSkillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
+            var teamSkillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
+            var createAllTeamSkillsPromise = Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
+                teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2)
+            ]);
+            var teamSkillsPromise = createAllTeamSkillsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamSkills(team1.id); })
+                .then(function (skillsOfATeam) {
+                return _.map(skillsOfATeam, function (_) { return _.teamSkill; });
+            });
+            var expectedTeamSkillInfo = [teamSkillInfo1, teamSkillInfo2];
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(teamSkillsPromise, expectedTeamSkillInfo, modelInfoComparers_1.ModelInfoComparers.compareTeamSkillInfos);
+        });
         it('should return all existing team skills with correct upvoting user ids', function () {
             var teamSkillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             var teamSkillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);

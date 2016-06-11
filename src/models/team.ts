@@ -103,6 +103,7 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
 
     return {
       skill: skill,
+      teamSkill: teamSkill,
       upvotingUserIds: upvotingIds
     };
   }

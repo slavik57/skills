@@ -1,3 +1,4 @@
+import {ITeamSkillInfo} from "../models/interfaces/iTeamSkillInfo";
 import {IUserInfo} from "../models/interfaces/iUserInfo";
 import {ITeamInfo} from "../models/interfaces/iTeamInfo";
 import {ISkillPrerequisiteInfo} from "../models/interfaces/iSkillPrerequisiteInfo";
@@ -20,5 +21,13 @@ export class ModelInfoComparers {
 
   public static compareTeamInfos(teamInfo1: ITeamInfo, teamInfo2: ITeamInfo): number {
     return teamInfo1.name.localeCompare(teamInfo2.name);
+  }
+
+  public static compareTeamSkillInfos(teamSkillInfo1: ITeamSkillInfo, teamSkillInfo2: ITeamSkillInfo): number {
+    if (teamSkillInfo1.team_id !== teamSkillInfo2.team_id) {
+      return teamSkillInfo1.team_id - teamSkillInfo2.team_id;
+    }
+
+    return teamSkillInfo1.skill_id - teamSkillInfo2.skill_id;
   }
 }

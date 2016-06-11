@@ -105,6 +105,7 @@ var Team = (function (_super) {
         var upvotingIds = _.map(upvotes, function (_) { return _.attributes.user_id; });
         return {
             skill: skill,
+            teamSkill: teamSkill,
             upvotingUserIds: upvotingIds
         };
     };
