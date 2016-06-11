@@ -1,4 +1,17 @@
 todo:
+- get all users operation
+- get user permissions operation
+- get all teams operation
+- get permissions a user can set to another user operation
+- get whether an executing user can add the user to a team
+- get all skills operation
+- get can a user modify skills
+- get can the executing user add/remove teams
+- get team users operation with admin rights and whether the execution user can modify the admin rights
+- get can the executing user add/remove users to/from the team
+- get team skills with users who liked operation
+- get can the user add/remove skills to/from the team
+- get can the user like/unline the skills of a team
 - get teams skills statistics operation
 - get team skill statistics operation
 - get skills teams statistics operation
@@ -11,5 +24,5 @@ todo:
 - create login operation(password hash verification)
 - look in all the create/add operations and return the information needed after the creation 
 	(id/some display name/number of likes for team skill and so on)
-- expose the can execute of the operation to use it to enable and disable the buttons??
+
 - UI in sails for node.js?
