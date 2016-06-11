@@ -33,11 +33,12 @@ var ModelInfoMockFactory = (function () {
             user_id: user.id
         };
     };
-    ModelInfoMockFactory.createTeamMemberInfo = function (team, user) {
+    ModelInfoMockFactory.createTeamMemberInfo = function (team, user, isAdmin) {
+        if (isAdmin === void 0) { isAdmin = false; }
         return {
             team_id: team.id,
             user_id: user.id,
-            is_admin: false
+            is_admin: isAdmin
         };
     };
     ModelInfoMockFactory.createSkillPrerequisiteInfo = function (skill, skillPrerequisite) {

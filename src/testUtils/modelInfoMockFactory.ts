@@ -48,11 +48,11 @@ export class ModelInfoMockFactory {
     };
   }
 
-  public static createTeamMemberInfo(team: Team, user: User): ITeamMemberInfo {
+  public static createTeamMemberInfo(team: Team, user: User, isAdmin: boolean = false): ITeamMemberInfo {
     return {
       team_id: team.id,
       user_id: user.id,
-      is_admin: false
+      is_admin: isAdmin
     }
   }
 
