@@ -6,7 +6,7 @@ import * as EnvironmentConfig from './environment';
 
 var cascadeDelete = require('bookshelf-cascade-delete');
 
-var knex = Knex(KnexConfig[EnvironmentConfig.currentEnvironment]);
+var knex = Knex(KnexConfig.knexConfig);
 
 var bookshelfInstance = Bookshelf(knex);
 bookshelfInstance.plugin(cascadeDelete.default);

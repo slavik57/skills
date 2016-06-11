@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -c -b src/**/*.test.js"
+    "pretest": "set NODE_ENV=tests&& knex migrate:latest",
+    "test": "mocha -c -b src/**/*.test.js",
+    "prestart": "set NODE_ENV=development&& knex migrate:latest"
   },
   "repository": {
     "type": "git",

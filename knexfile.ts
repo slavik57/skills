@@ -3,7 +3,7 @@ import { Config } from "knex";
 import * as EnvironmentConfig from "./environment";
 
 var config = {
-  development: <Config>{
+  knexConfig: <Config>{
     client: 'postgresql',
     connection: {
       database: EnvironmentConfig.getCurrentEnvironment().databbaseConfig.databaseName,
@@ -16,5 +16,8 @@ var config = {
     }
   }
 }
+
+config['development'] = config.knexConfig;
+config['tests'] = config.knexConfig;
 
 export = config;

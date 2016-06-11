@@ -1,7 +1,7 @@
 "use strict";
 var EnvironmentConfig = require("./environment");
 var config = {
-    development: {
+    knexConfig: {
         client: 'postgresql',
         connection: {
             database: EnvironmentConfig.getCurrentEnvironment().databbaseConfig.databaseName,
@@ -14,4 +14,6 @@ var config = {
         }
     }
 };
+config['development'] = config.knexConfig;
+config['tests'] = config.knexConfig;
 module.exports = config;
