@@ -8,8 +8,8 @@ import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {User} from "../../models/user";
 import * as chai from 'chai';
 import { expect } from 'chai';
-import * as chaiAsPromised from 'chai-as-promised'
-import {RemoveSkillOperation} from './removeSkillInfoOperation';
+import * as chaiAsPromised from 'chai-as-promised';
+import {RemoveSkillOperation} from './removeSkillOperation';
 
 chai.use(chaiAsPromised);
 
@@ -34,7 +34,6 @@ describe('RemoveSkillOperation', () => {
         UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1))
           .then((_user: User) => {
             executingUser = _user;
-
           });
 
       var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('skill');

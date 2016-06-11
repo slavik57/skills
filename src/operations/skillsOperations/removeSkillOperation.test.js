@@ -7,7 +7,7 @@ var userDataHandler_1 = require("../../dataHandlers/userDataHandler");
 var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
-var removeSkillInfoOperation_1 = require('./removeSkillInfoOperation');
+var removeSkillOperation_1 = require('./removeSkillOperation');
 chai.use(chaiAsPromised);
 describe('RemoveSkillOperation', function () {
     beforeEach(function () {
@@ -29,7 +29,7 @@ describe('RemoveSkillOperation', function () {
             var createSkillPromise = skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo)
                 .then(function (_skill) {
                 skillToRemove = _skill;
-                operation = new removeSkillInfoOperation_1.RemoveSkillOperation(executingUser.id, skillToRemove.id);
+                operation = new removeSkillOperation_1.RemoveSkillOperation(executingUser.id, skillToRemove.id);
             });
             return Promise.all([
                 userCreationPromise,
