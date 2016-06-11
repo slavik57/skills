@@ -56,7 +56,7 @@ describe('GetSkillPrerequisitesOperation', () => {
 
       // Assert
       var expectedPrerequisites = [skillPrerequisite1, skillPrerequisite2, skillPrerequisite3];
-      
+
       return expect(resultPromise).to.eventually.fulfilled
         .then((_actualPrerequisites: Skill[]) => {
           ModelVerificator.verifyMultipleModelsEqualById(_actualPrerequisites, expectedPrerequisites);
