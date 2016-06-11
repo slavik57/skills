@@ -13,7 +13,7 @@ export class ModifyUserPermissionsOperationBase extends OperationBase {
     super();
   }
 
-  protected canExecute(): Promise<any> {
+  public canExecute(): Promise<any> {
     var getAllowedUserPermissionsToModifyOperation =
       new GetAllowedUserPermissionsToModifyOperation(this._executingUserId)
 

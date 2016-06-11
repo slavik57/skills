@@ -15,7 +15,7 @@ class TestOperationBase extends OperationBase {
     super();
   }
 
-  protected canExecute(): Promise<any> {
+  public canExecute(): Promise<any> {
     if (this.canExecuteToReturn) {
       return Promise.resolve();
     }

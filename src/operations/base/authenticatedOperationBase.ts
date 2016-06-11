@@ -15,7 +15,7 @@ export class AuthenticatedOperationBase extends OperationBase {
     return [];
   }
 
-  protected canExecute(): Promise<any> {
+  public canExecute(): Promise<any> {
     var userPermissionsPromise: Promise<GlobalPermission[]> =
       UserDataHandler.getUserGlobalPermissions(this.executingUserId);
 

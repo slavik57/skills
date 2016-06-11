@@ -5,7 +5,7 @@ export class OperationBase {
   constructor() {
   }
 
-  protected canExecute(): Promise<any> {
+  public canExecute(): Promise<any> {
     return Promise.resolve();
   }
 

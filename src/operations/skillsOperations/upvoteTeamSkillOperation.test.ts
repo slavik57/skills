@@ -18,53 +18,309 @@ chai.use(chaiAsPromised);
 
 describe('UpvoteTeamSkillOperation', () => {
 
+  var team: Team;
+  var skillToUpvote: Skill;
+  var teamSkillToUpvote: TeamSkill;
+  var executingUser: User;
+  var operation: UpvoteTeamSkillOperation;
+
   beforeEach(() => {
-    return EnvironmentCleaner.clearTables();
+    return EnvironmentCleaner.clearTables()
+      .then(() => UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1)))
+      .then((_user: User) => {
+        executingUser = _user;
+      })
+      .then(() => TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team')))
+      .then((_team: Team) => {
+        team = _team;
+      })
+      .then(() => SkillsDataHandler.createSkill(ModelInfoMockFactory.createSkillInfo('skill')))
+      .then((_skill: Skill) => {
+        skillToUpvote = _skill;
+      })
+      .then(() => TeamsDataHandler.addTeamSkill(ModelInfoMockFactory.createTeamSkillInfo(team, skillToUpvote)))
+      .then((_teamSkill: TeamSkill) => {
+        teamSkillToUpvote = _teamSkill;
+      })
+      .then(() => {
+        operation = new UpvoteTeamSkillOperation(skillToUpvote.id, team.id, executingUser.id);
+      });
   });
 
   afterEach(() => {
     return EnvironmentCleaner.clearTables();
   });
 
-  describe('execute', () => {
+  describe('canExecute', () => {
 
-    var team: Team;
-    var skillToUpvote: Skill;
-    var teamSkillToUpvote: TeamSkill;
-    var executingUser: User;
-    var operation: UpvoteTeamSkillOperation;
+    describe('skill is not a team skill', () => {
 
-    beforeEach(() => {
-      var createUserPromise: Promise<any> =
-        UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1))
-          .then((_user: User) => {
-            executingUser = _user;
-          });
+      beforeEach(() => {
+        return TeamsDataHandler.removeTeamSkill(team.id, skillToUpvote.id);
+      });
 
-      var createTeamPromise: Promise<any> =
-        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team'))
-          .then((_team: Team) => {
-            team = _team;
-          });
+      it('executing user has all permissions should fail', () => {
+        // Arrange
+        var permissions = [
+          GlobalPermission.ADMIN,
+          GlobalPermission.TEAMS_LIST_ADMIN,
+          GlobalPermission.SKILLS_LIST_ADMIN,
+          GlobalPermission.READER,
+          GlobalPermission.GUEST
+        ];
 
-      var createSkillPromise: Promise<any> =
-        SkillsDataHandler.createSkill(ModelInfoMockFactory.createSkillInfo('skill'))
-          .then((_skill: Skill) => {
-            skillToUpvote = _skill;
-          });
+        var permissionsPromise: Promise<any> =
+          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
 
-      return Promise.all([
-        createUserPromise,
-        createTeamPromise,
-        createSkillPromise
-      ]).then(() => TeamsDataHandler.addTeamSkill(ModelInfoMockFactory.createTeamSkillInfo(team, skillToUpvote)))
-        .then((_teamSkill: TeamSkill) => {
-          teamSkillToUpvote = _teamSkill;
-        })
-        .then(() => {
-          operation = new UpvoteTeamSkillOperation(skillToUpvote.id, team.id, executingUser.id);
-        });
+        // Act
+        var resultPromise: Promise<any> =
+          permissionsPromise.then(() => operation.canExecute());
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected;
+      });
+
     });
+
+    describe('skill has no upvotes', () => {
+
+      it('executing user has no permissions should fail', () => {
+        // Act
+        var resultPromise: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected;
+      });
+
+      it('executing user has GUEST permissions should fail', () => {
+        // Arrange
+        var permissions = [
+          GlobalPermission.GUEST
+        ];
+
+        var permissionsPromise: Promise<any> =
+          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+
+        // Act
+        var resultPromise: Promise<any> =
+          permissionsPromise.then(() => operation.canExecute());
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected;
+      });
+
+      it('executing user has READER permissions should succeed', () => {
+        // Arrange
+        var permissions = [
+          GlobalPermission.READER
+        ];
+
+        var permissionsPromise: Promise<any> =
+          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+
+        // Act
+        var resultPromise: Promise<any> =
+          permissionsPromise.then(() => operation.canExecute());
+
+        // Assert
+        return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+      it('executing user has SKILLS_LIST_ADMIN permissions should succeed', () => {
+        // Arrange
+        var permissions = [
+          GlobalPermission.SKILLS_LIST_ADMIN
+        ];
+
+        var permissionsPromise: Promise<any> =
+          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+
+        // Act
+        var resultPromise: Promise<any> =
+          permissionsPromise.then(() => operation.canExecute());
+
+        // Assert
+        return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+      it('executing user has TEAMS_LIST_ADMIN permissions should succeed', () => {
+        // Arrange
+        var permissions = [
+          GlobalPermission.TEAMS_LIST_ADMIN
+        ];
+
+        var permissionsPromise: Promise<any> =
+          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+
+        // Act
+        var resultPromise: Promise<any> =
+          permissionsPromise.then(() => operation.canExecute());
+
+        // Assert
+        return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+      it('executing user has ADMIN permissions should succeed', () => {
+        // Arrange
+        var permissions = [
+          GlobalPermission.ADMIN
+        ];
+
+        var permissionsPromise: Promise<any> =
+          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+
+        // Act
+        var resultPromise: Promise<any> =
+          permissionsPromise.then(() => operation.canExecute());
+
+        // Assert
+        return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('skill has upvote from different user', () => {
+
+      var otherUser: User;
+
+      beforeEach(() => {
+        var createOtherUserPromise: Promise<any> =
+          UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(2))
+            .then((_user: User) => {
+              otherUser = _user;
+            })
+
+        return createOtherUserPromise
+          .then(() => TeamsDataHandler.upvoteTeamSkill(teamSkillToUpvote.id, otherUser.id));
+      });
+
+      it('executing user has no permissions should fail', () => {
+        // Act
+        var resultPromise: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected;
+      });
+
+      it('executing user has GUEST permissions should fail', () => {
+        // Arrange
+        var permissions = [
+          GlobalPermission.GUEST
+        ];
+
+        var permissionsPromise: Promise<any> =
+          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+
+        // Act
+        var resultPromise: Promise<any> =
+          permissionsPromise.then(() => operation.canExecute());
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected;
+      });
+
+      it('executing user has READER permissions should succeed', () => {
+        // Arrange
+        var permissions = [
+          GlobalPermission.READER
+        ];
+
+        var permissionsPromise: Promise<any> =
+          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+
+        // Act
+        var resultPromise: Promise<any> =
+          permissionsPromise.then(() => operation.canExecute());
+
+        // Assert
+        return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+      it('executing user has SKILLS_LIST_ADMIN permissions should succeed', () => {
+        // Arrange
+        var permissions = [
+          GlobalPermission.SKILLS_LIST_ADMIN
+        ];
+
+        var permissionsPromise: Promise<any> =
+          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+
+        // Act
+        var resultPromise: Promise<any> =
+          permissionsPromise.then(() => operation.canExecute());
+
+        // Assert
+        return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+      it('executing user has TEAMS_LIST_ADMIN permissions should succeed', () => {
+        // Arrange
+        var permissions = [
+          GlobalPermission.TEAMS_LIST_ADMIN
+        ];
+
+        var permissionsPromise: Promise<any> =
+          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+
+        // Act
+        var resultPromise: Promise<any> =
+          permissionsPromise.then(() => operation.canExecute());
+
+        // Assert
+        return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+      it('executing user has ADMIN permissions should succeed', () => {
+        // Arrange
+        var permissions = [
+          GlobalPermission.ADMIN
+        ];
+
+        var permissionsPromise: Promise<any> =
+          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+
+        // Act
+        var resultPromise: Promise<any> =
+          permissionsPromise.then(() => operation.canExecute());
+
+        // Assert
+        return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('skill has upvote from executing user', () => {
+
+      beforeEach(() => {
+        return TeamsDataHandler.upvoteTeamSkill(teamSkillToUpvote.id, executingUser.id);
+      });
+
+      it('executing user has all permissions should fail', () => {
+        // Arrange
+        var permissions = [
+          GlobalPermission.ADMIN,
+          GlobalPermission.TEAMS_LIST_ADMIN,
+          GlobalPermission.SKILLS_LIST_ADMIN,
+          GlobalPermission.READER,
+          GlobalPermission.GUEST
+        ];
+
+        var permissionsPromise: Promise<any> =
+          UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+
+        // Act
+        var resultPromise: Promise<any> =
+          permissionsPromise.then(() => operation.canExecute());
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected;
+      });
+
+    });
+
+  });
+
+  describe('execute', () => {
 
     describe('skill is not a team skill', () => {
 

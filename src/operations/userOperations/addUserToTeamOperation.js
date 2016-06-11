@@ -14,9 +14,6 @@ var AddUserToTeamOperation = (function (_super) {
         this._userIdToAdd = _userIdToAdd;
         this._shouldBeAdmin = _shouldBeAdmin;
     }
-    AddUserToTeamOperation.prototype.canExecute = function () {
-        return _super.prototype.canExecute.call(this);
-    };
     Object.defineProperty(AddUserToTeamOperation.prototype, "sufficientOperationGlobalPermissions", {
         get: function () {
             return [globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN];

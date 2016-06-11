@@ -14,7 +14,7 @@ export class TeamOperationBase extends AuthenticatedOperationBase {
     return false;
   }
 
-  protected canExecute(): Promise<any> {
+  public canExecute(): Promise<any> {
     return super.canExecute()
       .catch(() => this._canExecuteBasedOnTeamMembership());
   }

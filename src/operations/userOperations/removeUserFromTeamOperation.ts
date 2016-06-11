@@ -11,10 +11,6 @@ export class RemoveUserFromTeamOperation extends TeamOperationBase {
     super(_executingUserId, _teamId);
   }
 
-  public canExecute(): Promise<any> {
-    return super.canExecute();
-  }
-
   protected get sufficientOperationGlobalPermissions(): GlobalPermission[] {
     return [GlobalPermission.TEAMS_LIST_ADMIN];
   }
