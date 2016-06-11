@@ -14,12 +14,16 @@ var AuthenticatedOperationBase = (function (_super) {
         this._executingUserId = _executingUserId;
     }
     Object.defineProperty(AuthenticatedOperationBase.prototype, "executingUserId", {
-        get: function () { return this._executingUserId; },
+        get: function () {
+            return this._executingUserId;
+        },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(AuthenticatedOperationBase.prototype, "sufficientOperationGlobalPermissions", {
-        get: function () { return []; },
+        get: function () {
+            return [];
+        },
         enumerable: true,
         configurable: true
     });

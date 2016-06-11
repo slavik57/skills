@@ -7,8 +7,13 @@ export class AuthenticatedOperationBase extends OperationBase {
     super();
   }
 
-  protected get executingUserId(): number { return this._executingUserId; }
-  protected get sufficientOperationGlobalPermissions(): GlobalPermission[] { return []; }
+  protected get executingUserId(): number {
+    return this._executingUserId;
+  }
+
+  protected get sufficientOperationGlobalPermissions(): GlobalPermission[] {
+    return [];
+  }
 
   protected canExecute(): Promise<any> {
     var userPermissionsPromise: Promise<GlobalPermission[]> =
