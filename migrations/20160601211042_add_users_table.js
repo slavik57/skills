@@ -9,7 +9,7 @@ exports.up = function(knex, Promise) {
 
     table.string('password_hash').notNullable();
 
-    table.string('email').notNullable();
+    table.string('email');
     table.unique('email');
     table.index('email');
 

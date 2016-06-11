@@ -41,7 +41,8 @@ export class User extends ModelBase<User, IUserInfo> implements IHasPivot<TeamMe
   }
 
   private _validateUser(user: User): Promise<boolean> {
-    if (!validator.isEmail(this.attributes.email)) {
+    if ('email' in this.attributes &&
+      !validator.isEmail(this.attributes.email)) {
       return Promise.reject('Email is not valid');
     }
 

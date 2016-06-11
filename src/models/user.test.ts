@@ -72,7 +72,7 @@ describe('User', () => {
       return expect(promise).to.eventually.rejected;
     });
 
-    it('create user with missing email - should return error', () => {
+    it('create user with missing email - should succeed', () => {
       // Arrange
       delete validUserInfo1.email;
       var user = new User(validUserInfo1);
@@ -81,7 +81,25 @@ describe('User', () => {
       var promise: Promise<User> = user.save();
 
       // Assert
-      return expect(promise).to.eventually.rejected;
+      return expect(promise).to.eventually.fulfilled;
+    });
+
+    it('create user with missing email should be fetched', () => {
+      // Arrange
+      delete validUserInfo1.email;
+      var user = new User(validUserInfo1);
+
+      // Act
+      var promise: Promise<User> = user.save();
+
+      // Assert
+      var usersPromise =
+        promise.then(() => new Users().fetch());
+
+      return expect(usersPromise).to.eventually.fulfilled
+        .then((users: Collection<User>) => {
+          expect(users.size()).to.be.equal(1);
+        });
     });
 
     it('create user with missing firstName - should return error', () => {

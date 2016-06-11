@@ -46,11 +46,21 @@ describe('User', function () {
             var promise = user.save();
             return chai_1.expect(promise).to.eventually.rejected;
         });
-        it('create user with missing email - should return error', function () {
+        it('create user with missing email - should succeed', function () {
             delete validUserInfo1.email;
             var user = new user_1.User(validUserInfo1);
             var promise = user.save();
-            return chai_1.expect(promise).to.eventually.rejected;
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('create user with missing email should be fetched', function () {
+            delete validUserInfo1.email;
+            var user = new user_1.User(validUserInfo1);
+            var promise = user.save();
+            var usersPromise = promise.then(function () { return new user_1.Users().fetch(); });
+            return chai_1.expect(usersPromise).to.eventually.fulfilled
+                .then(function (users) {
+                chai_1.expect(users.size()).to.be.equal(1);
+            });
         });
         it('create user with missing firstName - should return error', function () {
             delete validUserInfo1.firstName;

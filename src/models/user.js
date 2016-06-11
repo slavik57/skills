@@ -63,7 +63,8 @@ var User = (function (_super) {
         this.on('saving', function (user) { return _this._validateUser(user); });
     };
     User.prototype._validateUser = function (user) {
-        if (!validator.isEmail(this.attributes.email)) {
+        if ('email' in this.attributes &&
+            !validator.isEmail(this.attributes.email)) {
             return Promise.reject('Email is not valid');
         }
         if (!typesValidator_1.TypesValidator.isLongEnoughString(this.attributes.username, 1)) {
