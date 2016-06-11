@@ -197,6 +197,41 @@ describe('TeamsDataHandler', () => {
 
   });
 
+  describe('getTeams', () => {
+
+    it('no teams should return empty', () => {
+      // Act
+      var teamsPromise: Promise<Team[]> =
+        TeamsDataHandler.getTeams();
+
+      // Assert
+      return expect(teamsPromise).to.eventually.deep.equal([]);
+    });
+
+    it('teams exist should return correct teams', () => {
+      // Arrange
+      var teamInfo1: ITeamInfo = ModelInfoMockFactory.createTeamInfo('a');
+      var teamInfo2: ITeamInfo = ModelInfoMockFactory.createTeamInfo('b');
+      var teamInfo3: ITeamInfo = ModelInfoMockFactory.createTeamInfo('c');
+      var createTeamsPromise: Promise<Team[]> = Promise.all([
+        TeamsDataHandler.createTeam(teamInfo1),
+        TeamsDataHandler.createTeam(teamInfo2),
+        TeamsDataHandler.createTeam(teamInfo3)
+      ]);
+
+      // Act
+      var getTeamsPromise: Promise<Team[]> =
+        createTeamsPromise.then(() => TeamsDataHandler.getTeams());
+
+      // Assert
+      var expectedInfos: ITeamInfo[] = [teamInfo1, teamInfo2, teamInfo3];
+      return ModelVerificator.verifyMultipleModelInfosOrderedAsync(getTeamsPromise,
+        expectedInfos,
+        ModelInfoComparers.compareTeamInfos);
+    });
+
+  });
+
   describe('addTeamMember', () => {
 
     it('should create a team member', () => {

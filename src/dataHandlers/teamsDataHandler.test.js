@@ -113,6 +113,25 @@ describe('TeamsDataHandler', function () {
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(getTeamPromise, teamInfo);
         });
     });
+    describe('getTeams', function () {
+        it('no teams should return empty', function () {
+            var teamsPromise = teamsDataHandler_1.TeamsDataHandler.getTeams();
+            return chai_1.expect(teamsPromise).to.eventually.deep.equal([]);
+        });
+        it('teams exist should return correct teams', function () {
+            var teamInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');
+            var teamInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('b');
+            var teamInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('c');
+            var createTeamsPromise = Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo3)
+            ]);
+            var getTeamsPromise = createTeamsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeams(); });
+            var expectedInfos = [teamInfo1, teamInfo2, teamInfo3];
+            return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(getTeamsPromise, expectedInfos, modelInfoComparers_1.ModelInfoComparers.compareTeamInfos);
+        });
+    });
     describe('addTeamMember', function () {
         it('should create a team member', function () {
             var teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');

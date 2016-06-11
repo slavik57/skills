@@ -57,6 +57,12 @@ var TeamsDataHandler = (function () {
         var team = this._initializeTeamByIdQuery(teamId);
         return team.fetch();
     };
+    TeamsDataHandler.getTeams = function () {
+        return new team_1.Teams().fetch()
+            .then(function (_teamsCollection) {
+            return _teamsCollection.toArray();
+        });
+    };
     TeamsDataHandler.upvoteTeamSkill = function (teamSkillId, upvotingUserId) {
         var upvoteInfo = {
             team_skill_id: teamSkillId,

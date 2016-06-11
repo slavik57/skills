@@ -89,6 +89,13 @@ export class TeamsDataHandler {
     return team.fetch();
   }
 
+  public static getTeams(): Promise<Team[]> {
+    return new Teams().fetch()
+      .then((_teamsCollection: Collection<Team>) => {
+        return _teamsCollection.toArray();
+      });
+  }
+
   public static upvoteTeamSkill(teamSkillId: number, upvotingUserId: number): Promise<TeamSkillUpvote> {
     var upvoteInfo: ITeamSkillUpvoteInfo = {
       team_skill_id: teamSkillId,
