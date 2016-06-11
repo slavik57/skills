@@ -1,5 +1,5 @@
 "use strict";
-var modifyUserPermissionsOperationBase_1 = require("../base/modifyUserPermissionsOperationBase");
+var getAllowedUserPermissionsToModifyOperation_1 = require("./getAllowedUserPermissionsToModifyOperation");
 var addUserPermissionOperation_1 = require("./addUserPermissionOperation");
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var environmentCleaner_1 = require("../../testUtils/environmentCleaner");
@@ -70,7 +70,7 @@ describe('AddUserPermissionOperation', function () {
             it('adding all permissions the user can add should add them all', function () {
                 var permissionsToAdd;
                 var operation;
-                var permissionsToAddPromise = modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToAddPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToAdd = _permissions;
                     operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
@@ -151,7 +151,7 @@ describe('AddUserPermissionOperation', function () {
             it('adding all permissions the user can add should add them all', function () {
                 var permissionsToAdd;
                 var operation;
-                var permissionsToAddPromise = modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToAddPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToAdd = _permissions;
                     operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
@@ -232,7 +232,7 @@ describe('AddUserPermissionOperation', function () {
             it('adding all permissions the user can add should add them all', function () {
                 var permissionsToAdd;
                 var operation;
-                var permissionsToAddPromise = modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToAddPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToAdd = _permissions;
                     operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
@@ -301,7 +301,7 @@ describe('AddUserPermissionOperation', function () {
             it('adding all permissions the user can add should add them all', function () {
                 var permissionsToAdd;
                 var operation;
-                var permissionsToAddPromise = modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToAddPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToAdd = _permissions;
                     operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);
@@ -370,7 +370,7 @@ describe('AddUserPermissionOperation', function () {
             it('adding all permissions the user can add should add them all', function () {
                 var permissionsToAdd;
                 var operation;
-                var permissionsToAddPromise = modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToAddPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToAdd = _permissions;
                     operation = new addUserPermissionOperation_1.AddUserPermissionOperation(userToAddPermissionsTo.id, permissionsToAdd, executingUser.id);

@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var getAllowedUserPermissionsToModifyOperation_1 = require("../userOperations/getAllowedUserPermissionsToModifyOperation");
 var modifyUserPermissionsOperationBase_1 = require("./modifyUserPermissionsOperationBase");
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var environmentCleaner_1 = require("../../testUtils/environmentCleaner");
@@ -39,60 +40,6 @@ describe('ModifyUserPermissionsOperationBase', function () {
     afterEach(function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
-    describe('getListOfGlobalPermissionsTheExecutingUserCanModify', function () {
-        it('executing user is ADMIN should return all permissions', function () {
-            var addPermissionsToExecutingUserPromise = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.ADMIN]);
-            var resultPromise = addPermissionsToExecutingUserPromise.then(function () {
-                return TestModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id);
-            });
-            var expectedPermissions = [
-                globalPermission_1.GlobalPermission.ADMIN,
-                globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
-                globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
-            ];
-            return chai_1.expect(resultPromise).to.eventually.deep.equal(expectedPermissions);
-        });
-        it('executing user is TEAMS_LIST_ADMIN should return correct permissions', function () {
-            var addPermissionsToExecutingUserPromise = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN]);
-            var resultPromise = addPermissionsToExecutingUserPromise.then(function () {
-                return TestModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id);
-            });
-            var expectedPermissions = [
-                globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN
-            ];
-            return chai_1.expect(resultPromise).to.eventually.deep.equal(expectedPermissions);
-        });
-        it('executing user is SKILLS_LIST_ADMIN should return correct permissions', function () {
-            var addPermissionsToExecutingUserPromise = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN]);
-            var resultPromise = addPermissionsToExecutingUserPromise.then(function () {
-                return TestModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id);
-            });
-            var expectedPermissions = [
-                globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
-            ];
-            return chai_1.expect(resultPromise).to.eventually.deep.equal(expectedPermissions);
-        });
-        it('executing user is READER should return empty list', function () {
-            var addPermissionsToExecutingUserPromise = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.READER]);
-            var resultPromise = addPermissionsToExecutingUserPromise.then(function () {
-                return TestModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id);
-            });
-            var expectedPermissions = [
-                globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
-            ];
-            return chai_1.expect(resultPromise).to.eventually.deep.equal([]);
-        });
-        it('executing user is GUEST should return empty list', function () {
-            var addPermissionsToExecutingUserPromise = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.GUEST]);
-            var resultPromise = addPermissionsToExecutingUserPromise.then(function () {
-                return TestModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id);
-            });
-            var expectedPermissions = [
-                globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
-            ];
-            return chai_1.expect(resultPromise).to.eventually.deep.equal([]);
-        });
-    });
     describe('execute', function () {
         describe('executing user is ADMIN', function () {
             beforeEach(function () {
@@ -114,7 +61,7 @@ describe('ModifyUserPermissionsOperationBase', function () {
             it('modifying all permissions the user can add should execute', function () {
                 var permissionsToModify;
                 var operation;
-                var permissionsToModifyPromise = TestModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToModifyPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToModify = _permissions;
                     operation = new TestModifyUserPermissionsOperationBase(userToModifyPermissionsOf.id, permissionsToModify, executingUser.id);
@@ -167,7 +114,7 @@ describe('ModifyUserPermissionsOperationBase', function () {
             it('modifying all permissions the user can add should add execute', function () {
                 var permissionsToModify;
                 var operation;
-                var permissionsToModifyPromise = TestModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToModifyPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToModify = _permissions;
                     operation = new TestModifyUserPermissionsOperationBase(userToModifyPermissionsOf.id, permissionsToModify, executingUser.id);
@@ -220,7 +167,7 @@ describe('ModifyUserPermissionsOperationBase', function () {
             it('modifying all permissions the user can add should execute', function () {
                 var permissionsToModify;
                 var operation;
-                var permissionsToModifyPromise = TestModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToModifyPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToModify = _permissions;
                     operation = new TestModifyUserPermissionsOperationBase(userToModifyPermissionsOf.id, permissionsToModify, executingUser.id);
@@ -262,7 +209,7 @@ describe('ModifyUserPermissionsOperationBase', function () {
             it('modifying all permissions the user can add should execute', function () {
                 var permissionsToModify;
                 var operation;
-                var permissionsToModifyPromise = TestModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToModifyPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToModify = _permissions;
                     operation = new TestModifyUserPermissionsOperationBase(userToModifyPermissionsOf.id, permissionsToModify, executingUser.id);
@@ -304,7 +251,7 @@ describe('ModifyUserPermissionsOperationBase', function () {
             it('modifying all permissions the user can add should execute', function () {
                 var permissionsToModify;
                 var operation;
-                var permissionsToModifyPromise = TestModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToModifyPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToModify = _permissions;
                     operation = new TestModifyUserPermissionsOperationBase(userToModifyPermissionsOf.id, permissionsToModify, executingUser.id);

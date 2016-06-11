@@ -1,5 +1,5 @@
 "use strict";
-var modifyUserPermissionsOperationBase_1 = require("../base/modifyUserPermissionsOperationBase");
+var getAllowedUserPermissionsToModifyOperation_1 = require("./getAllowedUserPermissionsToModifyOperation");
 var removeUserPermissionOperation_1 = require("./removeUserPermissionOperation");
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var environmentCleaner_1 = require("../../testUtils/environmentCleaner");
@@ -83,7 +83,7 @@ describe('RemoveUserPermissionOperation', function () {
                 var permissionsToRemove;
                 var expectedPermissions;
                 var operation;
-                var permissionsToAddPromise = modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToAddPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToRemove = _permissions;
                     expectedPermissions = _.difference(userPermissionsBeforeRemoval, permissionsToRemove);
@@ -167,7 +167,7 @@ describe('RemoveUserPermissionOperation', function () {
                 var permissionsToRemove;
                 var expectedPermissions;
                 var operation;
-                var permissionsToAddPromise = modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToAddPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToRemove = _permissions;
                     expectedPermissions = _.difference(userPermissionsBeforeRemoval, permissionsToRemove);
@@ -251,7 +251,7 @@ describe('RemoveUserPermissionOperation', function () {
                 var permissionsToRemove;
                 var expectedPermissions;
                 var operation;
-                var permissionsToAddPromise = modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToAddPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToRemove = _permissions;
                     expectedPermissions = _.difference(userPermissionsBeforeRemoval, permissionsToRemove);
@@ -322,7 +322,7 @@ describe('RemoveUserPermissionOperation', function () {
                 var permissionsToRemove;
                 var expectedPermissions;
                 var operation;
-                var permissionsToAddPromise = modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToAddPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToRemove = _permissions;
                     expectedPermissions = _.difference(userPermissionsBeforeRemoval, permissionsToRemove);
@@ -393,7 +393,7 @@ describe('RemoveUserPermissionOperation', function () {
                 var permissionsToRemove;
                 var expectedPermissions;
                 var operation;
-                var permissionsToAddPromise = modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+                var permissionsToAddPromise = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
                     .then(function (_permissions) {
                     permissionsToRemove = _permissions;
                     expectedPermissions = _.difference(userPermissionsBeforeRemoval, permissionsToRemove);

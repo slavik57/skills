@@ -1,3 +1,4 @@
+import {GetAllowedUserPermissionsToModifyOperation} from "./getAllowedUserPermissionsToModifyOperation";
 import {ModifyUserPermissionsOperationBase} from "../base/modifyUserPermissionsOperationBase";
 import {AddUserPermissionOperation} from "./addUserPermissionOperation";
 import {GlobalPermission} from "../../models/enums/globalPermission";
@@ -112,7 +113,7 @@ describe('AddUserPermissionOperation', () => {
         var operation: AddUserPermissionOperation;
 
         var permissionsToAddPromise: Promise<any> =
-          ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+          new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToAdd = _permissions;
 
@@ -254,7 +255,7 @@ describe('AddUserPermissionOperation', () => {
         var operation: AddUserPermissionOperation;
 
         var permissionsToAddPromise: Promise<any> =
-          ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+          new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToAdd = _permissions;
 
@@ -395,7 +396,7 @@ describe('AddUserPermissionOperation', () => {
         var operation: AddUserPermissionOperation;
 
         var permissionsToAddPromise: Promise<any> =
-          ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+          new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToAdd = _permissions;
 
@@ -515,7 +516,7 @@ describe('AddUserPermissionOperation', () => {
         var operation: AddUserPermissionOperation;
 
         var permissionsToAddPromise: Promise<any> =
-          ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+          new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToAdd = _permissions;
 
@@ -635,7 +636,7 @@ describe('AddUserPermissionOperation', () => {
         var operation: AddUserPermissionOperation;
 
         var permissionsToAddPromise: Promise<any> =
-          ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+          new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToAdd = _permissions;
 

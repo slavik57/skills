@@ -1,3 +1,4 @@
+import {GetAllowedUserPermissionsToModifyOperation} from "./getAllowedUserPermissionsToModifyOperation";
 import {ModifyUserPermissionsOperationBase} from "../base/modifyUserPermissionsOperationBase";
 import {RemoveUserPermissionOperation} from "./removeUserPermissionOperation";
 import {GlobalPermission} from "../../models/enums/globalPermission";
@@ -127,7 +128,7 @@ describe('RemoveUserPermissionOperation', () => {
         var operation: RemoveUserPermissionOperation;
 
         var permissionsToAddPromise: Promise<any> =
-          ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+          new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToRemove = _permissions;
               expectedPermissions = _.difference(userPermissionsBeforeRemoval, permissionsToRemove);
@@ -272,7 +273,7 @@ describe('RemoveUserPermissionOperation', () => {
         var operation: RemoveUserPermissionOperation;
 
         var permissionsToAddPromise: Promise<any> =
-          ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+          new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToRemove = _permissions;
               expectedPermissions = _.difference(userPermissionsBeforeRemoval, permissionsToRemove);
@@ -417,7 +418,7 @@ describe('RemoveUserPermissionOperation', () => {
         var operation: RemoveUserPermissionOperation;
 
         var permissionsToAddPromise: Promise<any> =
-          ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+          new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToRemove = _permissions;
               expectedPermissions = _.difference(userPermissionsBeforeRemoval, permissionsToRemove);
@@ -539,7 +540,7 @@ describe('RemoveUserPermissionOperation', () => {
         var operation: RemoveUserPermissionOperation;
 
         var permissionsToAddPromise: Promise<any> =
-          ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+          new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToRemove = _permissions;
               expectedPermissions = _.difference(userPermissionsBeforeRemoval, permissionsToRemove);
@@ -661,7 +662,7 @@ describe('RemoveUserPermissionOperation', () => {
         var operation: RemoveUserPermissionOperation;
 
         var permissionsToAddPromise: Promise<any> =
-          ModifyUserPermissionsOperationBase.getListOfGlobalPermissionsTheExecutingUserCanModify(executingUser.id)
+          new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToRemove = _permissions;
               expectedPermissions = _.difference(userPermissionsBeforeRemoval, permissionsToRemove)
