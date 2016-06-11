@@ -1,6 +1,5 @@
 todo:
 - get skill prerequisites/contributors operation
-- Add/Remove team skill operation
 - up/down vote team skill operation
 - get user teams operation
 - get teams skills statistics operation
