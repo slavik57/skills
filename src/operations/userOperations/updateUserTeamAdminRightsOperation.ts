@@ -16,6 +16,10 @@ export class UpdateUserTeamAdminRightsOperation extends TeamOperationBase {
     return [GlobalPermission.TEAMS_LIST_ADMIN];
   }
 
+  public static canUpdateUserRights(teamId: number, executingUserId: number): Promise<any> {
+    return new UpdateUserTeamAdminRightsOperation(-1, teamId, false, executingUserId).canExecute();
+  }
+
   protected doWork(): void | Promise<any> {
     return TeamsDataHandler.setAdminRights(this.teamId, this._userIdToModify, this._shouldBeAdmin);
   }

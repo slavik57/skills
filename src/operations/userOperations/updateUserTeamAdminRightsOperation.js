@@ -21,6 +21,9 @@ var UpdateUserTeamAdminRightsOperation = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    UpdateUserTeamAdminRightsOperation.canUpdateUserRights = function (teamId, executingUserId) {
+        return new UpdateUserTeamAdminRightsOperation(-1, teamId, false, executingUserId).canExecute();
+    };
     UpdateUserTeamAdminRightsOperation.prototype.doWork = function () {
         return teamsDataHandler_1.TeamsDataHandler.setAdminRights(this.teamId, this._userIdToModify, this._shouldBeAdmin);
     };

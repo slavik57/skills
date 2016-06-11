@@ -57,6 +57,166 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
     return EnvironmentCleaner.clearTables();
   });
 
+  describe('canUpdateUserRights', () => {
+
+    describe('executing user is not part of the team and has insufficient global permissions', () => {
+
+      beforeEach(() => {
+        var permissions: GlobalPermission[] =
+          [
+            GlobalPermission.SKILLS_LIST_ADMIN,
+            GlobalPermission.READER,
+            GlobalPermission.GUEST
+          ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions)
+      });
+
+      it('not admin to admin should reject', () => {
+        // Act
+        var result: Promise<any> =
+          UpdateUserTeamAdminRightsOperation.canUpdateUserRights(teamOfTheUser.id, executingUser.id);
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    });
+
+    describe('executing user is global admin', () => {
+
+      beforeEach(() => {
+        var permissions: GlobalPermission[] =
+          [
+            GlobalPermission.ADMIN
+          ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+      });
+
+      it('should succeed', () => {
+        // Act
+        var result: Promise<any> =
+          UpdateUserTeamAdminRightsOperation.canUpdateUserRights(teamOfTheUser.id, executingUser.id);
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('executing user is teams list admin', () => {
+
+      beforeEach(() => {
+        var permissions: GlobalPermission[] =
+          [
+            GlobalPermission.TEAMS_LIST_ADMIN
+          ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+      });
+
+      it('should succeed', () => {
+        // Act
+        var result: Promise<any> =
+          UpdateUserTeamAdminRightsOperation.canUpdateUserRights(teamOfTheUser.id, executingUser.id);
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('executing user is a simple team member', () => {
+
+      beforeEach(() => {
+        var teamMemberInfo: ITeamMemberInfo =
+          ModelInfoMockFactory.createTeamMemberInfo(teamOfTheUser, executingUser);
+
+        teamMemberInfo.is_admin = false;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+
+      it('should reject', () => {
+        // Act
+        var result: Promise<any> =
+          UpdateUserTeamAdminRightsOperation.canUpdateUserRights(teamOfTheUser.id, executingUser.id);
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    });
+
+    describe('executing user is a team admin', () => {
+
+      beforeEach(() => {
+        var teamMemberInfo: ITeamMemberInfo =
+          ModelInfoMockFactory.createTeamMemberInfo(teamOfTheUser, executingUser);
+
+        teamMemberInfo.is_admin = true;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+
+      it('should succeed', () => {
+        // Act
+        var result: Promise<any> =
+          UpdateUserTeamAdminRightsOperation.canUpdateUserRights(teamOfTheUser.id, executingUser.id);
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('executing user is a simple team member of another team', () => {
+
+      beforeEach(() => {
+        var teamMemberInfo: ITeamMemberInfo =
+          ModelInfoMockFactory.createTeamMemberInfo(otherTeam, executingUser);
+
+        teamMemberInfo.is_admin = false;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+
+      it('should reject', () => {
+        // Act
+        var result: Promise<any> =
+          UpdateUserTeamAdminRightsOperation.canUpdateUserRights(teamOfTheUser.id, executingUser.id);
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    });
+
+    describe('executing user is a team admin of another team', () => {
+
+      beforeEach(() => {
+        var teamMemberInfo: ITeamMemberInfo =
+          ModelInfoMockFactory.createTeamMemberInfo(otherTeam, executingUser);
+
+        teamMemberInfo.is_admin = true;
+
+        return TeamsDataHandler.addTeamMember(teamMemberInfo);
+      });
+
+      it('should reject', () => {
+        // Act
+        var result: Promise<any> =
+          UpdateUserTeamAdminRightsOperation.canUpdateUserRights(teamOfTheUser.id, executingUser.id);
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    });
+
+  });
+
   describe('execute', () => {
 
     function verifyTeamMemberAdminRights(modifiedUser: User, shouldBeAdmin: boolean, teamMembers: IUserOfATeam[]) {
