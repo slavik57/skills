@@ -78,7 +78,6 @@ var Team = (function (_super) {
         });
     };
     Team.prototype.getTeamSkills = function () {
-        var _this = this;
         var fetchOptions = {
             withRelated: [
                 teamSkill_1.TeamSkill.relatedTeamSkillUpvotesAttribute,
@@ -89,16 +88,10 @@ var Team = (function (_super) {
             .fetch(fetchOptions)
             .then(function (teamSkillsCollection) {
             var teamSkills = teamSkillsCollection.toArray();
-            return _.map(teamSkills, function (_skill) { return _this._convertTeamSkillToSkillOfATeam(_skill); });
+            return _.map(teamSkills, function (_skill) { return Team.convertTeamSkillToSkillOfATeam(_skill); });
         });
     };
-    Team.prototype._convertUserToUserOfATeam = function (user) {
-        return {
-            user: user,
-            isAdmin: user.pivot.attributes.is_admin
-        };
-    };
-    Team.prototype._convertTeamSkillToSkillOfATeam = function (teamSkill) {
+    Team.convertTeamSkillToSkillOfATeam = function (teamSkill) {
         var skill = teamSkill.relations.skill;
         var upvotesCollection = teamSkill.relations.upvotes;
         var upvotes = upvotesCollection.toArray();
@@ -107,6 +100,12 @@ var Team = (function (_super) {
             skill: skill,
             teamSkill: teamSkill,
             upvotingUserIds: upvotingIds
+        };
+    };
+    Team.prototype._convertUserToUserOfATeam = function (user) {
+        return {
+            user: user,
+            isAdmin: user.pivot.attributes.is_admin
         };
     };
     return Team;
@@ -125,7 +124,9 @@ var Teams = (function (_super) {
         var _this = this;
         var fetchOptions = {
             withRelated: [
-                Team.relatedTeamSkillsAttribute
+                Team.relatedTeamSkillsAttribute,
+                Team.relatedTeamSkillsAttribute + '.' + teamSkill_1.TeamSkill.relatedTeamSkillUpvotesAttribute,
+                Team.relatedTeamSkillsAttribute + '.' + teamSkill_1.TeamSkill.relatedSkillAttribute
             ]
         };
         return new Teams()
@@ -139,9 +140,10 @@ var Teams = (function (_super) {
     };
     Teams._convertToSkillsOfATeam = function (team) {
         var teamSkills = team.relations.teamSkills.toArray();
+        var skillsOfATeam = _.map(teamSkills, function (_teamSkill) { return Team.convertTeamSkillToSkillOfATeam(_teamSkill); });
         return {
             team: team,
-            skillIds: _.map(teamSkills, function (_) { return _.attributes.skill_id; })
+            skills: skillsOfATeam
         };
     };
     return Teams;

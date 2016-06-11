@@ -81,18 +81,11 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
       .then((teamSkillsCollection: Collection<TeamSkill>) => {
         var teamSkills: TeamSkill[] = teamSkillsCollection.toArray();
 
-        return _.map(teamSkills, _skill => this._convertTeamSkillToSkillOfATeam(_skill));
+        return _.map(teamSkills, _skill => Team.convertTeamSkillToSkillOfATeam(_skill));
       })
   }
 
-  private _convertUserToUserOfATeam(user: User): IUserOfATeam {
-    return {
-      user: user,
-      isAdmin: user.pivot.attributes.is_admin
-    }
-  }
-
-  private _convertTeamSkillToSkillOfATeam(teamSkill: TeamSkill): ISkillOfATeam {
+  public static convertTeamSkillToSkillOfATeam(teamSkill: TeamSkill): ISkillOfATeam {
     var skill: Skill = teamSkill.relations.skill;
 
     var upvotesCollection: Collection<TeamSkillUpvote> = teamSkill.relations.upvotes;
@@ -108,6 +101,13 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
     };
   }
 
+  private _convertUserToUserOfATeam(user: User): IUserOfATeam {
+    return {
+      user: user,
+      isAdmin: user.pivot.attributes.is_admin
+    }
+  }
+
 }
 
 export class Teams extends bookshelf.Collection<Team> {
@@ -120,7 +120,9 @@ export class Teams extends bookshelf.Collection<Team> {
   public static getSkillsOfTeams(): Promise<ISkillsOfATeam[]> {
     var fetchOptions: CollectionFetchOptions = {
       withRelated: [
-        Team.relatedTeamSkillsAttribute
+        Team.relatedTeamSkillsAttribute,
+        Team.relatedTeamSkillsAttribute + '.' + TeamSkill.relatedTeamSkillUpvotesAttribute,
+        Team.relatedTeamSkillsAttribute + '.' + TeamSkill.relatedSkillAttribute
       ]
     };
 
@@ -137,9 +139,12 @@ export class Teams extends bookshelf.Collection<Team> {
   private static _convertToSkillsOfATeam(team: Team): ISkillsOfATeam {
     var teamSkills: TeamSkill[] = team.relations.teamSkills.toArray();
 
+    var skillsOfATeam: ISkillOfATeam[] =
+      _.map(teamSkills, _teamSkill => Team.convertTeamSkillToSkillOfATeam(_teamSkill));
+
     return {
       team: team,
-      skillIds: _.map(teamSkills, _ => _.attributes.skill_id)
+      skills: skillsOfATeam
     }
   }
 
