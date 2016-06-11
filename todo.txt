@@ -4,6 +4,7 @@ todo:
 - get skills teams statistics operation
 - get skill teams statistics operation
 - get skill map operation
+- get user teams operation
 - update the create user operation:
 	check if user exists
 	get the parameters separately
