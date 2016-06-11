@@ -28,7 +28,7 @@ describe('GetUsersOperation', () => {
 
     beforeEach(() => {
       var createUserPromise: Promise<any> =
-        EnvironmentDirtifier.createUsers(1)
+        EnvironmentDirtifier.createUsers(4)
           .then((_users: User[]) => {
             users = _users;
           });

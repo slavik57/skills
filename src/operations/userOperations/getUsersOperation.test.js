@@ -18,7 +18,7 @@ describe('GetUsersOperation', function () {
         var users;
         var operation;
         beforeEach(function () {
-            var createUserPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+            var createUserPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(4)
                 .then(function (_users) {
                 users = _users;
             });
