@@ -1,5 +1,4 @@
 todo:
-- get all users operation
 - get user permissions operation
 - get all teams operation
 - get permissions a user can set to another user operation
