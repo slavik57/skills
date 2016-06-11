@@ -15,42 +15,96 @@ chai.use(chaiAsPromised);
 
 describe('RemoveTeamOperation', () => {
 
+  var teamToRemove: Team;
+  var executingUser: User;
+  var operation: RemoveTeamOperation;
+
   beforeEach(() => {
-    return EnvironmentCleaner.clearTables();
+    return EnvironmentCleaner.clearTables()
+      .then(() => UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1)))
+      .then((_user: User) => {
+        executingUser = _user;
+      })
+      .then(() => TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team')))
+      .then((_team: Team) => {
+        teamToRemove = _team;
+      })
+      .then(() => {
+        operation = new RemoveTeamOperation(teamToRemove.id, executingUser.id);
+      })
   });
 
   afterEach(() => {
     return EnvironmentCleaner.clearTables();
   });
 
-  describe('execute', () => {
+  describe('canExecute', () => {
 
-    var teamToRemove: Team;
-    var executingUser: User;
-    var operation: RemoveTeamOperation;
+    describe('executing user has insufficient global permissions', () => {
 
-    beforeEach(() => {
-      var userCreationPromise: Promise<any> =
-        UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1))
-          .then((_user: User) => {
-            executingUser = _user;
-          });
+      beforeEach(() => {
+        var permissions = [
+          GlobalPermission.SKILLS_LIST_ADMIN,
+          GlobalPermission.READER,
+          GlobalPermission.GUEST
+        ];
 
-      var teamCreationPromise: Promise<any> =
-        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team'))
-          .then((_team: Team) => {
-            teamToRemove = _team;
-          });
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+      });
 
-      return Promise.all(
-        [
-          userCreationPromise,
-          teamCreationPromise
-        ]
-      ).then(() => {
-        operation = new RemoveTeamOperation(teamToRemove.id, executingUser.id);
-      })
+      it('should fail', () => {
+        // Act
+        var resultPromise: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected;
+      });
+
     });
+
+    describe('executing user is ADMIN', () => {
+
+      beforeEach(() => {
+        var permissions = [
+          GlobalPermission.ADMIN
+        ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+      });
+
+      it('should succeed', () => {
+        // Act
+        var resultPromise: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('executing user is TEAMS_LIST_ADMIN', () => {
+
+      beforeEach(() => {
+        var permissions = [
+          GlobalPermission.TEAMS_LIST_ADMIN
+        ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+      });
+
+      it('should succeed', () => {
+        // Act
+        var resultPromise: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+    });
+
+  });
+
+  describe('execute', () => {
 
     describe('executing user has insufficient global permissions', () => {
 

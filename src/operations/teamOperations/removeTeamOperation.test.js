@@ -11,32 +11,67 @@ var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 describe('RemoveTeamOperation', function () {
+    var teamToRemove;
+    var executingUser;
+    var operation;
     beforeEach(function () {
-        return environmentCleaner_1.EnvironmentCleaner.clearTables();
+        return environmentCleaner_1.EnvironmentCleaner.clearTables()
+            .then(function () { return userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1)); })
+            .then(function (_user) {
+            executingUser = _user;
+        })
+            .then(function () { return teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team')); })
+            .then(function (_team) {
+            teamToRemove = _team;
+        })
+            .then(function () {
+            operation = new removeTeamOperation_1.RemoveTeamOperation(teamToRemove.id, executingUser.id);
+        });
     });
     afterEach(function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
-    describe('execute', function () {
-        var teamToRemove;
-        var executingUser;
-        var operation;
-        beforeEach(function () {
-            var userCreationPromise = userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1))
-                .then(function (_user) {
-                executingUser = _user;
+    describe('canExecute', function () {
+        describe('executing user has insufficient global permissions', function () {
+            beforeEach(function () {
+                var permissions = [
+                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
+                    globalPermission_1.GlobalPermission.READER,
+                    globalPermission_1.GlobalPermission.GUEST
+                ];
+                return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
             });
-            var teamCreationPromise = teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team'))
-                .then(function (_team) {
-                teamToRemove = _team;
-            });
-            return Promise.all([
-                userCreationPromise,
-                teamCreationPromise
-            ]).then(function () {
-                operation = new removeTeamOperation_1.RemoveTeamOperation(teamToRemove.id, executingUser.id);
+            it('should fail', function () {
+                var resultPromise = operation.canExecute();
+                return chai_1.expect(resultPromise).to.eventually.rejected;
             });
         });
+        describe('executing user is ADMIN', function () {
+            beforeEach(function () {
+                var permissions = [
+                    globalPermission_1.GlobalPermission.ADMIN
+                ];
+                return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+            });
+            it('should succeed', function () {
+                var resultPromise = operation.canExecute();
+                return chai_1.expect(resultPromise).to.eventually.fulfilled;
+            });
+        });
+        describe('executing user is TEAMS_LIST_ADMIN', function () {
+            beforeEach(function () {
+                var permissions = [
+                    globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN
+                ];
+                return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+            });
+            it('should succeed', function () {
+                var resultPromise = operation.canExecute();
+                return chai_1.expect(resultPromise).to.eventually.fulfilled;
+            });
+        });
+    });
+    describe('execute', function () {
         describe('executing user has insufficient global permissions', function () {
             beforeEach(function () {
                 var permissions = [
