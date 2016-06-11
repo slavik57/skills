@@ -5,7 +5,7 @@ import {OperationBase} from "../base/operationBase";
 export class RemoveTeamSkillOperation extends TeamOperationBase {
 
   constructor(private _skillIdToRemove: number, teamId: number, executingUserId: number) {
-    super(executingUserId, teamId);
+    super(teamId, executingUserId);
   }
 
   protected get isRegularTeamMemberAlowedToExecute(): boolean {

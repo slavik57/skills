@@ -10,7 +10,7 @@ var teamOperationBase_1 = require("../base/teamOperationBase");
 var UpdateUserTeamAdminRightsOperation = (function (_super) {
     __extends(UpdateUserTeamAdminRightsOperation, _super);
     function UpdateUserTeamAdminRightsOperation(_userIdToModify, _teamId, _shouldBeAdmin, _executingUserId) {
-        _super.call(this, _executingUserId, _teamId);
+        _super.call(this, _teamId, _executingUserId);
         this._userIdToModify = _userIdToModify;
         this._shouldBeAdmin = _shouldBeAdmin;
     }

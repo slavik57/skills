@@ -20,8 +20,8 @@ class TestTeamOperationBase extends TeamOperationBase {
   public executeOperationResultToReturn: any;
   public executeOperationErrorToThrow: any;
 
-  constructor(userId: number, teamId: number) {
-    super(userId, teamId);
+  constructor(teamId: number, userId: number) {
+    super(teamId, userId);
   }
 
   public get actualUserId(): number { return this.executingUserId; }
@@ -62,7 +62,7 @@ describe('TeamOperationBase', () => {
       var teamId = 54321;
 
       // Act
-      var operation = new TestTeamOperationBase(userId, teamId);
+      var operation = new TestTeamOperationBase(teamId, userId);
 
       // Assert
       expect(operation.actualUserId).to.be.equal(userId);
@@ -97,7 +97,7 @@ describe('TeamOperationBase', () => {
             .then((_user: User) => {
               user = _user;
 
-              operation = new TestTeamOperationBase(user.id, team.id);
+              operation = new TestTeamOperationBase(team.id, user.id);
             });
 
         return userCreationPromise.then(() => {
@@ -1890,7 +1890,7 @@ describe('TeamOperationBase', () => {
             .then((_user: User) => {
               user = _user;
 
-              operation = new TestTeamOperationBase(user.id, team.id);
+              operation = new TestTeamOperationBase(team.id, user.id);
             });
 
         return userCreationPromise;
@@ -1899,7 +1899,7 @@ describe('TeamOperationBase', () => {
       it('has no global permissions should fail', () => {
         // Act
         var executionPromise: Promise<any> =
-          new TestTeamOperationBase(user.id, team.id).execute();
+          new TestTeamOperationBase(team.id, user.id).execute();
 
         // Assert
         return expect(executionPromise).to.eventually.rejected;
@@ -2189,7 +2189,7 @@ describe('TeamOperationBase', () => {
 
       it('not existing user id should not execute', () => {
         // Arrange
-        var operation = new TestTeamOperationBase(notExistingUserId, team.id);
+        var operation = new TestTeamOperationBase(team.id, notExistingUserId);
 
         // Act
         var executionPromise: Promise<any> = operation.execute();
@@ -2211,7 +2211,7 @@ describe('TeamOperationBase', () => {
         // Act
         var executionPromise: Promise<any> =
           userCreationPromise.then((_user: User) => {
-            operation = new TestTeamOperationBase(_user.id, notExistingTeamId);
+            operation = new TestTeamOperationBase(notExistingTeamId, _user.id);
 
             return operation.execute();
           });

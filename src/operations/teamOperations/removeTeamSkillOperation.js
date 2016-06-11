@@ -9,7 +9,7 @@ var teamOperationBase_1 = require("../base/teamOperationBase");
 var RemoveTeamSkillOperation = (function (_super) {
     __extends(RemoveTeamSkillOperation, _super);
     function RemoveTeamSkillOperation(_skillIdToRemove, teamId, executingUserId) {
-        _super.call(this, executingUserId, teamId);
+        _super.call(this, teamId, executingUserId);
         this._skillIdToRemove = _skillIdToRemove;
     }
     Object.defineProperty(RemoveTeamSkillOperation.prototype, "isRegularTeamMemberAlowedToExecute", {

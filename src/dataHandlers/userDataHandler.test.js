@@ -222,7 +222,7 @@ describe('userDataHandler', function () {
             var user1;
             var addUserPermissionsPromise1 = createUserPromise1.then(function (user) {
                 user1 = user;
-                userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions1);
+                return userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions1);
             });
             var addUserPermissionsPromise2 = createUserPromise2.then(function (user) { return userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions2); });
             var permissionsPromise = Promise.all([addUserPermissionsPromise1, addUserPermissionsPromise2])
@@ -247,7 +247,7 @@ describe('userDataHandler', function () {
             var user2;
             var addUserPermissionsPromise2 = createUserPromise2.then(function (user) {
                 user2 = user;
-                userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions2);
+                return userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions2);
             });
             var permissionsPromise = Promise.all([addUserPermissionsPromise1, addUserPermissionsPromise2])
                 .then(function () { return userDataHandler_1.UserDataHandler.getUserGlobalPermissions(user2.id); });

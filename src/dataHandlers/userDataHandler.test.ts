@@ -372,10 +372,10 @@ describe('userDataHandler', () => {
       var createUserPromise2: Promise<User> = UserDataHandler.createUser(userInfo2);
 
       var user1: User;
-      var addUserPermissionsPromise1: Promise<void> =
+      var addUserPermissionsPromise1: Promise<any> =
         createUserPromise1.then((user: User) => {
           user1 = user;
-          UserDataHandler.addGlobalPermissions(user.id, permissions1)
+          return UserDataHandler.addGlobalPermissions(user.id, permissions1);
         });
       var addUserPermissionsPromise2: Promise<any> =
         createUserPromise2.then((user: User) => UserDataHandler.addGlobalPermissions(user.id, permissions2));
@@ -411,10 +411,10 @@ describe('userDataHandler', () => {
         createUserPromise1.then((user: User) => UserDataHandler.addGlobalPermissions(user.id, permissions1));
 
       var user2: User;
-      var addUserPermissionsPromise2: Promise<void> =
+      var addUserPermissionsPromise2: Promise<any> =
         createUserPromise2.then((user: User) => {
           user2 = user;
-          UserDataHandler.addGlobalPermissions(user.id, permissions2)
+          return UserDataHandler.addGlobalPermissions(user.id, permissions2);
         });
 
       // Act

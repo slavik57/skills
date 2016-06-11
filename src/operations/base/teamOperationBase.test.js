@@ -16,8 +16,8 @@ var teamOperationBase_1 = require('./teamOperationBase');
 chai.use(chaiAsPromised);
 var TestTeamOperationBase = (function (_super) {
     __extends(TestTeamOperationBase, _super);
-    function TestTeamOperationBase(userId, teamId) {
-        _super.call(this, userId, teamId);
+    function TestTeamOperationBase(teamId, userId) {
+        _super.call(this, teamId, userId);
         this.wasExecuted = false;
         this.operationPermissionsToReturn = [];
         this.isRegularTeamMemberAlowedToExecuteToReturn = false;
@@ -64,7 +64,7 @@ describe('TeamOperationBase', function () {
         it('should initialize properties correctly', function () {
             var userId = 123456;
             var teamId = 54321;
-            var operation = new TestTeamOperationBase(userId, teamId);
+            var operation = new TestTeamOperationBase(teamId, userId);
             chai_1.expect(operation.actualUserId).to.be.equal(userId);
             chai_1.expect(operation.actualTeamId).to.be.equal(teamId);
         });
@@ -85,7 +85,7 @@ describe('TeamOperationBase', function () {
                 var userCreationPromise = userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1))
                     .then(function (_user) {
                     user = _user;
-                    operation = new TestTeamOperationBase(user.id, team.id);
+                    operation = new TestTeamOperationBase(team.id, user.id);
                 });
                 return userCreationPromise.then(function () {
                     var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team, user);
@@ -1162,12 +1162,12 @@ describe('TeamOperationBase', function () {
                 var userCreationPromise = userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2))
                     .then(function (_user) {
                     user = _user;
-                    operation = new TestTeamOperationBase(user.id, team.id);
+                    operation = new TestTeamOperationBase(team.id, user.id);
                 });
                 return userCreationPromise;
             });
             it('has no global permissions should fail', function () {
-                var executionPromise = new TestTeamOperationBase(user.id, team.id).execute();
+                var executionPromise = new TestTeamOperationBase(team.id, user.id).execute();
                 return chai_1.expect(executionPromise).to.eventually.rejected;
             });
             it('has global admin permissions should execute', function () {
@@ -1336,7 +1336,7 @@ describe('TeamOperationBase', function () {
             var notExistingUserId = 123456;
             var notExistingTeamId = 654321;
             it('not existing user id should not execute', function () {
-                var operation = new TestTeamOperationBase(notExistingUserId, team.id);
+                var operation = new TestTeamOperationBase(team.id, notExistingUserId);
                 var executionPromise = operation.execute();
                 return chai_1.expect(executionPromise).to.eventually.rejected
                     .then(function () {
@@ -1347,7 +1347,7 @@ describe('TeamOperationBase', function () {
                 var userCreationPromise = userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(3));
                 var operation;
                 var executionPromise = userCreationPromise.then(function (_user) {
-                    operation = new TestTeamOperationBase(_user.id, notExistingTeamId);
+                    operation = new TestTeamOperationBase(notExistingTeamId, _user.id);
                     return operation.execute();
                 });
                 return chai_1.expect(executionPromise).to.eventually.rejected

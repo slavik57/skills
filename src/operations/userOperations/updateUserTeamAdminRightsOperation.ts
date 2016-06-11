@@ -9,7 +9,7 @@ export class UpdateUserTeamAdminRightsOperation extends TeamOperationBase {
     private _shouldBeAdmin: boolean,
     _executingUserId: number) {
 
-    super(_executingUserId, _teamId);
+    super(_teamId, _executingUserId);
   }
 
   protected get sufficientOperationGlobalPermissions(): GlobalPermission[] {

@@ -9,7 +9,7 @@ var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
 var AddTeamSkillOperation = (function (_super) {
     __extends(AddTeamSkillOperation, _super);
     function AddTeamSkillOperation(_skillIdToAdd, teamId, executingUserId) {
-        _super.call(this, executingUserId, teamId);
+        _super.call(this, teamId, executingUserId);
         this._skillIdToAdd = _skillIdToAdd;
     }
     Object.defineProperty(AddTeamSkillOperation.prototype, "isRegularTeamMemberAlowedToExecute", {

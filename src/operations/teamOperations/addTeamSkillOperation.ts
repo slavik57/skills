@@ -5,7 +5,7 @@ import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 export class AddTeamSkillOperation extends TeamOperationBase {
 
   constructor(private _skillIdToAdd: number, teamId: number, executingUserId: number) {
-    super(executingUserId, teamId);
+    super(teamId, executingUserId);
   }
 
   protected get isRegularTeamMemberAlowedToExecute(): boolean {
