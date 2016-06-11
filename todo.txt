@@ -1,5 +1,4 @@
 todo:
-- get can a user modify skills
 - get can the executing user add/remove teams
 - get team users operation with admin rights and whether the execution user can modify the admin rights
 - get can the executing user add/remove users to/from the team

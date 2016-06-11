@@ -25,30 +25,90 @@ class TestSkillOperationBase extends SkillOperationBase {
 
 describe('SkillOperationBase', () => {
 
+  var executingUser: User;
+  var operation: TestSkillOperationBase;
+
   beforeEach(() => {
-    return EnvironmentCleaner.clearTables();
+    return EnvironmentCleaner.clearTables()
+      .then(() => UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1)))
+      .then((_user: User) => {
+        executingUser = _user;
+
+        operation = new TestSkillOperationBase(executingUser.id);
+      });
   });
 
   afterEach(() => {
     return EnvironmentCleaner.clearTables();
   });
 
-  describe('execute', () => {
+  describe('canExecute', () => {
 
-    var executingUser: User;
-    var operation: TestSkillOperationBase;
+    describe('executing user has insufficient global permissions', () => {
 
-    beforeEach(() => {
-      var userCreationPromise: Promise<any> =
-        UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1))
-          .then((_user: User) => {
-            executingUser = _user;
+      beforeEach(() => {
+        var permissions = [
+          GlobalPermission.TEAMS_LIST_ADMIN,
+          GlobalPermission.READER,
+          GlobalPermission.GUEST
+        ];
 
-            operation = new TestSkillOperationBase(executingUser.id);
-          });
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+      });
 
-      return userCreationPromise;
+      it('should fail', () => {
+        // Act
+        var resultPromise: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.rejected;
+      });
+
     });
+
+    describe('executing user is ADMIN', () => {
+
+      beforeEach(() => {
+        var permissions = [
+          GlobalPermission.ADMIN
+        ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+      });
+
+      it('should succeed', () => {
+        // Act
+        var resultPromise: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+    });
+
+    describe('executing user is SKILLS_LIST_ADMIN', () => {
+
+      beforeEach(() => {
+        var permissions = [
+          GlobalPermission.SKILLS_LIST_ADMIN
+        ];
+
+        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
+      });
+
+      it('should succeed', () => {
+        // Act
+        var resultPromise: Promise<any> = operation.canExecute();
+
+        // Assert
+        return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+    });
+
+  });
+
+  describe('execute', () => {
 
     describe('executing user has insufficient global permissions', () => {
 
