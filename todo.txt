@@ -1,4 +1,5 @@
 todo:
+- run tests on test db
 - get can the user like/unline the skills of a team
 - get teams skills statistics operation
 - get team skill statistics operation
