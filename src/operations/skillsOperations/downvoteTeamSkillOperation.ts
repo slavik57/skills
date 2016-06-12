@@ -1,10 +1,11 @@
+import {TeamSkillUpvote} from "../../models/teamSkillUpvote";
 import {ISkillOfATeam} from "../../models/interfaces/iSkillOfATeam";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {AuthenticatedOperationBase} from "../base/authenticatedOperationBase";
 import * as _ from 'lodash';
 
-export class DownvoteTeamSkillOperation extends AuthenticatedOperationBase {
+export class DownvoteTeamSkillOperation extends AuthenticatedOperationBase<TeamSkillUpvote> {
   constructor(private _skillIdToDownvote: number, private _teamId: number, executingUserId: number) {
     super(executingUserId);
   }
@@ -17,14 +18,14 @@ export class DownvoteTeamSkillOperation extends AuthenticatedOperationBase {
     ];
   }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<TeamSkillUpvote> {
     return TeamsDataHandler.getTeamSkills(this._teamId)
       .then((_teamSkills: ISkillOfATeam[]) => {
         return this._downvoteTeamSkill(_teamSkills);
       });
   }
 
-  private _downvoteTeamSkill(teamSkills: ISkillOfATeam[]): Promise<any> {
+  private _downvoteTeamSkill(teamSkills: ISkillOfATeam[]): Promise<TeamSkillUpvote> {
     var teamSkill: ISkillOfATeam =
       _.find(teamSkills, _teamSkill => _teamSkill.skill.id === this._skillIdToDownvote);
 

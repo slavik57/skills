@@ -1,8 +1,9 @@
+import {TeamMember} from "../../models/teamMember";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {TeamOperationBase} from "../base/teamOperationBase";
 
-export class UpdateUserTeamAdminRightsOperation extends TeamOperationBase {
+export class UpdateUserTeamAdminRightsOperation extends TeamOperationBase<TeamMember> {
 
   constructor(private _userIdToModify: number,
     _teamId: number,
@@ -20,7 +21,7 @@ export class UpdateUserTeamAdminRightsOperation extends TeamOperationBase {
     return new UpdateUserTeamAdminRightsOperation(-1, teamId, false, executingUserId).canExecute();
   }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<TeamMember> {
     return TeamsDataHandler.setAdminRights(this.teamId, this._userIdToModify, this._shouldBeAdmin);
   }
 

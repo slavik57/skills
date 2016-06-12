@@ -22,6 +22,7 @@ var TestModifyUserPermissionsOperationBase = (function (_super) {
     }
     TestModifyUserPermissionsOperationBase.prototype.doWork = function () {
         this.wasExecuted = true;
+        return null;
     };
     return TestModifyUserPermissionsOperationBase;
 }(modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase));

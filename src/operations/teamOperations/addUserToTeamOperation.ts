@@ -1,10 +1,11 @@
+import {TeamMember} from "../../models/teamMember";
 import {AddRemoveUserFromTeamOperationBase} from "../base/addRemoveUserFromTeamOperationBase";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {ITeamMemberInfo} from "../../models/interfaces/iTeamMemberInfo";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {IUserInfo} from "../../models/interfaces/iUserInfo";
 
-export class AddUserToTeamOperation extends AddRemoveUserFromTeamOperationBase {
+export class AddUserToTeamOperation extends AddRemoveUserFromTeamOperationBase<TeamMember> {
 
   constructor(private _userIdToAdd: number,
     _teamId: number,
@@ -14,7 +15,7 @@ export class AddUserToTeamOperation extends AddRemoveUserFromTeamOperationBase {
     super(_teamId, _executingUserId);
   }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<TeamMember> {
     var teamMemberInfo: ITeamMemberInfo = {
       team_id: this.teamId,
       user_id: this._userIdToAdd,

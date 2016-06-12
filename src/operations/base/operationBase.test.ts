@@ -5,7 +5,7 @@ import {OperationBase} from './operationBase';
 
 chai.use(chaiAsPromised);
 
-class TestOperationBase extends OperationBase {
+class TestOperationBase extends OperationBase<any> {
   public canExecuteToReturn: boolean;
   public wasExecuted = false;
   public executeOperationResult;
@@ -23,7 +23,7 @@ class TestOperationBase extends OperationBase {
     return Promise.reject(null);
   }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<any> {
     this.wasExecuted = true;
 
     if (this.executeOperationErrorToThrow) {

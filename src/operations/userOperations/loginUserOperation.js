@@ -31,7 +31,7 @@ var LoginUserOperation = (function (_super) {
     LoginUserOperation.prototype._verifyPassword = function (user) {
         var isCorrectPassword = passwordHash.verify(this._passwrod, user.attributes.password_hash);
         if (isCorrectPassword) {
-            return Promise.resolve();
+            return Promise.resolve(user);
         }
         else {
             return Promise.reject('Incorrect password');

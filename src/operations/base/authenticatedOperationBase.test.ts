@@ -10,7 +10,7 @@ import {AuthenticatedOperationBase} from './authenticatedOperationBase';
 
 chai.use(chaiAsPromised);
 
-class TestAuthenticatedOperation extends AuthenticatedOperationBase {
+class TestAuthenticatedOperation extends AuthenticatedOperationBase<any> {
   public wasExecuted = false;
   public operationPermissionsToReturn: GlobalPermission[] = [];
   public executeOperationResult: any;
@@ -26,7 +26,7 @@ class TestAuthenticatedOperation extends AuthenticatedOperationBase {
     return this.operationPermissionsToReturn;
   }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<any> {
     this.wasExecuted = true;
 
     if (this.executeOperationErrorToThrow) {

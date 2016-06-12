@@ -26,6 +26,7 @@ describe('LoginUserOperation', () => {
 
     var username: string;
     var password: string;
+    var user: User;
 
     beforeEach(() => {
       var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
@@ -40,7 +41,10 @@ describe('LoginUserOperation', () => {
           userInfo.firstName,
           userInfo.lastName);
 
-      return createUserOperation.execute();
+      return createUserOperation.execute()
+        .then((_user: User) => {
+          user = _user;
+        })
     });
 
     it('not existing username should reject', () => {
@@ -74,6 +78,20 @@ describe('LoginUserOperation', () => {
 
       // Assert
       return expect(resultPromise).to.eventually.fulfilled;
+    });
+
+    it('valid credentials should return the user', () => {
+      // Arrange
+      var operation = new LoginUserOperation(username, password);
+
+      // Act
+      var resultPromise: Promise<any> = operation.execute();
+
+      // Assert
+      return expect(resultPromise).to.eventually.fulfilled
+        .then((_user: User) => {
+          expect(_user.id).to.be.equal(user.id);
+        });
     });
 
   });

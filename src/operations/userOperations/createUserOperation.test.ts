@@ -139,6 +139,20 @@ describe('CreateUserOperation', () => {
           });
       });
 
+      it('should return the new user', () => {
+        // Act
+        var result: Promise<User> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled
+          .then((_user: User) => {
+            expect(_user.attributes.username).to.be.equal(userInfo.username);
+            expect(_user.attributes.email).to.be.equal(userInfo.email);
+            expect(_user.attributes.firstName).to.be.equal(userInfo.firstName);
+            expect(_user.attributes.lastName).to.be.equal(userInfo.lastName);
+          });
+      });
+
     });
 
   })

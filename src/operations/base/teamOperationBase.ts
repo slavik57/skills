@@ -3,7 +3,7 @@ import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {AuthenticatedOperationBase} from "./authenticatedOperationBase";
 import * as _ from 'lodash';
 
-export class TeamOperationBase extends AuthenticatedOperationBase {
+export class TeamOperationBase<T> extends AuthenticatedOperationBase<T> {
   constructor(private _teamId, executingUserId: number) {
     super(executingUserId);
   }

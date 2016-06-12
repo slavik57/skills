@@ -10,15 +10,16 @@ import {SkillOperationBase} from './skillOperationBase';
 
 chai.use(chaiAsPromised);
 
-class TestSkillOperationBase extends SkillOperationBase {
+class TestSkillOperationBase extends SkillOperationBase<any> {
   public wasExecuted = false;
 
   constructor(executingUserId: number) {
     super(executingUserId);
   }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<any> {
     this.wasExecuted = true;
+    return null;
   }
 
 }

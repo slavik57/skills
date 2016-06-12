@@ -1,8 +1,9 @@
+import {Team} from "../../models/team";
 import {AuthenticatedOperationBase} from "../base/authenticatedOperationBase";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 
-export class RemoveTeamOperation extends AuthenticatedOperationBase {
+export class RemoveTeamOperation extends AuthenticatedOperationBase<Team> {
   constructor(private _teamIdToRemove: number, executingUserId: number) {
     super(executingUserId);
   }
@@ -11,7 +12,7 @@ export class RemoveTeamOperation extends AuthenticatedOperationBase {
     return [GlobalPermission.TEAMS_LIST_ADMIN];
   }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<Team> {
     return TeamsDataHandler.deleteTeam(this._teamIdToRemove);
   }
 }

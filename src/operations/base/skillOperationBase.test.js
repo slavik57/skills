@@ -21,6 +21,7 @@ var TestSkillOperationBase = (function (_super) {
     }
     TestSkillOperationBase.prototype.doWork = function () {
         this.wasExecuted = true;
+        return null;
     };
     return TestSkillOperationBase;
 }(skillOperationBase_1.SkillOperationBase));

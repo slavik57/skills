@@ -17,12 +17,16 @@ describe('LoginUserOperation', function () {
     describe('execute', function () {
         var username;
         var password;
+        var user;
         beforeEach(function () {
             var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             username = userInfo.username;
             password = 'some random password';
             var createUserOperation = new createUserOperation_1.CreateUserOperation(username, password, userInfo.email, userInfo.firstName, userInfo.lastName);
-            return createUserOperation.execute();
+            return createUserOperation.execute()
+                .then(function (_user) {
+                user = _user;
+            });
         });
         it('not existing username should reject', function () {
             var operation = new loginUserOperation_1.LoginUserOperation('not existing username', password);
@@ -38,6 +42,14 @@ describe('LoginUserOperation', function () {
             var operation = new loginUserOperation_1.LoginUserOperation(username, password);
             var resultPromise = operation.execute();
             return chai_1.expect(resultPromise).to.eventually.fulfilled;
+        });
+        it('valid credentials should return the user', function () {
+            var operation = new loginUserOperation_1.LoginUserOperation(username, password);
+            var resultPromise = operation.execute();
+            return chai_1.expect(resultPromise).to.eventually.fulfilled
+                .then(function (_user) {
+                chai_1.expect(_user.id).to.be.equal(user.id);
+            });
         });
     });
 });

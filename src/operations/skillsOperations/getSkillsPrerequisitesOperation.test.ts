@@ -63,7 +63,7 @@ describe('GetSkillsPrerequisitesOperation', () => {
 
     it('should return correct prerequisites succeed', () => {
       // Act
-      var resultPromise: Promise<Skill[]> = operation.execute();
+      var resultPromise: Promise<IPrerequisitesOfASkill[]> = operation.execute();
 
       // Assert
       var expectedPrerequisites: IPrerequisitesOfASkill[] = [
