@@ -1,6 +1,6 @@
 todo:
 - use node-connect-pg-simple to leave the user logged in after the node restart
-- refactor all index.ts and test what needs to be tested
+- refactor all index.ts and test what needs to be tested (create an app.ts class that is initialized in the index.ts file and started)
 - add tests to the added controllers
 - add tests to the passport strategies
 - add ui tests?
