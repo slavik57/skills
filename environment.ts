@@ -55,7 +55,7 @@ var config = {
     }
   },
 
-  currentEnvironment: 'production',
+  currentEnvironment: 'tests',
 
   getCurrentEnvironment: function(): IEnvironmentConfig {
     var nodeEnviroment = process.env.NODE_ENV;
