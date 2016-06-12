@@ -7,6 +7,7 @@
     "sinon": "registry:npm/sinon#1.16.0+20160427193336"
   },
   "globalDependencies": {
+    "body-parser": "registry:dt/body-parser#0.0.0+20160317120654",
     "express": "registry:dt/express#4.0.0+20160317120654",
     "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160602151406",
     "password-hash": "registry:dt/password-hash#1.2.0+20160330090212",

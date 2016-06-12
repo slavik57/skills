@@ -1,3 +1,4 @@
+/// <reference path="globals/body-parser/index.d.ts" />
 /// <reference path="globals/bookshelf/index.d.ts" />
 /// <reference path="globals/create-error/index.d.ts" />
 /// <reference path="globals/es6-promise/index.d.ts" />
