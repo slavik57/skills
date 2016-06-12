@@ -18,9 +18,9 @@ var LoginStrategy = (function () {
     LoginStrategy._loginUser = function (req, username, password, done) {
         var operation = new loginUserOperation_1.LoginUserOperation(username, password);
         operation.execute()
-            .then(function () {
+            .then(function (_user) {
             req.session.success = 'You are successfully logged in ' + username + '!';
-            done(null, { username: username });
+            done(null, { id: _user.id, username: _user.attributes.username });
         })
             .catch(function (error) {
             req.session.error = error;

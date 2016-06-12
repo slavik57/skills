@@ -1,3 +1,4 @@
+import {User} from "../models/user";
 import {ISessionRequest} from "./interfaces/iSessionRequest";
 import * as passport from 'passport';
 import {Strategy, IVerifyOptions, IStrategyOptionsWithRequest} from 'passport-local'
@@ -24,9 +25,9 @@ export class LoginStrategy {
     var operation = new LoginUserOperation(username, password);
 
     operation.execute()
-      .then(() => {
+      .then((_user: User) => {
         req.session.success = 'You are successfully logged in ' + username + '!';
-        done(null, { username: username });
+        done(null, { id: _user.id, username: _user.attributes.username });
       })
       .catch((error) => {
         req.session.error = error;

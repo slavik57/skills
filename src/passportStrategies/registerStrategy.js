@@ -18,9 +18,9 @@ var RegisterStrategy = (function () {
     RegisterStrategy._registerUser = function (req, username, password, done) {
         var operation = new createUserOperation_1.CreateUserOperation(username, password, req.body.email, req.body.firstName, req.body.lastName);
         operation.execute()
-            .then(function () {
+            .then(function (_user) {
             req.session.success = 'You are successfully registered and logged in ' + username + '!';
-            done(null, { username: username });
+            done(null, { id: _user.id, username: _user.attributes.username });
         })
             .catch(function (error) {
             req.session.error = error;
