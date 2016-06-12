@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as expressHandlebars from 'express-handlebars';
 import {Express} from 'express';
 import * as bodyParser from 'body-parser';
 import * as EnvironmentConfig from "../environment";
@@ -43,15 +44,21 @@ function configureSessionPersistedMessageMiddleware(app: Express) {
 }
 
 function configureExpressToUseHandleBarsTemplates(app: Express) {
-  // var hbs = exphbs.create({
-  //   defaultLayout: 'main', //we will be creating this layout shortly
-  // });
-  // app.engine('handlebars', hbs.engine);
-  // app.set('view engine', 'handlebars');
+  var handlebars: Exphbs = expressHandlebars.create({
+    defaultLayout: 'main',
+    layoutsDir: 'src/views/layouts'
+  });
+
+  app.engine('handlebars', handlebars.engine);
+  app.set('views', 'src/views');
+  app.set('views', 'src/views');
+  app.set('view engine', 'handlebars');
 }
 
 function configureRoutes(app: Express) {
-
+  app.get('/', function(req, res) {
+    res.render('home', { user: req.user });
+  });
 }
 
 function startApplication(app: Express) {
@@ -72,7 +79,7 @@ function startApplication(app: Express) {
     .listen(port, hostName, () => serverIsUpCallback(server.address()));
 }
 
-function serverIsUpCallback(serverAddress: { address: string, port: number}) {
+function serverIsUpCallback(serverAddress: { address: string, port: number }) {
   var host = serverAddress.address;
   var port = serverAddress.port;
   console.log("App listening at host: %s and port: %s", host, port);

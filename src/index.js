@@ -1,5 +1,6 @@
 "use strict";
 var express = require('express');
+var expressHandlebars = require('express-handlebars');
 var bodyParser = require('body-parser');
 var EnvironmentConfig = require("../environment");
 var https = require('https');
@@ -18,8 +19,19 @@ function configureExpress(app) {
 function configureSessionPersistedMessageMiddleware(app) {
 }
 function configureExpressToUseHandleBarsTemplates(app) {
+    var handlebars = expressHandlebars.create({
+        defaultLayout: 'main',
+        layoutsDir: 'src/views/layouts'
+    });
+    app.engine('handlebars', handlebars.engine);
+    app.set('views', 'src/views');
+    app.set('views', 'src/views');
+    app.set('view engine', 'handlebars');
 }
 function configureRoutes(app) {
+    app.get('/', function (req, res) {
+        res.render('home', { user: req.user });
+    });
 }
 function startApplication(app) {
     var port = process.env.PORT || EnvironmentConfig.getCurrentEnvironment().appConfig.port;
