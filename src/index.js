@@ -9,6 +9,8 @@ var https = require('https');
 var fs = require('fs');
 var passport = require('passport');
 var expressSession = require('express-session');
+var cookieParser = require('cookie-parser');
+var methodOverride = require('method-override');
 var expressControllers = require('express-controller');
 var currentFileDirectory = __dirname;
 var app = express();
@@ -19,8 +21,10 @@ configureControllersForApp(app);
 configurePassportLoginStrategies(app);
 startApplication(app);
 function configureExpress(app) {
+    app.use(cookieParser());
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
+    app.use(methodOverride('X-HTTP-Method-Override'));
     app.use(expressSession({ secret: EnvironmentConfig.getCurrentEnvironment().appConfig.secret, saveUninitialized: true, resave: true }));
     app.use(passport.initialize());
     app.use(passport.session());
@@ -73,8 +77,6 @@ function configurePassportLoginStrategies(app) {
     app.use(ensureAuthenticated);
 }
 function ensureAuthenticated(req, res, next) {
-    console.log('auth: ' + req.isAuthenticated());
-    console.log('path: ' + req.path);
     if (!req.isAuthenticated() && req.path === '/signin') {
         return next();
     }

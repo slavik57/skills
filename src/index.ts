@@ -10,6 +10,8 @@ import * as https from 'https';
 import * as fs from 'fs';
 import * as passport from 'passport';
 import * as expressSession from 'express-session';
+import * as cookieParser from 'cookie-parser';
+import * as methodOverride from 'method-override';
 
 var expressControllers = require('express-controller');
 
@@ -24,10 +26,10 @@ configurePassportLoginStrategies(app);
 startApplication(app);
 
 function configureExpress(app: Express) {
-  // app.use(cookieParser());
+  app.use(cookieParser());
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
-  // app.use(methodOverride('X-HTTP-Method-Override'));
+  app.use(methodOverride('X-HTTP-Method-Override'));
   app.use(expressSession({ secret: EnvironmentConfig.getCurrentEnvironment().appConfig.secret, saveUninitialized: true, resave: true }));
   app.use(passport.initialize());
   app.use(passport.session());
@@ -96,8 +98,6 @@ function configurePassportLoginStrategies(app: Express) {
 }
 
 function ensureAuthenticated(req: ISessionRequest, res: Response, next) {
-  console.log('auth: ' + req.isAuthenticated());
-  console.log('path: ' + req.path);
   if (!req.isAuthenticated() && req.path === '/signin') {
     return next();
   }

@@ -27,8 +27,10 @@
   "dependencies": {
     "body-parser": "^1.15.1",
     "bookshelf-cascade-delete": "^1.0.2",
+    "cookie-parser": "^1.4.3",
     "express-controller": "^0.2.9",
     "express-session": "^1.13.0",
+    "method-override": "^2.3.6",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "password-hash": "^1.2.2"
