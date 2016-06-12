@@ -11,7 +11,6 @@
     "express": "registry:dt/express#4.0.0+20160317120654",
     "express-handlebars": "registry:dt/express-handlebars#0.0.0+20160316155526",
     "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160602151406",
-    "passport": "registry:dt/passport#0.2.0+20160317120654",
     "password-hash": "registry:dt/password-hash#1.2.0+20160330090212",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157"
   },
