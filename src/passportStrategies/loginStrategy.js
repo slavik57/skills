@@ -20,7 +20,7 @@ var LoginStrategy = (function () {
         operation.execute()
             .then(function () {
             req.session.success = 'You are successfully logged in ' + username + '!';
-            done(null, { username: username, password: password });
+            done(null, { username: username });
         })
             .catch(function (error) {
             req.session.error = error;

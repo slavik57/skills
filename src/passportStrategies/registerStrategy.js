@@ -13,14 +13,14 @@ var RegisterStrategy = (function () {
         var options = {
             passReqToCallback: true
         };
-        passport.use(RegisterStrategy.NAME, new passport_local_1.Strategy(options, this._loginUser));
+        passport.use(RegisterStrategy.NAME, new passport_local_1.Strategy(options, this._registerUser));
     };
-    RegisterStrategy._loginUser = function (req, username, password, done) {
+    RegisterStrategy._registerUser = function (req, username, password, done) {
         var operation = new createUserOperation_1.CreateUserOperation(username, password, req.body.email, req.body.firstName, req.body.lastName);
         operation.execute()
             .then(function () {
             req.session.success = 'You are successfully registered and logged in ' + username + '!';
-            done(null, { username: username, password: password });
+            done(null, { username: username });
         })
             .catch(function (error) {
             req.session.error = error;

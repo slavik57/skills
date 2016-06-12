@@ -17,10 +17,10 @@ export class RegisterStrategy {
       passReqToCallback: true
     }
 
-    passport.use(RegisterStrategy.NAME, new Strategy(options, this._loginUser));
+    passport.use(RegisterStrategy.NAME, new Strategy(options, this._registerUser));
   }
 
-  private static _loginUser(req: ISessionRequest, username: string, password: string, done: (error: any, user?: any, options?: IVerifyOptions) => void) {
+  private static _registerUser(req: ISessionRequest, username: string, password: string, done: (error: any, user?: any, options?: IVerifyOptions) => void) {
 
     var operation = new CreateUserOperation(username,
       password,
@@ -31,7 +31,7 @@ export class RegisterStrategy {
     operation.execute()
       .then(() => {
         req.session.success = 'You are successfully registered and logged in ' + username + '!';
-        done(null, { username: username, password: password });
+        done(null, { username: username });
       })
       .catch((error) => {
         req.session.error = error;

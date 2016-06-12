@@ -26,7 +26,7 @@ export class LoginStrategy {
     operation.execute()
       .then(() => {
         req.session.success = 'You are successfully logged in ' + username + '!';
-        done(null, { username: username, password: password });
+        done(null, { username: username });
       })
       .catch((error) => {
         req.session.error = error;
