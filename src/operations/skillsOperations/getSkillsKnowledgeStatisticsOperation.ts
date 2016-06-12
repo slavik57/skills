@@ -4,7 +4,7 @@ import {ITeamsOfASkill} from "../../models/interfaces/iTeamsOfASkill";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {OperationBase} from "../base/operationBase";
 
-export class GetSkillsKnowledgeStatistics extends OperationBase {
+export class GetSkillsKnowledgeStatisticsOperation extends OperationBase {
 
   constructor() {
     super();

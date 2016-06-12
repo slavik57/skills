@@ -1,5 +1,5 @@
 import {ISkillKnowledgeStatistics} from "../interfaces/iSkillKnowledgeStatistics";
-import {GetSkillsKnowledgeStatistics} from "./getSkillsKnowledgeStatistics";
+import {GetSkillsKnowledgeStatisticsOperation} from "./getSkillsKnowledgeStatisticsOperation";
 import {ModelInfoMockFactory} from "../../testUtils/modelInfoMockFactory";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {Skill} from "../../models/skill";
@@ -13,12 +13,12 @@ import * as _ from 'lodash';
 
 chai.use(chaiAsPromised);
 
-describe('GetSkillsKnowledgeStatistics', () => {
+describe('GetSkillsKnowledgeStatisticsOperation', () => {
 
-  var operation: GetSkillsKnowledgeStatistics;
+  var operation: GetSkillsKnowledgeStatisticsOperation;
 
   beforeEach(() => {
-    operation = new GetSkillsKnowledgeStatistics();
+    operation = new GetSkillsKnowledgeStatisticsOperation();
 
     return EnvironmentCleaner.clearTables();
   });

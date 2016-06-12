@@ -1,5 +1,5 @@
 "use strict";
-var getSkillsKnowledgeStatistics_1 = require("./getSkillsKnowledgeStatistics");
+var getSkillsKnowledgeStatisticsOperation_1 = require("./getSkillsKnowledgeStatisticsOperation");
 var modelInfoMockFactory_1 = require("../../testUtils/modelInfoMockFactory");
 var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
 var environmentDirtifier_1 = require("../../testUtils/environmentDirtifier");
@@ -9,10 +9,10 @@ var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 var _ = require('lodash');
 chai.use(chaiAsPromised);
-describe('GetSkillsKnowledgeStatistics', function () {
+describe('GetSkillsKnowledgeStatisticsOperation', function () {
     var operation;
     beforeEach(function () {
-        operation = new getSkillsKnowledgeStatistics_1.GetSkillsKnowledgeStatistics();
+        operation = new getSkillsKnowledgeStatisticsOperation_1.GetSkillsKnowledgeStatisticsOperation();
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
     afterEach(function () {
