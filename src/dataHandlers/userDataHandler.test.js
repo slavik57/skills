@@ -153,6 +153,18 @@ describe('userDataHandler', function () {
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(getUserPromise, userInfo);
         });
     });
+    describe('getUserByUsername', function () {
+        it('no such user should return null', function () {
+            var userPromise = userDataHandler_1.UserDataHandler.getUserByUsername('not existing username');
+            return chai_1.expect(userPromise).to.eventually.null;
+        });
+        it('user exists should return correct user', function () {
+            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+            var createUserPromise = userDataHandler_1.UserDataHandler.createUser(userInfo);
+            var getUserPromise = createUserPromise.then(function (user) { return userDataHandler_1.UserDataHandler.getUserByUsername(userInfo.username); });
+            return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(getUserPromise, userInfo);
+        });
+    });
     describe('getUsers', function () {
         it('no users should return empty', function () {
             var usersPromose = userDataHandler_1.UserDataHandler.getUsers();

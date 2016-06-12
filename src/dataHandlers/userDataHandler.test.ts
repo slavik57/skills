@@ -256,6 +256,33 @@ describe('userDataHandler', () => {
 
   });
 
+  describe('getUserByUsername', () => {
+
+    it('no such user should return null', () => {
+      // Act
+      var userPromise: Promise<User> =
+        UserDataHandler.getUserByUsername('not existing username');
+
+      // Assert
+      return expect(userPromise).to.eventually.null;
+    });
+
+    it('user exists should return correct user', () => {
+      // Arrange
+      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
+      var createUserPromise: Promise<User> =
+        UserDataHandler.createUser(userInfo);
+
+      // Act
+      var getUserPromise: Promise<User> =
+        createUserPromise.then((user: User) => UserDataHandler.getUserByUsername(userInfo.username));
+
+      // Assert
+      return ModelVerificator.verifyModelInfoAsync(getUserPromise, userInfo);
+    });
+
+  });
+
   describe('getUsers', () => {
 
     it('no users should return empty', () => {

@@ -61,6 +61,10 @@ export class UserDataHandler {
     return this._initializeUserByIdQuery(userId).fetch();
   }
 
+  public static getUserByUsername(username: string): Promise<User> {
+    return this._initializeUserByUsernameQuery(username).fetch();
+  }
+
   private static _createUserWithPermissions(userInfo: IUserInfo, permissionsToAdd: GlobalPermission[], transaction: Transaction): Promise<User> {
     var saveOptions: SaveOptions = {
       transacting: transaction
@@ -76,6 +80,13 @@ export class UserDataHandler {
   private static _initializeUserByIdQuery(teamId: number): User {
     var queryCondition = {};
     queryCondition[User.idAttribute] = teamId;
+
+    return new User(queryCondition);
+  }
+
+  private static _initializeUserByUsernameQuery(username: string): User {
+    var queryCondition = {};
+    queryCondition[User.usernameAttribute] = username;
 
     return new User(queryCondition);
   }
