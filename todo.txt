@@ -1,5 +1,4 @@
 todo:
-- get skills teams statistics operation(know it and do not know it)
 - get skill teams statistics operation(know it and do not know it)
 - get skill map operation
 - get user teams operation
