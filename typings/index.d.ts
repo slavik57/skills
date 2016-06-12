@@ -2,6 +2,7 @@
 /// <reference path="globals/bookshelf/index.d.ts" />
 /// <reference path="globals/create-error/index.d.ts" />
 /// <reference path="globals/es6-promise/index.d.ts" />
+/// <reference path="globals/express-handlebars/index.d.ts" />
 /// <reference path="globals/express-serve-static-core/index.d.ts" />
 /// <reference path="globals/express/index.d.ts" />
 /// <reference path="globals/knex/index.d.ts" />
