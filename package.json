@@ -28,6 +28,7 @@
     "body-parser": "^1.15.1",
     "bookshelf-cascade-delete": "^1.0.2",
     "express-controller": "^0.2.9",
+    "passport": "^0.3.2",
     "password-hash": "^1.2.2"
   }
 }
