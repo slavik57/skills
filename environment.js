@@ -7,7 +7,8 @@ var config = {
             certificate: {
                 keyFilePath: '/ssl/development-localhost.key',
                 certificateFilePath: '/ssl/development-localhost.cert'
-            }
+            },
+            secret: 'skills_application_secret:712cfb7d-a5fa-4c16-9805-c6da1deb5380'
         },
         databbaseConfig: {
             databaseName: 'skills_development',
@@ -23,7 +24,8 @@ var config = {
             certificate: {
                 keyFilePath: '/ssl/development-localhost.key',
                 certificateFilePath: '/ssl/development-localhost.cert'
-            }
+            },
+            secret: 'skills_application_secret:712cfb7d-a5fa-4c16-9805-c6da1deb5380'
         },
         databbaseConfig: {
             databaseName: 'skills_tests',

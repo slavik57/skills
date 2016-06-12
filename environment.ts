@@ -7,6 +7,7 @@ interface IAppConfig {
   hostName: string;
   port: number;
   certificate: ICertificate;
+  secret: string;
 }
 
 interface IDatabaseConfig {
@@ -29,7 +30,8 @@ var config = {
       certificate: {
         keyFilePath: '/ssl/development-localhost.key',
         certificateFilePath: '/ssl/development-localhost.cert'
-      }
+      },
+      secret: 'skills_application_secret:712cfb7d-a5fa-4c16-9805-c6da1deb5380'
     },
     databbaseConfig: <IDatabaseConfig>{
       databaseName: 'skills_development',
@@ -45,7 +47,8 @@ var config = {
       certificate: {
         keyFilePath: '/ssl/development-localhost.key',
         certificateFilePath: '/ssl/development-localhost.cert'
-      }
+      },
+      secret: 'skills_application_secret:712cfb7d-a5fa-4c16-9805-c6da1deb5380'
     },
     databbaseConfig: <IDatabaseConfig>{
       databaseName: 'skills_tests',
