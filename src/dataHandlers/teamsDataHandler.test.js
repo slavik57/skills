@@ -934,4 +934,16 @@ describe('TeamsDataHandler', function () {
             });
         });
     });
+    describe('getNumberOfTeams', function () {
+        it('no teams should return 0', function () {
+            var resultPromise = teamsDataHandler_1.TeamsDataHandler.getNumberOfTeams();
+            return chai_1.expect(resultPromise).to.eventually.equal(0);
+        });
+        it('has teams should return correct number', function () {
+            var numberOfTeams = 12;
+            var createTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createTeams(numberOfTeams);
+            var resultPromise = createTeamsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getNumberOfTeams(); });
+            return chai_1.expect(resultPromise).to.eventually.equal(numberOfTeams);
+        });
+    });
 });

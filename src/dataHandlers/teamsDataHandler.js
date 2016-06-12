@@ -63,6 +63,12 @@ var TeamsDataHandler = (function () {
             return _teamsCollection.toArray();
         });
     };
+    TeamsDataHandler.getNumberOfTeams = function () {
+        return new team_1.Teams().count()
+            .then(function (_numberOfTeams) {
+            return Number(_numberOfTeams);
+        });
+    };
     TeamsDataHandler.upvoteTeamSkill = function (teamSkillId, upvotingUserId) {
         var upvoteInfo = {
             team_skill_id: teamSkillId,

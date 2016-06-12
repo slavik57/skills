@@ -1483,4 +1483,31 @@ describe('TeamsDataHandler', () => {
 
   });
 
+  describe('getNumberOfTeams', () => {
+
+    it('no teams should return 0', () => {
+      // Act
+      var resultPromise: Promise<number> =
+        TeamsDataHandler.getNumberOfTeams();
+
+      // Assert
+      return expect(resultPromise).to.eventually.equal(0);
+    });
+
+    it('has teams should return correct number', () => {
+      // Arrangev
+      var numberOfTeams = 12;
+      var createTeamsPromise: Promise<any> =
+        EnvironmentDirtifier.createTeams(numberOfTeams);
+
+      // Act
+      var resultPromise: Promise<number> =
+        createTeamsPromise.then(() => TeamsDataHandler.getNumberOfTeams());
+
+      // Assert
+      return expect(resultPromise).to.eventually.equal(numberOfTeams);
+    });
+
+  });
+
 });

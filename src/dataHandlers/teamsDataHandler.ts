@@ -96,6 +96,13 @@ export class TeamsDataHandler {
       });
   }
 
+  public static getNumberOfTeams(): Promise<number> {
+    return new Teams().count()
+      .then((_numberOfTeams: any) => {
+        return Number(_numberOfTeams);
+      });
+  }
+
   public static upvoteTeamSkill(teamSkillId: number, upvotingUserId: number): Promise<TeamSkillUpvote> {
     var upvoteInfo: ITeamSkillUpvoteInfo = {
       team_skill_id: teamSkillId,
