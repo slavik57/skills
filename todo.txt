@@ -1,5 +1,4 @@
 todo:
-- get user teams operation
 - update the create user operation:
 	check if user exists
 	get the parameters separately
