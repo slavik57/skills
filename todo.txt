@@ -1,6 +1,4 @@
 todo:
-- update the create user operation:
-	hash the password
 - create login operation(password hash verification)
 
 

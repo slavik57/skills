@@ -2,6 +2,7 @@ import {GlobalPermission} from "../../models/enums/globalPermission";
 import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {OperationBase} from "../base/operationBase";
 import {IUserInfo} from "../../models/interfaces/iUserInfo";
+import * as passwordHash from 'password-hash';
 
 export class CreateUserOperation extends OperationBase {
 
@@ -18,7 +19,7 @@ export class CreateUserOperation extends OperationBase {
 
     var userInfo: IUserInfo = {
       username: this._username,
-      password_hash: this._createPasswordHash(),
+      password_hash: this.hashThePassword(),
       email: this._email,
       firstName: this._firstName,
       lastName: this._lastName
@@ -27,8 +28,8 @@ export class CreateUserOperation extends OperationBase {
     return UserDataHandler.createUserWithPermissions(userInfo, readerPermissions);
   }
 
-  private _createPasswordHash(): string {
-    return this._password;
+  private hashThePassword(): string {
+    return passwordHash.generate(this._password);
   }
 
 }

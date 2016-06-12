@@ -7,6 +7,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var userDataHandler_1 = require("../../dataHandlers/userDataHandler");
 var operationBase_1 = require("../base/operationBase");
+var passwordHash = require('password-hash');
 var CreateUserOperation = (function (_super) {
     __extends(CreateUserOperation, _super);
     function CreateUserOperation(_username, _password, _email, _firstName, _lastName) {
@@ -21,15 +22,15 @@ var CreateUserOperation = (function (_super) {
         var readerPermissions = [globalPermission_1.GlobalPermission.READER];
         var userInfo = {
             username: this._username,
-            password_hash: this._createPasswordHash(),
+            password_hash: this.hashThePassword(),
             email: this._email,
             firstName: this._firstName,
             lastName: this._lastName
         };
         return userDataHandler_1.UserDataHandler.createUserWithPermissions(userInfo, readerPermissions);
     };
-    CreateUserOperation.prototype._createPasswordHash = function () {
-        return this._password;
+    CreateUserOperation.prototype.hashThePassword = function () {
+        return passwordHash.generate(this._password);
     };
     return CreateUserOperation;
 }(operationBase_1.OperationBase));

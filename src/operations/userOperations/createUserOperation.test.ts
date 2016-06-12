@@ -9,6 +9,7 @@ import {User} from "../../models/user";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
+import * as passwordHash from 'password-hash';
 
 chai.use(chaiAsPromised);
 
@@ -65,12 +66,15 @@ describe('CreateUserOperation', () => {
 
       var operation: CreateUserOperation;
       var userInfo: IUserInfo;
+      var password: string;
 
       beforeEach(() => {
         userInfo = ModelInfoMockFactory.createUserInfo(1);
 
+        password = 'some random passowrd';
+
         operation = new CreateUserOperation(userInfo.username,
-          userInfo.password_hash,
+          password,
           userInfo.email,
           userInfo.firstName,
           userInfo.lastName);
@@ -94,7 +98,12 @@ describe('CreateUserOperation', () => {
           .then((_users: User[]) => {
             expect(_users).to.be.length(1);
 
-            ModelInfoVerificator.verifyInfo(_users[0].attributes, userInfo);
+            var user: User = _users[0];
+
+            expect(user.attributes.username).to.be.equal(userInfo.username);
+            expect(user.attributes.email).to.be.equal(userInfo.email);
+            expect(user.attributes.firstName).to.be.equal(userInfo.firstName);
+            expect(user.attributes.lastName).to.be.equal(userInfo.lastName);
           });
       });
 
@@ -110,6 +119,24 @@ describe('CreateUserOperation', () => {
           .then((_permissions: GlobalPermission[]) => {
             expect(_permissions).to.be.deep.equal([GlobalPermission.READER]);
           })
+      });
+
+      it('should hash the password correctly', () => {
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled
+          .then(() => UserDataHandler.getUsers())
+          .then((_users: User[]) => {
+            expect(_users).to.be.length(1);
+
+            var user: User = _users[0];
+            var actualHashedPassword = user.attributes.password_hash;
+
+            expect(passwordHash.isHashed(actualHashedPassword), 'should hash the password').to.be.true;
+            expect(passwordHash.verify(password, actualHashedPassword), 'the password should be hashed correctly').to.be.true;
+          });
       });
 
     });
