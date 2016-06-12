@@ -1,4 +1,5 @@
 todo:
+- send the user id with the username after the login
 - use node-connect-pg-simple to leave the user logged in after the node restart
 - refactor all index.ts and test what needs to be tested
 - add tests to the added controllers
