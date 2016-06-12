@@ -1,6 +1,7 @@
 /// <reference path="globals/bookshelf/index.d.ts" />
 /// <reference path="globals/create-error/index.d.ts" />
 /// <reference path="globals/es6-promise/index.d.ts" />
+/// <reference path="globals/express/index.d.ts" />
 /// <reference path="globals/knex/index.d.ts" />
 /// <reference path="globals/mocha/index.d.ts" />
 /// <reference path="globals/node/index.d.ts" />
