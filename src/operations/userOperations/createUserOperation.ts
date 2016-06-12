@@ -5,16 +5,30 @@ import {IUserInfo} from "../../models/interfaces/iUserInfo";
 
 export class CreateUserOperation extends OperationBase {
 
-  constructor(private _userInfo: IUserInfo) {
+  constructor(private _username: string,
+    private _password: string,
+    private _email: string,
+    private _firstName: string,
+    private _lastName: string) {
     super();
   }
-
-  public get userInfo(): IUserInfo { return this._userInfo; }
 
   protected doWork(): void | Promise<any> {
     var readerPermissions = [GlobalPermission.READER];
 
-    return UserDataHandler.createUserWithPermissions(this._userInfo, readerPermissions);
+    var userInfo: IUserInfo = {
+      username: this._username,
+      password_hash: this._createPasswordHash(),
+      email: this._email,
+      firstName: this._firstName,
+      lastName: this._lastName
+    }
+
+    return UserDataHandler.createUserWithPermissions(userInfo, readerPermissions);
+  }
+
+  private _createPasswordHash(): string {
+    return this._password;
   }
 
 }

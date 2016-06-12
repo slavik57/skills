@@ -1,7 +1,5 @@
 todo:
 - update the create user operation:
-	check if user exists
-	get the parameters separately
 	hash the password
 - create login operation(password hash verification)
 

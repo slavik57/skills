@@ -22,21 +22,6 @@ describe('CreateUserOperation', () => {
     return EnvironmentCleaner.clearTables();
   });
 
-  describe('new', () => {
-
-    it('should initialize correctly', () => {
-      // Arrange
-      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
-
-      // Act
-      var operation = new CreateUserOperation(userInfo);
-
-      // Assert
-      expect(operation.userInfo).to.be.equal(userInfo);
-    });
-
-  });
-
   describe('execute', () => {
 
     describe('on invalid user info', () => {
@@ -47,7 +32,11 @@ describe('CreateUserOperation', () => {
         var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
         delete userInfo.username;
 
-        operation = new CreateUserOperation(userInfo);
+        operation = new CreateUserOperation(userInfo.username,
+          userInfo.password_hash,
+          userInfo.email,
+          userInfo.firstName,
+          userInfo.lastName);
       });
 
       it('should fail execution', () => {
@@ -80,7 +69,11 @@ describe('CreateUserOperation', () => {
       beforeEach(() => {
         userInfo = ModelInfoMockFactory.createUserInfo(1);
 
-        operation = new CreateUserOperation(userInfo);
+        operation = new CreateUserOperation(userInfo.username,
+          userInfo.password_hash,
+          userInfo.email,
+          userInfo.firstName,
+          userInfo.lastName);
       });
 
       it('should succeed execution', () => {

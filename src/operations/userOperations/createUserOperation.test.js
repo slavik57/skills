@@ -16,20 +16,13 @@ describe('CreateUserOperation', function () {
     afterEach(function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
-    describe('new', function () {
-        it('should initialize correctly', function () {
-            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
-            var operation = new createUserOperation_1.CreateUserOperation(userInfo);
-            chai_1.expect(operation.userInfo).to.be.equal(userInfo);
-        });
-    });
     describe('execute', function () {
         describe('on invalid user info', function () {
             var operation;
             beforeEach(function () {
                 var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
                 delete userInfo.username;
-                operation = new createUserOperation_1.CreateUserOperation(userInfo);
+                operation = new createUserOperation_1.CreateUserOperation(userInfo.username, userInfo.password_hash, userInfo.email, userInfo.firstName, userInfo.lastName);
             });
             it('should fail execution', function () {
                 var result = operation.execute();
@@ -49,7 +42,7 @@ describe('CreateUserOperation', function () {
             var userInfo;
             beforeEach(function () {
                 userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
-                operation = new createUserOperation_1.CreateUserOperation(userInfo);
+                operation = new createUserOperation_1.CreateUserOperation(userInfo.username, userInfo.password_hash, userInfo.email, userInfo.firstName, userInfo.lastName);
             });
             it('should succeed execution', function () {
                 var result = operation.execute();

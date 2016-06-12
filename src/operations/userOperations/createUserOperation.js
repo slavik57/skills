@@ -9,18 +9,27 @@ var userDataHandler_1 = require("../../dataHandlers/userDataHandler");
 var operationBase_1 = require("../base/operationBase");
 var CreateUserOperation = (function (_super) {
     __extends(CreateUserOperation, _super);
-    function CreateUserOperation(_userInfo) {
+    function CreateUserOperation(_username, _password, _email, _firstName, _lastName) {
         _super.call(this);
-        this._userInfo = _userInfo;
+        this._username = _username;
+        this._password = _password;
+        this._email = _email;
+        this._firstName = _firstName;
+        this._lastName = _lastName;
     }
-    Object.defineProperty(CreateUserOperation.prototype, "userInfo", {
-        get: function () { return this._userInfo; },
-        enumerable: true,
-        configurable: true
-    });
     CreateUserOperation.prototype.doWork = function () {
         var readerPermissions = [globalPermission_1.GlobalPermission.READER];
-        return userDataHandler_1.UserDataHandler.createUserWithPermissions(this._userInfo, readerPermissions);
+        var userInfo = {
+            username: this._username,
+            password_hash: this._createPasswordHash(),
+            email: this._email,
+            firstName: this._firstName,
+            lastName: this._lastName
+        };
+        return userDataHandler_1.UserDataHandler.createUserWithPermissions(userInfo, readerPermissions);
+    };
+    CreateUserOperation.prototype._createPasswordHash = function () {
+        return this._password;
     };
     return CreateUserOperation;
 }(operationBase_1.OperationBase));
