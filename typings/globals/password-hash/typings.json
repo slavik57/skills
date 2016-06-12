@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/2058a1951c4d23ca98d302cd00d51a0bcc528851/password-hash/password-hash.d.ts",
+    "raw": "registry:dt/password-hash#1.2.0+20160330090212",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/2058a1951c4d23ca98d302cd00d51a0bcc528851/password-hash/password-hash.d.ts"
+  }
+}

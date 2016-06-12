@@ -5,5 +5,8 @@
   "devDependencies": {
     "chai": "registry:npm/chai#3.5.0+20160415060238",
     "sinon": "registry:npm/sinon#1.16.0+20160427193336"
+  },
+  "globalDependencies": {
+    "password-hash": "registry:dt/password-hash#1.2.0+20160330090212"
   }
 }
