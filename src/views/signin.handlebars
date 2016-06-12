@@ -1,0 +1,50 @@
+<div>
+  <h1>Sign in</h1>
+  <p>We're using passport.js to demonstrate user authentication. Please sign-in with your Local account to view your profile.</p>
+
+  <div id="local" class="collapse">
+    <a href="#local-sign-in">I already have an account</a>
+    <br/>
+    <a href="#local-reg">I need to make an account</a>
+  </div>
+
+  <br/>
+  <br/>
+  <br/>
+
+  <form id="local-sign-in" action="/login" method="post">
+    <p></p>
+    I already have an account:
+    <div>
+        <label>Username:</label>
+        <input type="text" name="username"/>
+    </div>
+    <div>
+        <label>Password:</label>
+        <input type="password" name="password"/>
+    </div>
+    <div>
+        <input type="submit" value="Log In"/>
+    </div>
+  </form>
+
+  <br/>
+  <br/>
+  <br/>
+
+  <form id="local-reg" action="/local-reg" method="post">
+    <p></p>
+    I need to make an account:
+    <div>
+        <label>New Username:</label>
+        <input type="text" name="username"/>
+    </div>
+    <div>
+        <label>New Password:</label>
+        <input type="password" name="password"/>
+    </div>
+    <div>
+        <input type="submit" value="Register"/>
+    </div>
+  </form>
+</div>
