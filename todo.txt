@@ -1,8 +1,2 @@
 todo:
-- create login operation(password hash verification)
-
-
-- look in all the create/add operations and return the information needed after the creation 
-	(id/some display name/number of likes for team skill and so on) ????
-
 - UI in sails for node.js?
