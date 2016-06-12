@@ -5,6 +5,7 @@ import * as bodyParser from 'body-parser';
 import * as EnvironmentConfig from "../environment";
 import * as https from 'https';
 import * as fs from 'fs';
+var expressControllers = require('express-controller');
 
 var currentFileDirectory = __dirname;
 
@@ -12,7 +13,7 @@ var app: Express = express();
 configureExpress(app);
 configureSessionPersistedMessageMiddleware(app);
 configureExpressToUseHandleBarsTemplates(app);
-configureRoutes(app);
+configureControllersForApp(app);
 startApplication(app);
 
 function configureExpress(app: Express) {
@@ -23,6 +24,11 @@ function configureExpress(app: Express) {
   // app.use(session({ secret: 'supernova', saveUninitialized: true, resave: true }));
   // app.use(passport.initialize());
   // app.use(passport.session());
+}
+
+function configureControllersForApp(app: Express) {
+  expressControllers.setDirectory(currentFileDirectory + '/controllers')
+    .bind(app);
 }
 
 function configureSessionPersistedMessageMiddleware(app: Express) {
@@ -46,19 +52,12 @@ function configureSessionPersistedMessageMiddleware(app: Express) {
 function configureExpressToUseHandleBarsTemplates(app: Express) {
   var handlebars: Exphbs = expressHandlebars.create({
     defaultLayout: 'main',
-    layoutsDir: 'src/views/layouts'
+    layoutsDir: currentFileDirectory + '/views/layouts'
   });
 
   app.engine('handlebars', handlebars.engine);
-  app.set('views', 'src/views');
-  app.set('views', 'src/views');
+  app.set('views', currentFileDirectory + '/views');
   app.set('view engine', 'handlebars');
-}
-
-function configureRoutes(app: Express) {
-  app.get('/', function(req, res) {
-    res.render('home', { user: req.user });
-  });
 }
 
 function startApplication(app: Express) {

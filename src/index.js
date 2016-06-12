@@ -5,33 +5,32 @@ var bodyParser = require('body-parser');
 var EnvironmentConfig = require("../environment");
 var https = require('https');
 var fs = require('fs');
+var expressControllers = require('express-controller');
 var currentFileDirectory = __dirname;
 var app = express();
 configureExpress(app);
 configureSessionPersistedMessageMiddleware(app);
 configureExpressToUseHandleBarsTemplates(app);
-configureRoutes(app);
+configureControllersForApp(app);
 startApplication(app);
 function configureExpress(app) {
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
+}
+function configureControllersForApp(app) {
+    expressControllers.setDirectory(currentFileDirectory + '/controllers')
+        .bind(app);
 }
 function configureSessionPersistedMessageMiddleware(app) {
 }
 function configureExpressToUseHandleBarsTemplates(app) {
     var handlebars = expressHandlebars.create({
         defaultLayout: 'main',
-        layoutsDir: 'src/views/layouts'
+        layoutsDir: currentFileDirectory + '/views/layouts'
     });
     app.engine('handlebars', handlebars.engine);
-    app.set('views', 'src/views');
-    app.set('views', 'src/views');
+    app.set('views', currentFileDirectory + '/views');
     app.set('view engine', 'handlebars');
-}
-function configureRoutes(app) {
-    app.get('/', function (req, res) {
-        res.render('home', { user: req.user });
-    });
 }
 function startApplication(app) {
     var port = process.env.PORT || EnvironmentConfig.getCurrentEnvironment().appConfig.port;
