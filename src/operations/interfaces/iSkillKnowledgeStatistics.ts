@@ -1,7 +1,6 @@
+import {IKnowledgeStatistics} from "./iKnowledgeStatistics";
 import {Skill} from "../../models/skill";
 
-export interface ISkillKnowledgeStatistics {
+export interface ISkillKnowledgeStatistics extends IKnowledgeStatistics {
   skill: Skill;
-  numberOfKnowingTeams: number;
-  numberOfNotKnowingTeams: number;
 }

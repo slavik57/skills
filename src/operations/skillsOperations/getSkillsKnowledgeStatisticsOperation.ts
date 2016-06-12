@@ -27,12 +27,12 @@ export class GetSkillsKnowledgeStatisticsOperation extends OperationBase {
     var result: ISkillKnowledgeStatistics[] = [];
 
     teamsOfSkills.forEach((_teamsOfSkill: ITeamsOfASkill) => {
-      var numberOKnowingTeams: number = _teamsOfSkill.teamsIds.length;
+      var numberOfnowingTeams: number = _teamsOfSkill.teamsIds.length;
 
       result.push({
         skill: _teamsOfSkill.skill,
-        numberOfKnowingTeams: numberOKnowingTeams,
-        numberOfNotKnowingTeams: numberOfTeams - numberOKnowingTeams
+        numberOfKnowingTeams: numberOfnowingTeams,
+        numberOfNotKnowingTeams: numberOfTeams - numberOfnowingTeams
       });
     });
 

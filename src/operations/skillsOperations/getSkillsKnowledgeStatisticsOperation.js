@@ -24,11 +24,11 @@ var GetSkillsKnowledgeStatisticsOperation = (function (_super) {
     GetSkillsKnowledgeStatisticsOperation.prototype._calculateSkillsKnowledgeStatistics = function (teamsOfSkills, numberOfTeams) {
         var result = [];
         teamsOfSkills.forEach(function (_teamsOfSkill) {
-            var numberOKnowingTeams = _teamsOfSkill.teamsIds.length;
+            var numberOfnowingTeams = _teamsOfSkill.teamsIds.length;
             result.push({
                 skill: _teamsOfSkill.skill,
-                numberOfKnowingTeams: numberOKnowingTeams,
-                numberOfNotKnowingTeams: numberOfTeams - numberOKnowingTeams
+                numberOfKnowingTeams: numberOfnowingTeams,
+                numberOfNotKnowingTeams: numberOfTeams - numberOfnowingTeams
             });
         });
         return result;
