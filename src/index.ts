@@ -10,8 +10,10 @@ import * as https from 'https';
 import * as fs from 'fs';
 import * as passport from 'passport';
 import * as expressSession from 'express-session';
+import {SessionOptions} from 'express-session';
 import * as cookieParser from 'cookie-parser';
 import * as methodOverride from 'method-override';
+var PostgreSqlStore = require('connect-pg-simple')(expressSession);
 
 var expressControllers = require('express-controller');
 
@@ -30,9 +32,25 @@ function configureExpress(app: Express) {
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(methodOverride('X-HTTP-Method-Override'));
-  app.use(expressSession({ secret: EnvironmentConfig.getCurrentEnvironment().appConfig.secret, saveUninitialized: true, resave: true }));
+  configureSession(app);
   app.use(passport.initialize());
   app.use(passport.session());
+}
+
+function configureSession(aoo: Express) {
+
+  var postgreSqlStore = new PostgreSqlStore({
+    conString: EnvironmentConfig.getDbConnectionString()
+  });
+
+  var options: SessionOptions = {
+    secret: EnvironmentConfig.getCurrentEnvironment().appConfig.secret,
+    saveUninitialized: true,
+    resave: true,
+    store: postgreSqlStore
+  };
+
+  app.use(expressSession(options));
 }
 
 function configureSessionPersistedMessageMiddleware(app: Express) {

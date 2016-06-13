@@ -11,6 +11,7 @@ var passport = require('passport');
 var expressSession = require('express-session');
 var cookieParser = require('cookie-parser');
 var methodOverride = require('method-override');
+var PostgreSqlStore = require('connect-pg-simple')(expressSession);
 var expressControllers = require('express-controller');
 var currentFileDirectory = __dirname;
 var app = express();
@@ -25,9 +26,21 @@ function configureExpress(app) {
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
     app.use(methodOverride('X-HTTP-Method-Override'));
-    app.use(expressSession({ secret: EnvironmentConfig.getCurrentEnvironment().appConfig.secret, saveUninitialized: true, resave: true }));
+    configureSession(app);
     app.use(passport.initialize());
     app.use(passport.session());
+}
+function configureSession(aoo) {
+    var postgreSqlStore = new PostgreSqlStore({
+        conString: EnvironmentConfig.getDbConnectionString()
+    });
+    var options = {
+        secret: EnvironmentConfig.getCurrentEnvironment().appConfig.secret,
+        saveUninitialized: true,
+        resave: true,
+        store: postgreSqlStore
+    };
+    app.use(expressSession(options));
 }
 function configureSessionPersistedMessageMiddleware(app) {
     app.use(function (req, res, next) {
