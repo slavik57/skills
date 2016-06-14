@@ -4,3 +4,4 @@ todo:
 - add tests to the passport strategies
 - add ui tests?
 - add style (material)
+- use react?
