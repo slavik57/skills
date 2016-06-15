@@ -4,7 +4,7 @@ import {OperationBase} from "./operationBase";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import * as _ from 'lodash';
 
-export class ModifyUserPermissionsOperationBase extends OperationBase {
+export class ModifyUserPermissionsOperationBase<T> extends OperationBase<T> {
 
   constructor(private _userIdToModifyPermissionsOf: number,
     private _permissionsToModify: GlobalPermission[],

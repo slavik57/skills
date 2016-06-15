@@ -2,7 +2,7 @@ import {OperationBase} from "./operationBase";
 import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 
-export class AuthenticatedOperationBase extends OperationBase {
+export class AuthenticatedOperationBase<T> extends OperationBase<T> {
   constructor(private _executingUserId: number) {
     super();
   }

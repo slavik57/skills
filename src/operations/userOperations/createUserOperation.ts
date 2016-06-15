@@ -1,10 +1,11 @@
+import {User} from "../../models/user";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {OperationBase} from "../base/operationBase";
 import {IUserInfo} from "../../models/interfaces/iUserInfo";
 import * as passwordHash from 'password-hash';
 
-export class CreateUserOperation extends OperationBase {
+export class CreateUserOperation extends OperationBase<User> {
 
   constructor(private _username: string,
     private _password: string,
@@ -14,7 +15,7 @@ export class CreateUserOperation extends OperationBase {
     super();
   }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<User> {
     var readerPermissions = [GlobalPermission.READER];
 
     var userInfo: IUserInfo = {

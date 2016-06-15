@@ -1,6 +1,6 @@
 import {TeamOperationBase} from "./teamOperationBase";
 
-export class AddRemoveTeamSkillOperationBase extends TeamOperationBase {
+export class AddRemoveTeamSkillOperationBase<T> extends TeamOperationBase<T> {
 
   constructor(_teamId: number,
     _executingUserId: number) {

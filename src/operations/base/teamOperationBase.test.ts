@@ -13,7 +13,7 @@ import {TeamOperationBase} from './teamOperationBase';
 
 chai.use(chaiAsPromised);
 
-class TestTeamOperationBase extends TeamOperationBase {
+class TestTeamOperationBase extends TeamOperationBase<any> {
   public wasExecuted = false;
   public operationPermissionsToReturn: GlobalPermission[] = [];
   public isRegularTeamMemberAlowedToExecuteToReturn: boolean = false;
@@ -33,7 +33,7 @@ class TestTeamOperationBase extends TeamOperationBase {
 
   protected get isRegularTeamMemberAlowedToExecute(): boolean { return this.isRegularTeamMemberAlowedToExecuteToReturn; }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<any> {
     this.wasExecuted = true;
 
     if (this.executeOperationErrorToThrow) {

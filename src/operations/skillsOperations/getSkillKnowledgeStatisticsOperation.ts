@@ -4,13 +4,13 @@ import {ITeamOfASkill} from "../../models/interfaces/iTeamOfASkill";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {OperationBase} from "../base/operationBase";
 
-export class GetSkillKnowledgeStatisticsOperation extends OperationBase {
+export class GetSkillKnowledgeStatisticsOperation extends OperationBase<IKnowledgeStatistics> {
 
   constructor(private _skillId: number) {
     super();
   }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<IKnowledgeStatistics> {
     var numberOfTeamsPromise: Promise<number> =
       TeamsDataHandler.getNumberOfTeams();
 

@@ -85,6 +85,16 @@ describe('CreateUserOperation', function () {
                     chai_1.expect(passwordHash.verify(password, actualHashedPassword), 'the password should be hashed correctly').to.be.true;
                 });
             });
+            it('should return the new user', function () {
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.fulfilled
+                    .then(function (_user) {
+                    chai_1.expect(_user.attributes.username).to.be.equal(userInfo.username);
+                    chai_1.expect(_user.attributes.email).to.be.equal(userInfo.email);
+                    chai_1.expect(_user.attributes.firstName).to.be.equal(userInfo.firstName);
+                    chai_1.expect(_user.attributes.lastName).to.be.equal(userInfo.lastName);
+                });
+            });
         });
     });
 });

@@ -14,7 +14,7 @@ import * as _ from 'lodash';
 
 chai.use(chaiAsPromised);
 
-class TestModifyUserPermissionsOperationBase extends ModifyUserPermissionsOperationBase {
+class TestModifyUserPermissionsOperationBase extends ModifyUserPermissionsOperationBase<any> {
   public wasExecuted: boolean = false;
 
   constructor(userIdToAddPermissionsTo: number,
@@ -24,8 +24,10 @@ class TestModifyUserPermissionsOperationBase extends ModifyUserPermissionsOperat
     super(userIdToAddPermissionsTo, permissionsToModify, executingUserId);
   }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<any> {
     this.wasExecuted = true;
+
+    return null;
   }
 }
 

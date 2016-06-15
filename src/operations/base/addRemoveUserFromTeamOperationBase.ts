@@ -1,7 +1,7 @@
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {TeamOperationBase} from "./teamOperationBase";
 
-export class AddRemoveUserFromTeamOperationBase extends TeamOperationBase {
+export class AddRemoveUserFromTeamOperationBase<T> extends TeamOperationBase<T> {
 
   constructor(_teamId: number,
     _executingUserId: number) {

@@ -1,6 +1,6 @@
 import {IOperationExecutionError} from "../interfaces/iOperationExecutionError";
 
-export class OperationBase {
+export class OperationBase<T> {
 
   constructor() {
   }
@@ -9,18 +9,18 @@ export class OperationBase {
     return Promise.resolve();
   }
 
-  public execute(): Promise<any> {
+  public execute(): Promise<T> {
     return this.canExecute().then(
       () => this._doWorkSafe(),
       (_error) => this._failExecution(_error)
     );
   }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<T> {
     throw 'Override the doWork method with the operation execution';
   }
 
-  private _doWorkSafe(): void | Promise<any> {
+  private _doWorkSafe(): Promise<T> {
     try {
       return this.doWork();
     } catch (error) {

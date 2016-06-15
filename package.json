@@ -2,11 +2,12 @@
   "name": "skills",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "pretest": "set NODE_ENV=tests&& knex migrate:latest",
+    "pretest": "knex migrate:latest --env=tests",
     "test": "set NODE_ENV=tests&& mocha -c -b src/**/*.test.js",
-    "prestart": "set NODE_ENV=development&& knex migrate:latest"
+    "prestart": "knex migrate:latest --env=development",
+    "start": "set NODE_ENV=development&& node src/index.js"
   },
   "repository": {
     "type": "git",
@@ -24,7 +25,15 @@
     "sinon": "^1.17.4"
   },
   "dependencies": {
+    "body-parser": "^1.15.1",
     "bookshelf-cascade-delete": "^1.0.2",
+    "connect-pg-simple": "^3.1.0",
+    "cookie-parser": "^1.4.3",
+    "express-controller": "^0.2.9",
+    "express-session": "^1.13.0",
+    "method-override": "^2.3.6",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
     "password-hash": "^1.2.2"
   }
 }

@@ -7,7 +7,7 @@ interface IAllowedPermissionModificationMap {
   [key: number]: GlobalPermission[];
 }
 
-export class GetAllowedUserPermissionsToModifyOperation extends OperationBase {
+export class GetAllowedUserPermissionsToModifyOperation extends OperationBase<GlobalPermission[]> {
 
   private static _allowedPermissionModificationMap: IAllowedPermissionModificationMap;
 
@@ -15,7 +15,7 @@ export class GetAllowedUserPermissionsToModifyOperation extends OperationBase {
     super();
   }
 
-  protected doWork(): void | Promise<any> {
+  protected doWork(): Promise<GlobalPermission[]> {
     var userGlobalPermissionsPromise: Promise<GlobalPermission[]> =
       UserDataHandler.getUserGlobalPermissions(this._userId);
 

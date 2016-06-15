@@ -1,2 +1,7 @@
 todo:
-- UI in sails for node.js?
+- refactor all index.ts and test what needs to be tested (create an app.ts class that is initialized in the index.ts file and started)
+- add tests to the added controllers
+- add tests to the passport strategies
+- add ui tests?
+- add style (material)
+- use react?
