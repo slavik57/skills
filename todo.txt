@@ -2,6 +2,10 @@ todo:
 - refactor all index.ts and test what needs to be tested (create an app.ts class that is initialized in the index.ts file and started)
 - add tests to the added controllers
 - add tests to the passport strategies
+- setup travis: 
+	https://docs.travis-ci.com/user/languages/javascript-with-nodejs
+	https://docs.travis-ci.com/user/database-setup/
+- code coverage: https://coveralls.io/
 - add ui tests?
 - add style (material)
 - use react?
