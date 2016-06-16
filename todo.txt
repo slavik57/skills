@@ -1,4 +1,6 @@
 todo:
+- use webpack to load the js to the client
+- find a way to load css files
 - refactor all index.ts and test what needs to be tested (create an app.ts class that is initialized in the index.ts file and started)
 - add tests to the added controllers
 - add tests to the passport strategies
