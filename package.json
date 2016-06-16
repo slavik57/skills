@@ -34,6 +34,7 @@
     "method-override": "^2.3.6",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
-    "password-hash": "^1.2.2"
+    "password-hash": "^1.2.2",
+    "systemjs": "^0.19.31"
   }
 }
