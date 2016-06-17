@@ -20,6 +20,7 @@ var pathHelper_1 = require('../common/pathHelper');
 var path = require('path');
 var expressControllers = require('express-controller');
 var serverDirectory = pathHelper_1.PathHelper.getPathFromRoot('src', 'server');
+var appDirectory = pathHelper_1.PathHelper.getPathFromRoot('src', 'app');
 var app = express();
 configureExpress(app);
 configureSessionPersistedMessageMiddleware(app);
@@ -67,10 +68,10 @@ function configureSessionPersistedMessageMiddleware(app) {
 function configureExpressToUseHandleBarsTemplates(app) {
     var handlebars = expressHandlebars.create({
         defaultLayout: 'main',
-        layoutsDir: path.join(serverDirectory, 'views', 'layouts')
+        layoutsDir: path.join(appDirectory, 'views', 'layouts')
     });
     app.engine('handlebars', handlebars.engine);
-    app.set('views', path.join(serverDirectory, 'views'));
+    app.set('views', path.join(appDirectory, 'views'));
     app.set('view engine', 'handlebars');
 }
 function configureControllersForApp(app) {

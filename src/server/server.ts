@@ -24,6 +24,7 @@ import * as path from 'path';
 var expressControllers = require('express-controller');
 
 var serverDirectory = PathHelper.getPathFromRoot('src', 'server');
+var appDirectory = PathHelper.getPathFromRoot('src', 'app');
 
 var app: Express = express();
 configureExpress(app);
@@ -81,11 +82,11 @@ function configureSessionPersistedMessageMiddleware(app: Express) {
 function configureExpressToUseHandleBarsTemplates(app: Express) {
   var handlebars: Exphbs = expressHandlebars.create({
     defaultLayout: 'main',
-    layoutsDir: path.join(serverDirectory, 'views', 'layouts')
+    layoutsDir: path.join(appDirectory, 'views', 'layouts')
   });
 
   app.engine('handlebars', handlebars.engine);
-  app.set('views', path.join(serverDirectory, 'views'));
+  app.set('views', path.join(appDirectory, 'views'));
   app.set('view engine', 'handlebars');
 }
 
