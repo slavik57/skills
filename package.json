@@ -7,7 +7,7 @@
     "pretest": "knex migrate:latest --env=tests",
     "test": "set NODE_ENV=tests&& mocha -c -b src/**/*.test.js",
     "prestart": "knex migrate:latest --env=development",
-    "start": "set NODE_ENV=development&& node src/server.js"
+    "start": "set NODE_ENV=development&& node src/server/server.js"
   },
   "repository": {
     "type": "git",
