@@ -36,3 +36,4 @@ var GetSkillsKnowledgeStatisticsOperation = (function (_super) {
     return GetSkillsKnowledgeStatisticsOperation;
 }(operationBase_1.OperationBase));
 exports.GetSkillsKnowledgeStatisticsOperation = GetSkillsKnowledgeStatisticsOperation;
+//# sourceMappingURL=getSkillsKnowledgeStatisticsOperation.js.map

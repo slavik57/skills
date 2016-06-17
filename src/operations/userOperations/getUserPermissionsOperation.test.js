@@ -43,3 +43,4 @@ describe('GetUserPermissionsOperation', function () {
         });
     });
 });
+//# sourceMappingURL=getUserPermissionsOperation.test.js.map

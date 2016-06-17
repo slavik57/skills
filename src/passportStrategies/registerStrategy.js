@@ -31,3 +31,4 @@ var RegisterStrategy = (function () {
     return RegisterStrategy;
 }());
 exports.RegisterStrategy = RegisterStrategy;
+//# sourceMappingURL=registerStrategy.js.map

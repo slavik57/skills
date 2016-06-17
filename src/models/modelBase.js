@@ -23,3 +23,4 @@ var ModelBase = (function (_super) {
     return ModelBase;
 }(bookshelf_1.bookshelf.Model));
 exports.ModelBase = ModelBase;
+//# sourceMappingURL=modelBase.js.map

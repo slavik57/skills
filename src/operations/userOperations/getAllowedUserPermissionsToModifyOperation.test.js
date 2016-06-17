@@ -68,3 +68,4 @@ describe('GetAllowedUserPermissionsToModifyOperation', function () {
         });
     });
 });
+//# sourceMappingURL=getAllowedUserPermissionsToModifyOperation.test.js.map

@@ -57,3 +57,4 @@ var AuthenticatedOperationBase = (function (_super) {
     return AuthenticatedOperationBase;
 }(operationBase_1.OperationBase));
 exports.AuthenticatedOperationBase = AuthenticatedOperationBase;
+//# sourceMappingURL=authenticatedOperationBase.js.map

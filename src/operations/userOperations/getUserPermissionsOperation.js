@@ -18,3 +18,4 @@ var GetUserPermissionsOperation = (function (_super) {
     return GetUserPermissionsOperation;
 }(operationBase_1.OperationBase));
 exports.GetUserPermissionsOperation = GetUserPermissionsOperation;
+//# sourceMappingURL=getUserPermissionsOperation.js.map

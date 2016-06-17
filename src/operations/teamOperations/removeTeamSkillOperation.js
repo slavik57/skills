@@ -18,3 +18,4 @@ var RemoveTeamSkillOperation = (function (_super) {
     return RemoveTeamSkillOperation;
 }(addRemoveTeamSkillOperationBase_1.AddRemoveTeamSkillOperationBase));
 exports.RemoveTeamSkillOperation = RemoveTeamSkillOperation;
+//# sourceMappingURL=removeTeamSkillOperation.js.map

@@ -18,3 +18,4 @@ var AddSkillOperation = (function (_super) {
     return AddSkillOperation;
 }(skillOperationBase_1.SkillOperationBase));
 exports.AddSkillOperation = AddSkillOperation;
+//# sourceMappingURL=addSkillOperation.js.map

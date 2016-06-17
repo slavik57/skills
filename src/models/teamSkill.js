@@ -95,3 +95,4 @@ var TeamSkills = (function (_super) {
     return TeamSkills;
 }(bookshelf_1.bookshelf.Collection));
 exports.TeamSkills = TeamSkills;
+//# sourceMappingURL=teamSkill.js.map

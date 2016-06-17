@@ -89,3 +89,4 @@ var SkillsDataHandler = (function () {
     return SkillsDataHandler;
 }());
 exports.SkillsDataHandler = SkillsDataHandler;
+//# sourceMappingURL=skillsDataHandler.js.map

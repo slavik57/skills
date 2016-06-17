@@ -35,3 +35,4 @@ var CreateUserOperation = (function (_super) {
     return CreateUserOperation;
 }(operationBase_1.OperationBase));
 exports.CreateUserOperation = CreateUserOperation;
+//# sourceMappingURL=createUserOperation.js.map

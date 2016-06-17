@@ -24,3 +24,4 @@ var AddUserToTeamOperation = (function (_super) {
     return AddUserToTeamOperation;
 }(addRemoveUserFromTeamOperationBase_1.AddRemoveUserFromTeamOperationBase));
 exports.AddUserToTeamOperation = AddUserToTeamOperation;
+//# sourceMappingURL=addUserToTeamOperation.js.map

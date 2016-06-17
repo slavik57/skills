@@ -362,3 +362,4 @@ describe('UpdateUserTeamAdminRightsOperation', function () {
         });
     });
 });
+//# sourceMappingURL=removeUserFromTeamOperation.test.js.map

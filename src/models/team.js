@@ -149,3 +149,4 @@ var Teams = (function (_super) {
     return Teams;
 }(bookshelf_1.bookshelf.Collection));
 exports.Teams = Teams;
+//# sourceMappingURL=team.js.map

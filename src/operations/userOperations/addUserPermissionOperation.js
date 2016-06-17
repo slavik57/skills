@@ -19,3 +19,4 @@ var AddUserPermissionOperation = (function (_super) {
     return AddUserPermissionOperation;
 }(modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase));
 exports.AddUserPermissionOperation = AddUserPermissionOperation;
+//# sourceMappingURL=addUserPermissionOperation.js.map

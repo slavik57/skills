@@ -1,8 +1,17 @@
 .git
 index.js
+index.js.map
 environment.js
+environment.js.map
 knexfile.js
+knexfile.js.map
 bookshelf.js
+bookshelf.js.map
 src/*/*/*.js
+src/*/*/*.js.map
 src/*/*.js
+src/*/*.js.map
 src/*.js
+src/*.js.map
+webpack.configs/*.js
+webpack.configs/*.js.map

@@ -62,3 +62,4 @@ var SkillPrerequisites = (function (_super) {
     return SkillPrerequisites;
 }(bookshelf_1.bookshelf.Collection));
 exports.SkillPrerequisites = SkillPrerequisites;
+//# sourceMappingURL=skillPrerequisite.js.map

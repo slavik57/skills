@@ -385,3 +385,4 @@ describe('AddUserPermissionOperation', function () {
         });
     });
 });
+//# sourceMappingURL=addUserPermissionOperation.test.js.map

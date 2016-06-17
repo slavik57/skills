@@ -26,3 +26,4 @@ var RemoveTeamOperation = (function (_super) {
     return RemoveTeamOperation;
 }(authenticatedOperationBase_1.AuthenticatedOperationBase));
 exports.RemoveTeamOperation = RemoveTeamOperation;
+//# sourceMappingURL=removeTeamOperation.js.map

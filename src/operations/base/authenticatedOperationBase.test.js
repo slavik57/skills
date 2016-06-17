@@ -268,3 +268,4 @@ describe('AuthenticatedOperationBase', function () {
         });
     });
 });
+//# sourceMappingURL=authenticatedOperationBase.test.js.map

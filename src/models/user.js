@@ -124,3 +124,4 @@ var Users = (function (_super) {
     return Users;
 }(bookshelf_1.bookshelf.Collection));
 exports.Users = Users;
+//# sourceMappingURL=user.js.map

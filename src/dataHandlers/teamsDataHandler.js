@@ -115,3 +115,4 @@ var TeamsDataHandler = (function () {
     return TeamsDataHandler;
 }());
 exports.TeamsDataHandler = TeamsDataHandler;
+//# sourceMappingURL=teamsDataHandler.js.map

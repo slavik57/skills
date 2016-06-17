@@ -19,3 +19,4 @@ var RemoveUserPermissionOperation = (function (_super) {
     return RemoveUserPermissionOperation;
 }(modifyUserPermissionsOperationBase_1.ModifyUserPermissionsOperationBase));
 exports.RemoveUserPermissionOperation = RemoveUserPermissionOperation;
+//# sourceMappingURL=removeUserPermissionOperation.js.map

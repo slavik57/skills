@@ -55,3 +55,4 @@ var TeamOperationBase = (function (_super) {
     return TeamOperationBase;
 }(authenticatedOperationBase_1.AuthenticatedOperationBase));
 exports.TeamOperationBase = TeamOperationBase;
+//# sourceMappingURL=teamOperationBase.js.map

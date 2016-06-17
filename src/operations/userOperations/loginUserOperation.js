@@ -40,3 +40,4 @@ var LoginUserOperation = (function (_super) {
     return LoginUserOperation;
 }(operationBase_1.OperationBase));
 exports.LoginUserOperation = LoginUserOperation;
+//# sourceMappingURL=loginUserOperation.js.map

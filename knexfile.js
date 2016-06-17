@@ -39,3 +39,4 @@ var config = {
     }
 };
 module.exports = config;
+//# sourceMappingURL=knexfile.js.map

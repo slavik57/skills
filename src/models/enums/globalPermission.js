@@ -7,3 +7,4 @@
     GlobalPermission[GlobalPermission['GUEST'] = 4] = 'GUEST';
 })(exports.GlobalPermission || (exports.GlobalPermission = {}));
 var GlobalPermission = exports.GlobalPermission;
+//# sourceMappingURL=globalPermission.js.map

@@ -31,12 +31,16 @@
     "cookie-parser": "^1.4.3",
     "express-controller": "^0.2.9",
     "express-session": "^1.13.0",
+    "extract-text-webpack-plugin": "^1.0.1",
     "method-override": "^2.3.6",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "password-hash": "^1.2.2",
+    "ts-loader": "^0.8.2",
+    "typescript": "^1.8.10",
     "webpack": "^1.13.1",
     "webpack-dev-middleware": "^1.6.1",
-    "webpack-hot-middleware": "^2.10.0"
+    "webpack-hot-middleware": "^2.10.0",
+    "webpack-merge": "^0.14.0"
   }
 }

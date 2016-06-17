@@ -63,3 +63,4 @@ describe('GetSkillKnowledgeStatisticsOperation', function () {
         });
     });
 });
+//# sourceMappingURL=getSkillKnowledgeStatisticsOperation.test.js.map

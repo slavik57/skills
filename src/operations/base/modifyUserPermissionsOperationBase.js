@@ -42,3 +42,4 @@ var ModifyUserPermissionsOperationBase = (function (_super) {
     return ModifyUserPermissionsOperationBase;
 }(operationBase_1.OperationBase));
 exports.ModifyUserPermissionsOperationBase = ModifyUserPermissionsOperationBase;
+//# sourceMappingURL=modifyUserPermissionsOperationBase.js.map

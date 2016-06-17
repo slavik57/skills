@@ -294,3 +294,4 @@ describe('UpdateUserTeamAdminRightsOperation', function () {
         });
     });
 });
+//# sourceMappingURL=updateUserTeamAdminRightsOperation.test.js.map

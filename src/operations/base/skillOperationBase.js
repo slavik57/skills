@@ -21,3 +21,4 @@ var SkillOperationBase = (function (_super) {
     return SkillOperationBase;
 }(authenticatedOperationBase_1.AuthenticatedOperationBase));
 exports.SkillOperationBase = SkillOperationBase;
+//# sourceMappingURL=skillOperationBase.js.map

@@ -409,3 +409,4 @@ describe('RemoveUserPermissionOperation', function () {
         });
     });
 });
+//# sourceMappingURL=removeUserPermissionOperation.test.js.map

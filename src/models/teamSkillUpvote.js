@@ -44,3 +44,4 @@ var TeamSkillUpvotes = (function (_super) {
     return TeamSkillUpvotes;
 }(bookshelf_1.bookshelf.Collection));
 exports.TeamSkillUpvotes = TeamSkillUpvotes;
+//# sourceMappingURL=teamSkillUpvote.js.map

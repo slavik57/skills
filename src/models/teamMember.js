@@ -64,3 +64,4 @@ var TeamMembers = (function (_super) {
     return TeamMembers;
 }(bookshelf_1.bookshelf.Collection));
 exports.TeamMembers = TeamMembers;
+//# sourceMappingURL=teamMember.js.map

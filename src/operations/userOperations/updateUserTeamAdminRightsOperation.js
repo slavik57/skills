@@ -30,3 +30,4 @@ var UpdateUserTeamAdminRightsOperation = (function (_super) {
     return UpdateUserTeamAdminRightsOperation;
 }(teamOperationBase_1.TeamOperationBase));
 exports.UpdateUserTeamAdminRightsOperation = UpdateUserTeamAdminRightsOperation;
+//# sourceMappingURL=updateUserTeamAdminRightsOperation.js.map

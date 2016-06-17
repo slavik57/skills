@@ -266,3 +266,4 @@ describe('ModifyUserPermissionsOperationBase', function () {
         });
     });
 });
+//# sourceMappingURL=modifyUserPermissionsOperationBase.test.js.map

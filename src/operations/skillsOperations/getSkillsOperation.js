@@ -17,3 +17,4 @@ var GetSkillsOperation = (function (_super) {
     return GetSkillsOperation;
 }(operationBase_1.OperationBase));
 exports.GetSkillsOperation = GetSkillsOperation;
+//# sourceMappingURL=getSkillsOperation.js.map

@@ -39,3 +39,4 @@ var UsersGlobalPermissions = (function (_super) {
     return UsersGlobalPermissions;
 }(bookshelf_1.bookshelf.Collection));
 exports.UsersGlobalPermissions = UsersGlobalPermissions;
+//# sourceMappingURL=usersGlobalPermissions.js.map

@@ -14,7 +14,7 @@ import {SessionOptions} from 'express-session';
 import * as cookieParser from 'cookie-parser';
 import * as methodOverride from 'method-override';
 var PostgreSqlStore = require('connect-pg-simple')(expressSession);
-import {webpackConfiguration} from '../webpack.config';
+import {webpackConfig} from '../webpack.configs/webpack.config';
 import * as webpack from 'webpack';
 const webpackMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
@@ -149,11 +149,11 @@ function serverIsUpCallback(serverAddress: { address: string, port: number }) {
 }
 
 function configureWebpack(app: Express) {
-  var compiler = webpack(webpackConfiguration);
+  var compiler = webpack(webpackConfig);
 
   const middleware = webpackMiddleware(compiler, {
-    publicPath: webpackConfiguration.output.publicPath,
-    contentBase: 'src',
+    publicPath: webpackConfig.output.publicPath,
+    contentBase: 'src/app',
     stats: {
       colors: true,
       hash: false,

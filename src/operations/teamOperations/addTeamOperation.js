@@ -26,3 +26,4 @@ var AddTeamOperation = (function (_super) {
     return AddTeamOperation;
 }(authenticatedOperationBase_1.AuthenticatedOperationBase));
 exports.AddTeamOperation = AddTeamOperation;
+//# sourceMappingURL=addTeamOperation.js.map

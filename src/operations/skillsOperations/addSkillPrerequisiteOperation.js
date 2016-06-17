@@ -23,3 +23,4 @@ var AddSkillPrerequisiteOperation = (function (_super) {
     return AddSkillPrerequisiteOperation;
 }(skillOperationBase_1.SkillOperationBase));
 exports.AddSkillPrerequisiteOperation = AddSkillPrerequisiteOperation;
+//# sourceMappingURL=addSkillPrerequisiteOperation.js.map

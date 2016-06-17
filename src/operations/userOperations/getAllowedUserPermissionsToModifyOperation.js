@@ -53,3 +53,4 @@ var GetAllowedUserPermissionsToModifyOperation = (function (_super) {
     return GetAllowedUserPermissionsToModifyOperation;
 }(operationBase_1.OperationBase));
 exports.GetAllowedUserPermissionsToModifyOperation = GetAllowedUserPermissionsToModifyOperation;
+//# sourceMappingURL=getAllowedUserPermissionsToModifyOperation.js.map

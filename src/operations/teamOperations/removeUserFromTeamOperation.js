@@ -18,3 +18,4 @@ var RemoveUserFromTeamOperation = (function (_super) {
     return RemoveUserFromTeamOperation;
 }(addRemoveUserFromTeamOperationBase_1.AddRemoveUserFromTeamOperationBase));
 exports.RemoveUserFromTeamOperation = RemoveUserFromTeamOperation;
+//# sourceMappingURL=removeUserFromTeamOperation.js.map

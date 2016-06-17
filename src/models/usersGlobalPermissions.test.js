@@ -132,3 +132,4 @@ describe('UsersGlobalPermissions', function () {
         });
     });
 });
+//# sourceMappingURL=usersGlobalPermissions.test.js.map

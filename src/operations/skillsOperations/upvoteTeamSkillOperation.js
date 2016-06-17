@@ -44,3 +44,4 @@ var UpvoteTeamSkillOperation = (function (_super) {
     return UpvoteTeamSkillOperation;
 }(authenticatedOperationBase_1.AuthenticatedOperationBase));
 exports.UpvoteTeamSkillOperation = UpvoteTeamSkillOperation;
+//# sourceMappingURL=upvoteTeamSkillOperation.js.map

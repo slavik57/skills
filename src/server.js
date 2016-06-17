@@ -12,7 +12,7 @@ var expressSession = require('express-session');
 var cookieParser = require('cookie-parser');
 var methodOverride = require('method-override');
 var PostgreSqlStore = require('connect-pg-simple')(expressSession);
-var webpack_config_1 = require('../webpack.config');
+var webpack_config_1 = require('../webpack.configs/webpack.config');
 var webpack = require('webpack');
 var webpackMiddleware = require('webpack-dev-middleware');
 var webpackHotMiddleware = require('webpack-hot-middleware');
@@ -117,10 +117,10 @@ function serverIsUpCallback(serverAddress) {
     console.log("App listening at host: %s and port: %s", host, port);
 }
 function configureWebpack(app) {
-    var compiler = webpack(webpack_config_1.webpackConfiguration);
+    var compiler = webpack(webpack_config_1.webpackConfig);
     var middleware = webpackMiddleware(compiler, {
-        publicPath: webpack_config_1.webpackConfiguration.output.publicPath,
-        contentBase: 'src',
+        publicPath: webpack_config_1.webpackConfig.output.publicPath,
+        contentBase: 'src/app',
         stats: {
             colors: true,
             hash: false,
@@ -133,3 +133,4 @@ function configureWebpack(app) {
     app.use(middleware);
     app.use(webpackHotMiddleware(compiler));
 }
+//# sourceMappingURL=server.js.map

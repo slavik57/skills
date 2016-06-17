@@ -18,3 +18,4 @@ var RemoveSkillOperation = (function (_super) {
     return RemoveSkillOperation;
 }(skillOperationBase_1.SkillOperationBase));
 exports.RemoveSkillOperation = RemoveSkillOperation;
+//# sourceMappingURL=removeSkillOperation.js.map

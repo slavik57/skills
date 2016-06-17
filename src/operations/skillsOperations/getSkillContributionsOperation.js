@@ -18,3 +18,4 @@ var GetSkillContributionsOperation = (function (_super) {
     return GetSkillContributionsOperation;
 }(operationBase_1.OperationBase));
 exports.GetSkillContributionsOperation = GetSkillContributionsOperation;
+//# sourceMappingURL=getSkillContributionsOperation.js.map

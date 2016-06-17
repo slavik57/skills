@@ -173,3 +173,4 @@ var Skills = (function (_super) {
     return Skills;
 }(bookshelf_1.bookshelf.Collection));
 exports.Skills = Skills;
+//# sourceMappingURL=skill.js.map

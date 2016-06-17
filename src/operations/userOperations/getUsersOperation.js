@@ -17,3 +17,4 @@ var GetUsersOperation = (function (_super) {
     return GetUsersOperation;
 }(operationBase_1.OperationBase));
 exports.GetUsersOperation = GetUsersOperation;
+//# sourceMappingURL=getUsersOperation.js.map

@@ -240,3 +240,4 @@ describe('DownvoteTeamSkillOperation', function () {
         });
     });
 });
+//# sourceMappingURL=downvoteTeamSkillOperation.test.js.map

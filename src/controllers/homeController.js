@@ -4,3 +4,4 @@ module.exports = {
         response.render('home', { user: request.user });
     }
 };
+//# sourceMappingURL=homeController.js.map

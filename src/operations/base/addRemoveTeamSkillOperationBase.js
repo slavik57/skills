@@ -20,3 +20,4 @@ var AddRemoveTeamSkillOperationBase = (function (_super) {
     return AddRemoveTeamSkillOperationBase;
 }(teamOperationBase_1.TeamOperationBase));
 exports.AddRemoveTeamSkillOperationBase = AddRemoveTeamSkillOperationBase;
+//# sourceMappingURL=addRemoveTeamSkillOperationBase.js.map

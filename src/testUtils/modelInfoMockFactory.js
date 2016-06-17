@@ -50,3 +50,4 @@ var ModelInfoMockFactory = (function () {
     return ModelInfoMockFactory;
 }());
 exports.ModelInfoMockFactory = ModelInfoMockFactory;
+//# sourceMappingURL=modelInfoMockFactory.js.map

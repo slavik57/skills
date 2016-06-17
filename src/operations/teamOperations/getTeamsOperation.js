@@ -17,3 +17,4 @@ var GetTeamsOperation = (function (_super) {
     return GetTeamsOperation;
 }(operationBase_1.OperationBase));
 exports.GetTeamsOperation = GetTeamsOperation;
+//# sourceMappingURL=getTeamsOperation.js.map

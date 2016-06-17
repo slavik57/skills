@@ -139,3 +139,4 @@ var UserDataHandler = (function () {
     return UserDataHandler;
 }());
 exports.UserDataHandler = UserDataHandler;
+//# sourceMappingURL=userDataHandler.js.map

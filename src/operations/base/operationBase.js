@@ -29,3 +29,4 @@ var OperationBase = (function () {
     return OperationBase;
 }());
 exports.OperationBase = OperationBase;
+//# sourceMappingURL=operationBase.js.map

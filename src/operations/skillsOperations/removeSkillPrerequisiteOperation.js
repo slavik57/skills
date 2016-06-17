@@ -19,3 +19,4 @@ var RemoveSkillPrerequisiteOperation = (function (_super) {
     return RemoveSkillPrerequisiteOperation;
 }(skillOperationBase_1.SkillOperationBase));
 exports.RemoveSkillPrerequisiteOperation = RemoveSkillPrerequisiteOperation;
+//# sourceMappingURL=removeSkillPrerequisiteOperation.js.map
