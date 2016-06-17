@@ -3,7 +3,6 @@ import {RegisterStrategy} from "./passportStrategies/registerStrategy";
 import {LoginStrategy} from "./passportStrategies/loginStrategy";
 import {LogoutStrategy} from "./passportStrategies/logoutStrategy";
 import * as express from 'express';
-import * as expressHandlebars from 'express-handlebars';
 import {Express, Response} from 'express';
 import * as bodyParser from 'body-parser';
 import * as EnvironmentConfig from "../../environment";
@@ -30,7 +29,6 @@ var appDirectory = PathHelper.getPathFromRoot('src', 'app');
 var app: Express = express();
 configureExpress(app);
 configureSessionPersistedMessageMiddleware(app);
-configureExpressToUseHandleBarsTemplates(app);
 configureControllersForApp(app);
 configurePassportLoginStrategies(app);
 configureWebpack(app);
@@ -78,17 +76,6 @@ function configureSessionPersistedMessageMiddleware(app: Express) {
 
     next();
   });
-}
-
-function configureExpressToUseHandleBarsTemplates(app: Express) {
-  var handlebars: Exphbs = expressHandlebars.create({
-    defaultLayout: 'main',
-    layoutsDir: path.join(appDirectory, 'views', 'layouts')
-  });
-
-  app.engine('handlebars', handlebars.engine);
-  app.set('views', path.join(appDirectory, 'views'));
-  app.set('view engine', 'handlebars');
 }
 
 function configureControllersForApp(app: Express) {

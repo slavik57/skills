@@ -3,7 +3,6 @@ var registerStrategy_1 = require("./passportStrategies/registerStrategy");
 var loginStrategy_1 = require("./passportStrategies/loginStrategy");
 var logoutStrategy_1 = require("./passportStrategies/logoutStrategy");
 var express = require('express');
-var expressHandlebars = require('express-handlebars');
 var bodyParser = require('body-parser');
 var EnvironmentConfig = require("../../environment");
 var https = require('https');
@@ -25,7 +24,6 @@ var appDirectory = pathHelper_1.PathHelper.getPathFromRoot('src', 'app');
 var app = express();
 configureExpress(app);
 configureSessionPersistedMessageMiddleware(app);
-configureExpressToUseHandleBarsTemplates(app);
 configureControllersForApp(app);
 configurePassportLoginStrategies(app);
 configureWebpack(app);
@@ -65,15 +63,6 @@ function configureSessionPersistedMessageMiddleware(app) {
             res.locals.success = success;
         next();
     });
-}
-function configureExpressToUseHandleBarsTemplates(app) {
-    var handlebars = expressHandlebars.create({
-        defaultLayout: 'main',
-        layoutsDir: path.join(appDirectory, 'views', 'layouts')
-    });
-    app.engine('handlebars', handlebars.engine);
-    app.set('views', path.join(appDirectory, 'views'));
-    app.set('view engine', 'handlebars');
 }
 function configureControllersForApp(app) {
     expressControllers.setDirectory(path.join(serverDirectory, 'controllers'))
