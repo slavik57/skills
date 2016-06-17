@@ -14,7 +14,7 @@ import {SessionOptions} from 'express-session';
 import * as cookieParser from 'cookie-parser';
 import * as methodOverride from 'method-override';
 var PostgreSqlStore = require('connect-pg-simple')(expressSession);
-import {webpackConfig} from '../../webpack.configs/webpack.config';
+import {webpackConfig} from './webpack.configs/webpack.config';
 import * as webpack from 'webpack';
 const webpackMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
