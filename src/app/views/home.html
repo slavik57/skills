@@ -16,7 +16,25 @@
 
       <p>
         <strong>Hi,</strong>
-        {{user.username}}
+        <span id="id01"></span>
+        <script>
+var xmlhttp = new XMLHttpRequest();
+var url = "/user";
+
+xmlhttp.onreadystatechange = function() {
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        var myArr = JSON.parse(xmlhttp.responseText);
+        myFunction(myArr);
+    }
+};
+xmlhttp.open("GET", url, true);
+xmlhttp.send();
+
+function myFunction(arr) {
+    document.getElementById("id01").innerHTML = JSON.stringify(arr);
+}
+</script>
+
       </p>
       <a href="/logout">Log Out</a>
 
