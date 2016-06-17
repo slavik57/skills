@@ -14,6 +14,10 @@ import {SessionOptions} from 'express-session';
 import * as cookieParser from 'cookie-parser';
 import * as methodOverride from 'method-override';
 var PostgreSqlStore = require('connect-pg-simple')(expressSession);
+import {webpackConfiguration} from '../webpack.config';
+import * as webpack from 'webpack';
+const webpackMiddleware = require('webpack-dev-middleware');
+const webpackHotMiddleware = require('webpack-hot-middleware');
 
 var expressControllers = require('express-controller');
 
@@ -25,6 +29,7 @@ configureSessionPersistedMessageMiddleware(app);
 configureExpressToUseHandleBarsTemplates(app);
 configureControllersForApp(app);
 configurePassportLoginStrategies(app);
+configureWebpack(app);
 startApplication(app);
 
 function configureExpress(app: Express) {
@@ -116,6 +121,10 @@ function configurePassportLoginStrategies(app: Express) {
 }
 
 function ensureAuthenticated(req: ISessionRequest, res: Response, next) {
+  if (req.path.indexOf('/dist/') === 0) {
+    return next();
+  }
+
   if (!req.isAuthenticated() && req.path === '/signin') {
     return next();
   }
@@ -137,4 +146,28 @@ function serverIsUpCallback(serverAddress: { address: string, port: number }) {
   var host = serverAddress.address;
   var port = serverAddress.port;
   console.log("App listening at host: %s and port: %s", host, port);
+}
+
+function configureWebpack(app: Express) {
+  var compiler = webpack(webpackConfiguration);
+
+  const middleware = webpackMiddleware(compiler, {
+    publicPath: webpackConfiguration.output.publicPath,
+    contentBase: 'src',
+    stats: {
+      colors: true,
+      hash: false,
+      timings: true,
+      chunks: false,
+      chunkModules: false,
+      modules: false
+    }
+  });
+
+  app.use(middleware);
+  app.use(webpackHotMiddleware(compiler));
+  //
+  // app.get('/src/*', function response(req, res) {
+  //   console.log(111);
+  // });
 }
