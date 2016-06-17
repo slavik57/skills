@@ -2,7 +2,7 @@
 var webpackMerge = require('webpack-merge');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var webpack_common_config_1 = require('./webpack.common.config');
-var pathHelper_1 = require('../src/common/pathHelper');
+var pathHelper_1 = require('../../common/pathHelper');
 var config = {
     devtool: 'source-map',
     output: {

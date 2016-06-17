@@ -1,4 +1,4 @@
-import * as environmentConfiguration from '../environment';
+import * as environmentConfiguration from '../../../environment';
 import {webpackDevConfig} from './webpack.dev.config';
 import {webpackProductionConfig} from './webpack.production.config';
 import {Configuration} from 'webpack';

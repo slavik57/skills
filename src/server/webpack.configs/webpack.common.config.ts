@@ -1,7 +1,7 @@
 import * as webpack from 'webpack';
 import {Configuration} from 'webpack';
 import * as path from 'path';
-import {PathHelper} from '../src/common/pathHelper';
+import {PathHelper} from '../../common/pathHelper';
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 export var webpackCommonConfiguration: Configuration = {

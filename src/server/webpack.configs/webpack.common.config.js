@@ -1,6 +1,6 @@
 "use strict";
 var webpack = require('webpack');
-var pathHelper_1 = require('../src/common/pathHelper');
+var pathHelper_1 = require('../../common/pathHelper');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 exports.webpackCommonConfiguration = {
     entry: {

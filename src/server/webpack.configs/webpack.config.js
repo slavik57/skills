@@ -1,5 +1,5 @@
 "use strict";
-var environmentConfiguration = require('../environment');
+var environmentConfiguration = require('../../../environment');
 var webpack_dev_config_1 = require('./webpack.dev.config');
 var webpack_production_config_1 = require('./webpack.production.config');
 var config;
