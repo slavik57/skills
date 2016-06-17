@@ -18,10 +18,12 @@ import {webpackConfig} from '../../webpack.configs/webpack.config';
 import * as webpack from 'webpack';
 const webpackMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
+import {PathHelper} from '../common/pathHelper';
+import * as path from 'path';
 
 var expressControllers = require('express-controller');
 
-var currentFileDirectory = __dirname;
+var serverDirectory = PathHelper.getPathFromRoot('src', 'server');
 
 var app: Express = express();
 configureExpress(app);
@@ -79,16 +81,16 @@ function configureSessionPersistedMessageMiddleware(app: Express) {
 function configureExpressToUseHandleBarsTemplates(app: Express) {
   var handlebars: Exphbs = expressHandlebars.create({
     defaultLayout: 'main',
-    layoutsDir: currentFileDirectory + '/views/layouts'
+    layoutsDir: path.join(serverDirectory, 'views', 'layouts')
   });
 
   app.engine('handlebars', handlebars.engine);
-  app.set('views', currentFileDirectory + '/views');
+  app.set('views', path.join(serverDirectory, 'views'));
   app.set('view engine', 'handlebars');
 }
 
 function configureControllersForApp(app: Express) {
-  expressControllers.setDirectory(currentFileDirectory + '/controllers')
+  expressControllers.setDirectory(path.join(serverDirectory, 'controllers'))
     .bind(app);
 }
 
@@ -102,8 +104,8 @@ function startApplication(app: Express) {
   var certificateFilePath = EnvironmentConfig.getCurrentEnvironment().appConfig.certificate.certificateFilePath;
 
   var options = {
-    key: fs.readFileSync(currentFileDirectory + '/..' + certificateKeyPath),
-    cert: fs.readFileSync(currentFileDirectory + '/..' + certificateFilePath),
+    key: fs.readFileSync(certificateKeyPath),
+    cert: fs.readFileSync(certificateFilePath),
   };
 
   var server = https.createServer(options, app)

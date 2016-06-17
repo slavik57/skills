@@ -1,7 +1,7 @@
 import * as webpack from 'webpack';
 import {Configuration} from 'webpack';
 import * as path from 'path';
-import {PathHelper} from './pathHelper';
+import {PathHelper} from '../src/common/pathHelper';
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 export var webpackCommonConfiguration: Configuration = {
@@ -28,12 +28,12 @@ export var webpackCommonConfiguration: Configuration = {
       },
       {
         test: /\.css$/,
-        exclude: PathHelper.getFullPathCombined('src', 'app'),
+        exclude: PathHelper.getPathFromRoot('src', 'app'),
         loader: ExtractTextPlugin.extract('style', 'css?sourceMap')
       },
       {
         test: /\.css$/,
-        include: PathHelper.getFullPathCombined('src', 'app'),
+        include: PathHelper.getPathFromRoot('src', 'app'),
         loader: 'raw'
       }
     ]

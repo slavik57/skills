@@ -1,6 +1,6 @@
 "use strict";
 var webpack = require('webpack');
-var pathHelper_1 = require('./pathHelper');
+var pathHelper_1 = require('../src/common/pathHelper');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 exports.webpackCommonConfiguration = {
     entry: {
@@ -26,12 +26,12 @@ exports.webpackCommonConfiguration = {
             },
             {
                 test: /\.css$/,
-                exclude: pathHelper_1.PathHelper.getFullPathCombined('src', 'app'),
+                exclude: pathHelper_1.PathHelper.getPathFromRoot('src', 'app'),
                 loader: ExtractTextPlugin.extract('style', 'css?sourceMap')
             },
             {
                 test: /\.css$/,
-                include: pathHelper_1.PathHelper.getFullPathCombined('src', 'app'),
+                include: pathHelper_1.PathHelper.getPathFromRoot('src', 'app'),
                 loader: 'raw'
             }
         ]

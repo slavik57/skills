@@ -16,8 +16,10 @@ var webpack_config_1 = require('../../webpack.configs/webpack.config');
 var webpack = require('webpack');
 var webpackMiddleware = require('webpack-dev-middleware');
 var webpackHotMiddleware = require('webpack-hot-middleware');
+var pathHelper_1 = require('../common/pathHelper');
+var path = require('path');
 var expressControllers = require('express-controller');
-var currentFileDirectory = __dirname;
+var serverDirectory = pathHelper_1.PathHelper.getPathFromRoot('src', 'server');
 var app = express();
 configureExpress(app);
 configureSessionPersistedMessageMiddleware(app);
@@ -65,14 +67,14 @@ function configureSessionPersistedMessageMiddleware(app) {
 function configureExpressToUseHandleBarsTemplates(app) {
     var handlebars = expressHandlebars.create({
         defaultLayout: 'main',
-        layoutsDir: currentFileDirectory + '/views/layouts'
+        layoutsDir: path.join(serverDirectory, 'views', 'layouts')
     });
     app.engine('handlebars', handlebars.engine);
-    app.set('views', currentFileDirectory + '/views');
+    app.set('views', path.join(serverDirectory, 'views'));
     app.set('view engine', 'handlebars');
 }
 function configureControllersForApp(app) {
-    expressControllers.setDirectory(currentFileDirectory + '/controllers')
+    expressControllers.setDirectory(path.join(serverDirectory, 'controllers'))
         .bind(app);
 }
 function startApplication(app) {
@@ -81,8 +83,8 @@ function startApplication(app) {
     var certificateKeyPath = EnvironmentConfig.getCurrentEnvironment().appConfig.certificate.keyFilePath;
     var certificateFilePath = EnvironmentConfig.getCurrentEnvironment().appConfig.certificate.certificateFilePath;
     var options = {
-        key: fs.readFileSync(currentFileDirectory + '/..' + certificateKeyPath),
-        cert: fs.readFileSync(currentFileDirectory + '/..' + certificateFilePath),
+        key: fs.readFileSync(certificateKeyPath),
+        cert: fs.readFileSync(certificateFilePath),
     };
     var server = https.createServer(options, app)
         .listen(port, hostName, function () { return serverIsUpCallback(server.address()); });
