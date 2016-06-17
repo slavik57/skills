@@ -34,13 +34,7 @@ var TeamsDataHandler = (function () {
         var query = {};
         query[teamSkill_1.TeamSkill.teamIdAttribute] = teamId;
         query[teamSkill_1.TeamSkill.skillIdAttribute] = skillId;
-        return new teamSkill_1.TeamSkill().where(query).fetch()
-            .then(function (_teamSkill) {
-            if (!_teamSkill) {
-                return Promise.resolve(null);
-            }
-            return _teamSkill.destroy();
-        });
+        return new teamSkill_1.TeamSkill().where(query).destroy();
     };
     TeamsDataHandler.getTeamMembers = function (teamId) {
         var team = this._initializeTeamByIdQuery(teamId);
