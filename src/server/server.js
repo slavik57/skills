@@ -1,6 +1,7 @@
 "use strict";
 var registerStrategy_1 = require("./passportStrategies/registerStrategy");
 var loginStrategy_1 = require("./passportStrategies/loginStrategy");
+var logoutStrategy_1 = require("./passportStrategies/logoutStrategy");
 var express = require('express');
 var expressHandlebars = require('express-handlebars');
 var bodyParser = require('body-parser');
@@ -92,6 +93,7 @@ function startApplication(app) {
 }
 function configurePassportLoginStrategies(app) {
     loginStrategy_1.LoginStrategy.initialize(app);
+    logoutStrategy_1.LogoutStrategy.initialize(app);
     registerStrategy_1.RegisterStrategy.initialize(app);
     passport.serializeUser(function (user, done) { done(null, user); });
     passport.deserializeUser(function (obj, done) { done(null, obj); });
@@ -119,9 +121,10 @@ function serverIsUpCallback(serverAddress) {
     var port = serverAddress.port;
     console.log("App listening at host: %s and port: %s", host, port);
 }
+var middleware;
 function configureWebpack(app) {
     var compiler = webpack(webpack_config_1.webpackConfig);
-    var middleware = webpackMiddleware(compiler, {
+    middleware = webpackMiddleware(compiler, {
         publicPath: webpack_config_1.webpackConfig.output.publicPath,
         contentBase: 'src/app',
         stats: {
@@ -136,4 +139,5 @@ function configureWebpack(app) {
     app.use(middleware);
     app.use(webpackHotMiddleware(compiler));
 }
+exports.webpackMiddlewareInstance = middleware;
 //# sourceMappingURL=server.js.map

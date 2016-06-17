@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="User Authentication">
+
+    <title>User Authentication</title>
+
+  </head>
+
+  <body>
+
+    <div>
+
+      <a href="/signin">Sign In</a>
+
+      <div>
+        <h1>Sign in</h1>
+        <p>We're using passport.js to demonstrate user authentication. Please sign-in with your Local account to view your profile.</p>
+
+        <div id="local" class="collapse">
+          <a href="#signin">I already have an account</a>
+          <br/>
+          <a href="#register">I need to make an account</a>
+        </div>
+
+        <br/>
+        <br/>
+        <br/>
+
+        <form id="signin" action="/login" method="post">
+          <p></p>
+          I already have an account:
+          <div>
+              <label>Username:</label>
+              <input type="text" name="username"/>
+          </div>
+          <div>
+              <label>Password:</label>
+              <input type="password" name="password"/>
+          </div>
+          <div>
+              <input type="submit" value="Log In"/>
+          </div>
+        </form>
+
+        <br/>
+        <br/>
+        <br/>
+
+        <form id="register" action="/register" method="post">
+          <p></p>
+          I need to make an account:
+          <div>
+              <label>New Username:</label>
+              <input type="text" name="username"/>
+          </div>
+          <div>
+              <label>New Password:</label>
+              <input type="password" name="password"/>
+          </div>
+          <div>
+              <label>Email:</label>
+              <input type="email" name="email"/>
+          </div>
+          <div>
+              <label>First name:</label>
+              <input type="text" name="firstName"/>
+          </div>
+          <div>
+              <label>Last name:</label>
+              <input type="text" name="lastName"/>
+          </div>
+          <div>
+              <input type="submit" value="Register"/>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+  </body>
+</html>

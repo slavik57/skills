@@ -1,6 +1,7 @@
 import {ISessionRequest} from "./passportStrategies/interfaces/iSessionRequest";
 import {RegisterStrategy} from "./passportStrategies/registerStrategy";
 import {LoginStrategy} from "./passportStrategies/loginStrategy";
+import {LogoutStrategy} from "./passportStrategies/logoutStrategy";
 import * as express from 'express';
 import * as expressHandlebars from 'express-handlebars';
 import {Express, Response} from 'express';
@@ -115,6 +116,7 @@ function startApplication(app: Express) {
 
 function configurePassportLoginStrategies(app: Express) {
   LoginStrategy.initialize(app);
+  LogoutStrategy.initialize(app);
   RegisterStrategy.initialize(app);
 
   passport.serializeUser((user, done) => { done(null, user); });
@@ -151,10 +153,11 @@ function serverIsUpCallback(serverAddress: { address: string, port: number }) {
   console.log("App listening at host: %s and port: %s", host, port);
 }
 
+var middleware;
 function configureWebpack(app: Express) {
   var compiler = webpack(webpackConfig);
 
-  const middleware = webpackMiddleware(compiler, {
+  middleware = webpackMiddleware(compiler, {
     publicPath: webpackConfig.output.publicPath,
     contentBase: 'src/app',
     stats: {
@@ -169,8 +172,6 @@ function configureWebpack(app: Express) {
 
   app.use(middleware);
   app.use(webpackHotMiddleware(compiler));
-  //
-  // app.get('/src/*', function response(req, res) {
-  //   console.log(111);
-  // });
 }
+
+export var webpackMiddlewareInstance = middleware;

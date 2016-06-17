@@ -2,6 +2,7 @@
 var webpack = require('webpack');
 var pathHelper_1 = require('../../common/pathHelper');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 exports.webpackCommonConfiguration = {
     entry: {
         'app': './src/app/app.ts',
@@ -44,6 +45,14 @@ exports.webpackCommonConfiguration = {
             'process.env': {
                 'ENV': JSON.stringify(process.env.NODE_ENV)
             }
+        }),
+        new HtmlWebpackPlugin({
+            template: pathHelper_1.PathHelper.getPathFromRoot('src', 'app', 'views', 'signin.html'),
+            filename: 'signin.html'
+        }),
+        new HtmlWebpackPlugin({
+            template: pathHelper_1.PathHelper.getPathFromRoot('src', 'app', 'views', 'home.html'),
+            filename: 'home.html'
         })
     ]
 };

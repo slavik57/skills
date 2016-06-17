@@ -3,6 +3,7 @@ import {Configuration} from 'webpack';
 import * as path from 'path';
 import {PathHelper} from '../../common/pathHelper';
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 export var webpackCommonConfiguration: Configuration = {
   entry: {
@@ -46,6 +47,14 @@ export var webpackCommonConfiguration: Configuration = {
       'process.env': {
         'ENV': JSON.stringify(process.env.NODE_ENV)
       }
+    }),
+    new HtmlWebpackPlugin({
+      template: PathHelper.getPathFromRoot('src', 'app', 'views', 'signin.html'),
+      filename: 'signin.html'
+    }),
+    new HtmlWebpackPlugin({
+      template: PathHelper.getPathFromRoot('src', 'app', 'views', 'home.html'),
+      filename: 'home.html'
     })
   ]
 }

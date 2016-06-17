@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="User Authentication">
+
+    <title>Home</title>
+
+  </head>
+
+  <body>
+
+    <div>
+
+      <p>
+        <strong>Hi,</strong>
+        {{user.username}}
+      </p>
+      <a href="/logout">Log Out</a>
+
+      <div>
+        <h1>Orchestrate User Authentication</h1>
+        <p>Below is your profile information!</p>
+      </div>
+      <div>
+        <div>
+          <h3>Profile Information</h3>
+        </div>
+        <div>
+          <p>Username: {{user.username}}</p>
+        </div>
+      </div>
+
+    </div>
+
+  </body>
+</html>
