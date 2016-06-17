@@ -22,3 +22,4 @@
 /// <reference path="modules/mime/index.d.ts" />
 /// <reference path="modules/sinon/index.d.ts" />
 /// <reference path="modules/validator/index.d.ts" />
+/// <reference path="modules/webpack/index.d.ts" />

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="User Authentication">
+
+    <title>User Authentication</title>
+
+  </head>
+
+  <body>
+
+    <div>
+
+      {{#if user}}
+        <p>
+          <strong>Hi,</strong>
+          {{user.username}}
+        </p>
+        <a href="/logout">Log Out</a>
+      {{else}}
+        <a href="/signin">Sign In</a>
+      {{/if}}
+
+      {{#if error}}
+        <p>{{error}}</p>
+      {{/if}}
+
+      {{#if success}}
+        <p>{{success}}</p>
+      {{/if}}
+
+      {{#if notice}}
+        <p>{{notice}}</p>
+      {{/if}}
+
+      {{{body}}}
+    </div>
+
+    <script src="./dist/vendor.js"></script>
+    <script src="./dist/app.js"></script>
+  </body>
+</html>

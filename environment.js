@@ -1,12 +1,13 @@
 "use strict";
+var pathHelper_1 = require('./src/common/pathHelper');
 var config = {
     development: {
         appConfig: {
             hostName: 'localhost',
             port: 443,
             certificate: {
-                keyFilePath: '/ssl/development-localhost.key',
-                certificateFilePath: '/ssl/development-localhost.cert'
+                keyFilePath: pathHelper_1.PathHelper.getPathFromRoot('ssl', 'development-localhost.key'),
+                certificateFilePath: pathHelper_1.PathHelper.getPathFromRoot('ssl', 'development-localhost.cert')
             },
             secret: 'skills_application_secret:712cfb7d-a5fa-4c16-9805-c6da1deb5380',
         },
@@ -22,8 +23,8 @@ var config = {
             hostName: 'localhost',
             port: 443,
             certificate: {
-                keyFilePath: '/ssl/development-localhost.key',
-                certificateFilePath: '/ssl/development-localhost.cert'
+                keyFilePath: pathHelper_1.PathHelper.getPathFromRoot('ssl', 'development-localhost.key'),
+                certificateFilePath: pathHelper_1.PathHelper.getPathFromRoot('ssl', 'development-localhost.cert'),
             },
             secret: 'skills_application_secret:712cfb7d-a5fa-4c16-9805-c6da1deb5380'
         },
@@ -53,3 +54,4 @@ var config = {
     }
 };
 module.exports = config;
+//# sourceMappingURL=environment.js.map

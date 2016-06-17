@@ -1,3 +1,5 @@
+import {PathHelper} from './src/common/pathHelper';
+
 interface ICertificate {
   keyFilePath: string,
   certificateFilePath: string
@@ -28,8 +30,8 @@ var config = {
       hostName: 'localhost',
       port: 443,
       certificate: {
-        keyFilePath: '/ssl/development-localhost.key',
-        certificateFilePath: '/ssl/development-localhost.cert'
+        keyFilePath: PathHelper.getPathFromRoot('ssl', 'development-localhost.key'),
+        certificateFilePath: PathHelper.getPathFromRoot('ssl', 'development-localhost.cert')
       },
       secret: 'skills_application_secret:712cfb7d-a5fa-4c16-9805-c6da1deb5380',
     },
@@ -45,8 +47,8 @@ var config = {
       hostName: 'localhost',
       port: 443,
       certificate: {
-        keyFilePath: '/ssl/development-localhost.key',
-        certificateFilePath: '/ssl/development-localhost.cert'
+        keyFilePath: PathHelper.getPathFromRoot('ssl', 'development-localhost.key'),
+        certificateFilePath: PathHelper.getPathFromRoot('ssl', 'development-localhost.cert'),
       },
       secret: 'skills_application_secret:712cfb7d-a5fa-4c16-9805-c6da1deb5380'
     },
