@@ -4,19 +4,19 @@ var userDataHandler_1 = require("../dataHandlers/userDataHandler");
 var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var expressServer_1 = require("../expressServer");
 var chai = require('chai');
-var request = require('supertest');
+var supertest = require('supertest');
 var chaiAsPromised = require('chai-as-promised');
 var statusCode_1 = require('../enums/statusCode');
 chai.use(chaiAsPromised);
 var timeoutForLoadingServer = 100000;
-describe('apiUserController', function () {
+describe('ApiUserController', function () {
     var expressServer;
     var server;
     var userDefinition;
     before(function () {
         this.timeout(timeoutForLoadingServer);
         expressServer = expressServer_1.ExpressServer.instance.initialize();
-        server = request.agent(expressServer.expressApp);
+        server = supertest.agent(expressServer.expressApp);
     });
     beforeEach(function () {
         this.timeout(timeoutForLoadingServer);

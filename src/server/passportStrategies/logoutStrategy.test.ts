@@ -1,8 +1,6 @@
-import {UserLoginManager} from "../testUtils/userLoginManager";
 import {IUserRegistrationDefinition} from "../passportStrategies/interfaces/iUserRegistrationDefinition";
-import {PageTextResolver} from "../testUtils/pageTextResolver";
+import {UserLoginManager} from "../testUtils/userLoginManager";
 import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
-import {PathHelper} from "../../common/pathHelper";
 import {ExpressServer} from "../expressServer";
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -15,7 +13,7 @@ chai.use(chaiAsPromised);
 
 const timeoutForLoadingServer = 100000;
 
-describe('HomeController', () => {
+describe('ExpressServer', () => {
 
   var expressServer: ExpressServer;
   var server: SuperTest;
@@ -53,32 +51,17 @@ describe('HomeController', () => {
     return EnvironmentCleaner.clearTables();
   });
 
-  describe('user not logged in', () => {
-
-    beforeEach(() => {
-      return UserLoginManager.logoutUser(server);
-    })
-
-    it('home should redirect to signin', (done) => {
-      server.get('/')
-        .expect(StatusCode.REDIRECT)
-        .expect('Location', '/signin')
-        .end(done);
-    });
-
-  });
-
   describe('user registered', () => {
 
-    it('home should return correct html page', (done) => {
-      server.post('/register')
-        .send(userDefinition)
-        .end(() => {
-          server.get('/')
-            .expect(StatusCode.OK)
-            .expect(PageTextResolver.getHomePage(expressServer))
-            .end(done);
-        });
+    beforeEach(() => {
+      return UserLoginManager.registerUser(server, userDefinition);
+    });
+
+    it('logout should succeed', (done) => {
+      server.get('/logout')
+        .expect(StatusCode.REDIRECT)
+        .expect('Location', '/')
+        .end(done);
     });
 
     describe('logout', () => {
@@ -87,13 +70,28 @@ describe('HomeController', () => {
         return UserLoginManager.logoutUser(server);
       });
 
-      it('home should redirect to signin', (done) => {
-        server.get('/')
+      it('logout should succeed', (done) => {
+        server.get('/logout')
           .expect(StatusCode.REDIRECT)
-          .expect('Location', '/signin')
+          .expect('Location', '/')
           .end(done);
       });
 
+    });
+
+  });
+
+  describe('user not logged in', () => {
+
+    beforeEach(() => {
+      return UserLoginManager.logoutUser(server);
+    })
+
+    it('logout should succeed', (done) => {
+      server.get('/logout')
+        .expect(StatusCode.REDIRECT)
+        .expect('Location', '/')
+        .end(done);
     });
 
   });
@@ -102,13 +100,13 @@ describe('HomeController', () => {
 
     beforeEach(() => {
       return UserLoginManager.registerUser(server, userDefinition)
-        .then(() => UserLoginManager.loginUser(server, userDefinition));
+        .then(() => UserLoginManager.loginUser(server, userDefinition))
     });
 
-    it('home should return html page', (done) => {
-      server.get('/')
-        .expect(StatusCode.OK)
-        .expect(PageTextResolver.getHomePage(expressServer))
+    it('logout should succeed', (done) => {
+      server.get('/logout')
+        .expect(StatusCode.REDIRECT)
+        .expect('Location', '/')
         .end(done);
     });
 
@@ -118,10 +116,10 @@ describe('HomeController', () => {
         return UserLoginManager.logoutUser(server);
       });
 
-      it('home should redirect to signin', (done) => {
-        server.get('/')
+      it('logout should succeed', (done) => {
+        server.get('/logout')
           .expect(StatusCode.REDIRECT)
-          .expect('Location', '/signin')
+          .expect('Location', '/')
           .end(done);
       });
 

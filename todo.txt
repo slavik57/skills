@@ -1,5 +1,4 @@
 todo:
-- add tests to the passport strategies
 - add test for getting user info: get first and last name as well
 - add ui tests?
 - ui in angular 2

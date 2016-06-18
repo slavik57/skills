@@ -6,7 +6,7 @@ import {PathHelper} from "../../common/pathHelper";
 import {ExpressServer} from "../expressServer";
 import * as chai from 'chai';
 import { expect } from 'chai';
-import * as request from 'supertest';
+import * as supertest from 'supertest';
 import {SuperTest} from 'supertest';
 import * as chaiAsPromised from 'chai-as-promised';
 import {StatusCode} from '../enums/statusCode';
@@ -27,7 +27,7 @@ describe('SigninController', () => {
 
     expressServer = ExpressServer.instance.initialize();
 
-    server = request.agent(expressServer.expressApp);
+    server = supertest.agent(expressServer.expressApp);
   });
 
   beforeEach(function() {
@@ -53,21 +53,6 @@ describe('SigninController', () => {
     return EnvironmentCleaner.clearTables();
   });
 
-  describe('register', () => {
-
-    it('after register, signin should redirect', (done) => {
-      server.post('/register')
-        .send(userDefinition)
-        .end(() => {
-          server.get('/signin')
-            .expect(StatusCode.REDIRECT)
-            .expect('Location', '/')
-            .end(done);
-        });
-    });
-
-  });
-
   describe('user not logged in', () => {
 
     beforeEach(() => {
@@ -79,6 +64,36 @@ describe('SigninController', () => {
         .expect(StatusCode.OK)
         .expect(PageTextResolver.getSigninPage(expressServer))
         .end(done);
+    });
+
+  });
+
+  describe('user registered', () => {
+
+    it('signin should redirect to home', (done) => {
+      server.post('/register')
+        .send(userDefinition)
+        .end(() => {
+          server.get('/signin')
+            .expect(StatusCode.REDIRECT)
+            .expect('Location', '/')
+            .end(done);
+        });
+    });
+
+    describe('logout', () => {
+
+      beforeEach(() => {
+        return UserLoginManager.logoutUser(server);
+      });
+
+      it('signin should return correct html', (done) => {
+        server.get('/signin')
+          .expect(StatusCode.OK)
+          .expect(PageTextResolver.getSigninPage(expressServer))
+          .end(done);
+      });
+
     });
 
   });

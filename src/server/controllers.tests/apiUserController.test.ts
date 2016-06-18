@@ -5,7 +5,7 @@ import {EnvironmentCleaner} from "../testUtils/environmentCleaner";
 import {ExpressServer} from "../expressServer";
 import * as chai from 'chai';
 import { expect } from 'chai';
-import * as request from 'supertest';
+import * as supertest from 'supertest';
 import {SuperTest} from 'supertest';
 import * as chaiAsPromised from 'chai-as-promised';
 import {StatusCode} from '../enums/statusCode';
@@ -22,7 +22,7 @@ interface IUserDefinition {
   lastName: string;
 }
 
-describe('apiUserController', () => {
+describe('ApiUserController', () => {
 
   var expressServer: ExpressServer;
   var server: SuperTest;
@@ -34,7 +34,7 @@ describe('apiUserController', () => {
 
     expressServer = ExpressServer.instance.initialize();
 
-    server = request.agent(expressServer.expressApp);
+    server = supertest.agent(expressServer.expressApp);
   });
 
   beforeEach(function() {
@@ -111,6 +111,7 @@ describe('apiUserController', () => {
       });
 
     });
+
   });
 
   describe('user logged in', () => {

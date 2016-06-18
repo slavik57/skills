@@ -4,7 +4,7 @@ var pageTextResolver_1 = require("../testUtils/pageTextResolver");
 var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var expressServer_1 = require("../expressServer");
 var chai = require('chai');
-var request = require('supertest');
+var supertest = require('supertest');
 var chaiAsPromised = require('chai-as-promised');
 var statusCode_1 = require('../enums/statusCode');
 chai.use(chaiAsPromised);
@@ -16,7 +16,7 @@ describe('SigninController', function () {
     before(function () {
         this.timeout(timeoutForLoadingServer);
         expressServer = expressServer_1.ExpressServer.instance.initialize();
-        server = request.agent(expressServer.expressApp);
+        server = supertest.agent(expressServer.expressApp);
     });
     beforeEach(function () {
         this.timeout(timeoutForLoadingServer);
@@ -36,18 +36,6 @@ describe('SigninController', function () {
     afterEach(function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
-    describe('register', function () {
-        it('after register, signin should redirect', function (done) {
-            server.post('/register')
-                .send(userDefinition)
-                .end(function () {
-                server.get('/signin')
-                    .expect(statusCode_1.StatusCode.REDIRECT)
-                    .expect('Location', '/')
-                    .end(done);
-            });
-        });
-    });
     describe('user not logged in', function () {
         beforeEach(function () {
             return userLoginManager_1.UserLoginManager.logoutUser(server);
@@ -57,6 +45,29 @@ describe('SigninController', function () {
                 .expect(statusCode_1.StatusCode.OK)
                 .expect(pageTextResolver_1.PageTextResolver.getSigninPage(expressServer))
                 .end(done);
+        });
+    });
+    describe('user registered', function () {
+        it('signin should redirect to home', function (done) {
+            server.post('/register')
+                .send(userDefinition)
+                .end(function () {
+                server.get('/signin')
+                    .expect(statusCode_1.StatusCode.REDIRECT)
+                    .expect('Location', '/')
+                    .end(done);
+            });
+        });
+        describe('logout', function () {
+            beforeEach(function () {
+                return userLoginManager_1.UserLoginManager.logoutUser(server);
+            });
+            it('signin should return correct html', function (done) {
+                server.get('/signin')
+                    .expect(statusCode_1.StatusCode.OK)
+                    .expect(pageTextResolver_1.PageTextResolver.getSigninPage(expressServer))
+                    .end(done);
+            });
         });
     });
     describe('user logged in', function () {
