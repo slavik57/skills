@@ -1,5 +1,5 @@
 "use strict";
-require('./views/signin.css');
+require('./views/signin.scss');
 var A = (function () {
     function A() {
         console.log('env1:' + process.env.ENV);

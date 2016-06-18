@@ -1,4 +1,4 @@
-import './views/signin.css';
+import './views/signin.scss';
 
 export class A {
   constructor() {

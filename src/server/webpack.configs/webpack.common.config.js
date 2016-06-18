@@ -9,7 +9,7 @@ exports.webpackCommonConfiguration = {
         'vendor': './src/app/vendor.ts'
     },
     resolve: {
-        extensions: ['', '.ts', '.js']
+        extensions: ['', '.ts', '.js', 'scss']
     },
     module: {
         loaders: [
@@ -24,6 +24,10 @@ exports.webpackCommonConfiguration = {
             {
                 test: /\.(png|jpe?g|gif|svg|woff|woff2|ttf|eot|ico)$/,
                 loader: 'file?name=assets/[name].[hash].[ext]'
+            },
+            {
+                test: /\.scss$/,
+                loaders: ["style", "css", "sass"]
             },
             {
                 test: /\.css$/,
