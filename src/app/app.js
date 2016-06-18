@@ -1,7 +1,8 @@
 "use strict";
+require('./views/signin.css');
 var A = (function () {
     function A() {
-        alert('env1:' + process.env.ENV);
+        console.log('env1:' + process.env.ENV);
     }
     return A;
 }());

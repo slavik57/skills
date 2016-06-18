@@ -1,6 +1,8 @@
+import './views/signin.css';
+
 export class A {
   constructor() {
-    alert('env1:' + process.env.ENV);
+    console.log('env1:' + process.env.ENV);
   }
 }
 

@@ -27,12 +27,12 @@ exports.webpackCommonConfiguration = {
             },
             {
                 test: /\.css$/,
-                exclude: pathHelper_1.PathHelper.getPathFromRoot('src', 'app'),
+                exclude: pathHelper_1.PathHelper.getPathFromRoot('src', 'app', 'modules'),
                 loader: ExtractTextPlugin.extract('style', 'css?sourceMap')
             },
             {
                 test: /\.css$/,
-                include: pathHelper_1.PathHelper.getPathFromRoot('src', 'app'),
+                include: pathHelper_1.PathHelper.getPathFromRoot('src', 'app', 'modules'),
                 loader: 'raw'
             }
         ]
