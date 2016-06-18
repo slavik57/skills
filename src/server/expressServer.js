@@ -22,6 +22,7 @@ var webpackMiddleware = require('webpack-dev-middleware');
 var webpackHotMiddleware = require('webpack-hot-middleware');
 var ExpressServer = (function () {
     function ExpressServer() {
+        this._isInitialized = false;
         this._serverDirectory = pathHelper_1.PathHelper.getPathFromRoot('src', 'server');
         this._expressApp = express();
     }
@@ -51,8 +52,12 @@ var ExpressServer = (function () {
         configurable: true
     });
     ExpressServer.prototype.initialize = function () {
+        if (this._isInitialized) {
+            return this;
+        }
         this._configureExpress();
         this._configureWebpack();
+        this._isInitialized = true;
         return this;
     };
     ExpressServer.prototype.start = function () {

@@ -1,7 +1,7 @@
 "use strict";
+var userLoginManager_1 = require("./testUtils/userLoginManager");
 var userDataHandler_1 = require("./dataHandlers/userDataHandler");
 var environmentCleaner_1 = require("./testUtils/environmentCleaner");
-var pathHelper_1 = require("../common/pathHelper");
 var expressServer_1 = require("./expressServer");
 var chai = require('chai');
 var chai_1 = require('chai');
@@ -32,48 +32,11 @@ describe('ExpressServer', function () {
             firstName: 'first name',
             lastName: 'last name'
         };
-        return logoutUser();
+        return userLoginManager_1.UserLoginManager.logoutUser(server);
     });
     afterEach(function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
-    function getHomePage() {
-        return getPage('home.html');
-    }
-    function getSigninPage() {
-        return getPage('signin.html');
-    }
-    function getPage(pageName) {
-        var webpackMiddleware = expressServer.webpackMiddleware;
-        var buffer = webpackMiddleware.fileSystem.readFileSync(pathHelper_1.PathHelper.getPathFromRoot('dist', pageName));
-        return new Buffer(buffer).toString();
-    }
-    function registerUser(userDefinition) {
-        return new Promise(function (resolveCallback) {
-            server.post('/register')
-                .send(userDefinition)
-                .end(function () { return resolveCallback(); });
-        });
-    }
-    function loginUser(userDefinition) {
-        return new Promise(function (resolveCallback) {
-            server.post('/login')
-                .send({ username: userDefinition.username, password: userDefinition.password })
-                .expect(statusCode_1.StatusCode.REDIRECT)
-                .expect('Location', '/')
-                .end(function (error, response) {
-                resolveCallback();
-            });
-        });
-    }
-    function logoutUser() {
-        return new Promise(function (resolveCallback) {
-            server.get('/logout')
-                .end(function (error, response) {
-                resolveCallback();
-            });
-        });
-    }
     describe('register', function () {
         it('invalid parameters should fail', function (done) {
             userDefinition.email = 'wrong email';
@@ -82,7 +45,7 @@ describe('ExpressServer', function () {
                 .expect(statusCode_1.StatusCode.BAD_REQUEST)
                 .end(done);
         });
-        it('should create redirect to home page', function (done) {
+        it('should redirect to home page', function (done) {
             server.post('/register')
                 .send(userDefinition)
                 .expect(statusCode_1.StatusCode.REDIRECT)
@@ -103,20 +66,10 @@ describe('ExpressServer', function () {
                 });
             });
         });
-        it('after register, home should be available', function (done) {
-            server.post('/register')
-                .send(userDefinition)
-                .end(function () {
-                server.get('/')
-                    .expect(statusCode_1.StatusCode.OK)
-                    .expect(getHomePage())
-                    .end(done);
-            });
-        });
     });
     describe('login', function () {
         beforeEach(function () {
-            return registerUser(userDefinition);
+            return userLoginManager_1.UserLoginManager.registerUser(server, userDefinition);
         });
         it('existing user should secceed and redirect', function (done) {
             server.post('/login')
@@ -134,53 +87,19 @@ describe('ExpressServer', function () {
     });
     describe('user not logged in', function () {
         beforeEach(function () {
-            return logoutUser();
-        });
-        it('home should redirect to signin', function (done) {
-            server.get('/')
-                .expect(statusCode_1.StatusCode.REDIRECT)
-                .expect('Location', '/signin')
-                .end(done);
-        });
-        it('signin should return html page', function (done) {
-            server.get('/signin')
-                .expect(statusCode_1.StatusCode.OK)
-                .expect(getSigninPage())
-                .end(done);
+            return userLoginManager_1.UserLoginManager.logoutUser(server);
         });
         it('logout should succeed', function (done) {
             server.get('/logout')
                 .expect(statusCode_1.StatusCode.REDIRECT)
                 .expect('Location', '/')
-                .end(done);
-        });
-        it('getting user details should fail', function (done) {
-            server.get('/apiuser')
-                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
     });
     describe('user logged in', function () {
-        var user;
         beforeEach(function () {
-            return registerUser(userDefinition)
-                .then(function () { return loginUser(userDefinition); })
-                .then(function () { return userDataHandler_1.UserDataHandler.getUserByUsername(userDefinition.username); })
-                .then(function (_user) {
-                user = _user;
-            });
-        });
-        it('home should return html page', function (done) {
-            server.get('/')
-                .expect(statusCode_1.StatusCode.OK)
-                .expect(getHomePage())
-                .end(done);
-        });
-        it('signin should redirect to home', function (done) {
-            server.get('/signin')
-                .expect(statusCode_1.StatusCode.REDIRECT)
-                .expect('Location', '/')
-                .end(done);
+            return userLoginManager_1.UserLoginManager.registerUser(server, userDefinition)
+                .then(function () { return userLoginManager_1.UserLoginManager.loginUser(server, userDefinition); });
         });
         it('logout should succeed', function (done) {
             server.get('/logout')
@@ -188,31 +107,9 @@ describe('ExpressServer', function () {
                 .expect('Location', '/')
                 .end(done);
         });
-        it('getting user details should succeed', function (done) {
-            var expectedUser = {
-                id: user.id,
-                username: user.attributes.username
-            };
-            server.get('/apiuser')
-                .expect(statusCode_1.StatusCode.OK)
-                .expect(expectedUser)
-                .end(done);
-        });
         describe('logout', function () {
             beforeEach(function () {
-                return logoutUser();
-            });
-            it('home should redirect to signin', function (done) {
-                server.get('/')
-                    .expect(statusCode_1.StatusCode.REDIRECT)
-                    .expect('Location', '/signin')
-                    .end(done);
-            });
-            it('signin should return html page', function (done) {
-                server.get('/signin')
-                    .expect(statusCode_1.StatusCode.OK)
-                    .expect(getSigninPage())
-                    .end(done);
+                return userLoginManager_1.UserLoginManager.logoutUser(server);
             });
             it('logout should succeed', function (done) {
                 server.get('/logout')

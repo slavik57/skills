@@ -29,8 +29,11 @@ export class ExpressServer {
   private _serverDirectory: string;
   private _expressApp: Express;
   private _webpackMiddleware: any;
+  private _isInitialized: boolean;
 
   constructor() {
+    this._isInitialized = false;
+
     this._serverDirectory = PathHelper.getPathFromRoot('src', 'server');
     this._expressApp = express();
   }
@@ -53,8 +56,14 @@ export class ExpressServer {
   }
 
   public initialize(): ExpressServer {
+    if (this._isInitialized) {
+      return this;
+    }
+
     this._configureExpress();
     this._configureWebpack();
+
+    this._isInitialized = true;
 
     return this;
   }

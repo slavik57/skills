@@ -32,7 +32,8 @@ var RegisterStrategy = (function () {
         });
     };
     RegisterStrategy._registerUser = function (req, username, password, done) {
-        var operation = new createUserOperation_1.CreateUserOperation(username, password, req.body.email, req.body.firstName, req.body.lastName);
+        var userRegistrationDefinition = req.body;
+        var operation = new createUserOperation_1.CreateUserOperation(username, password, userRegistrationDefinition.email, userRegistrationDefinition.firstName, userRegistrationDefinition.lastName);
         operation.execute()
             .then(function (_user) {
             done(null, { id: _user.id, username: _user.attributes.username });

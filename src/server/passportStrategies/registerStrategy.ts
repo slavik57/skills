@@ -1,3 +1,4 @@
+import {IUserRegistrationDefinition} from "./interfaces/iUserRegistrationDefinition";
 import {StatusCode} from "../enums/statusCode";
 import {User} from "../models/user";
 import * as passport from 'passport';
@@ -44,11 +45,13 @@ export class RegisterStrategy {
 
   private static _registerUser(req: Request, username: string, password: string, done: (error: any, user?: any, options?: IVerifyOptions) => void) {
 
+    var userRegistrationDefinition = <IUserRegistrationDefinition>req.body;
+
     var operation = new CreateUserOperation(username,
       password,
-      req.body.email,
-      req.body.firstName,
-      req.body.lastName);
+      userRegistrationDefinition.email,
+      userRegistrationDefinition.firstName,
+      userRegistrationDefinition.lastName);
 
     operation.execute()
       .then((_user: User) => {
