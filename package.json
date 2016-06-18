@@ -22,7 +22,8 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
-    "sinon": "^1.17.4"
+    "sinon": "^1.17.4",
+    "supertest": "^1.2.0"
   },
   "dependencies": {
     "body-parser": "^1.15.1",
@@ -32,6 +33,8 @@
     "express-controller": "^0.2.9",
     "express-session": "^1.13.0",
     "extract-text-webpack-plugin": "^1.0.1",
+    "html-loader": "^0.4.3",
+    "html-webpack-plugin": "^2.21.0",
     "method-override": "^2.3.6",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",

@@ -1,11 +1,7 @@
 todo:
-- refactor all server.ts and test what needs to be tested (create an server class that is initialized in the server.ts file and started)
-- add tests to the added controllers
-- add tests to the passport strategies
 - add ui tests?
 - ui in angular 2
 - word with sass
 - find a way to load css files
 - add style (material)
-- code coverage: https://coveralls.io/
 - add guilds

@@ -7,8 +7,7 @@ var LoginStrategy = (function () {
     }
     LoginStrategy.initialize = function (app) {
         app.post('/login', passport.authenticate(LoginStrategy.NAME, {
-            successRedirect: '/',
-            failureRedirect: '/signin'
+            successRedirect: '/'
         }));
         var options = {
             passReqToCallback: true
@@ -19,11 +18,14 @@ var LoginStrategy = (function () {
         var operation = new loginUserOperation_1.LoginUserOperation(username, password);
         operation.execute()
             .then(function (_user) {
-            req.session.success = 'You are successfully logged in ' + username + '!';
-            done(null, { id: _user.id, username: _user.attributes.username });
+            done(null, {
+                id: _user.id,
+                username: _user.attributes.username,
+                firstName: _user.attributes.firstName,
+                lastName: _user.attributes.lastName
+            });
         })
             .catch(function (error) {
-            req.session.error = error;
             done(null, null);
         });
     };
