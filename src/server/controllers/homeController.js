@@ -1,9 +1,10 @@
 "use strict";
 var pathHelper_1 = require('../../common/pathHelper');
-var server_1 = require('../server');
+var expressServer_1 = require('../expressServer');
 module.exports = {
     get_index: function (request, response) {
-        response.write(server_1.webpackMiddlewareInstance.fileSystem.readFileSync(pathHelper_1.PathHelper.getPathFromRoot('dist', 'home.html')));
+        var webpackMiddleware = expressServer_1.ExpressServer.instance.webpackMiddleware;
+        response.write(webpackMiddleware.fileSystem.readFileSync(pathHelper_1.PathHelper.getPathFromRoot('dist', 'home.html')));
         response.end();
     }
 };
