@@ -1,0 +1,10 @@
+@import "./_colors";
+
+body {
+  background-color: $background-color;
+  margin: 0;
+
+  header {
+    background-color: $header-color;
+  }
+}
