@@ -4,5 +4,4 @@ todo:
 - word with sass
 - find a way to load css files
 - add style (material)
-- code coverage: https://coveralls.io/
 - add guilds
