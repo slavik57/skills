@@ -1,3 +1,4 @@
+import {IUserInfoResponse} from "../apiResponses/iUserInfoResponse";
 import {UserLoginManager} from "../testUtils/userLoginManager";
 import {UserDataHandler} from "../dataHandlers/userDataHandler";
 import {User} from "../models/user";
@@ -60,6 +61,15 @@ describe('ApiUserController', () => {
     return EnvironmentCleaner.clearTables();
   });
 
+  function getExpectedUserDetails(user: User): IUserInfoResponse {
+    return {
+      id: user.id,
+      username: user.attributes.username,
+      firstName: user.attributes.firstName,
+      lastName: user.attributes.lastName
+    }
+  }
+
   describe('user not logged in', () => {
 
     beforeEach(() => {
@@ -87,10 +97,7 @@ describe('ApiUserController', () => {
     });
 
     it('getting user details should succeed', (done) => {
-      var expectedUser = {
-        id: user.id,
-        username: user.attributes.username
-      };
+      var expectedUser = getExpectedUserDetails(user);
 
       server.get('/apiuser')
         .expect(StatusCode.OK)
@@ -128,10 +135,7 @@ describe('ApiUserController', () => {
     });
 
     it('getting user details should succeed', (done) => {
-      var expectedUser = {
-        id: user.id,
-        username: user.attributes.username
-      };
+      var expectedUser = getExpectedUserDetails(user);
 
       server.get('/apiuser')
         .expect(StatusCode.OK)

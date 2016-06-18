@@ -1,3 +1,4 @@
+import {IUserInfoResponse} from "../apiResponses/iUserInfoResponse";
 import {IUserRegistrationDefinition} from "./interfaces/iUserRegistrationDefinition";
 import {StatusCode} from "../enums/statusCode";
 import {User} from "../models/user";
@@ -43,7 +44,7 @@ export class RegisterStrategy {
     });
   }
 
-  private static _registerUser(req: Request, username: string, password: string, done: (error: any, user?: any, options?: IVerifyOptions) => void) {
+  private static _registerUser(req: Request, username: string, password: string, done: (error: any, user?: IUserInfoResponse, options?: IVerifyOptions) => void) {
 
     var userRegistrationDefinition = <IUserRegistrationDefinition>req.body;
 
@@ -55,7 +56,12 @@ export class RegisterStrategy {
 
     operation.execute()
       .then((_user: User) => {
-        done(null, { id: _user.id, username: _user.attributes.username });
+        done(null, {
+          id: _user.id,
+          username: _user.attributes.username,
+          firstName: _user.attributes.firstName,
+          lastName: _user.attributes.lastName
+        });
       })
       .catch((error) => {
         done(null, null);

@@ -36,6 +36,14 @@ describe('ApiUserController', function () {
     afterEach(function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
+    function getExpectedUserDetails(user) {
+        return {
+            id: user.id,
+            username: user.attributes.username,
+            firstName: user.attributes.firstName,
+            lastName: user.attributes.lastName
+        };
+    }
     describe('user not logged in', function () {
         beforeEach(function () {
             return userLoginManager_1.UserLoginManager.logoutUser(server);
@@ -56,10 +64,7 @@ describe('ApiUserController', function () {
             });
         });
         it('getting user details should succeed', function (done) {
-            var expectedUser = {
-                id: user.id,
-                username: user.attributes.username
-            };
+            var expectedUser = getExpectedUserDetails(user);
             server.get('/apiuser')
                 .expect(statusCode_1.StatusCode.OK)
                 .expect(expectedUser)
@@ -87,10 +92,7 @@ describe('ApiUserController', function () {
             });
         });
         it('getting user details should succeed', function (done) {
-            var expectedUser = {
-                id: user.id,
-                username: user.attributes.username
-            };
+            var expectedUser = getExpectedUserDetails(user);
             server.get('/apiuser')
                 .expect(statusCode_1.StatusCode.OK)
                 .expect(expectedUser)

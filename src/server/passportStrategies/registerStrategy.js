@@ -36,7 +36,12 @@ var RegisterStrategy = (function () {
         var operation = new createUserOperation_1.CreateUserOperation(username, password, userRegistrationDefinition.email, userRegistrationDefinition.firstName, userRegistrationDefinition.lastName);
         operation.execute()
             .then(function (_user) {
-            done(null, { id: _user.id, username: _user.attributes.username });
+            done(null, {
+                id: _user.id,
+                username: _user.attributes.username,
+                firstName: _user.attributes.firstName,
+                lastName: _user.attributes.lastName
+            });
         })
             .catch(function (error) {
             done(null, null);

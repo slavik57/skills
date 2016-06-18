@@ -1,5 +1,4 @@
 todo:
-- add test for getting user info: get first and last name as well
 - add ui tests?
 - ui in angular 2
 - word with sass
