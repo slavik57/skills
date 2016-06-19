@@ -46,6 +46,7 @@
     "passport-local": "^1.0.0",
     "password-hash": "^1.2.2",
     "raw-loader": "^0.5.1",
+    "resolve-url-loader": "^1.4.3",
     "sass-loader": "^3.2.0",
     "style-loader": "^0.13.1",
     "ts-loader": "^0.8.2",

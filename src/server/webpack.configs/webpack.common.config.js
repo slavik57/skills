@@ -27,12 +27,12 @@ exports.webpackCommonConfiguration = {
             },
             {
                 test: /\.scss$/,
-                loaders: ["style", "css", "sass"]
+                loaders: ["style", "css", 'resolve-url', 'sass?sourceMap']
             },
             {
                 test: /\.css$/,
                 exclude: pathHelper_1.PathHelper.getPathFromRoot('src', 'app', 'modules'),
-                loader: ExtractTextPlugin.extract('style', 'css?sourceMap')
+                loaders: ['style', 'css', 'resolve-url']
             },
             {
                 test: /\.css$/,
