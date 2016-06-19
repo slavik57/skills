@@ -15,6 +15,7 @@
     "express-handlebars": "registry:dt/express-handlebars#0.0.0+20160316155526",
     "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160602151406",
     "express-session": "registry:dt/express-session#0.0.0+20160331200931",
+    "jquery": "registry:dt/jquery#1.10.0+20160417213236",
     "method-override": "registry:dt/method-override#0.0.0+20160317120654",
     "passport": "registry:dt/passport#0.2.0+20160317120654",
     "passport-local": "registry:dt/passport-local#0.0.0+20160316155526",

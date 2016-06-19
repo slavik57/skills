@@ -7,6 +7,7 @@
 /// <reference path="globals/express-serve-static-core/index.d.ts" />
 /// <reference path="globals/express-session/index.d.ts" />
 /// <reference path="globals/express/index.d.ts" />
+/// <reference path="globals/jquery/index.d.ts" />
 /// <reference path="globals/knex/index.d.ts" />
 /// <reference path="globals/method-override/index.d.ts" />
 /// <reference path="globals/mocha/index.d.ts" />
