@@ -1,7 +1,7 @@
 {
   "name": "skills",
   "version": "0.1.0",
-  "description": "",
+  "description": "Skills app",
   "main": "src/index.js",
   "scripts": {
     "pretest": "knex migrate:latest --env=tests",
@@ -34,8 +34,10 @@
     "express-controller": "^0.2.9",
     "express-session": "^1.13.0",
     "extract-text-webpack-plugin": "^1.0.1",
+    "file-loader": "^0.8.5",
     "html-loader": "^0.4.3",
     "html-webpack-plugin": "^2.21.0",
+    "materialize-css": "^0.97.6",
     "method-override": "^2.3.6",
     "node-sass": "^3.8.0",
     "passport": "^0.3.2",

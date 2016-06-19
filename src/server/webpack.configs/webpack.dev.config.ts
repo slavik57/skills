@@ -9,7 +9,7 @@ var config: Configuration = {
 
   output: {
     path: PathHelper.getPathFromRoot('dist'),
-    publicPath: '/dist',
+    publicPath: '/dist/',
     filename: '[name].js',
     chunkFilename: '[id].chunk.js'
   },

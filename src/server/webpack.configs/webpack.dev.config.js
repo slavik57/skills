@@ -7,7 +7,7 @@ var config = {
     devtool: 'source-map',
     output: {
         path: pathHelper_1.PathHelper.getPathFromRoot('dist'),
-        publicPath: '/dist',
+        publicPath: '/dist/',
         filename: '[name].js',
         chunkFilename: '[id].chunk.js'
     },
