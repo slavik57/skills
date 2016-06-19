@@ -1,4 +1,5 @@
 import './commonStyles/commonLayout.scss';
+import './commonStyles/material-font/material-font.scss';
 
 export class A {
   constructor() {
