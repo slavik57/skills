@@ -22,7 +22,7 @@ import {Server} from 'net';
 import * as fs from 'fs';
 const PostgreSqlStore = require('connect-pg-simple')(expressSession);
 const expressControllers = require('express-controller');
-const webpackMiddleware = require('webpack-dev-middleware');
+const webpackDevMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
 
 export class ExpressServer {
@@ -30,7 +30,7 @@ export class ExpressServer {
   private static _instance: ExpressServer;
   private _serverDirectory: string;
   private _expressApp: Express;
-  private _webpackMiddleware: any;
+  private _webpackDevMiddleware: any;
   private _isInitialized: boolean;
 
   constructor() {
@@ -45,7 +45,7 @@ export class ExpressServer {
   }
 
   public get webpackMiddleware(): any {
-    return this._webpackMiddleware;
+    return this._webpackDevMiddleware;
   }
 
   public static get instance(): ExpressServer {
@@ -196,9 +196,11 @@ export class ExpressServer {
   }
 
   private _configureWebpack(doneCallback: () => void): void {
-    var compiler = webpack(webpackConfig, doneCallback);
+    console.log('=== configuring webpack ===');
 
-    this._webpackMiddleware = webpackMiddleware(compiler, {
+    var compiler = webpack(webpackConfig);
+
+    this._webpackDevMiddleware = webpackDevMiddleware(compiler, {
       publicPath: webpackConfig.output.publicPath,
       contentBase: 'src/app',
       stats: {
@@ -211,8 +213,13 @@ export class ExpressServer {
       }
     });
 
-    this._expressApp.use(this._webpackMiddleware);
+    this._expressApp.use(this._webpackDevMiddleware);
     this._expressApp.use(webpackHotMiddleware(compiler));
+
+    this._webpackDevMiddleware.waitUntilValid(() => {
+      console.log('=== webpack configuration finished ===');
+      doneCallback();
+    })
   }
 
   private _logServerIsUp(serverAddress: { address: string, port: number }) {

@@ -19,7 +19,7 @@ var https = require('https');
 var fs = require('fs');
 var PostgreSqlStore = require('connect-pg-simple')(expressSession);
 var expressControllers = require('express-controller');
-var webpackMiddleware = require('webpack-dev-middleware');
+var webpackDevMiddleware = require('webpack-dev-middleware');
 var webpackHotMiddleware = require('webpack-hot-middleware');
 var ExpressServer = (function () {
     function ExpressServer() {
@@ -36,7 +36,7 @@ var ExpressServer = (function () {
     });
     Object.defineProperty(ExpressServer.prototype, "webpackMiddleware", {
         get: function () {
-            return this._webpackMiddleware;
+            return this._webpackDevMiddleware;
         },
         enumerable: true,
         configurable: true
@@ -164,8 +164,9 @@ var ExpressServer = (function () {
         response.redirect('/signin');
     };
     ExpressServer.prototype._configureWebpack = function (doneCallback) {
-        var compiler = webpack(webpack_config_1.webpackConfig, doneCallback);
-        this._webpackMiddleware = webpackMiddleware(compiler, {
+        console.log('=== configuring webpack ===');
+        var compiler = webpack(webpack_config_1.webpackConfig);
+        this._webpackDevMiddleware = webpackDevMiddleware(compiler, {
             publicPath: webpack_config_1.webpackConfig.output.publicPath,
             contentBase: 'src/app',
             stats: {
@@ -177,8 +178,12 @@ var ExpressServer = (function () {
                 modules: false
             }
         });
-        this._expressApp.use(this._webpackMiddleware);
+        this._expressApp.use(this._webpackDevMiddleware);
         this._expressApp.use(webpackHotMiddleware(compiler));
+        this._webpackDevMiddleware.waitUntilValid(function () {
+            console.log('=== webpack configuration finished ===');
+            doneCallback();
+        });
     };
     ExpressServer.prototype._logServerIsUp = function (serverAddress) {
         var host = serverAddress.address;
