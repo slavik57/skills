@@ -1,3 +1,5 @@
 import {ExpressServer} from './expressServer';
 
-ExpressServer.instance.initialize().start();
+ExpressServer.instance
+  .initialize()
+  .then((_expressServer: ExpressServer) => _expressServer.start());

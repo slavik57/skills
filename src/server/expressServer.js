@@ -1,4 +1,5 @@
 "use strict";
+var createAdminUserOperation_1 = require("./operations/userOperations/createAdminUserOperation");
 var statusCode_1 = require("./enums/statusCode");
 var registerStrategy_1 = require("./passportStrategies/registerStrategy");
 var loginStrategy_1 = require("./passportStrategies/loginStrategy");
@@ -52,13 +53,9 @@ var ExpressServer = (function () {
         configurable: true
     });
     ExpressServer.prototype.initialize = function () {
-        if (this._isInitialized) {
-            return this;
-        }
-        this._configureExpress();
-        this._configureWebpack();
-        this._isInitialized = true;
-        return this;
+        var _this = this;
+        return this._initializeAdmin()
+            .then(function () { return _this._initializeExpressServer(); });
     };
     ExpressServer.prototype.start = function () {
         var _this = this;
@@ -73,6 +70,24 @@ var ExpressServer = (function () {
         var server = https.createServer(options, this._expressApp)
             .listen(port, hostName, function () { return _this._logServerIsUp(server.address()); });
         return server;
+    };
+    ExpressServer.prototype._initializeAdmin = function () {
+        var createAdminUserOperation = new createAdminUserOperation_1.CreateAdminUserOperation();
+        return createAdminUserOperation.execute().catch(function () { });
+    };
+    ExpressServer.prototype._initializeExpressServer = function () {
+        var _this = this;
+        return new Promise(function (resolveCallback) {
+            if (_this._isInitialized) {
+                resolveCallback(_this);
+                return;
+            }
+            _this._configureExpress();
+            _this._configureWebpack(function () {
+                _this._isInitialized = true;
+                resolveCallback(_this);
+            });
+        });
     };
     ExpressServer.prototype._configureExpress = function () {
         this._expressApp.use(cookieParser());
@@ -148,8 +163,8 @@ var ExpressServer = (function () {
         }
         response.redirect('/signin');
     };
-    ExpressServer.prototype._configureWebpack = function () {
-        var compiler = webpack(webpack_config_1.webpackConfig);
+    ExpressServer.prototype._configureWebpack = function (doneCallback) {
+        var compiler = webpack(webpack_config_1.webpackConfig, doneCallback);
         this._webpackMiddleware = webpackMiddleware(compiler, {
             publicPath: webpack_config_1.webpackConfig.output.publicPath,
             contentBase: 'src/app',

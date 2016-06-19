@@ -1,3 +1,5 @@
+import {CreateAdminUserOperation} from "./operations/userOperations/createAdminUserOperation";
+import {User} from "./models/user";
 import {StatusCode} from "./enums/statusCode";
 import {RegisterStrategy} from "./passportStrategies/registerStrategy";
 import {LoginStrategy} from "./passportStrategies/loginStrategy";
@@ -55,17 +57,9 @@ export class ExpressServer {
     return this._instance;
   }
 
-  public initialize(): ExpressServer {
-    if (this._isInitialized) {
-      return this;
-    }
-
-    this._configureExpress();
-    this._configureWebpack();
-
-    this._isInitialized = true;
-
-    return this;
+  public initialize(): Promise<ExpressServer> {
+    return this._initializeAdmin()
+      .then(() => this._initializeExpressServer());
   }
 
   public start(): Server {
@@ -86,6 +80,28 @@ export class ExpressServer {
       .listen(port, hostName, () => this._logServerIsUp(server.address()));
 
     return server;
+  }
+
+  private _initializeAdmin(): Promise<void> {
+    var createAdminUserOperation = new CreateAdminUserOperation();
+
+    return createAdminUserOperation.execute().catch(() => { });
+  }
+
+  private _initializeExpressServer(): Promise<ExpressServer> {
+    return new Promise((resolveCallback: (value: ExpressServer) => void) => {
+      if (this._isInitialized) {
+        resolveCallback(this);
+        return;
+      }
+
+      this._configureExpress();
+      this._configureWebpack(() => {
+        this._isInitialized = true;
+
+        resolveCallback(this);
+      });
+    });
   }
 
   private _configureExpress() {
@@ -179,8 +195,8 @@ export class ExpressServer {
     response.redirect('/signin');
   }
 
-  private _configureWebpack() {
-    var compiler = webpack(webpackConfig);
+  private _configureWebpack(doneCallback: () => void): void {
+    var compiler = webpack(webpackConfig, doneCallback);
 
     this._webpackMiddleware = webpackMiddleware(compiler, {
       publicPath: webpackConfig.output.publicPath,

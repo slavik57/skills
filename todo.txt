@@ -1,5 +1,4 @@
 todo:
-- at startup add admin user if not exists...if exists do not add or change the password(test both cases)
 - for every operation the user has insuficient permissions should return unauthorized
 - add ui tests?
 - ui in angular 2

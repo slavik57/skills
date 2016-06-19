@@ -7,23 +7,27 @@ var chai = require('chai');
 var supertest = require('supertest');
 var chaiAsPromised = require('chai-as-promised');
 var statusCode_1 = require('../enums/statusCode');
+var testConfigurations_1 = require('../../../testConfigurations');
 chai.use(chaiAsPromised);
-var timeoutForLoadingServer = 100000;
 describe('SigninController', function () {
     var expressServer;
     var server;
     var userDefinition;
-    before(function () {
-        this.timeout(timeoutForLoadingServer);
-        expressServer = expressServer_1.ExpressServer.instance.initialize();
-        server = supertest.agent(expressServer.expressApp);
+    before(function (done) {
+        this.timeout(testConfigurations_1.webpackInitializationTimeout);
+        expressServer_1.ExpressServer.instance.initialize()
+            .then(function (_expressServer) {
+            expressServer = _expressServer;
+            server = supertest.agent(expressServer.expressApp);
+            done();
+        });
     });
     beforeEach(function () {
-        this.timeout(timeoutForLoadingServer);
+        this.timeout(testConfigurations_1.webpackInitializationTimeout);
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
     beforeEach(function () {
-        this.timeout(timeoutForLoadingServer);
+        this.timeout(testConfigurations_1.webpackInitializationTimeout);
         userDefinition = {
             username: 'someUser',
             password: 'somePassword',

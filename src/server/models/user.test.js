@@ -62,6 +62,22 @@ describe('User', function () {
                 chai_1.expect(users.size()).to.be.equal(1);
             });
         });
+        it('create user with null email - should succeed', function () {
+            validUserInfo1.email = null;
+            var user = new user_1.User(validUserInfo1);
+            var promise = user.save();
+            return chai_1.expect(promise).to.eventually.fulfilled;
+        });
+        it('create user with null email should be fetched', function () {
+            validUserInfo1.email = null;
+            var user = new user_1.User(validUserInfo1);
+            var promise = user.save();
+            var usersPromise = promise.then(function () { return new user_1.Users().fetch(); });
+            return chai_1.expect(usersPromise).to.eventually.fulfilled
+                .then(function (users) {
+                chai_1.expect(users.size()).to.be.equal(1);
+            });
+        });
         it('create user with missing firstName - should return error', function () {
             delete validUserInfo1.firstName;
             var user = new user_1.User(validUserInfo1);

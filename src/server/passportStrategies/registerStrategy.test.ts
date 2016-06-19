@@ -9,10 +9,9 @@ import * as supertest from 'supertest';
 import {SuperTest} from 'supertest';
 import * as chaiAsPromised from 'chai-as-promised';
 import {StatusCode} from '../enums/statusCode';
+import {webpackInitializationTimeout} from '../../../testConfigurations';
 
 chai.use(chaiAsPromised);
-
-const timeoutForLoadingServer = 100000;
 
 interface IUserDefinition {
   username: string;
@@ -29,21 +28,26 @@ describe('RegisterStrategy', () => {
 
   var userDefinition: IUserDefinition;
 
-  before(function() {
-    this.timeout(timeoutForLoadingServer);
+  before(function(done) {
+    this.timeout(webpackInitializationTimeout);
 
-    expressServer = ExpressServer.instance.initialize();
+    ExpressServer.instance.initialize()
+      .then((_expressServer) => {
+        expressServer = _expressServer;
 
-    server = supertest.agent(expressServer.expressApp);
+        server = supertest.agent(expressServer.expressApp);
+
+        done();
+      });
   });
 
   beforeEach(function() {
-    this.timeout(timeoutForLoadingServer);
+    this.timeout(webpackInitializationTimeout);
     return EnvironmentCleaner.clearTables();
   });
 
   beforeEach(function() {
-    this.timeout(timeoutForLoadingServer);
+    this.timeout(webpackInitializationTimeout);
 
     userDefinition = {
       username: 'someUser',
