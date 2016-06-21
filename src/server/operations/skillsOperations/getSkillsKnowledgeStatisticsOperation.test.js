@@ -8,6 +8,7 @@ var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 var _ = require('lodash');
+var bluebirdPromise = require('bluebird');
 chai.use(chaiAsPromised);
 describe('GetSkillsKnowledgeStatisticsOperation', function () {
     var operation;
@@ -39,7 +40,7 @@ describe('GetSkillsKnowledgeStatisticsOperation', function () {
                 .then(function (_skills) {
                 skill1 = _skills[0], skill2 = _skills[1], skill3 = _skills[2];
             });
-            var createTeamSkillsPromise = Promise.all([createTeamsPromise, createSkillsPromise])
+            var createTeamSkillsPromise = bluebirdPromise.all([createTeamsPromise, createSkillsPromise])
                 .then(function () { return Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1)),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill3)),

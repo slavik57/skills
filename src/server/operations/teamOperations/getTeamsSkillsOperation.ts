@@ -1,6 +1,7 @@
 import {ISkillsOfATeam} from "../../models/interfaces/iSkillsOfATeam";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {OperationBase} from "../base/operationBase";
+import * as bluebirdPromise from 'bluebird';
 
 export class GetTeamsSkillsOperation extends OperationBase<ISkillsOfATeam[]> {
 
@@ -8,7 +9,7 @@ export class GetTeamsSkillsOperation extends OperationBase<ISkillsOfATeam[]> {
     super();
   }
 
-  protected doWork(): Promise<ISkillsOfATeam[]> {
+  protected doWork(): bluebirdPromise<ISkillsOfATeam[]> {
     return TeamsDataHandler.getSkillsOfTeams();
   }
 

@@ -2,6 +2,7 @@ import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {OperationBase} from "../base/operationBase";
 import * as _ from 'lodash';
+import * as bluebirdPromise from 'bluebird';
 
 interface IAllowedPermissionModificationMap {
   [key: number]: GlobalPermission[];
@@ -15,8 +16,8 @@ export class GetAllowedUserPermissionsToModifyOperation extends OperationBase<Gl
     super();
   }
 
-  protected doWork(): Promise<GlobalPermission[]> {
-    var userGlobalPermissionsPromise: Promise<GlobalPermission[]> =
+  protected doWork(): bluebirdPromise<GlobalPermission[]> {
+    var userGlobalPermissionsPromise: bluebirdPromise<GlobalPermission[]> =
       UserDataHandler.getUserGlobalPermissions(this._userId);
 
     return userGlobalPermissionsPromise.then((_permissions: GlobalPermission[]) => {

@@ -11,6 +11,7 @@ import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised'
 import {GetUserTeamsOperation} from './getUserTeamsOperation';
 import * as _ from 'lodash';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -37,13 +38,13 @@ describe('GetUserTeamsOperation', () => {
     var operation: GetUserTeamsOperation;
 
     beforeEach(() => {
-      var createUserPromise: Promise<any> =
+      var createUserPromise: bluebirdPromise<any> =
         EnvironmentDirtifier.createUsers(1)
           .then((_users: User[]) => {
             [user] = _users;
           });
 
-      var createTeamsPromise: Promise<any> =
+      var createTeamsPromise: bluebirdPromise<any> =
         EnvironmentDirtifier.createTeams(3)
           .then((_teams: Team[]) => {
             [userTeam1, userTeam2, userTeam3] = _teams;
@@ -65,7 +66,7 @@ describe('GetUserTeamsOperation', () => {
 
     it('should return correct teams', () => {
       // Act
-      var resultPromise: Promise<ITeamOfAUser[]> = operation.execute();
+      var resultPromise: bluebirdPromise<ITeamOfAUser[]> = operation.execute();
 
       // Assert
       var expectedTeams: Team[] = [userTeam1, userTeam2, userTeam3];
@@ -80,7 +81,7 @@ describe('GetUserTeamsOperation', () => {
 
     it('should return correct team admin rights', () => {
       // Act
-      var resultPromise: Promise<ITeamOfAUser[]> = operation.execute();
+      var resultPromise: bluebirdPromise<ITeamOfAUser[]> = operation.execute();
 
       // Assert
       var expected: ITeamOfAUser[] = [

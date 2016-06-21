@@ -4,6 +4,7 @@ import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {AuthenticatedOperationBase} from "../base/authenticatedOperationBase";
 import * as _ from 'lodash';
+import * as bluebirdPromise from 'bluebird';
 
 export class DownvoteTeamSkillOperation extends AuthenticatedOperationBase<TeamSkillUpvote> {
   constructor(private _skillIdToDownvote: number, private _teamId: number, executingUserId: number) {
@@ -18,19 +19,19 @@ export class DownvoteTeamSkillOperation extends AuthenticatedOperationBase<TeamS
     ];
   }
 
-  protected doWork(): Promise<TeamSkillUpvote> {
+  protected doWork(): bluebirdPromise<TeamSkillUpvote> {
     return TeamsDataHandler.getTeamSkills(this._teamId)
       .then((_teamSkills: ISkillOfATeam[]) => {
         return this._downvoteTeamSkill(_teamSkills);
       });
   }
 
-  private _downvoteTeamSkill(teamSkills: ISkillOfATeam[]): Promise<TeamSkillUpvote> {
+  private _downvoteTeamSkill(teamSkills: ISkillOfATeam[]): bluebirdPromise<TeamSkillUpvote> {
     var teamSkill: ISkillOfATeam =
       _.find(teamSkills, _teamSkill => _teamSkill.skill.id === this._skillIdToDownvote);
 
     if (!teamSkill) {
-      return Promise.reject('The skill is not part of the team skills');
+      return bluebirdPromise.reject('The skill is not part of the team skills');
     }
 
     return TeamsDataHandler.removeUpvoteForTeamSkill(teamSkill.teamSkill.id, this.executingUserId);

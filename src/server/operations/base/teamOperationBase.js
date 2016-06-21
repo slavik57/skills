@@ -6,6 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
 var authenticatedOperationBase_1 = require("./authenticatedOperationBase");
+var bluebirdPromise = require('bluebird');
 var TeamOperationBase = (function (_super) {
     __extends(TeamOperationBase, _super);
     function TeamOperationBase(_teamId, executingUserId) {
@@ -44,13 +45,13 @@ var TeamOperationBase = (function (_super) {
             }
             return this._userHasSufficientAdminRights(isAdmin);
         }
-        return Promise.reject('The user is not in the team');
+        return bluebirdPromise.reject('The user is not in the team');
     };
     TeamOperationBase.prototype._userHasSufficientAdminRights = function (isAdmin) {
         if (this.isRegularTeamMemberAlowedToExecute || isAdmin) {
-            return Promise.resolve();
+            return bluebirdPromise.resolve();
         }
-        return Promise.reject('The user must be team admin');
+        return bluebirdPromise.reject('The user must be team admin');
     };
     return TeamOperationBase;
 }(authenticatedOperationBase_1.AuthenticatedOperationBase));

@@ -3,6 +3,7 @@ import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {OperationBase} from "./operationBase";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import * as _ from 'lodash';
+import * as bluebirdPromise from 'bluebird';
 
 export class ModifyUserPermissionsOperationBase<T> extends OperationBase<T> {
 
@@ -13,11 +14,11 @@ export class ModifyUserPermissionsOperationBase<T> extends OperationBase<T> {
     super();
   }
 
-  public canExecute(): Promise<any> {
+  public canExecute(): bluebirdPromise<any> {
     var getAllowedUserPermissionsToModifyOperation =
       new GetAllowedUserPermissionsToModifyOperation(this._executingUserId)
 
-    var listOfPermissionsTheExecutingUserCanModifyPromise: Promise<GlobalPermission[]> =
+    var listOfPermissionsTheExecutingUserCanModifyPromise: bluebirdPromise<GlobalPermission[]> =
       getAllowedUserPermissionsToModifyOperation.execute();
 
     return listOfPermissionsTheExecutingUserCanModifyPromise
@@ -26,23 +27,23 @@ export class ModifyUserPermissionsOperationBase<T> extends OperationBase<T> {
       });
   }
 
-  private _canExecutingUserModifyPermissions(permissionsExecutingUserCanModify: GlobalPermission[]): Promise<any> {
+  private _canExecutingUserModifyPermissions(permissionsExecutingUserCanModify: GlobalPermission[]): bluebirdPromise<any> {
     var permissionsTheExecutingUserCannotAdd: GlobalPermission[] =
       _.difference(this._permissionsToModify, permissionsExecutingUserCanModify);
 
     if (permissionsTheExecutingUserCannotAdd.length < 1) {
-      return Promise.resolve();
+      return bluebirdPromise.resolve();
     } else {
       return this._rejectWithNotAllowedPermissionsToModify(permissionsTheExecutingUserCannotAdd);
     }
   }
 
-  private _rejectWithNotAllowedPermissionsToModify(permissionsTheExecutingUserCannotAdd: GlobalPermission[]): Promise<any> {
+  private _rejectWithNotAllowedPermissionsToModify(permissionsTheExecutingUserCannotAdd: GlobalPermission[]): bluebirdPromise<any> {
     var permissionNames: string[] = _.map(permissionsTheExecutingUserCannotAdd, _permission => GlobalPermission[_permission]);
 
     var message = 'The executing user cannot modify the permissions: ' + permissionNames.join(', ');
 
-    return Promise.reject(message);
+    return bluebirdPromise.reject(message);
   }
 
 }

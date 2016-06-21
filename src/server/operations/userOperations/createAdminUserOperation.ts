@@ -4,6 +4,7 @@ import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {User} from "../../models/user";
 import {OperationBase} from "../base/operationBase";
 import * as passwordHash from 'password-hash';
+import * as bluebirdPromise from 'bluebird';
 
 export class CreateAdminUserOperation extends OperationBase<User> {
   private _username: string;
@@ -22,7 +23,7 @@ export class CreateAdminUserOperation extends OperationBase<User> {
     this._lastName = 'admin';
   }
 
-  protected doWork(): Promise<User> {
+  protected doWork(): bluebirdPromise<User> {
     var adminPermissions = [GlobalPermission.ADMIN];
 
     var userInfo: IUserInfo = {

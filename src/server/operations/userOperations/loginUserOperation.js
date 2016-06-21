@@ -7,6 +7,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var userDataHandler_1 = require("../../dataHandlers/userDataHandler");
 var operationBase_1 = require("../base/operationBase");
 var passwordHash = require('password-hash');
+var bluebirdPromise = require('bluebird');
 var LoginUserOperation = (function (_super) {
     __extends(LoginUserOperation, _super);
     function LoginUserOperation(_username, _passwrod) {
@@ -23,7 +24,7 @@ var LoginUserOperation = (function (_super) {
         return userDataHandler_1.UserDataHandler.getUserByUsername(this._username)
             .then(function (_user) {
             if (!_user) {
-                return Promise.reject('Invalid username');
+                return bluebirdPromise.reject('Invalid username');
             }
             return _user;
         });
@@ -31,10 +32,10 @@ var LoginUserOperation = (function (_super) {
     LoginUserOperation.prototype._verifyPassword = function (user) {
         var isCorrectPassword = passwordHash.verify(this._passwrod, user.attributes.password_hash);
         if (isCorrectPassword) {
-            return Promise.resolve(user);
+            return bluebirdPromise.resolve(user);
         }
         else {
-            return Promise.reject('Incorrect password');
+            return bluebirdPromise.reject('Incorrect password');
         }
     };
     return LoginUserOperation;

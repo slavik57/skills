@@ -2,6 +2,7 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised'
 import {OperationBase} from './operationBase';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -15,15 +16,15 @@ class TestOperationBase extends OperationBase<any> {
     super();
   }
 
-  public canExecute(): Promise<any> {
+  public canExecute(): bluebirdPromise<any> {
     if (this.canExecuteToReturn) {
-      return Promise.resolve();
+      return bluebirdPromise.resolve();
     }
 
-    return Promise.reject(null);
+    return bluebirdPromise.reject(null);
   }
 
-  protected doWork(): Promise<any> {
+  protected doWork(): bluebirdPromise<any> {
     this.wasExecuted = true;
 
     if (this.executeOperationErrorToThrow) {

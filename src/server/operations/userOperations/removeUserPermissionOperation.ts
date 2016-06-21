@@ -2,6 +2,7 @@ import {UserGlobalPermissions} from "../../models/usersGlobalPermissions";
 import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {ModifyUserPermissionsOperationBase} from "../base/modifyUserPermissionsOperationBase";
 import {GlobalPermission} from "../../models/enums/globalPermission";
+import * as bluebirdPromise from 'bluebird';
 
 export class RemoveUserPermissionOperation extends ModifyUserPermissionsOperationBase<UserGlobalPermissions[]> {
 
@@ -12,7 +13,7 @@ export class RemoveUserPermissionOperation extends ModifyUserPermissionsOperatio
     super(_userIdToRemovePermissionsFrom, _permissionsToRemove, executingUserId);
   }
 
-  protected doWork(): Promise<UserGlobalPermissions[]> {
+  protected doWork(): bluebirdPromise<UserGlobalPermissions[]> {
     return UserDataHandler.removeGlobalPermissions(this._userIdToRemovePermissionsFrom, this._permissionsToRemove);
   }
 

@@ -7,6 +7,7 @@ var chaiAsPromised = require('chai-as-promised');
 var team_1 = require('./team');
 var user_1 = require('./user');
 var teamMember_1 = require('./teamMember');
+var bluebirdPromise = require('bluebird');
 chai.use(chaiAsPromised);
 describe('TeamMember', function () {
     describe('new', function () {
@@ -15,7 +16,7 @@ describe('TeamMember', function () {
         var team1;
         beforeEach(function () {
             return environmentCleaner_1.EnvironmentCleaner.clearTables()
-                .then(function () { return Promise.all([
+                .then(function () { return bluebirdPromise.all([
                 new user_1.User(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1)).save(),
                 new user_1.User(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2)).save(),
                 new team_1.Team(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a')).save(),

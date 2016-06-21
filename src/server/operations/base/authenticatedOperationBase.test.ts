@@ -7,6 +7,7 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised'
 import {AuthenticatedOperationBase} from './authenticatedOperationBase';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -26,7 +27,7 @@ class TestAuthenticatedOperation extends AuthenticatedOperationBase<any> {
     return this.operationPermissionsToReturn;
   }
 
-  protected doWork(): Promise<any> {
+  protected doWork(): bluebirdPromise<any> {
     this.wasExecuted = true;
 
     if (this.executeOperationErrorToThrow) {

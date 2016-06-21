@@ -1,6 +1,7 @@
 import {OperationBase} from "./operationBase";
 import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {GlobalPermission} from "../../models/enums/globalPermission";
+import * as bluebirdPromise from 'bluebird';
 
 export class AuthenticatedOperationBase<T> extends OperationBase<T> {
   constructor(private _executingUserId: number) {
@@ -15,7 +16,7 @@ export class AuthenticatedOperationBase<T> extends OperationBase<T> {
     return [];
   }
 
-  public canExecute(): Promise<any> {
+  public canExecute(): bluebirdPromise<any> {
     var userPermissionsPromise: Promise<GlobalPermission[]> =
       UserDataHandler.getUserGlobalPermissions(this.executingUserId);
 

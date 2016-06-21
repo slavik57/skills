@@ -497,7 +497,7 @@ describe('userDataHandler', () => {
       userInfo1 = ModelInfoMockFactory.createUserInfo(1);
       userInfo2 = ModelInfoMockFactory.createUserInfo(2);
 
-      return Promise.all([
+      return Promise.all<any>([
         TeamsDataHandler.createTeam(teamInfo1),
         TeamsDataHandler.createTeam(teamInfo2),
         TeamsDataHandler.createTeam(teamInfo3),

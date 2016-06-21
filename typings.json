@@ -1,29 +1,35 @@
 {
   "globalDevDependencies": {
-    "mocha": "registry:dt/mocha#2.2.5+20160317120654",
+    "mocha": "registry:dt/mocha#2.2.5+20160619032855",
     "superagent": "registry:dt/superagent#1.4.0+20160317120654",
     "supertest": "registry:dt/supertest#1.1.0+20160317120654"
   },
   "devDependencies": {
     "chai": "registry:npm/chai#3.5.0+20160415060238",
+    "chai-as-promised": "registry:npm/chai-as-promised#5.1.0+20160310030142",
     "sinon": "registry:npm/sinon#1.16.0+20160427193336"
   },
   "globalDependencies": {
-    "body-parser": "registry:dt/body-parser#0.0.0+20160317120654",
+    "body-parser": "registry:dt/body-parser#0.0.0+20160619023215",
+    "bookshelf": "registry:dt/bookshelf#0.8.2+20160514174357",
     "cookie-parser": "registry:dt/cookie-parser#1.3.4+20160316155526",
+    "create-error": "registry:dt/create-error#0.3.1+20160316155526",
+    "es6-shim": "registry:dt/es6-shim#0.31.2+20160602141504",
     "express": "registry:dt/express#4.0.0+20160317120654",
-    "express-handlebars": "registry:dt/express-handlebars#0.0.0+20160316155526",
-    "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160602151406",
+    "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160617060422",
     "express-session": "registry:dt/express-session#0.0.0+20160331200931",
-    "jquery": "registry:dt/jquery#1.10.0+20160417213236",
+    "knex": "registry:dt/knex#0.0.0+20160620202808",
     "method-override": "registry:dt/method-override#0.0.0+20160317120654",
+    "node": "registry:dt/node#6.0.0+20160619064643",
     "passport": "registry:dt/passport#0.2.0+20160317120654",
     "passport-local": "registry:dt/passport-local#0.0.0+20160316155526",
     "password-hash": "registry:dt/password-hash#1.2.0+20160330090212",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157"
   },
   "dependencies": {
+    "bluebird": "registry:npm/bluebird#3.3.4+20160531224558",
+    "lodash": "registry:npm/lodash#4.0.0+20160416211519",
     "mime": "registry:npm/mime#1.3.0+20160423043021",
-    "webpack": "registry:npm/webpack#1.12.9+20160418172948"
+    "validator": "registry:npm/validator#4.5.1+20160429171724"
   }
 }

@@ -1,6 +1,7 @@
 import {User} from "../../models/user";
 import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {OperationBase} from "../base/operationBase";
+import * as bluebirdPromise from 'bluebird';
 
 export class GetUsersOperation extends OperationBase<User[]> {
 
@@ -8,7 +9,7 @@ export class GetUsersOperation extends OperationBase<User[]> {
     super();
   }
 
-  protected doWork(): Promise<User[]> {
+  protected doWork(): bluebirdPromise<User[]> {
     return UserDataHandler.getUsers();
   }
 

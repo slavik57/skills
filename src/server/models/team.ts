@@ -7,7 +7,6 @@ import {ISkillOfATeam} from "./interfaces/iSkillOfATeam";
 import {IUserOfATeam} from "./interfaces/iUserOfATeam";
 import {Model, Collection, EventFunction, CollectionOptions, CollectionFetchOptions} from 'bookshelf';
 import {bookshelf} from '../../../bookshelf';
-import * as Promise from 'bluebird';
 import * as _ from 'lodash';
 import {TypesValidator} from '../../common/typesValidator';
 import {User} from './user';
@@ -15,6 +14,7 @@ import {TeamMember} from './teamMember';
 import {IHasPivot} from './interfaces/iHasPivot';
 import {ITeamInfo} from './interfaces/iTeamInfo';
 import {TeamSkill} from './teamSkill';
+import * as bluebirdPromise from 'bluebird';
 
 export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMember> {
   public get tableName(): string { return 'teams'; }
@@ -40,12 +40,12 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
     this.on('saving', (team: Team) => this.validateTeam(team));
   }
 
-  public validateTeam(team: Team): Promise<boolean> {
+  public validateTeam(team: Team): bluebirdPromise<boolean> {
     if (!TypesValidator.isLongEnoughString(team.attributes.name, 1)) {
-      return Promise.reject('The team name must not be empty');
+      return bluebirdPromise.reject('The team name must not be empty');
     }
 
-    return Promise.resolve(true);
+    return bluebirdPromise.resolve(true);
   }
 
   public teamMembers(): Collection<TeamMember> {
@@ -56,7 +56,7 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
     return this.hasMany(TeamSkill, TeamSkill.teamIdAttribute);
   }
 
-  public getTeamMembers(): Promise<IUserOfATeam[]> {
+  public getTeamMembers(): bluebirdPromise<IUserOfATeam[]> {
     return this.belongsToMany(User)
       .withPivot([TeamMember.isAdminAttribute])
       .through<User>(TeamMember, TeamMember.teamIdAttribute, TeamMember.userIdAttribute)
@@ -68,7 +68,7 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
       });
   }
 
-  public getTeamSkills(): Promise<ISkillOfATeam[]> {
+  public getTeamSkills(): bluebirdPromise<ISkillOfATeam[]> {
     var fetchOptions: CollectionFetchOptions = {
       withRelated: [
         TeamSkill.relatedTeamSkillUpvotesAttribute,
@@ -113,11 +113,11 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
 export class Teams extends bookshelf.Collection<Team> {
   model = Team;
 
-  public static clearAll(): Promise<any> {
+  public static clearAll(): bluebirdPromise<any> {
     return new Teams().query().del();
   }
 
-  public static getSkillsOfTeams(): Promise<ISkillsOfATeam[]> {
+  public static getSkillsOfTeams(): bluebirdPromise<ISkillsOfATeam[]> {
     var fetchOptions: CollectionFetchOptions = {
       withRelated: [
         Team.relatedTeamSkillsAttribute,

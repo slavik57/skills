@@ -13,6 +13,7 @@ var _ = require('lodash');
 var chaiAsPromised = require('chai-as-promised');
 var skillsDataHandler_1 = require('./skillsDataHandler');
 var userDataHandler_1 = require('./userDataHandler');
+var bluebirdPromise = require('bluebird');
 chai.use(chaiAsPromised);
 describe('SkillsDataHandler', function () {
     beforeEach(function () {
@@ -133,7 +134,7 @@ describe('SkillsDataHandler', function () {
             var skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             var skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
             var skillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('3');
-            var createAllSkillsPromise = Promise.all([
+            var createAllSkillsPromise = bluebirdPromise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3)
@@ -147,7 +148,7 @@ describe('SkillsDataHandler', function () {
         it('should create a skillPrerequisite', function () {
             var skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             var skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
-            var createAllSkillsPromise = Promise.all([
+            var createAllSkillsPromise = bluebirdPromise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2)
             ]);
@@ -204,7 +205,7 @@ describe('SkillsDataHandler', function () {
         it('should return all created skill prerequisites', function () {
             var skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             var skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
-            var createAllSkillsPromise = Promise.all([
+            var createAllSkillsPromise = bluebirdPromise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2)
             ]);
@@ -215,7 +216,7 @@ describe('SkillsDataHandler', function () {
                 var skill2 = skills[1];
                 skillPrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
                 skillPrerequisiteInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
-                return Promise.all([
+                return bluebirdPromise.all([
                     skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo1),
                     skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo2),
                 ]);
@@ -238,7 +239,7 @@ describe('SkillsDataHandler', function () {
             skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
             skillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('3');
-            return Promise.all([
+            return bluebirdPromise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3)
@@ -261,7 +262,7 @@ describe('SkillsDataHandler', function () {
         it('should return all existing skill prerequisites', function () {
             var skill1PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
             var skill1PrerequisiteInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill3);
-            var createAllSkillPrerequisitesPromise = Promise.all([
+            var createAllSkillPrerequisitesPromise = bluebirdPromise.all([
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo1),
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo2)
             ]);
@@ -273,7 +274,7 @@ describe('SkillsDataHandler', function () {
             var skill1PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
             var skill1PrerequisiteInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill3);
             var skill2PrerequisiteInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
-            var createAllSkillPrerequisitesPromise = Promise.all([
+            var createAllSkillPrerequisitesPromise = bluebirdPromise.all([
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo1),
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo2),
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill2PrerequisiteInfo)
@@ -294,7 +295,7 @@ describe('SkillsDataHandler', function () {
             skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
             skillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('3');
-            return Promise.all([
+            return bluebirdPromise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3)
@@ -317,7 +318,7 @@ describe('SkillsDataHandler', function () {
         it('no skill prerequisites leading to skill should return empty', function () {
             var skill1PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
             var skill1PrerequisiteInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill3);
-            var createAllSkillPrerequisitesPromise = Promise.all([
+            var createAllSkillPrerequisitesPromise = bluebirdPromise.all([
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo1),
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo2)
             ]);
@@ -328,7 +329,7 @@ describe('SkillsDataHandler', function () {
         it('should return all existing skills with prerequisites of this skill', function () {
             var skill2PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
             var skill3PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill3, skill1);
-            var createAllSkillPrerequisitesPromise = Promise.all([
+            var createAllSkillPrerequisitesPromise = bluebirdPromise.all([
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill2PrerequisiteInfo1),
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill3PrerequisiteInfo1)
             ]);
@@ -340,7 +341,7 @@ describe('SkillsDataHandler', function () {
             var skill2PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
             var skill3PrerequisiteInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill3, skill1);
             var skill1PrerequisiteInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
-            var createAllSkillPrerequisitesPromise = Promise.all([
+            var createAllSkillPrerequisitesPromise = bluebirdPromise.all([
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill2PrerequisiteInfo1),
                 skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skill3PrerequisiteInfo1)
             ]);
@@ -362,7 +363,7 @@ describe('SkillsDataHandler', function () {
                     skillPrerequisitePromises.push(skillPrerequisitePromise);
                 });
             });
-            return Promise.all(skillPrerequisitePromises);
+            return bluebirdPromise.all(skillPrerequisitePromises);
         }
         function verifySkillsToPrerequisites(actual, expected) {
             chai_1.expect(actual.length).to.be.equal(expected.length);
@@ -496,7 +497,7 @@ describe('SkillsDataHandler', function () {
         it('skill exists with teams should return correct teams', function () {
             var teamSkillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             var teamSkillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
-            var addSkillsPromise = Promise.all([
+            var addSkillsPromise = bluebirdPromise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2)
             ]);
@@ -511,7 +512,7 @@ describe('SkillsDataHandler', function () {
             var teamSkillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             var teamSkillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
             var teamSkillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team3, skill1);
-            var addSkillsPromise = Promise.all([
+            var addSkillsPromise = bluebirdPromise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo3)
@@ -528,7 +529,7 @@ describe('SkillsDataHandler', function () {
             var teamSkillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             var teamSkillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
             var teamSkillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
-            var addSkillsPromise = Promise.all([
+            var addSkillsPromise = bluebirdPromise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo1),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo2),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo3)
@@ -544,13 +545,13 @@ describe('SkillsDataHandler', function () {
             var team1SkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, skill1);
             var team2SkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
             var team3SkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team3, skill1);
-            var addSkillsAndUpvote = Promise.all([
+            var addSkillsAndUpvote = bluebirdPromise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(team1SkillInfo),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(team2SkillInfo),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(team3SkillInfo)
             ]).then(function (teamSkills) {
                 var team1Skill = teamSkills[0], team2Skill = teamSkills[1], team3Skill = teamSkills[2];
-                return Promise.all([
+                return bluebirdPromise.all([
                     teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(team1Skill.id, user1.id),
                     teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(team1Skill.id, user2.id),
                     teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(team2Skill.id, user2.id),
@@ -578,7 +579,7 @@ describe('SkillsDataHandler', function () {
                     teamSkillPromises.push(teamSkillPromise);
                 });
             });
-            return Promise.all(teamSkillPromises);
+            return bluebirdPromise.all(teamSkillPromises);
         }
         function verifySkillsToTeams(actual, expected) {
             chai_1.expect(actual.length).to.be.equal(expected.length);
@@ -638,7 +639,7 @@ describe('SkillsDataHandler', function () {
                 return _teams;
             });
             var expectedSkillsToTeams;
-            var addTeamSkillsPromise = Promise.all([addSkillsPromise, addTeamsPromise])
+            var addTeamSkillsPromise = bluebirdPromise.all([addSkillsPromise, addTeamsPromise])
                 .then(function () {
                 expectedSkillsToTeams =
                     [

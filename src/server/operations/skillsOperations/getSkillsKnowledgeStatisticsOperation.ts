@@ -3,6 +3,7 @@ import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
 import {ITeamsOfASkill} from "../../models/interfaces/iTeamsOfASkill";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {OperationBase} from "../base/operationBase";
+import * as bluebirdPromise from 'bluebird';
 
 export class GetSkillsKnowledgeStatisticsOperation extends OperationBase<ISkillKnowledgeStatistics[]> {
 
@@ -10,14 +11,14 @@ export class GetSkillsKnowledgeStatisticsOperation extends OperationBase<ISkillK
     super();
   }
 
-  protected doWork(): Promise<ISkillKnowledgeStatistics[]> {
-    var numberOfTeamsPromise: Promise<number> =
+  protected doWork(): bluebirdPromise<ISkillKnowledgeStatistics[]> {
+    var numberOfTeamsPromise: bluebirdPromise<number> =
       TeamsDataHandler.getNumberOfTeams();
 
-    var teamsOfSkillsPromise: Promise<ITeamsOfASkill[]> =
+    var teamsOfSkillsPromise: bluebirdPromise<ITeamsOfASkill[]> =
       SkillsDataHandler.getTeamsOfSkills();
 
-    return Promise.all([teamsOfSkillsPromise, numberOfTeamsPromise])
+    return bluebirdPromise.all([teamsOfSkillsPromise, numberOfTeamsPromise])
       .then((result: any[]) => {
         return this._calculateSkillsKnowledgeStatistics(result[0], result[1]);
       });

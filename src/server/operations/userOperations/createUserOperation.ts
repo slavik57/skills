@@ -4,6 +4,7 @@ import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {OperationBase} from "../base/operationBase";
 import {IUserInfo} from "../../models/interfaces/iUserInfo";
 import * as passwordHash from 'password-hash';
+import * as bluebirdPromise from 'bluebird';
 
 export class CreateUserOperation extends OperationBase<User> {
 
@@ -15,7 +16,7 @@ export class CreateUserOperation extends OperationBase<User> {
     super();
   }
 
-  protected doWork(): Promise<User> {
+  protected doWork(): bluebirdPromise<User> {
     var readerPermissions = [GlobalPermission.READER];
 
     var userInfo: IUserInfo = {

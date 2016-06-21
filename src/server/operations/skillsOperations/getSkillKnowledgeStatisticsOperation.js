@@ -7,6 +7,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var skillsDataHandler_1 = require("../../dataHandlers/skillsDataHandler");
 var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
 var operationBase_1 = require("../base/operationBase");
+var bluebirdPromise = require('bluebird');
 var GetSkillKnowledgeStatisticsOperation = (function (_super) {
     __extends(GetSkillKnowledgeStatisticsOperation, _super);
     function GetSkillKnowledgeStatisticsOperation(_skillId) {
@@ -17,7 +18,7 @@ var GetSkillKnowledgeStatisticsOperation = (function (_super) {
         var _this = this;
         var numberOfTeamsPromise = teamsDataHandler_1.TeamsDataHandler.getNumberOfTeams();
         var skillTeamsPromise = skillsDataHandler_1.SkillsDataHandler.getTeams(this._skillId);
-        return Promise.all([skillTeamsPromise, numberOfTeamsPromise])
+        return bluebirdPromise.all([skillTeamsPromise, numberOfTeamsPromise])
             .then(function (result) {
             return _this._calculateSkillsKnowledgeStatistics(result[0], result[1]);
         });

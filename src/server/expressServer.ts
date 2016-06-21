@@ -5,7 +5,6 @@ import {RegisterStrategy} from "./passportStrategies/registerStrategy";
 import {LoginStrategy} from "./passportStrategies/loginStrategy";
 import {LogoutStrategy} from "./passportStrategies/logoutStrategy";
 import {PathHelper} from "../common/pathHelper";
-import {webpackConfig} from './webpack.configs/webpack.config';
 import {Express, Request, Response, NextFunction} from 'express';
 import * as express from 'express';
 import * as cookieParser from 'cookie-parser';
@@ -16,21 +15,18 @@ import * as expressSession from 'express-session';
 import {SessionOptions} from 'express-session';
 import * as EnvironmentConfig from "../../environment";
 import * as path from 'path';
-import * as webpack from 'webpack';
 import * as https from 'https';
 import {Server} from 'net';
 import * as fs from 'fs';
+import * as bluebirdPromise from 'bluebird';
 const PostgreSqlStore = require('connect-pg-simple')(expressSession);
 const expressControllers = require('express-controller');
-const webpackDevMiddleware = require('webpack-dev-middleware');
-const webpackHotMiddleware = require('webpack-hot-middleware');
 
 export class ExpressServer {
 
   private static _instance: ExpressServer;
   private _serverDirectory: string;
   private _expressApp: Express;
-  private _webpackDevMiddleware: any;
   private _isInitialized: boolean;
 
   constructor() {
@@ -42,10 +38,6 @@ export class ExpressServer {
 
   public get expressApp(): Express {
     return this._expressApp;
-  }
-
-  public get webpackMiddleware(): any {
-    return this._webpackDevMiddleware;
   }
 
   public static get instance(): ExpressServer {
@@ -82,26 +74,20 @@ export class ExpressServer {
     return server;
   }
 
-  private _initializeAdmin(): Promise<void> {
+  private _initializeAdmin(): bluebirdPromise<User> {
     var createAdminUserOperation = new CreateAdminUserOperation();
 
     return createAdminUserOperation.execute().catch(() => { });
   }
 
-  private _initializeExpressServer(): Promise<ExpressServer> {
-    return new Promise((resolveCallback: (value: ExpressServer) => void) => {
-      if (this._isInitialized) {
-        resolveCallback(this);
-        return;
-      }
-
+  private _initializeExpressServer(): ExpressServer {
+    if (!this._isInitialized) {
       this._configureExpress();
-      this._configureWebpack(() => {
-        this._isInitialized = true;
 
-        resolveCallback(this);
-      });
-    });
+      this._isInitialized = true;
+    }
+
+    return this;
   }
 
   private _configureExpress() {
@@ -193,33 +179,6 @@ export class ExpressServer {
     }
 
     response.redirect('/signin');
-  }
-
-  private _configureWebpack(doneCallback: () => void): void {
-    console.log('=== configuring webpack ===');
-
-    var compiler = webpack(webpackConfig);
-
-    this._webpackDevMiddleware = webpackDevMiddleware(compiler, {
-      publicPath: webpackConfig.output.publicPath,
-      contentBase: 'src/app',
-      stats: {
-        colors: true,
-        hash: false,
-        timings: true,
-        chunks: false,
-        chunkModules: false,
-        modules: false
-      }
-    });
-
-    this._expressApp.use(this._webpackDevMiddleware);
-    this._expressApp.use(webpackHotMiddleware(compiler));
-
-    this._webpackDevMiddleware.waitUntilValid(() => {
-      console.log('=== webpack configuration finished ===');
-      doneCallback();
-    })
   }
 
   private _logServerIsUp(serverAddress: { address: string, port: number }) {

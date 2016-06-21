@@ -28,6 +28,7 @@ import {SkillPrerequisite, SkillPrerequisites} from '../models/skillPrerequisite
 import {SkillsDataHandler} from './skillsDataHandler';
 import {UserDataHandler} from './userDataHandler';
 import {User, Users} from '../models/user';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -46,7 +47,7 @@ describe('SkillsDataHandler', () => {
     it('should create a skill correctly', () => {
       // Act
       var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('1');
-      var skillPromise: Promise<Skill> =
+      var skillPromise: bluebirdPromise<Skill> =
         SkillsDataHandler.createSkill(skillInfo);
 
       // Assert
@@ -68,7 +69,7 @@ describe('SkillsDataHandler', () => {
 
     it('not existing skill should not fail', () => {
       // Act
-      var promise: Promise<Skill> =
+      var promise: bluebirdPromise<Skill> =
         SkillsDataHandler.deleteSkill(9999);
 
       // Assert
@@ -80,7 +81,7 @@ describe('SkillsDataHandler', () => {
       var skillToDelete = testModels.skills[0];
 
       // Act
-      var promise: Promise<Skill> =
+      var promise: bluebirdPromise<Skill> =
         SkillsDataHandler.deleteSkill(skillToDelete.id);
 
       // Assert
@@ -92,7 +93,7 @@ describe('SkillsDataHandler', () => {
       var skillToDelete = testModels.skills[0];
 
       // Act
-      var promise: Promise<Skill> =
+      var promise: bluebirdPromise<Skill> =
         SkillsDataHandler.deleteSkill(skillToDelete.id);
 
       // Assert
@@ -108,7 +109,7 @@ describe('SkillsDataHandler', () => {
       var skillToDelete = testModels.skills[0];
 
       // Act
-      var promise: Promise<Skill> =
+      var promise: bluebirdPromise<Skill> =
         SkillsDataHandler.deleteSkill(skillToDelete.id);
 
       // Assert
@@ -127,7 +128,7 @@ describe('SkillsDataHandler', () => {
       var skillToDelete = testModels.skills[0];
 
       // Act
-      var promise: Promise<Skill> =
+      var promise: bluebirdPromise<Skill> =
         SkillsDataHandler.deleteSkill(skillToDelete.id);
 
       // Assert
@@ -146,7 +147,7 @@ describe('SkillsDataHandler', () => {
       var skillToDelete = testModels.skills[0];
 
       // Act
-      var promise: Promise<Skill> =
+      var promise: bluebirdPromise<Skill> =
         SkillsDataHandler.deleteSkill(skillToDelete.id);
 
       // Assert
@@ -166,7 +167,7 @@ describe('SkillsDataHandler', () => {
       var skillToDelete = testModels.skills[0];
 
       // Act
-      var promise: Promise<Skill> =
+      var promise: bluebirdPromise<Skill> =
         SkillsDataHandler.deleteSkill(skillToDelete.id);
 
       // Assert
@@ -193,7 +194,7 @@ describe('SkillsDataHandler', () => {
 
     it('no such skill should return null', () => {
       // Act
-      var skillPromise: Promise<Skill> =
+      var skillPromise: bluebirdPromise<Skill> =
         SkillsDataHandler.getSkill(1234);
 
       // Assert
@@ -203,11 +204,11 @@ describe('SkillsDataHandler', () => {
     it('skill exists should return correct skill', () => {
       // Arrange
       var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('1');
-      var createSkillPromise: Promise<Skill> =
+      var createSkillPromise: bluebirdPromise<Skill> =
         SkillsDataHandler.createSkill(skillInfo);
 
       // Act
-      var getSkillPromise: Promise<Skill> =
+      var getSkillPromise: bluebirdPromise<Skill> =
         createSkillPromise.then((skill: Skill) => SkillsDataHandler.getSkill(skill.id));
 
       // Assert
@@ -220,7 +221,7 @@ describe('SkillsDataHandler', () => {
 
     it('no skills should return empty', () => {
       // Act
-      var skillsPromise: Promise<Skill[]> = SkillsDataHandler.getSkills();
+      var skillsPromise: bluebirdPromise<Skill[]> = SkillsDataHandler.getSkills();
 
       // Assert
       var expectedSkillsInfo: ISkillInfo[] = [];
@@ -235,15 +236,15 @@ describe('SkillsDataHandler', () => {
       var skillInfo2: ISkillInfo = ModelInfoMockFactory.createSkillInfo('2');
       var skillInfo3: ISkillInfo = ModelInfoMockFactory.createSkillInfo('3');
 
-      var createAllSkillsPromise: Promise<any> =
-        Promise.all([
+      var createAllSkillsPromise: bluebirdPromise<any> =
+        bluebirdPromise.all([
           SkillsDataHandler.createSkill(skillInfo1),
           SkillsDataHandler.createSkill(skillInfo2),
           SkillsDataHandler.createSkill(skillInfo3)
         ]);
 
       // Act
-      var skillsPromise: Promise<Skill[]> =
+      var skillsPromise: bluebirdPromise<Skill[]> =
         createAllSkillsPromise.then(() => SkillsDataHandler.getSkills());
 
       // Assert
@@ -263,12 +264,12 @@ describe('SkillsDataHandler', () => {
       var skillInfo2: ISkillInfo = ModelInfoMockFactory.createSkillInfo('2');
 
       var createAllSkillsPromise =
-        Promise.all([
+        bluebirdPromise.all([
           SkillsDataHandler.createSkill(skillInfo1),
           SkillsDataHandler.createSkill(skillInfo2)
         ]);
 
-      var skillPrerequisitePromise: Promise<SkillPrerequisite> =
+      var skillPrerequisitePromise: bluebirdPromise<SkillPrerequisite> =
         createAllSkillsPromise.then((skills: Skill[]) => {
           var skill1 = skills[0];
           var skill2 = skills[1];
@@ -302,7 +303,7 @@ describe('SkillsDataHandler', () => {
       var skillPrerequisiteId: number = prerequisiteToRemove.attributes.skill_prerequisite_id;
 
       // Act
-      var promise: Promise<SkillPrerequisite> =
+      var promise: bluebirdPromise<SkillPrerequisite> =
         SkillsDataHandler.removeSkillPrerequisite(9999, skillPrerequisiteId);
 
       // Assert
@@ -315,7 +316,7 @@ describe('SkillsDataHandler', () => {
       var skillId: number = prerequisiteToRemove.attributes.skill_id;
 
       // Act
-      var promise: Promise<SkillPrerequisite> =
+      var promise: bluebirdPromise<SkillPrerequisite> =
         SkillsDataHandler.removeSkillPrerequisite(skillId, 9999);
 
       // Assert
@@ -329,7 +330,7 @@ describe('SkillsDataHandler', () => {
       var skillPrerequisiteId: number = prerequisiteToRemove.attributes.skill_prerequisite_id;
 
       // Act
-      var promise: Promise<SkillPrerequisite> =
+      var promise: bluebirdPromise<SkillPrerequisite> =
         SkillsDataHandler.removeSkillPrerequisite(skillId, skillPrerequisiteId);
 
       // Assert
@@ -349,7 +350,7 @@ describe('SkillsDataHandler', () => {
 
     it('no skill prerequisites should return empty', () => {
       // Act
-      var prerequisitesPromise: Promise<SkillPrerequisite[]> = SkillsDataHandler.getSkillsPrerequisites();
+      var prerequisitesPromise: bluebirdPromise<SkillPrerequisite[]> = SkillsDataHandler.getSkillsPrerequisites();
 
       // Assert
       var expectedPrerequisitesInfo: ISkillPrerequisiteInfo[] = [];
@@ -364,7 +365,7 @@ describe('SkillsDataHandler', () => {
       var skillInfo2: ISkillInfo = ModelInfoMockFactory.createSkillInfo('2');
 
       var createAllSkillsPromise =
-        Promise.all([
+        bluebirdPromise.all([
           SkillsDataHandler.createSkill(skillInfo1),
           SkillsDataHandler.createSkill(skillInfo2)
         ]);
@@ -372,7 +373,7 @@ describe('SkillsDataHandler', () => {
       var skillPrerequisiteInfo1: ISkillPrerequisiteInfo;
       var skillPrerequisiteInfo2: ISkillPrerequisiteInfo;
 
-      var createAllSkillPrerequisitesPromise: Promise<any> =
+      var createAllSkillPrerequisitesPromise: bluebirdPromise<any> =
         createAllSkillsPromise.then((skills: Skill[]) => {
           var skill1: Skill = skills[0];
           var skill2: Skill = skills[1];
@@ -380,14 +381,14 @@ describe('SkillsDataHandler', () => {
           skillPrerequisiteInfo1 = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
           skillPrerequisiteInfo2 = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
 
-          return Promise.all([
+          return bluebirdPromise.all([
             SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo1),
             SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo2),
           ])
         });
 
       // Act
-      var skillPrerequisitesPromise: Promise<SkillPrerequisite[]> =
+      var skillPrerequisitesPromise: bluebirdPromise<SkillPrerequisite[]> =
         createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillsPrerequisites());
 
       // Assert
@@ -417,7 +418,7 @@ describe('SkillsDataHandler', () => {
       skillInfo2 = ModelInfoMockFactory.createSkillInfo('2');
       skillInfo3 = ModelInfoMockFactory.createSkillInfo('3');
 
-      return Promise.all([
+      return bluebirdPromise.all([
         SkillsDataHandler.createSkill(skillInfo1),
         SkillsDataHandler.createSkill(skillInfo2),
         SkillsDataHandler.createSkill(skillInfo3)
@@ -430,7 +431,7 @@ describe('SkillsDataHandler', () => {
 
     it('no such skill should return empty', () => {
       // Act
-      var skillsPromise: Promise<Skill[]> =
+      var skillsPromise: bluebirdPromise<Skill[]> =
         SkillsDataHandler.getSkillPrerequisites(99999);
 
       // Assert
@@ -442,7 +443,7 @@ describe('SkillsDataHandler', () => {
 
     it('no skill prerequisites should return empty', () => {
       // Act
-      var skillsPromise: Promise<Skill[]> =
+      var skillsPromise: bluebirdPromise<Skill[]> =
         SkillsDataHandler.getSkillPrerequisites(skill1.id);
 
       // Assert
@@ -457,14 +458,14 @@ describe('SkillsDataHandler', () => {
       var skill1PrerequisiteInfo1: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
       var skill1PrerequisiteInfo2: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill3);
 
-      var createAllSkillPrerequisitesPromise: Promise<any> =
-        Promise.all([
+      var createAllSkillPrerequisitesPromise: bluebirdPromise<any> =
+        bluebirdPromise.all([
           SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo1),
           SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo2)
         ]);
 
       // Act
-      var skillsPromise: Promise<Skill[]> =
+      var skillsPromise: bluebirdPromise<Skill[]> =
         createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillPrerequisites(skill1.id));
 
       // Assert
@@ -481,15 +482,15 @@ describe('SkillsDataHandler', () => {
 
       var skill2PrerequisiteInfo: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
 
-      var createAllSkillPrerequisitesPromise: Promise<any> =
-        Promise.all([
+      var createAllSkillPrerequisitesPromise: bluebirdPromise<any> =
+        bluebirdPromise.all([
           SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo1),
           SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo2),
           SkillsDataHandler.addSkillPrerequisite(skill2PrerequisiteInfo)
         ]);
 
       // Act
-      var skillsPromise: Promise<Skill[]> =
+      var skillsPromise: bluebirdPromise<Skill[]> =
         createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillPrerequisites(skill1.id));
 
       // Assert
@@ -516,7 +517,7 @@ describe('SkillsDataHandler', () => {
       skillInfo2 = ModelInfoMockFactory.createSkillInfo('2');
       skillInfo3 = ModelInfoMockFactory.createSkillInfo('3');
 
-      return Promise.all([
+      return bluebirdPromise.all([
         SkillsDataHandler.createSkill(skillInfo1),
         SkillsDataHandler.createSkill(skillInfo2),
         SkillsDataHandler.createSkill(skillInfo3)
@@ -529,7 +530,7 @@ describe('SkillsDataHandler', () => {
 
     it('no such skill should return empty', () => {
       // Act
-      var skillsPromise: Promise<Skill[]> =
+      var skillsPromise: bluebirdPromise<Skill[]> =
         SkillsDataHandler.getSkillContributions(9999999);
 
       // Assert
@@ -541,7 +542,7 @@ describe('SkillsDataHandler', () => {
 
     it('no skill prerequisites should return empty', () => {
       // Act
-      var skillsPromise: Promise<Skill[]> =
+      var skillsPromise: bluebirdPromise<Skill[]> =
         SkillsDataHandler.getSkillContributions(skill1.id);
 
       // Assert
@@ -556,13 +557,13 @@ describe('SkillsDataHandler', () => {
       var skill1PrerequisiteInfo1: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
       var skill1PrerequisiteInfo2: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill3);
 
-      var createAllSkillPrerequisitesPromise: Promise<any> =
-        Promise.all([
+      var createAllSkillPrerequisitesPromise: bluebirdPromise<any> =
+        bluebirdPromise.all([
           SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo1),
           SkillsDataHandler.addSkillPrerequisite(skill1PrerequisiteInfo2)
         ]);
 
-      var skillsPromise: Promise<Skill[]> =
+      var skillsPromise: bluebirdPromise<Skill[]> =
         createAllSkillPrerequisitesPromise.then(
           () => SkillsDataHandler.getSkillContributions(skill1.id));
 
@@ -578,14 +579,14 @@ describe('SkillsDataHandler', () => {
       var skill2PrerequisiteInfo1: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill2, skill1);
       var skill3PrerequisiteInfo1: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill3, skill1);
 
-      var createAllSkillPrerequisitesPromise: Promise<any> =
-        Promise.all([
+      var createAllSkillPrerequisitesPromise: bluebirdPromise<any> =
+        bluebirdPromise.all([
           SkillsDataHandler.addSkillPrerequisite(skill2PrerequisiteInfo1),
           SkillsDataHandler.addSkillPrerequisite(skill3PrerequisiteInfo1)
         ]);
 
       // Act
-      var skillsPromise: Promise<Skill[]> =
+      var skillsPromise: bluebirdPromise<Skill[]> =
         createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillContributions(skill1.id));
 
       // Assert
@@ -602,14 +603,14 @@ describe('SkillsDataHandler', () => {
 
       var skill1PrerequisiteInfo2: ISkillPrerequisiteInfo = ModelInfoMockFactory.createSkillPrerequisiteInfo(skill1, skill2);
 
-      var createAllSkillPrerequisitesPromise: Promise<any> =
-        Promise.all([
+      var createAllSkillPrerequisitesPromise: bluebirdPromise<any> =
+        bluebirdPromise.all([
           SkillsDataHandler.addSkillPrerequisite(skill2PrerequisiteInfo1),
           SkillsDataHandler.addSkillPrerequisite(skill3PrerequisiteInfo1)
         ]);
 
       // Act
-      var skillsPromise: Promise<Skill[]> =
+      var skillsPromise: bluebirdPromise<Skill[]> =
         createAllSkillPrerequisitesPromise.then(() => SkillsDataHandler.getSkillContributions(skill1.id));
 
       // Assert
@@ -623,8 +624,8 @@ describe('SkillsDataHandler', () => {
 
   describe('getSkillsToPrerequisitesMap', () => {
 
-    function createSkillPrerequisites(skillsToPrerequisites: IPrerequisitesOfASkill[]): Promise<SkillPrerequisite[]> {
-      var skillPrerequisitePromises: Promise<SkillPrerequisite>[] = [];
+    function createSkillPrerequisites(skillsToPrerequisites: IPrerequisitesOfASkill[]): bluebirdPromise<SkillPrerequisite[]> {
+      var skillPrerequisitePromises: bluebirdPromise<SkillPrerequisite>[] = [];
 
       skillsToPrerequisites.forEach((skillPrerequisite: IPrerequisitesOfASkill) => {
         skillPrerequisite.prerequisiteSkillIds.forEach((_prerequisiteSkillId: number) => {
@@ -634,7 +635,7 @@ describe('SkillsDataHandler', () => {
             skill_prerequisite_id: _prerequisiteSkillId
           }
 
-          var skillPrerequisitePromise: Promise<SkillPrerequisite> =
+          var skillPrerequisitePromise: bluebirdPromise<SkillPrerequisite> =
             SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo);
 
           skillPrerequisitePromises.push(skillPrerequisitePromise);
@@ -642,7 +643,7 @@ describe('SkillsDataHandler', () => {
         });
       });
 
-      return Promise.all(skillPrerequisitePromises);
+      return bluebirdPromise.all(skillPrerequisitePromises);
     }
 
     function verifySkillsToPrerequisites(actual: IPrerequisitesOfASkill[], expected: IPrerequisitesOfASkill[]): void {
@@ -670,7 +671,7 @@ describe('SkillsDataHandler', () => {
 
     it('no skills should return empty mapping', () => {
       // Act
-      var promise: Promise<IPrerequisitesOfASkill[]> =
+      var promise: bluebirdPromise<IPrerequisitesOfASkill[]> =
         SkillsDataHandler.getSkillsToPrerequisitesMap();
 
       // Arrange
@@ -683,7 +684,7 @@ describe('SkillsDataHandler', () => {
       var skills: Skill[];
       var expectedSkillsToPrerequisites: IPrerequisitesOfASkill[];
 
-      var addSkillsPromise: Promise<Skill[]> =
+      var addSkillsPromise: bluebirdPromise<Skill[]> =
         EnvironmentDirtifier.createSkills(numberOfSkills)
           .then((_skills: Skill[]) => {
             skills = _skills;
@@ -701,7 +702,7 @@ describe('SkillsDataHandler', () => {
           });
 
       // Act
-      var promise: Promise<IPrerequisitesOfASkill[]> =
+      var promise: bluebirdPromise<IPrerequisitesOfASkill[]> =
         addSkillsPromise.then(() => SkillsDataHandler.getSkillsToPrerequisitesMap());
 
       // Assert
@@ -715,7 +716,7 @@ describe('SkillsDataHandler', () => {
       // Arrange
       var numberOfSkills = 5;
       var skills: Skill[];
-      var addSkillsPromise: Promise<Skill[]> =
+      var addSkillsPromise: bluebirdPromise<Skill[]> =
         EnvironmentDirtifier.createSkills(numberOfSkills)
           .then((_skills: Skill[]) => {
             skills = _skills;
@@ -724,7 +725,7 @@ describe('SkillsDataHandler', () => {
 
       var expectedSkillsToPrerequisites: IPrerequisitesOfASkill[];
 
-      var addSkillPrerequisitesPromise: Promise<SkillPrerequisite[]> =
+      var addSkillPrerequisitesPromise: bluebirdPromise<SkillPrerequisite[]> =
         addSkillsPromise
           .then(() => {
             expectedSkillsToPrerequisites =
@@ -739,7 +740,7 @@ describe('SkillsDataHandler', () => {
           .then(() => createSkillPrerequisites(expectedSkillsToPrerequisites));
 
       // Act
-      var promise: Promise<IPrerequisitesOfASkill[]> =
+      var promise: bluebirdPromise<IPrerequisitesOfASkill[]> =
         addSkillsPromise.then(() => SkillsDataHandler.getSkillsToPrerequisitesMap());
 
       // Assert
@@ -758,7 +759,7 @@ describe('SkillsDataHandler', () => {
       upvotingUserIds: number[];
     }
 
-    function verifyTeamUpvotingUsersAsync(actualTeamsOfSkillPromise: Promise<ITeamOfASkill[]>,
+    function verifyTeamUpvotingUsersAsync(actualTeamsOfSkillPromise: bluebirdPromise<ITeamOfASkill[]>,
       expectedSkillUpdvotes: ITeamIdToUpvotes[]): Promise<void> {
 
       return expect(actualTeamsOfSkillPromise).to.eventually.fulfilled
@@ -801,7 +802,7 @@ describe('SkillsDataHandler', () => {
       userInfo1 = ModelInfoMockFactory.createUserInfo(1);
       userInfo2 = ModelInfoMockFactory.createUserInfo(2);
 
-      return Promise.all([
+      return Promise.all<any>([
         TeamsDataHandler.createTeam(teamInfo1),
         TeamsDataHandler.createTeam(teamInfo2),
         TeamsDataHandler.createTeam(teamInfo3),
@@ -822,7 +823,7 @@ describe('SkillsDataHandler', () => {
 
     it('no such skill should return empty teams list', () => {
       // Act
-      var teamsPromise: Promise<ITeamOfASkill[]> =
+      var teamsPromise: bluebirdPromise<ITeamOfASkill[]> =
         SkillsDataHandler.getTeams(99999);
 
       // Assert
@@ -831,7 +832,7 @@ describe('SkillsDataHandler', () => {
 
     it('skill exists but has no teams should return empty teams list', () => {
       // Act
-      var teamsPromise: Promise<ITeamOfASkill[]> =
+      var teamsPromise: bluebirdPromise<ITeamOfASkill[]> =
         SkillsDataHandler.getTeams(skill1.id);
 
       // Assert
@@ -844,14 +845,14 @@ describe('SkillsDataHandler', () => {
       var teamSkillInfo2: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
 
       // Assert
-      var addSkillsPromise: Promise<any> =
-        Promise.all([
+      var addSkillsPromise: bluebirdPromise<any> =
+        bluebirdPromise.all([
           TeamsDataHandler.addTeamSkill(teamSkillInfo1),
           TeamsDataHandler.addTeamSkill(teamSkillInfo2)
         ]);
 
       // Act
-      var teamsPromise: Promise<Team[]> =
+      var teamsPromise: bluebirdPromise<Team[]> =
         addSkillsPromise.then(() => SkillsDataHandler.getTeams(skill1.id))
           .then((teamsOfASkill: ITeamOfASkill[]) => {
             return _.map(teamsOfASkill, _ => _.team);
@@ -871,15 +872,15 @@ describe('SkillsDataHandler', () => {
       var teamSkillInfo3: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team3, skill1);
 
       // Assert
-      var addSkillsPromise: Promise<any> =
-        Promise.all([
+      var addSkillsPromise: bluebirdPromise<any> =
+        bluebirdPromise.all([
           TeamsDataHandler.addTeamSkill(teamSkillInfo1),
           TeamsDataHandler.addTeamSkill(teamSkillInfo2),
           TeamsDataHandler.addTeamSkill(teamSkillInfo3)
         ]);
 
       // Act
-      var teamsPromise: Promise<ITeamOfASkill[]> =
+      var teamsPromise: bluebirdPromise<ITeamOfASkill[]> =
         addSkillsPromise.then(() => SkillsDataHandler.getTeams(skill1.id));
 
       // Assert
@@ -900,15 +901,15 @@ describe('SkillsDataHandler', () => {
       var teamSkillInfo3: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team1, skill2);
 
       // Assert
-      var addSkillsPromise: Promise<any> =
-        Promise.all([
+      var addSkillsPromise: bluebirdPromise<any> =
+        bluebirdPromise.all([
           TeamsDataHandler.addTeamSkill(teamSkillInfo1),
           TeamsDataHandler.addTeamSkill(teamSkillInfo2),
           TeamsDataHandler.addTeamSkill(teamSkillInfo3)
         ]);
 
       // Act
-      var teamsPromise: Promise<Team[]> =
+      var teamsPromise: bluebirdPromise<Team[]> =
         addSkillsPromise.then(() => SkillsDataHandler.getTeams(skill1.id))
           .then((teamsOfASkill: ITeamOfASkill[]) => {
             return _.map(teamsOfASkill, _ => _.team);
@@ -927,14 +928,14 @@ describe('SkillsDataHandler', () => {
       var team2SkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team2, skill1);
       var team3SkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team3, skill1);
 
-      var addSkillsAndUpvote: Promise<any> =
-        Promise.all([
+      var addSkillsAndUpvote: bluebirdPromise<any> =
+        bluebirdPromise.all([
           TeamsDataHandler.addTeamSkill(team1SkillInfo),
           TeamsDataHandler.addTeamSkill(team2SkillInfo),
           TeamsDataHandler.addTeamSkill(team3SkillInfo)
         ]).then((teamSkills: TeamSkill[]) => {
           var [team1Skill, team2Skill, team3Skill] = teamSkills;
-          return Promise.all([
+          return bluebirdPromise.all([
             TeamsDataHandler.upvoteTeamSkill(team1Skill.id, user1.id),
             TeamsDataHandler.upvoteTeamSkill(team1Skill.id, user2.id),
             TeamsDataHandler.upvoteTeamSkill(team2Skill.id, user2.id),
@@ -942,7 +943,7 @@ describe('SkillsDataHandler', () => {
         });
 
       // Act
-      var teamsPromise: Promise<ITeamOfASkill[]> =
+      var teamsPromise: bluebirdPromise<ITeamOfASkill[]> =
         addSkillsAndUpvote.then(() => SkillsDataHandler.getTeams(skill1.id));
 
       // Assert
@@ -959,8 +960,8 @@ describe('SkillsDataHandler', () => {
 
   describe('getTeamsOfSkills', () => {
 
-    function createTeamSkills(skillsToTeams: ITeamsOfASkill[]): Promise<TeamSkill[]> {
-      var teamSkillPromises: Promise<TeamSkill>[] = [];
+    function createTeamSkills(skillsToTeams: ITeamsOfASkill[]): bluebirdPromise<TeamSkill[]> {
+      var teamSkillPromises: bluebirdPromise<TeamSkill>[] = [];
 
       skillsToTeams.forEach((_teamsOfASkill: ITeamsOfASkill) => {
         _teamsOfASkill.teamsIds.forEach((_teamId: number) => {
@@ -970,7 +971,7 @@ describe('SkillsDataHandler', () => {
             skill_id: _teamsOfASkill.skill.id
           }
 
-          var teamSkillPromise: Promise<TeamSkill> =
+          var teamSkillPromise: bluebirdPromise<TeamSkill> =
             TeamsDataHandler.addTeamSkill(teamSkillInfo);
 
           teamSkillPromises.push(teamSkillPromise);
@@ -978,7 +979,7 @@ describe('SkillsDataHandler', () => {
         });
       });
 
-      return Promise.all(teamSkillPromises);
+      return bluebirdPromise.all(teamSkillPromises);
     }
 
     function verifySkillsToTeams(actual: ITeamsOfASkill[], expected: ITeamsOfASkill[]): void {
@@ -1006,7 +1007,7 @@ describe('SkillsDataHandler', () => {
 
     it('no skills should return empty mapping', () => {
       // Act
-      var promise: Promise<ITeamsOfASkill[]> =
+      var promise: bluebirdPromise<ITeamsOfASkill[]> =
         SkillsDataHandler.getTeamsOfSkills();
 
       // Arrange
@@ -1019,7 +1020,7 @@ describe('SkillsDataHandler', () => {
       var skills: Skill[];
       var expectedSkillsToTeams: ITeamsOfASkill[];
 
-      var addSkillsPromise: Promise<Skill[]> =
+      var addSkillsPromise: bluebirdPromise<Skill[]> =
         EnvironmentDirtifier.createSkills(numberOfSkills)
           .then((_skills: Skill[]) => {
             skills = _skills;
@@ -1037,7 +1038,7 @@ describe('SkillsDataHandler', () => {
           });
 
       // Act
-      var promise: Promise<ITeamsOfASkill[]> =
+      var promise: bluebirdPromise<ITeamsOfASkill[]> =
         addSkillsPromise.then(() => SkillsDataHandler.getTeamsOfSkills());
 
       // Assert
@@ -1051,7 +1052,7 @@ describe('SkillsDataHandler', () => {
       // Arrange
       var numberOfSkills = 3;
       var skills: Skill[];
-      var addSkillsPromise: Promise<Skill[]> =
+      var addSkillsPromise: bluebirdPromise<Skill[]> =
         EnvironmentDirtifier.createSkills(numberOfSkills)
           .then((_skills: Skill[]) => {
             skills = _skills;
@@ -1060,7 +1061,7 @@ describe('SkillsDataHandler', () => {
 
       var numberOfTeams = 5;
       var teams: Team[];
-      var addTeamsPromise: Promise<Team[]> =
+      var addTeamsPromise: bluebirdPromise<Team[]> =
         EnvironmentDirtifier.createTeams(numberOfTeams)
           .then((_teams: Team[]) => {
             teams = _teams;
@@ -1069,8 +1070,8 @@ describe('SkillsDataHandler', () => {
 
       var expectedSkillsToTeams: ITeamsOfASkill[];
 
-      var addTeamSkillsPromise: Promise<TeamSkill[]> =
-        Promise.all([addSkillsPromise, addTeamsPromise])
+      var addTeamSkillsPromise: bluebirdPromise<TeamSkill[]> =
+        bluebirdPromise.all<any>([addSkillsPromise, addTeamsPromise])
           .then(() => {
             expectedSkillsToTeams =
               [
@@ -1082,7 +1083,7 @@ describe('SkillsDataHandler', () => {
           .then(() => createTeamSkills(expectedSkillsToTeams));
 
       // Act
-      var promise: Promise<ITeamsOfASkill[]> =
+      var promise: bluebirdPromise<ITeamsOfASkill[]> =
         addSkillsPromise.then(() => SkillsDataHandler.getTeamsOfSkills());
 
       // Assert

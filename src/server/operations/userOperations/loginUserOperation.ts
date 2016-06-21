@@ -2,6 +2,7 @@ import {User} from "../../models/user";
 import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {OperationBase} from "../base/operationBase";
 import * as passwordHash from 'password-hash';
+import * as bluebirdPromise from 'bluebird';
 
 export class LoginUserOperation extends OperationBase<User> {
 
@@ -9,30 +10,30 @@ export class LoginUserOperation extends OperationBase<User> {
     super();
   }
 
-  protected doWork(): Promise<User> {
+  protected doWork(): bluebirdPromise<User> {
     return this._getUser()
       .then((_user: User) => this._verifyPassword(_user));
   }
 
-  private _getUser(): Promise<User> {
+  private _getUser(): bluebirdPromise<User> {
     return UserDataHandler.getUserByUsername(this._username)
       .then((_user: User) => {
         if (!_user) {
-          return Promise.reject('Invalid username');
+          return bluebirdPromise.reject('Invalid username');
         }
 
         return _user;
       });
   }
 
-  private _verifyPassword(user: User): Promise<User> {
+  private _verifyPassword(user: User): bluebirdPromise<User> {
     var isCorrectPassword: boolean =
       passwordHash.verify(this._passwrod, user.attributes.password_hash);
 
     if (isCorrectPassword) {
-      return Promise.resolve(user);
+      return bluebirdPromise.resolve(user);
     } else {
-      return Promise.reject('Incorrect password');
+      return bluebirdPromise.reject('Incorrect password');
     }
   }
 

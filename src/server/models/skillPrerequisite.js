@@ -6,8 +6,8 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var modelBase_1 = require("./modelBase");
 var bookshelf_1 = require('../../../bookshelf');
-var Promise = require('bluebird');
 var typesValidator_1 = require('../../common/typesValidator');
+var bluebirdPromise = require('bluebird');
 var SkillPrerequisite = (function (_super) {
     __extends(SkillPrerequisite, _super);
     function SkillPrerequisite() {
@@ -37,15 +37,15 @@ var SkillPrerequisite = (function (_super) {
     };
     SkillPrerequisite.prototype.validateSkillPrerequisite = function (skillPrerequisite) {
         if (!typesValidator_1.TypesValidator.isInteger(skillPrerequisite.attributes.skill_id)) {
-            return Promise.reject('The skill_id must be an integer');
+            return bluebirdPromise.reject('The skill_id must be an integer');
         }
         if (!typesValidator_1.TypesValidator.isInteger(skillPrerequisite.attributes.skill_prerequisite_id)) {
-            return Promise.reject('The skill_prerequisite_id be an integer');
+            return bluebirdPromise.reject('The skill_prerequisite_id be an integer');
         }
         if (skillPrerequisite.attributes.skill_id === skillPrerequisite.attributes.skill_prerequisite_id) {
-            return Promise.reject('Skill can not be a prerequisite of itself');
+            return bluebirdPromise.reject('Skill can not be a prerequisite of itself');
         }
-        return Promise.resolve(true);
+        return bluebirdPromise.resolve(true);
     };
     return SkillPrerequisite;
 }(modelBase_1.ModelBase));

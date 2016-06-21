@@ -8,6 +8,7 @@ var getAllowedUserPermissionsToModifyOperation_1 = require("../userOperations/ge
 var operationBase_1 = require("./operationBase");
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var _ = require('lodash');
+var bluebirdPromise = require('bluebird');
 var ModifyUserPermissionsOperationBase = (function (_super) {
     __extends(ModifyUserPermissionsOperationBase, _super);
     function ModifyUserPermissionsOperationBase(_userIdToModifyPermissionsOf, _permissionsToModify, _executingUserId) {
@@ -28,7 +29,7 @@ var ModifyUserPermissionsOperationBase = (function (_super) {
     ModifyUserPermissionsOperationBase.prototype._canExecutingUserModifyPermissions = function (permissionsExecutingUserCanModify) {
         var permissionsTheExecutingUserCannotAdd = _.difference(this._permissionsToModify, permissionsExecutingUserCanModify);
         if (permissionsTheExecutingUserCannotAdd.length < 1) {
-            return Promise.resolve();
+            return bluebirdPromise.resolve();
         }
         else {
             return this._rejectWithNotAllowedPermissionsToModify(permissionsTheExecutingUserCannotAdd);
@@ -37,7 +38,7 @@ var ModifyUserPermissionsOperationBase = (function (_super) {
     ModifyUserPermissionsOperationBase.prototype._rejectWithNotAllowedPermissionsToModify = function (permissionsTheExecutingUserCannotAdd) {
         var permissionNames = _.map(permissionsTheExecutingUserCannotAdd, function (_permission) { return globalPermission_1.GlobalPermission[_permission]; });
         var message = 'The executing user cannot modify the permissions: ' + permissionNames.join(', ');
-        return Promise.reject(message);
+        return bluebirdPromise.reject(message);
     };
     return ModifyUserPermissionsOperationBase;
 }(operationBase_1.OperationBase));

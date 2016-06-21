@@ -16,22 +16,23 @@ import {TeamMember} from '../models/teamMember';
 import {User, Users} from '../models/user';
 import {TeamSkill, TeamSkills} from '../models/teamSkill';
 import {Transaction}from 'knex';
+import * as bluebirdPromise from 'bluebird';
 
 export class TeamsDataHandler {
 
-  public static createTeam(teamInfo: ITeamInfo): Promise<Team> {
+  public static createTeam(teamInfo: ITeamInfo): bluebirdPromise<Team> {
     return new Team(teamInfo).save();
   }
 
-  public static deleteTeam(teamId: number): Promise<Team> {
+  public static deleteTeam(teamId: number): bluebirdPromise<Team> {
     return this._initializeTeamByIdQuery(teamId).destroy();
   }
 
-  public static addTeamMember(teamMemberInfo: ITeamMemberInfo): Promise<TeamMember> {
+  public static addTeamMember(teamMemberInfo: ITeamMemberInfo): bluebirdPromise<TeamMember> {
     return new TeamMember(teamMemberInfo).save();
   }
 
-  public static removeTeamMember(teamId: number, userId: number): Promise<TeamMember> {
+  public static removeTeamMember(teamId: number, userId: number): bluebirdPromise<TeamMember> {
     var query = {}
     query[TeamMember.teamIdAttribute] = teamId;
     query[TeamMember.userIdAttribute] = userId;
@@ -44,11 +45,11 @@ export class TeamsDataHandler {
     return new TeamMember().where(query).destroy(destroyOptions);
   }
 
-  public static addTeamSkill(teamSkillInfo: ITeamSkillInfo): Promise<TeamSkill> {
+  public static addTeamSkill(teamSkillInfo: ITeamSkillInfo): bluebirdPromise<TeamSkill> {
     return new TeamSkill(teamSkillInfo).save();
   }
 
-  public static removeTeamSkill(teamId: number, skillId: number): Promise<TeamSkill> {
+  public static removeTeamSkill(teamId: number, skillId: number): bluebirdPromise<TeamSkill> {
     var query = {};
     query[TeamSkill.teamIdAttribute] = teamId;
     query[TeamSkill.skillIdAttribute] = skillId;
@@ -56,43 +57,43 @@ export class TeamsDataHandler {
     return new TeamSkill().where(query).destroy();
   }
 
-  public static getTeamMembers(teamId: number): Promise<IUserOfATeam[]> {
+  public static getTeamMembers(teamId: number): bluebirdPromise<IUserOfATeam[]> {
     var team: Team = this._initializeTeamByIdQuery(teamId);
 
     return team.getTeamMembers();
   }
 
-  public static getTeamSkills(teamId: number): Promise<ISkillOfATeam[]> {
+  public static getTeamSkills(teamId: number): bluebirdPromise<ISkillOfATeam[]> {
     var team: Team = this._initializeTeamByIdQuery(teamId);
 
     return team.getTeamSkills();
   }
 
-  public static getSkillsOfTeams(): Promise<ISkillsOfATeam[]> {
+  public static getSkillsOfTeams(): bluebirdPromise<ISkillsOfATeam[]> {
     return Teams.getSkillsOfTeams();
   }
 
-  public static getTeam(teamId: number): Promise<Team> {
+  public static getTeam(teamId: number): bluebirdPromise<Team> {
     var team: Team = this._initializeTeamByIdQuery(teamId);
 
     return team.fetch();
   }
 
-  public static getTeams(): Promise<Team[]> {
+  public static getTeams(): bluebirdPromise<Team[]> {
     return new Teams().fetch()
       .then((_teamsCollection: Collection<Team>) => {
         return _teamsCollection.toArray();
       });
   }
 
-  public static getNumberOfTeams(): Promise<number> {
+  public static getNumberOfTeams(): bluebirdPromise<number> {
     return new Teams().count()
       .then((_numberOfTeams: any) => {
         return Number(_numberOfTeams);
       });
   }
 
-  public static upvoteTeamSkill(teamSkillId: number, upvotingUserId: number): Promise<TeamSkillUpvote> {
+  public static upvoteTeamSkill(teamSkillId: number, upvotingUserId: number): bluebirdPromise<TeamSkillUpvote> {
     var upvoteInfo: ITeamSkillUpvoteInfo = {
       team_skill_id: teamSkillId,
       user_id: upvotingUserId
@@ -101,7 +102,7 @@ export class TeamsDataHandler {
     return new TeamSkillUpvote(upvoteInfo).save();
   }
 
-  public static removeUpvoteForTeamSkill(teamSkillId: number, upvotedUserId: number): Promise<TeamSkillUpvote> {
+  public static removeUpvoteForTeamSkill(teamSkillId: number, upvotedUserId: number): bluebirdPromise<TeamSkillUpvote> {
     var query = {};
     query[TeamSkillUpvote.teamSkillIdAttribute] = teamSkillId;
     query[TeamSkillUpvote.userIdAttribute] = upvotedUserId;
@@ -115,7 +116,7 @@ export class TeamsDataHandler {
       .where(query).destroy(destroyOptions);
   }
 
-  public static setAdminRights(teamId: number, userId: number, newAdminRights: boolean): Promise<TeamMember> {
+  public static setAdminRights(teamId: number, userId: number, newAdminRights: boolean): bluebirdPromise<TeamMember> {
     return bookshelf.transaction((_transaction: Transaction) => {
       return this._setAdminRightsInternal(teamId, userId, newAdminRights, _transaction);
     });
@@ -128,7 +129,7 @@ export class TeamsDataHandler {
     return new Team(queryCondition);
   }
 
-  private static _setAdminRightsInternal(teamId: number, userId: number, newAdminRights: boolean, transaction: Transaction): Promise<TeamMember> {
+  private static _setAdminRightsInternal(teamId: number, userId: number, newAdminRights: boolean, transaction: Transaction): bluebirdPromise<TeamMember> {
     var queryCondition = {};
     queryCondition[TeamMember.teamIdAttribute] = teamId;
     queryCondition[TeamMember.userIdAttribute] = userId;
