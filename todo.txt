@@ -1,5 +1,5 @@
 todo:
-- split the javascript from the css entry points
+- create a reverse proxy for the server and the app and share the session
 - add credits footer
 - fix the issue with slow loading page shows the design before the styles
 - split the ui from the server....(still keep the authentication...share the session cookie...possible with passport shared secrets...)
