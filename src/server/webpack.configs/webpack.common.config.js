@@ -6,7 +6,8 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 exports.webpackCommonConfiguration = {
     entry: {
         'app': './src/app/app.ts',
-        'vendor': './src/app/vendor.ts'
+        'vendor': './src/app/vendor.ts',
+        'design': './src/app/design.scss'
     },
     resolve: {
         extensions: ['', '.ts', '.js', 'scss']

@@ -18,87 +18,65 @@
       </nav>
     </div>
 
-    <div class="row">
-      <div class="col s10 offset-s1 m12 l6">
-        <div class="card blue darken-1">
-          <div class="card-content white-text">
-            <span class="card-title">Card Title</span>
-            <p>I am a very simple card. I am good at containing small bits of information.
-            I am convenient because I require little markup to use effectively.</p>
-          </div>
-          <div class="card-action">
-            <a href="#">This is a link</a>
-            <a href="#">This is a link</a>
+    <div class="signin-container">
+      <div class="sign-in-card-wrapper">
+        <div class="sign-in-card">
+          <div class="card-content">
+            <span class="title">Sign in</span>
+            <form id="signin" action="/login" method="post">
+              <div class="input-field">
+                <input id="signin-username" type="text" name="username"/>
+                <label for="signin-username">Username</label>
+              </div>
+              <div class="input-field">
+                <input id="signin-password" type="password" name="password"/>
+                <label for="signin-password">Password</label>
+              </div>
+              <div class="submit-wrapper">
+                <input type="submit" class="submit-button" value="Log In"/>
+              </div>
+            </form>
           </div>
         </div>
       </div>
     </div>
 
-    <div>
+    <div class="signin-container">
+      <div class="sign-in-card-wrapper">
+        <div class="sign-in-card">
+          <div class="card-content">
+            <span class="title">Register</span>
 
-      <div>
-        <h1>Sign in</h1>
-        <p>We're using passport.js to demonstrate user authentication. Please sign-in with your Local account to view your profile.</p>
+            <form id="register" action="/register" method="post">
+              <div class="input-field">
+                <input id="register-username" type="text" name="username"/>
+                <label for="register-username">Username</label>
+              </div>
+              <div class="input-field">
+                <input id="register-password" type="password" name="password"/>
+                <label for="register-password">Password</label>
+              </div>
+              <div class="input-field">
+                <input id="register-email" type="email" name="email"/>
+                <label for="register-email">Email</label>
+              </div>
+              <div class="input-field">
+                <input id="register-first-name" type="text" name="firstName"/>
+                <label for="register-first-name">First name</label>
+              </div>
+              <div class="input-field">
+                <input id="register-last-name" type="text" name="lastName"/>
+                <label for="register-last-name">Last name</label>
+              </div>
+              
+              <div class="submit-wrapper">
+                <input type="submit" class="submit-button" value="Register"/>
+              </div>
+            </form>
 
-        <div id="local" class="collapse">
-          <a href="#signin">I already have an account</a>
-          <br/>
-          <a href="#register">I need to make an account</a>
+          </div>
         </div>
-
-        <br/>
-        <br/>
-        <br/>
-
-        <form id="signin" action="/login" method="post">
-          <p></p>
-          I already have an account:
-          <div>
-              <label>Username:</label>
-              <input type="text" name="username"/>
-          </div>
-          <div>
-              <label>Password:</label>
-              <input type="password" name="password"/>
-          </div>
-          <div>
-              <input type="submit" value="Log In"/>
-          </div>
-        </form>
-
-        <br/>
-        <br/>
-        <br/>
-
-        <form id="register" action="/register" method="post">
-          <p></p>
-          I need to make an account:
-          <div>
-              <label>New Username:</label>
-              <input type="text" name="username"/>
-          </div>
-          <div>
-              <label>New Password:</label>
-              <input type="password" name="password"/>
-          </div>
-          <div>
-              <label>Email:</label>
-              <input type="email" name="email"/>
-          </div>
-          <div>
-              <label>First name:</label>
-              <input type="text" name="firstName"/>
-          </div>
-          <div>
-              <label>Last name:</label>
-              <input type="text" name="lastName"/>
-          </div>
-          <div>
-              <input type="submit" value="Register"/>
-          </div>
-        </form>
       </div>
-
     </div>
 
   </body>

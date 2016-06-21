@@ -1,0 +1,56 @@
+@import '../../../node_modules/materialize-css/dist/css/materialize';
+
+.signin-container {
+  @extend .row;
+
+  .sign-in-card-wrapper {
+    @extend .col;
+    @extend .s12;
+    @extend .m6;
+    @extend .l6;
+    @extend .offset-m3;
+    @extend .offset-l3;
+
+    // TODO: add animation
+
+    .sign-in-card {
+      @extend .card;
+      @extend .grey;
+      @extend .lighten-4;
+
+      .card-content{
+        @extend .card-content;
+
+        .title {
+          @extend .card-title;
+        }
+
+        .input-field {
+          input:focus + label {
+            @extend .blue-text;
+          }
+
+          input:focus {
+            border-bottom: 1px solid #9e9e9e;
+            box-shadow: none;
+          }
+        }
+
+        .submit-wrapper{
+          @extend .row;
+          margin-top: 1rem;
+
+          .submit-button {
+            @extend .btn;
+            @extend .blue;
+            @extend .lighten-1;
+            @extend .text-white;
+
+            @extend .col;
+            @extend .l12;
+          }
+        }
+      }
+    }
+  }
+}
