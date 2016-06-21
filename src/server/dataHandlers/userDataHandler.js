@@ -4,6 +4,7 @@ var user_1 = require('../models/user');
 var usersGlobalPermissions_1 = require('../models/usersGlobalPermissions');
 var bookshelf_1 = require('../../../bookshelf');
 var _ = require('lodash');
+var bluebirdPromise = require('bluebird');
 var UserDataHandler = (function () {
     function UserDataHandler() {
     }
@@ -92,7 +93,7 @@ var UserDataHandler = (function () {
             .fetch(fetchOptions)
             .then(function (user) {
             if (!user) {
-                return Promise.reject('User does not exist');
+                return bluebirdPromise.reject('User does not exist');
             }
             var existingPermissionsCollection = user.relations.globalPermissions;
             return _this._addNotExistingGlobalPermissions(user.id, existingPermissionsCollection, permissionsToAdd, transaction);
@@ -108,7 +109,7 @@ var UserDataHandler = (function () {
             transacting: transaction
         };
         var deleteUserPermissionsPromise = _.map(permissionsToDelete, function (_permission) { return _permission.destroy(destroyOptions); });
-        return Promise.all(deleteUserPermissionsPromise);
+        return bluebirdPromise.all(deleteUserPermissionsPromise);
     };
     UserDataHandler._addNotExistingGlobalPermissions = function (userId, existingPermissionsCollection, permissionsToAdd, transaction) {
         var existingPermissions = this._convertPermissionsCollectionsToGlobalPermissions(existingPermissionsCollection);
@@ -119,7 +120,7 @@ var UserDataHandler = (function () {
             transacting: transaction
         };
         var newUserPermissionsPromise = _.map(newUserPermissions, function (_permission) { return _permission.save(null, saveOptions); });
-        return Promise.all(newUserPermissionsPromise);
+        return bluebirdPromise.all(newUserPermissionsPromise);
     };
     UserDataHandler._createUserGlobalPermission = function (userId, permissions) {
         var _this = this;

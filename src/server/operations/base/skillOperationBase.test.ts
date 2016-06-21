@@ -7,6 +7,7 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised'
 import {SkillOperationBase} from './skillOperationBase';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -17,7 +18,7 @@ class TestSkillOperationBase extends SkillOperationBase<any> {
     super(executingUserId);
   }
 
-  protected doWork(): Promise<any> {
+  protected doWork(): bluebirdPromise<any> {
     this.wasExecuted = true;
     return null;
   }
@@ -59,7 +60,7 @@ describe('SkillOperationBase', () => {
 
       it('should fail', () => {
         // Act
-        var resultPromise: Promise<any> = operation.canExecute();
+        var resultPromise: bluebirdPromise<any> = operation.canExecute();
 
         // Assert
         return expect(resultPromise).to.eventually.rejected;
@@ -79,7 +80,7 @@ describe('SkillOperationBase', () => {
 
       it('should succeed', () => {
         // Act
-        var resultPromise: Promise<any> = operation.canExecute();
+        var resultPromise: bluebirdPromise<any> = operation.canExecute();
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled;
@@ -99,7 +100,7 @@ describe('SkillOperationBase', () => {
 
       it('should succeed', () => {
         // Act
-        var resultPromise: Promise<any> = operation.canExecute();
+        var resultPromise: bluebirdPromise<any> = operation.canExecute();
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled;
@@ -125,7 +126,7 @@ describe('SkillOperationBase', () => {
 
       it('should fail and not execute', () => {
         // Act
-        var resultPromise: Promise<any> = operation.execute();
+        var resultPromise: bluebirdPromise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.rejected
@@ -148,7 +149,7 @@ describe('SkillOperationBase', () => {
 
       it('should succeed and execute', () => {
         // Act
-        var resultPromise: Promise<any> = operation.execute();
+        var resultPromise: bluebirdPromise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled
@@ -171,7 +172,7 @@ describe('SkillOperationBase', () => {
 
       it('should succeed and execute', () => {
         // Act
-        var resultPromise: Promise<any> = operation.execute();
+        var resultPromise: bluebirdPromise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled

@@ -19,7 +19,7 @@ import {IUserInfo} from "../models/interfaces/iUserInfo";
 import {ITestModels} from "./interfaces/iTestModels";
 import {UserGlobalPermissions} from '../models/usersGlobalPermissions';
 import * as _ from 'lodash';
-
+import * as bluebirdPromise from 'bluebird';
 
 export class EnvironmentDirtifier {
   private static get numberOfUsers(): number { return 5; }
@@ -34,7 +34,7 @@ export class EnvironmentDirtifier {
     ];
   }
 
-  public static fillAllTables(): Promise<ITestModels> {
+  public static fillAllTables(): bluebirdPromise<ITestModels> {
     var testModels: ITestModels = {
       users: [],
       skills: [],
@@ -52,30 +52,30 @@ export class EnvironmentDirtifier {
       .then(() => testModels);
   }
 
-  public static createUsers(numberOfUsers: number): Promise<User[]> {
-    var userCreationPromises: Promise<User>[] = [];
+  public static createUsers(numberOfUsers: number): bluebirdPromise<User[]> {
+    var userCreationPromises: bluebirdPromise<User>[] = [];
     for (var i = 0; i < numberOfUsers; i++) {
       var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(i);
 
       userCreationPromises.push(UserDataHandler.createUser(userInfo));
     }
 
-    return Promise.all(userCreationPromises);
+    return bluebirdPromise.all(userCreationPromises);
   }
 
-  public static createSkills(numberOfSkills: number): Promise<Skill[]> {
-    var skillCreationPromises: Promise<Skill>[] = [];
+  public static createSkills(numberOfSkills: number): bluebirdPromise<Skill[]> {
+    var skillCreationPromises: bluebirdPromise<Skill>[] = [];
     for (var i = 0; i < numberOfSkills; i++) {
       var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo(i.toString());
 
       skillCreationPromises.push(SkillsDataHandler.createSkill(skillInfo));
     }
 
-    return Promise.all(skillCreationPromises);
+    return bluebirdPromise.all(skillCreationPromises);
   }
 
-  public static createSkillPrerequisites(skills: Skill[]): Promise<SkillPrerequisite[]> {
-    var skillPrerequisitesCreationPromises: Promise<SkillPrerequisite>[] = [];
+  public static createSkillPrerequisites(skills: Skill[]): bluebirdPromise<SkillPrerequisite[]> {
+    var skillPrerequisitesCreationPromises: bluebirdPromise<SkillPrerequisite>[] = [];
 
     skills.forEach((_skill1: Skill) => {
       skills.forEach((_skill2: Skill) => {
@@ -90,30 +90,30 @@ export class EnvironmentDirtifier {
       });
     });
 
-    return Promise.all(skillPrerequisitesCreationPromises);
+    return bluebirdPromise.all(skillPrerequisitesCreationPromises);
   }
 
-  public static createTeams(numberOfTeams: number): Promise<Team[]> {
-    var teamCreationPromises: Promise<Team>[] = [];
+  public static createTeams(numberOfTeams: number): bluebirdPromise<Team[]> {
+    var teamCreationPromises: bluebirdPromise<Team>[] = [];
     for (var i = 0; i < numberOfTeams; i++) {
       var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo(i.toString());
 
       teamCreationPromises.push(TeamsDataHandler.createTeam(teamInfo));
     }
 
-    return Promise.all(teamCreationPromises);
+    return bluebirdPromise.all(teamCreationPromises);
   }
 
-  private static _fillLevel0Tables(testModels: ITestModels): Promise<any> {
-    return Promise.all([
+  private static _fillLevel0Tables(testModels: ITestModels): bluebirdPromise<any> {
+    return bluebirdPromise.all([
       this._fillUsers(testModels),
       this._fillTeams(testModels),
       this._fillSkills(testModels)
     ]);
   }
 
-  private static _fillLevel1Tables(testModels: ITestModels): Promise<any> {
-    return Promise.all([
+  private static _fillLevel1Tables(testModels: ITestModels): bluebirdPromise<any> {
+    return bluebirdPromise.all([
       this._fillUsersGlobalPermissions(testModels),
       this._fillTeamMembers(testModels),
       this._fillSkillPrerequisites(testModels),
@@ -121,49 +121,49 @@ export class EnvironmentDirtifier {
     ]);
   }
 
-  private static _fillLevel2Tables(testModels: ITestModels): Promise<any> {
+  private static _fillLevel2Tables(testModels: ITestModels): bluebirdPromise<any> {
     return this._fillTeamSkillUpvotes(testModels);
   }
 
-  private static _fillUsers(testModels: ITestModels): Promise<any> {
+  private static _fillUsers(testModels: ITestModels): bluebirdPromise<any> {
     return this.createUsers(this.numberOfUsers)
       .then((users: User[]) => {
         testModels.users = users;
       });
   }
 
-  private static _fillTeams(testModels: ITestModels): Promise<any> {
+  private static _fillTeams(testModels: ITestModels): bluebirdPromise<any> {
     return this.createTeams(this.numberOfTeams)
       .then((teams: Team[]) => {
         testModels.teams = teams;
       });
   }
 
-  private static _fillSkills(testModels: ITestModels): Promise<any> {
+  private static _fillSkills(testModels: ITestModels): bluebirdPromise<any> {
     return this.createSkills(this.numberOfSkills)
       .then((skills: Skill[]) => {
         testModels.skills = skills;
       });
   }
 
-  private static _fillUsersGlobalPermissions(testModels: ITestModels): Promise<any> {
-    var permissionsCreationPromises: Promise<UserGlobalPermissions[]>[] = [];
+  private static _fillUsersGlobalPermissions(testModels: ITestModels): bluebirdPromise<any> {
+    var permissionsCreationPromises: bluebirdPromise<UserGlobalPermissions[]>[] = [];
 
     testModels.users.forEach((_user: User) => {
-      var permissionsPromise: Promise<UserGlobalPermissions[]> =
+      var permissionsPromise: bluebirdPromise<UserGlobalPermissions[]> =
         UserDataHandler.addGlobalPermissions(_user.id, this.permissionsForEachUser);
 
       permissionsCreationPromises.push(permissionsPromise);
     });
 
-    return Promise.all(permissionsCreationPromises)
+    return bluebirdPromise.all(permissionsCreationPromises)
       .then((permissions: UserGlobalPermissions[][]) => {
         testModels.userGlobalPermissions = _.flatten(permissions);
       });
   }
 
-  private static _fillTeamMembers(testModels: ITestModels): Promise<any> {
-    var teamMembersCreationPromises: Promise<TeamMember>[] = [];
+  private static _fillTeamMembers(testModels: ITestModels): bluebirdPromise<any> {
+    var teamMembersCreationPromises: bluebirdPromise<TeamMember>[] = [];
 
     testModels.users.forEach((_user: User) => {
       testModels.teams.forEach((_team: Team) => {
@@ -174,21 +174,21 @@ export class EnvironmentDirtifier {
       });
     });
 
-    return Promise.all(teamMembersCreationPromises)
+    return bluebirdPromise.all(teamMembersCreationPromises)
       .then((teamMembers: TeamMember[]) => {
         testModels.teamMembers = teamMembers;
       });
   }
 
-  private static _fillSkillPrerequisites(testModels: ITestModels): Promise<any> {
+  private static _fillSkillPrerequisites(testModels: ITestModels): bluebirdPromise<any> {
     return this.createSkillPrerequisites(testModels.skills)
       .then((skillPrerequisites: SkillPrerequisite[]) => {
         testModels.skillPrerequisites = skillPrerequisites;
       });
   }
 
-  private static _fillTeamSkills(testModels: ITestModels): Promise<any> {
-    var teamSkillsCreationPromises: Promise<TeamSkill>[] = [];
+  private static _fillTeamSkills(testModels: ITestModels): bluebirdPromise<any> {
+    var teamSkillsCreationPromises: bluebirdPromise<TeamSkill>[] = [];
 
     testModels.teams.forEach((_team: Team) => {
       testModels.skills.forEach((_skill: Skill) => {
@@ -199,14 +199,14 @@ export class EnvironmentDirtifier {
       });
     });
 
-    return Promise.all(teamSkillsCreationPromises)
+    return bluebirdPromise.all(teamSkillsCreationPromises)
       .then((teamSkills: TeamSkill[]) => {
         testModels.teamSkills = teamSkills;
       });
   }
 
-  private static _fillTeamSkillUpvotes(testModels: ITestModels): Promise<any> {
-    var teamSkillUpvotesCreationPromises: Promise<TeamSkillUpvote>[] = [];
+  private static _fillTeamSkillUpvotes(testModels: ITestModels): bluebirdPromise<any> {
+    var teamSkillUpvotesCreationPromises: bluebirdPromise<TeamSkillUpvote>[] = [];
 
     testModels.teamSkills.forEach((_teamSkill: TeamSkill) => {
       testModels.users.forEach((_user: User) => {
@@ -214,7 +214,7 @@ export class EnvironmentDirtifier {
       });
     });
 
-    return Promise.all(teamSkillUpvotesCreationPromises)
+    return bluebirdPromise.all(teamSkillUpvotesCreationPromises)
       .then((teamSkillUpvotes: TeamSkillUpvote[]) => {
         testModels.teamSkillUpvotes = teamSkillUpvotes;
       });

@@ -8,6 +8,7 @@ var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 var teamSkillUpvote_1 = require('./teamSkillUpvote');
+var bluebirdPromise = require('bluebird');
 chai.use(chaiAsPromised);
 describe('TeamSkillUpvote', function () {
     describe('new', function () {
@@ -18,7 +19,7 @@ describe('TeamSkillUpvote', function () {
         var teamSkill;
         beforeEach(function () {
             return environmentCleaner_1.EnvironmentCleaner.clearTables()
-                .then(function () { return Promise.all([
+                .then(function () { return bluebirdPromise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill1')),
                 teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1')),
                 userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1)),

@@ -16,6 +16,7 @@ import { expect } from 'chai';
 import { Collection } from 'bookshelf';
 import * as chaiAsPromised from 'chai-as-promised';
 import {TeamSkillUpvote, TeamSkillUpvotes} from './teamSkillUpvote';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -31,7 +32,7 @@ describe('TeamSkillUpvote', () => {
 
     beforeEach(() => {
       return EnvironmentCleaner.clearTables()
-        .then(() => Promise.all([
+        .then(() => bluebirdPromise.all([
           SkillsDataHandler.createSkill(ModelInfoMockFactory.createSkillInfo('skill1')),
           TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1')),
           UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1)),
@@ -57,7 +58,7 @@ describe('TeamSkillUpvote', () => {
       var teamSkillUpvote = new TeamSkillUpvote();
 
       // Act
-      var promise: Promise<TeamSkillUpvote> = teamSkillUpvote.save();
+      var promise: bluebirdPromise<TeamSkillUpvote> = teamSkillUpvote.save();
 
       // Assert
       return expect(promise).to.eventually.rejected;
@@ -72,7 +73,7 @@ describe('TeamSkillUpvote', () => {
       var upvote = new TeamSkillUpvote(upvoteInfo);
 
       // Act
-      var promise: Promise<TeamSkillUpvote> = upvote.save();
+      var promise: bluebirdPromise<TeamSkillUpvote> = upvote.save();
 
       // Assert
       return expect(promise).to.eventually.rejected;
@@ -87,7 +88,7 @@ describe('TeamSkillUpvote', () => {
       var upvote = new TeamSkillUpvote(upvoteInfo);
 
       // Act
-      var promise: Promise<TeamSkillUpvote> = upvote.save();
+      var promise: bluebirdPromise<TeamSkillUpvote> = upvote.save();
 
       // Assert
       return expect(promise).to.eventually.rejected;
@@ -101,7 +102,7 @@ describe('TeamSkillUpvote', () => {
       var upvote = new TeamSkillUpvote(upvoteInfo);
 
       // Act
-      var promise: Promise<TeamSkillUpvote> = upvote.save();
+      var promise: bluebirdPromise<TeamSkillUpvote> = upvote.save();
 
       // Assert
       return expect(promise).to.eventually.rejected;
@@ -115,7 +116,7 @@ describe('TeamSkillUpvote', () => {
       var upvote = new TeamSkillUpvote(upvoteInfo);
 
       // Act
-      var promise: Promise<TeamSkillUpvote> = upvote.save();
+      var promise: bluebirdPromise<TeamSkillUpvote> = upvote.save();
 
       // Assert
       return expect(promise).to.eventually.rejected;
@@ -129,7 +130,7 @@ describe('TeamSkillUpvote', () => {
       var upvote = new TeamSkillUpvote(upvoteInfo);
 
       // Act
-      var promise: Promise<TeamSkillUpvote> = upvote.save();
+      var promise: bluebirdPromise<TeamSkillUpvote> = upvote.save();
 
       // Assert
       return expect(promise).to.eventually.rejected;
@@ -143,7 +144,7 @@ describe('TeamSkillUpvote', () => {
       var upvote = new TeamSkillUpvote(upvoteInfo);
 
       // Act
-      var promise: Promise<TeamSkillUpvote> = upvote.save();
+      var promise: bluebirdPromise<TeamSkillUpvote> = upvote.save();
 
       // Assert
       return expect(promise).to.eventually.rejected;
@@ -156,7 +157,7 @@ describe('TeamSkillUpvote', () => {
       var upvote = new TeamSkillUpvote(upvoteInfo);
 
       // Act
-      var promise: Promise<TeamSkillUpvote> = upvote.save();
+      var promise: bluebirdPromise<TeamSkillUpvote> = upvote.save();
 
       // Assert
       return expect(promise).to.eventually.equal(upvote);
@@ -169,7 +170,7 @@ describe('TeamSkillUpvote', () => {
       var upvote = new TeamSkillUpvote(upvoteInfo);
 
       // Act
-      var promise: Promise<TeamSkillUpvote> = upvote.save();
+      var promise: bluebirdPromise<TeamSkillUpvote> = upvote.save();
 
       // Assert
       var upvotesPromise =
@@ -195,7 +196,7 @@ describe('TeamSkillUpvote', () => {
       var upvote1 = new TeamSkillUpvote(upvoteInfo1);
       var upvote2 = new TeamSkillUpvote(upvoteInfo2);
 
-      var promise: Promise<TeamSkillUpvote> =
+      var promise: bluebirdPromise<TeamSkillUpvote> =
         upvote1.save()
           .then(() => upvote2.save());
 
@@ -213,7 +214,7 @@ describe('TeamSkillUpvote', () => {
       var upvote1 = new TeamSkillUpvote(upvoteInfo1);
       var upvote2 = new TeamSkillUpvote(upvoteInfo2);
 
-      var promise: Promise<TeamSkillUpvote> =
+      var promise: bluebirdPromise<TeamSkillUpvote> =
         upvote1.save()
           .then(() => upvote2.save());
 
@@ -238,7 +239,7 @@ describe('TeamSkillUpvote', () => {
       var upvote2 = new TeamSkillUpvote(upvoteInfo2);
 
       // Act
-      var promise: Promise<TeamSkillUpvote> =
+      var promise: bluebirdPromise<TeamSkillUpvote> =
         upvote1.save()
           .then(() => upvote2.save());
 
@@ -254,7 +255,7 @@ describe('TeamSkillUpvotes', () => {
 
     it('should clear all the team skill upvotes', () => {
       // Act
-      var promise: Promise<void> = TeamSkillUpvotes.clearAll();
+      var promise: bluebirdPromise<void> = TeamSkillUpvotes.clearAll();
 
       // Assert
       var upvotesPromise =
@@ -268,7 +269,7 @@ describe('TeamSkillUpvotes', () => {
 
     it('should not fail on empty table', () => {
       // Act
-      var promise: Promise<void> =
+      var promise: bluebirdPromise<void> =
         TeamSkillUpvotes.clearAll().then(() => TeamSkillUpvotes.clearAll());
 
       // Assert

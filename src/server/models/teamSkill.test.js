@@ -7,6 +7,7 @@ var chaiAsPromised = require('chai-as-promised');
 var team_1 = require('./team');
 var skill_1 = require('./skill');
 var teamSkill_1 = require('./teamSkill');
+var bluebirdPromise = require('bluebird');
 chai.use(chaiAsPromised);
 describe('TeamSkill', function () {
     describe('new', function () {
@@ -15,7 +16,7 @@ describe('TeamSkill', function () {
         var team1;
         beforeEach(function () {
             return environmentCleaner_1.EnvironmentCleaner.clearTables()
-                .then(function () { return Promise.all([
+                .then(function () { return bluebirdPromise.all([
                 new skill_1.Skill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill1')).save(),
                 new skill_1.Skill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill2')).save(),
                 new team_1.Team(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a')).save(),

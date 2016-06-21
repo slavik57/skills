@@ -5,6 +5,7 @@ var teamsDataHandler_1 = require("../dataHandlers/teamsDataHandler");
 var userDataHandler_1 = require("../dataHandlers/userDataHandler");
 var modelInfoMockFactory_1 = require("./modelInfoMockFactory");
 var _ = require('lodash');
+var bluebirdPromise = require('bluebird');
 var EnvironmentDirtifier = (function () {
     function EnvironmentDirtifier() {
     }
@@ -58,7 +59,7 @@ var EnvironmentDirtifier = (function () {
             var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(i);
             userCreationPromises.push(userDataHandler_1.UserDataHandler.createUser(userInfo));
         }
-        return Promise.all(userCreationPromises);
+        return bluebirdPromise.all(userCreationPromises);
     };
     EnvironmentDirtifier.createSkills = function (numberOfSkills) {
         var skillCreationPromises = [];
@@ -66,7 +67,7 @@ var EnvironmentDirtifier = (function () {
             var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo(i.toString());
             skillCreationPromises.push(skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo));
         }
-        return Promise.all(skillCreationPromises);
+        return bluebirdPromise.all(skillCreationPromises);
     };
     EnvironmentDirtifier.createSkillPrerequisites = function (skills) {
         var skillPrerequisitesCreationPromises = [];
@@ -79,7 +80,7 @@ var EnvironmentDirtifier = (function () {
                 skillPrerequisitesCreationPromises.push(skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo));
             });
         });
-        return Promise.all(skillPrerequisitesCreationPromises);
+        return bluebirdPromise.all(skillPrerequisitesCreationPromises);
     };
     EnvironmentDirtifier.createTeams = function (numberOfTeams) {
         var teamCreationPromises = [];
@@ -87,17 +88,17 @@ var EnvironmentDirtifier = (function () {
             var teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo(i.toString());
             teamCreationPromises.push(teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo));
         }
-        return Promise.all(teamCreationPromises);
+        return bluebirdPromise.all(teamCreationPromises);
     };
     EnvironmentDirtifier._fillLevel0Tables = function (testModels) {
-        return Promise.all([
+        return bluebirdPromise.all([
             this._fillUsers(testModels),
             this._fillTeams(testModels),
             this._fillSkills(testModels)
         ]);
     };
     EnvironmentDirtifier._fillLevel1Tables = function (testModels) {
-        return Promise.all([
+        return bluebirdPromise.all([
             this._fillUsersGlobalPermissions(testModels),
             this._fillTeamMembers(testModels),
             this._fillSkillPrerequisites(testModels),
@@ -132,7 +133,7 @@ var EnvironmentDirtifier = (function () {
             var permissionsPromise = userDataHandler_1.UserDataHandler.addGlobalPermissions(_user.id, _this.permissionsForEachUser);
             permissionsCreationPromises.push(permissionsPromise);
         });
-        return Promise.all(permissionsCreationPromises)
+        return bluebirdPromise.all(permissionsCreationPromises)
             .then(function (permissions) {
             testModels.userGlobalPermissions = _.flatten(permissions);
         });
@@ -145,7 +146,7 @@ var EnvironmentDirtifier = (function () {
                 teamMembersCreationPromises.push(teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo));
             });
         });
-        return Promise.all(teamMembersCreationPromises)
+        return bluebirdPromise.all(teamMembersCreationPromises)
             .then(function (teamMembers) {
             testModels.teamMembers = teamMembers;
         });
@@ -164,7 +165,7 @@ var EnvironmentDirtifier = (function () {
                 teamSkillsCreationPromises.push(teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo));
             });
         });
-        return Promise.all(teamSkillsCreationPromises)
+        return bluebirdPromise.all(teamSkillsCreationPromises)
             .then(function (teamSkills) {
             testModels.teamSkills = teamSkills;
         });
@@ -176,7 +177,7 @@ var EnvironmentDirtifier = (function () {
                 teamSkillUpvotesCreationPromises.push(teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(_teamSkill.id, _user.id));
             });
         });
-        return Promise.all(teamSkillUpvotesCreationPromises)
+        return bluebirdPromise.all(teamSkillUpvotesCreationPromises)
             .then(function (teamSkillUpvotes) {
             testModels.teamSkillUpvotes = teamSkillUpvotes;
         });

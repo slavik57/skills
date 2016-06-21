@@ -2,6 +2,7 @@ import {Skill} from "../../models/skill";
 import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
 import {ISkillInfo} from "../../models/interfaces/iSkillInfo";
 import {SkillOperationBase} from "../base/skillOperationBase";
+import * as bluebirdPromise from 'bluebird';
 
 export class AddSkillOperation extends SkillOperationBase<Skill> {
 
@@ -9,7 +10,7 @@ export class AddSkillOperation extends SkillOperationBase<Skill> {
     super(executingUserId);
   }
 
-  protected doWork(): Promise<Skill> {
+  protected doWork(): bluebirdPromise<Skill> {
     return SkillsDataHandler.createSkill(this._skillInfo);
   }
 }

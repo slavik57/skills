@@ -6,12 +6,12 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var modelBase_1 = require("./modelBase");
 var bookshelf_1 = require('../../../bookshelf');
-var Promise = require('bluebird');
 var _ = require('lodash');
 var typesValidator_1 = require('../../common/typesValidator');
 var user_1 = require('./user');
 var teamMember_1 = require('./teamMember');
 var teamSkill_1 = require('./teamSkill');
+var bluebirdPromise = require('bluebird');
 var Team = (function (_super) {
     __extends(Team, _super);
     function Team() {
@@ -56,9 +56,9 @@ var Team = (function (_super) {
     };
     Team.prototype.validateTeam = function (team) {
         if (!typesValidator_1.TypesValidator.isLongEnoughString(team.attributes.name, 1)) {
-            return Promise.reject('The team name must not be empty');
+            return bluebirdPromise.reject('The team name must not be empty');
         }
-        return Promise.resolve(true);
+        return bluebirdPromise.resolve(true);
     };
     Team.prototype.teamMembers = function () {
         return this.hasMany(teamMember_1.TeamMember, teamMember_1.TeamMember.teamIdAttribute);

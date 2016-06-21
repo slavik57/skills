@@ -1,6 +1,7 @@
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {OperationBase} from "../base/operationBase";
+import * as bluebirdPromise from 'bluebird';
 
 export class GetUserPermissionsOperation extends OperationBase<GlobalPermission[]> {
 
@@ -8,7 +9,7 @@ export class GetUserPermissionsOperation extends OperationBase<GlobalPermission[
     super();
   }
 
-  protected doWork(): Promise<GlobalPermission[]> {
+  protected doWork(): bluebirdPromise<GlobalPermission[]> {
     return UserDataHandler.getUserGlobalPermissions(this._userId);
   }
 

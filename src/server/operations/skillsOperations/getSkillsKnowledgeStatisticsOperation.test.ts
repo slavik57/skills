@@ -10,6 +10,7 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as _ from 'lodash';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -42,21 +43,21 @@ describe('GetSkillsKnowledgeStatisticsOperation', () => {
     var skill3KnowingTeams: Team[];
 
     beforeEach(() => {
-      var createTeamsPromise: Promise<any> =
+      var createTeamsPromise: bluebirdPromise<any> =
         EnvironmentDirtifier.createTeams(3)
           .then((_teams: Team[]) => {
             teams = _teams;
             [team1, team2, team3] = _teams;
           });
 
-      var createSkillsPromise: Promise<any> =
+      var createSkillsPromise: bluebirdPromise<any> =
         EnvironmentDirtifier.createSkills(3)
           .then((_skills: Skill[]) => {
             [skill1, skill2, skill3] = _skills;
           });
 
-      var createTeamSkillsPromise: Promise<any> =
-        Promise.all([createTeamsPromise, createSkillsPromise])
+      var createTeamSkillsPromise: bluebirdPromise<any> =
+        bluebirdPromise.all([createTeamsPromise, createSkillsPromise])
           .then(() => Promise.all([
             TeamsDataHandler.addTeamSkill(ModelInfoMockFactory.createTeamSkillInfo(team1, skill1)),
             TeamsDataHandler.addTeamSkill(ModelInfoMockFactory.createTeamSkillInfo(team1, skill3)),
@@ -117,7 +118,7 @@ describe('GetSkillsKnowledgeStatisticsOperation', () => {
       ];
 
       // Act
-      var resultPromise: Promise<any> = operation.execute();
+      var resultPromise: bluebirdPromise<any> = operation.execute();
 
       // Assert
       return expect(resultPromise).to.eventually.fulfilled

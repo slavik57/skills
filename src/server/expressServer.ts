@@ -1,9 +1,10 @@
+import {CreateAdminUserOperation} from "./operations/userOperations/createAdminUserOperation";
+import {User} from "./models/user";
 import {StatusCode} from "./enums/statusCode";
 import {RegisterStrategy} from "./passportStrategies/registerStrategy";
 import {LoginStrategy} from "./passportStrategies/loginStrategy";
 import {LogoutStrategy} from "./passportStrategies/logoutStrategy";
 import {PathHelper} from "../common/pathHelper";
-import {webpackConfig} from './webpack.configs/webpack.config';
 import {Express, Request, Response, NextFunction} from 'express';
 import * as express from 'express';
 import * as cookieParser from 'cookie-parser';
@@ -14,21 +15,18 @@ import * as expressSession from 'express-session';
 import {SessionOptions} from 'express-session';
 import * as EnvironmentConfig from "../../environment";
 import * as path from 'path';
-import * as webpack from 'webpack';
 import * as https from 'https';
 import {Server} from 'net';
 import * as fs from 'fs';
+import * as bluebirdPromise from 'bluebird';
 const PostgreSqlStore = require('connect-pg-simple')(expressSession);
 const expressControllers = require('express-controller');
-const webpackMiddleware = require('webpack-dev-middleware');
-const webpackHotMiddleware = require('webpack-hot-middleware');
 
 export class ExpressServer {
 
   private static _instance: ExpressServer;
   private _serverDirectory: string;
   private _expressApp: Express;
-  private _webpackMiddleware: any;
   private _isInitialized: boolean;
 
   constructor() {
@@ -42,10 +40,6 @@ export class ExpressServer {
     return this._expressApp;
   }
 
-  public get webpackMiddleware(): any {
-    return this._webpackMiddleware;
-  }
-
   public static get instance(): ExpressServer {
     if (!this._instance) {
       console.log('Creating express server instance');
@@ -55,17 +49,9 @@ export class ExpressServer {
     return this._instance;
   }
 
-  public initialize(): ExpressServer {
-    if (this._isInitialized) {
-      return this;
-    }
-
-    this._configureExpress();
-    this._configureWebpack();
-
-    this._isInitialized = true;
-
-    return this;
+  public initialize(): Promise<ExpressServer> {
+    return this._initializeAdmin()
+      .then(() => this._initializeExpressServer());
   }
 
   public start(): Server {
@@ -86,6 +72,22 @@ export class ExpressServer {
       .listen(port, hostName, () => this._logServerIsUp(server.address()));
 
     return server;
+  }
+
+  private _initializeAdmin(): bluebirdPromise<User> {
+    var createAdminUserOperation = new CreateAdminUserOperation();
+
+    return createAdminUserOperation.execute().catch(() => { });
+  }
+
+  private _initializeExpressServer(): ExpressServer {
+    if (!this._isInitialized) {
+      this._configureExpress();
+
+      this._isInitialized = true;
+    }
+
+    return this;
   }
 
   private _configureExpress() {
@@ -177,26 +179,6 @@ export class ExpressServer {
     }
 
     response.redirect('/signin');
-  }
-
-  private _configureWebpack() {
-    var compiler = webpack(webpackConfig);
-
-    this._webpackMiddleware = webpackMiddleware(compiler, {
-      publicPath: webpackConfig.output.publicPath,
-      contentBase: 'src/app',
-      stats: {
-        colors: true,
-        hash: false,
-        timings: true,
-        chunks: false,
-        chunkModules: false,
-        modules: false
-      }
-    });
-
-    this._expressApp.use(this._webpackMiddleware);
-    this._expressApp.use(webpackHotMiddleware(compiler));
   }
 
   private _logServerIsUp(serverAddress: { address: string, port: number }) {

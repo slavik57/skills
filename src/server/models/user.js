@@ -63,7 +63,7 @@ var User = (function (_super) {
         this.on('saving', function (user) { return _this._validateUser(user); });
     };
     User.prototype._validateUser = function (user) {
-        if ('email' in this.attributes &&
+        if (!typesValidator_1.TypesValidator.isNullOrUndefined(this.attributes.email) &&
             !validator.isEmail(this.attributes.email)) {
             return Promise.reject('Email is not valid');
         }

@@ -239,7 +239,7 @@ describe('TeamsDataHandler', () => {
       var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo('a');
       var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
 
-      var createTeamAndUserPromise: Promise<any[]> = Promise.all([
+      var createTeamAndUserPromise: Promise<any[]> = Promise.all<any>([
         TeamsDataHandler.createTeam(teamInfo),
         UserDataHandler.createUser(userInfo)
       ]);
@@ -377,7 +377,7 @@ describe('TeamsDataHandler', () => {
       teamInfo1 = ModelInfoMockFactory.createTeamInfo('a');
       teamInfo2 = ModelInfoMockFactory.createTeamInfo('b');
 
-      return Promise.all([
+      return Promise.all<any>([
         TeamsDataHandler.createTeam(teamInfo1),
         TeamsDataHandler.createTeam(teamInfo2),
         UserDataHandler.createUser(userInfo1),
@@ -503,7 +503,7 @@ describe('TeamsDataHandler', () => {
       var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo('a');
       var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('skill1');
 
-      var createTeamAndSkillsPromise: Promise<any[]> = Promise.all([
+      var createTeamAndSkillsPromise: Promise<any[]> = Promise.all<any>([
         TeamsDataHandler.createTeam(teamInfo),
         SkillsDataHandler.createSkill(skillInfo)
       ]);
@@ -673,7 +673,7 @@ describe('TeamsDataHandler', () => {
       userInfo1 = ModelInfoMockFactory.createUserInfo(1);
       userInfo2 = ModelInfoMockFactory.createUserInfo(2);
 
-      return Promise.all([
+      return Promise.all<any>([
         TeamsDataHandler.createTeam(teamInfo1),
         TeamsDataHandler.createTeam(teamInfo2),
         SkillsDataHandler.createSkill(skillInfo1),
@@ -868,7 +868,7 @@ describe('TeamsDataHandler', () => {
       var userInfo1 = ModelInfoMockFactory.createUserInfo(1);
       var userInfo2 = ModelInfoMockFactory.createUserInfo(2);
 
-      return Promise.all([
+      return Promise.all<any>([
         TeamsDataHandler.createTeam(teamInfo),
         SkillsDataHandler.createSkill(skillInfo),
         UserDataHandler.createUser(userInfo1),
@@ -1005,7 +1005,7 @@ describe('TeamsDataHandler', () => {
       var upvotedUserInfo2 = ModelInfoMockFactory.createUserInfo(2);
       var notUpvotedUserInfo = ModelInfoMockFactory.createUserInfo(3);
       //
-      return Promise.all([
+      return Promise.all<any>([
         TeamsDataHandler.createTeam(teamInfo),
         SkillsDataHandler.createSkill(skillInfo),
         UserDataHandler.createUser(upvotedUserInfo1),
@@ -1173,7 +1173,7 @@ describe('TeamsDataHandler', () => {
       teamInfo = ModelInfoMockFactory.createTeamInfo('team 1');
       userInfo = ModelInfoMockFactory.createUserInfo(1);
 
-      return Promise.all([
+      return Promise.all<any>([
         TeamsDataHandler.createTeam(teamInfo),
         UserDataHandler.createUser(userInfo)
       ]).then((teamAndUser: any[]) => {

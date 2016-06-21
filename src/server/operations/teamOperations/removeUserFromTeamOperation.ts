@@ -2,6 +2,7 @@ import {TeamMember} from "../../models/teamMember";
 import {AddRemoveUserFromTeamOperationBase} from "../base/addRemoveUserFromTeamOperationBase";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
+import * as bluebirdPromise from 'bluebird';
 
 export class RemoveUserFromTeamOperation extends AddRemoveUserFromTeamOperationBase<TeamMember> {
 
@@ -12,7 +13,7 @@ export class RemoveUserFromTeamOperation extends AddRemoveUserFromTeamOperationB
     super(_teamId, _executingUserId);
   }
 
-  protected doWork(): Promise<TeamMember> {
+  protected doWork(): bluebirdPromise<TeamMember> {
     return TeamsDataHandler.removeTeamMember(this.teamId, this._userIdToRemove);
   }
 

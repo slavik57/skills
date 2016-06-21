@@ -10,6 +10,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import { Team, Teams } from './team';
 import { Skill, Skills } from './skill';
 import { TeamSkill, TeamSkills } from './teamSkill';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -22,7 +23,7 @@ describe('TeamSkill', () => {
 
     beforeEach(() => {
       return EnvironmentCleaner.clearTables()
-        .then(() => Promise.all([
+        .then(() => bluebirdPromise.all([
           new Skill(ModelInfoMockFactory.createSkillInfo('skill1')).save(),
           new Skill(ModelInfoMockFactory.createSkillInfo('skill2')).save(),
           new Team(ModelInfoMockFactory.createTeamInfo('a')).save(),

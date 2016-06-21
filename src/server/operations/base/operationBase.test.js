@@ -8,6 +8,7 @@ var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 var operationBase_1 = require('./operationBase');
+var bluebirdPromise = require('bluebird');
 chai.use(chaiAsPromised);
 var TestOperationBase = (function (_super) {
     __extends(TestOperationBase, _super);
@@ -17,9 +18,9 @@ var TestOperationBase = (function (_super) {
     }
     TestOperationBase.prototype.canExecute = function () {
         if (this.canExecuteToReturn) {
-            return Promise.resolve();
+            return bluebirdPromise.resolve();
         }
-        return Promise.reject(null);
+        return bluebirdPromise.reject(null);
     };
     TestOperationBase.prototype.doWork = function () {
         this.wasExecuted = true;

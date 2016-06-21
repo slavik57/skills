@@ -1,9 +1,10 @@
 "use strict";
+var bluebirdPromise = require('bluebird');
 var OperationBase = (function () {
     function OperationBase() {
     }
     OperationBase.prototype.canExecute = function () {
-        return Promise.resolve();
+        return bluebirdPromise.resolve();
     };
     OperationBase.prototype.execute = function () {
         var _this = this;
@@ -17,11 +18,11 @@ var OperationBase = (function () {
             return this.doWork();
         }
         catch (error) {
-            return Promise.reject(error);
+            return bluebirdPromise.reject(error);
         }
     };
     OperationBase.prototype._failExecution = function (error) {
-        return Promise.reject({
+        return bluebirdPromise.reject({
             message: 'The operation cannot be executed',
             innerError: error
         });

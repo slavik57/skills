@@ -1,6 +1,7 @@
 import {Skill} from "../../models/skill";
 import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
 import {SkillOperationBase} from "../base/skillOperationBase";
+import * as bluebirdPromise from 'bluebird';
 
 export class RemoveSkillOperation extends SkillOperationBase<Skill> {
 
@@ -8,7 +9,7 @@ export class RemoveSkillOperation extends SkillOperationBase<Skill> {
     super(executingUserId);
   }
 
-  protected doWork(): Promise<Skill> {
+  protected doWork(): bluebirdPromise<Skill> {
     return SkillsDataHandler.deleteSkill(this._skillId);
   }
 }

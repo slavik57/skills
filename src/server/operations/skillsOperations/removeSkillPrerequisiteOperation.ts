@@ -2,6 +2,7 @@ import {SkillPrerequisite} from "../../models/skillPrerequisite";
 import {ISkillPrerequisiteInfo} from "../../models/interfaces/iSkillPrerequisiteInfo";
 import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
 import {SkillOperationBase} from "../base/skillOperationBase";
+import * as bluebirdPromise from 'bluebird';
 
 export class RemoveSkillPrerequisiteOperation extends SkillOperationBase<SkillPrerequisite> {
 
@@ -9,7 +10,7 @@ export class RemoveSkillPrerequisiteOperation extends SkillOperationBase<SkillPr
     super(executingUserId);
   }
 
-  protected doWork(): Promise<SkillPrerequisite> {
+  protected doWork(): bluebirdPromise<SkillPrerequisite> {
     return SkillsDataHandler.removeSkillPrerequisite(this._skillId, this._skillPrerequisiteId);
   }
 

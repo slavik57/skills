@@ -11,6 +11,7 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as _ from 'lodash';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -24,7 +25,7 @@ class TestModifyUserPermissionsOperationBase extends ModifyUserPermissionsOperat
     super(userIdToAddPermissionsTo, permissionsToModify, executingUserId);
   }
 
-  protected doWork(): Promise<any> {
+  protected doWork(): bluebirdPromise<any> {
     this.wasExecuted = true;
 
     return null;
@@ -71,7 +72,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
           executingUser.id);
 
         // Act
-        var resultPromise: Promise<any> = operation.execute();
+        var resultPromise: bluebirdPromise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled
@@ -85,7 +86,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
         var permissionsToModify: GlobalPermission[];
         var operation: TestModifyUserPermissionsOperationBase;
 
-        var permissionsToModifyPromise: Promise<any> =
+        var permissionsToModifyPromise: bluebirdPromise<any> =
           new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToModify = _permissions;
@@ -96,7 +97,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
             });
 
         // Act
-        var resultPromise: Promise<any> =
+        var resultPromise: bluebirdPromise<any> =
           permissionsToModifyPromise.then(() => operation.execute());
 
         // Assert
@@ -126,7 +127,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
           executingUser.id);
 
         // Act
-        var resultPromise: Promise<any> = operation.execute();
+        var resultPromise: bluebirdPromise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled
@@ -146,7 +147,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
           executingUser.id);
 
         // Act
-        var resultPromise: Promise<any> = operation.execute();
+        var resultPromise: bluebirdPromise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.rejected
@@ -167,7 +168,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
           executingUser.id);
 
         // Act
-        var resultPromise: Promise<any> = operation.execute();
+        var resultPromise: bluebirdPromise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.rejected
@@ -181,7 +182,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
         var permissionsToModify: GlobalPermission[];
         var operation: TestModifyUserPermissionsOperationBase;
 
-        var permissionsToModifyPromise: Promise<any> =
+        var permissionsToModifyPromise: bluebirdPromise<any> =
           new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToModify = _permissions;
@@ -192,7 +193,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
             });
 
         // Act
-        var resultPromise: Promise<any> =
+        var resultPromise: bluebirdPromise<any> =
           permissionsToModifyPromise.then(() => operation.execute());
 
         // Assert
@@ -221,7 +222,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
           executingUser.id);
 
         // Act
-        var resultPromise: Promise<any> = operation.execute();
+        var resultPromise: bluebirdPromise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled
@@ -241,7 +242,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
           executingUser.id);
 
         // Act
-        var resultPromise: Promise<any> = operation.execute();
+        var resultPromise: bluebirdPromise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.rejected
@@ -262,7 +263,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
           executingUser.id);
 
         // Act
-        var resultPromise: Promise<any> = operation.execute();
+        var resultPromise: bluebirdPromise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.rejected
@@ -276,7 +277,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
         var permissionsToModify: GlobalPermission[];
         var operation: TestModifyUserPermissionsOperationBase;
 
-        var permissionsToModifyPromise: Promise<any> =
+        var permissionsToModifyPromise: bluebirdPromise<any> =
           new GetAllowedUserPermissionsToModifyOperation(executingUser.id).execute()
             .then((_permissions: GlobalPermission[]) => {
               permissionsToModify = _permissions;
@@ -287,7 +288,7 @@ describe('ModifyUserPermissionsOperationBase', () => {
             });
 
         // Act
-        var resultPromise: Promise<any> =
+        var resultPromise: bluebirdPromise<any> =
           permissionsToModifyPromise.then(() => operation.execute());
 
         // Assert

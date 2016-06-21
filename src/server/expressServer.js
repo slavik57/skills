@@ -1,10 +1,10 @@
 "use strict";
+var createAdminUserOperation_1 = require("./operations/userOperations/createAdminUserOperation");
 var statusCode_1 = require("./enums/statusCode");
 var registerStrategy_1 = require("./passportStrategies/registerStrategy");
 var loginStrategy_1 = require("./passportStrategies/loginStrategy");
 var logoutStrategy_1 = require("./passportStrategies/logoutStrategy");
 var pathHelper_1 = require("../common/pathHelper");
-var webpack_config_1 = require('./webpack.configs/webpack.config');
 var express = require('express');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
@@ -13,13 +13,10 @@ var passport = require('passport');
 var expressSession = require('express-session');
 var EnvironmentConfig = require("../../environment");
 var path = require('path');
-var webpack = require('webpack');
 var https = require('https');
 var fs = require('fs');
 var PostgreSqlStore = require('connect-pg-simple')(expressSession);
 var expressControllers = require('express-controller');
-var webpackMiddleware = require('webpack-dev-middleware');
-var webpackHotMiddleware = require('webpack-hot-middleware');
 var ExpressServer = (function () {
     function ExpressServer() {
         this._isInitialized = false;
@@ -29,13 +26,6 @@ var ExpressServer = (function () {
     Object.defineProperty(ExpressServer.prototype, "expressApp", {
         get: function () {
             return this._expressApp;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(ExpressServer.prototype, "webpackMiddleware", {
-        get: function () {
-            return this._webpackMiddleware;
         },
         enumerable: true,
         configurable: true
@@ -52,13 +42,9 @@ var ExpressServer = (function () {
         configurable: true
     });
     ExpressServer.prototype.initialize = function () {
-        if (this._isInitialized) {
-            return this;
-        }
-        this._configureExpress();
-        this._configureWebpack();
-        this._isInitialized = true;
-        return this;
+        var _this = this;
+        return this._initializeAdmin()
+            .then(function () { return _this._initializeExpressServer(); });
     };
     ExpressServer.prototype.start = function () {
         var _this = this;
@@ -73,6 +59,17 @@ var ExpressServer = (function () {
         var server = https.createServer(options, this._expressApp)
             .listen(port, hostName, function () { return _this._logServerIsUp(server.address()); });
         return server;
+    };
+    ExpressServer.prototype._initializeAdmin = function () {
+        var createAdminUserOperation = new createAdminUserOperation_1.CreateAdminUserOperation();
+        return createAdminUserOperation.execute().catch(function () { });
+    };
+    ExpressServer.prototype._initializeExpressServer = function () {
+        if (!this._isInitialized) {
+            this._configureExpress();
+            this._isInitialized = true;
+        }
+        return this;
     };
     ExpressServer.prototype._configureExpress = function () {
         this._expressApp.use(cookieParser());
@@ -147,23 +144,6 @@ var ExpressServer = (function () {
             return;
         }
         response.redirect('/signin');
-    };
-    ExpressServer.prototype._configureWebpack = function () {
-        var compiler = webpack(webpack_config_1.webpackConfig);
-        this._webpackMiddleware = webpackMiddleware(compiler, {
-            publicPath: webpack_config_1.webpackConfig.output.publicPath,
-            contentBase: 'src/app',
-            stats: {
-                colors: true,
-                hash: false,
-                timings: true,
-                chunks: false,
-                chunkModules: false,
-                modules: false
-            }
-        });
-        this._expressApp.use(this._webpackMiddleware);
-        this._expressApp.use(webpackHotMiddleware(compiler));
     };
     ExpressServer.prototype._logServerIsUp = function (serverAddress) {
         var host = serverAddress.address;

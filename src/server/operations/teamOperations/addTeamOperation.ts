@@ -3,6 +3,7 @@ import {GlobalPermission} from "../../models/enums/globalPermission";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {AuthenticatedOperationBase} from "../base/authenticatedOperationBase";
 import {ITeamInfo} from "../../models/interfaces/iTeamInfo";
+import * as bluebirdPromise from 'bluebird';
 
 export class AddTeamOperation extends AuthenticatedOperationBase<Team> {
   constructor(private _teamInfo: ITeamInfo, executingUserId: number) {
@@ -13,7 +14,7 @@ export class AddTeamOperation extends AuthenticatedOperationBase<Team> {
     return [GlobalPermission.TEAMS_LIST_ADMIN];
   }
 
-  protected doWork(): Promise<Team> {
+  protected doWork(): bluebirdPromise<Team> {
     return TeamsDataHandler.createTeam(this._teamInfo);
   }
 }

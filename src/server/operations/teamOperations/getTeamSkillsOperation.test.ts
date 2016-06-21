@@ -13,6 +13,7 @@ import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised'
 import {GetTeamSkillsOperation} from './getTeamSkillsOperation';
 import * as _ from 'lodash';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -44,19 +45,19 @@ describe('GetTeamSkillsOperation', () => {
     var operation: GetTeamSkillsOperation;
 
     beforeEach(() => {
-      var createTeamPromise: Promise<any> =
+      var createTeamPromise: bluebirdPromise<any> =
         EnvironmentDirtifier.createTeams(1)
           .then((_teams: Team[]) => {
             [team] = _teams;
           });
 
-      var createSkillsPromise: Promise<any> =
+      var createSkillsPromise: bluebirdPromise<any> =
         EnvironmentDirtifier.createSkills(3)
           .then((_skills: Skill[]) => {
             [teamSkill1, teamSkill2, teamSkill3] = _skills;
           });
 
-      var createUsersPromise: Promise<any> =
+      var createUsersPromise: bluebirdPromise<any> =
         EnvironmentDirtifier.createUsers(3)
           .then((_users: User[]) => {
             [user1, user2, user3] = _users;
@@ -88,7 +89,7 @@ describe('GetTeamSkillsOperation', () => {
 
     it('should return correct skills', () => {
       // Act
-      var resultPromise: Promise<ISkillOfATeam[]> = operation.execute();
+      var resultPromise: bluebirdPromise<ISkillOfATeam[]> = operation.execute();
 
       // Assert
       var expectedSkills: Skill[] = [teamSkill1, teamSkill2, teamSkill3];
@@ -103,7 +104,7 @@ describe('GetTeamSkillsOperation', () => {
 
     it('should return correct upvoted users', () => {
       // Act
-      var resultPromise: Promise<ISkillOfATeam[]> = operation.execute();
+      var resultPromise: bluebirdPromise<ISkillOfATeam[]> = operation.execute();
 
       // Assert
       var expected: ISkillOfATeam[] = [

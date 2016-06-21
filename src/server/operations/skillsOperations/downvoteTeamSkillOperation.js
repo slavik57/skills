@@ -8,6 +8,7 @@ var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var authenticatedOperationBase_1 = require("../base/authenticatedOperationBase");
 var _ = require('lodash');
+var bluebirdPromise = require('bluebird');
 var DownvoteTeamSkillOperation = (function (_super) {
     __extends(DownvoteTeamSkillOperation, _super);
     function DownvoteTeamSkillOperation(_skillIdToDownvote, _teamId, executingUserId) {
@@ -37,7 +38,7 @@ var DownvoteTeamSkillOperation = (function (_super) {
         var _this = this;
         var teamSkill = _.find(teamSkills, function (_teamSkill) { return _teamSkill.skill.id === _this._skillIdToDownvote; });
         if (!teamSkill) {
-            return Promise.reject('The skill is not part of the team skills');
+            return bluebirdPromise.reject('The skill is not part of the team skills');
         }
         return teamsDataHandler_1.TeamsDataHandler.removeUpvoteForTeamSkill(teamSkill.teamSkill.id, this.executingUserId);
     };

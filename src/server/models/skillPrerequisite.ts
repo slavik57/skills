@@ -1,9 +1,9 @@
 import {ModelBase} from "./modelBase";
 import {Model, Collection, CollectionOptions, EventFunction} from 'bookshelf';
 import {bookshelf} from '../../../bookshelf';
-import * as Promise from 'bluebird';
 import {TypesValidator} from '../../common/typesValidator';
 import {ISkillPrerequisiteInfo} from './interfaces/iSkillPrerequisiteInfo';
+import * as bluebirdPromise from 'bluebird';
 
 export class SkillPrerequisite extends ModelBase<SkillPrerequisite, ISkillPrerequisiteInfo>{
   public get tableName(): string { return 'skills_prerequisites'; }
@@ -19,20 +19,20 @@ export class SkillPrerequisite extends ModelBase<SkillPrerequisite, ISkillPrereq
     this.on('saving', (skillPrerequisite: SkillPrerequisite) => this.validateSkillPrerequisite(skillPrerequisite));
   }
 
-  public validateSkillPrerequisite(skillPrerequisite: SkillPrerequisite): Promise<boolean> {
+  public validateSkillPrerequisite(skillPrerequisite: SkillPrerequisite): bluebirdPromise<boolean> {
     if (!TypesValidator.isInteger(skillPrerequisite.attributes.skill_id)) {
-      return Promise.reject('The skill_id must be an integer');
+      return bluebirdPromise.reject('The skill_id must be an integer');
     }
 
     if (!TypesValidator.isInteger(skillPrerequisite.attributes.skill_prerequisite_id)) {
-      return Promise.reject('The skill_prerequisite_id be an integer');
+      return bluebirdPromise.reject('The skill_prerequisite_id be an integer');
     }
 
     if (skillPrerequisite.attributes.skill_id === skillPrerequisite.attributes.skill_prerequisite_id) {
-      return Promise.reject('Skill can not be a prerequisite of itself');
+      return bluebirdPromise.reject('Skill can not be a prerequisite of itself');
     }
 
-    return Promise.resolve(true);
+    return bluebirdPromise.resolve(true);
   }
 }
 

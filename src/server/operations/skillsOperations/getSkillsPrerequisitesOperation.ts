@@ -2,6 +2,7 @@ import {IPrerequisitesOfASkill} from "../../models/interfaces/iPrerequisitesOfAS
 import {SkillPrerequisite} from "../../models/skillPrerequisite";
 import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
 import {OperationBase} from "../base/operationBase";
+import * as bluebirdPromise from 'bluebird';
 
 export class GetSkillsPrerequisitesOperation extends OperationBase<IPrerequisitesOfASkill[]> {
 
@@ -9,7 +10,7 @@ export class GetSkillsPrerequisitesOperation extends OperationBase<IPrerequisite
     super();
   }
 
-  protected doWork(): Promise<IPrerequisitesOfASkill[]> {
+  protected doWork(): bluebirdPromise<IPrerequisitesOfASkill[]> {
     return SkillsDataHandler.getSkillsToPrerequisitesMap();
   }
 

@@ -10,62 +10,63 @@ import {Team, Teams} from '../models/team';
 import {ITeamOfAUser} from '../models/interfaces/iTeamOfAUser';
 import {IUserGlobalPermissions} from '../models/interfaces/iUserGlobalPermissions';
 import {Transaction} from 'knex';
+import * as bluebirdPromise from 'bluebird';
 
 export class UserDataHandler {
-  public static createUser(userInfo: IUserInfo): Promise<User> {
+  public static createUser(userInfo: IUserInfo): bluebirdPromise<User> {
     return new User(userInfo).save();
   }
 
-  public static createUserWithPermissions(userInfo: IUserInfo, permissionsToAdd: GlobalPermission[]): Promise<User> {
+  public static createUserWithPermissions(userInfo: IUserInfo, permissionsToAdd: GlobalPermission[]): bluebirdPromise<User> {
     return bookshelf.transaction((_transaction: Transaction) => {
       return this._createUserWithPermissions(userInfo, permissionsToAdd, _transaction);
     });
   }
 
-  public static deleteUser(userId: number): Promise<User> {
+  public static deleteUser(userId: number): bluebirdPromise<User> {
     var idQuery = {}
     idQuery[User.idAttribute] = userId;
 
     return new User(idQuery).destroy();
   }
 
-  public static getUsers(): Promise<User[]> {
+  public static getUsers(): bluebirdPromise<User[]> {
     return new Users().fetch()
       .then((users: Collection<User>) => {
         return users.toArray();
       });
   }
 
-  public static addGlobalPermissions(userId: number, permissionsToAdd: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
+  public static addGlobalPermissions(userId: number, permissionsToAdd: GlobalPermission[]): bluebirdPromise<UserGlobalPermissions[]> {
     return bookshelf.transaction((_transaction: Transaction) => this._addGlobalPermissionInternal(userId, permissionsToAdd, _transaction));
   }
 
-  public static removeGlobalPermissions(userId: number, permissionsToRemove: GlobalPermission[]): Promise<UserGlobalPermissions[]> {
+  public static removeGlobalPermissions(userId: number, permissionsToRemove: GlobalPermission[]): bluebirdPromise<UserGlobalPermissions[]> {
     return bookshelf.transaction((_transaction: Transaction) => this._removeGlobalPermissionInternal(userId, permissionsToRemove, _transaction));
   }
 
-  public static getUserGlobalPermissions(userId: number): Promise<GlobalPermission[]> {
+  public static getUserGlobalPermissions(userId: number): bluebirdPromise<GlobalPermission[]> {
     return this._fetchUserGlobalPermissions(userId)
       .then((usersGlobalPermissions: Collection<UserGlobalPermissions>) => {
         return this._convertPermissionsCollectionsToGlobalPermissions(usersGlobalPermissions);
       });
   }
 
-  public static getTeams(userId: number): Promise<ITeamOfAUser[]> {
+  public static getTeams(userId: number): bluebirdPromise<ITeamOfAUser[]> {
     var user: User = this._initializeUserByIdQuery(userId);
 
     return user.getTeams();
   }
 
-  public static getUser(userId: number): Promise<User> {
+  public static getUser(userId: number): bluebirdPromise<User> {
     return this._initializeUserByIdQuery(userId).fetch();
   }
 
-  public static getUserByUsername(username: string): Promise<User> {
+  public static getUserByUsername(username: string): bluebirdPromise<User> {
     return this._initializeUserByUsernameQuery(username).fetch();
   }
 
-  private static _createUserWithPermissions(userInfo: IUserInfo, permissionsToAdd: GlobalPermission[], transaction: Transaction): Promise<User> {
+  private static _createUserWithPermissions(userInfo: IUserInfo, permissionsToAdd: GlobalPermission[], transaction: Transaction): bluebirdPromise<User> {
     var saveOptions: SaveOptions = {
       transacting: transaction
     }
@@ -91,7 +92,7 @@ export class UserDataHandler {
     return new User(queryCondition);
   }
 
-  private static _fetchUserGlobalPermissions(userId: number): Promise<Collection<UserGlobalPermissions>> {
+  private static _fetchUserGlobalPermissions(userId: number): bluebirdPromise<Collection<UserGlobalPermissions>> {
     var user: User = this._initializeUserByIdQuery(userId);
 
     return user.globalPermissions().fetch();
@@ -103,7 +104,7 @@ export class UserDataHandler {
     return _.map(permissions, _ => GlobalPermission[_.attributes.global_permissions]);
   }
 
-  private static _addGlobalPermissionInternal(userId: number, permissionsToAdd: GlobalPermission[], transaction: Transaction): Promise<UserGlobalPermissions[]> {
+  private static _addGlobalPermissionInternal(userId: number, permissionsToAdd: GlobalPermission[], transaction: Transaction): bluebirdPromise<UserGlobalPermissions[]> {
     var fetchOptions: FetchOptions = {
       withRelated: [User.relatedUserGlobalPermissionsAttribute],
       require: false,
@@ -114,7 +115,7 @@ export class UserDataHandler {
       .fetch(fetchOptions)
       .then((user: User) => {
         if (!user) {
-          return Promise.reject('User does not exist');
+          return bluebirdPromise.reject('User does not exist');
         }
 
         var existingPermissionsCollection: Collection<UserGlobalPermissions> = user.relations.globalPermissions;
@@ -126,7 +127,7 @@ export class UserDataHandler {
       });
   }
 
-  private static _removeGlobalPermissionInternal(userId: number, permissionsToRemove: GlobalPermission[], transaction: Transaction): Promise<UserGlobalPermissions[]> {
+  private static _removeGlobalPermissionInternal(userId: number, permissionsToRemove: GlobalPermission[], transaction: Transaction): bluebirdPromise<UserGlobalPermissions[]> {
     var user: User = this._initializeUserByIdQuery(userId);
 
     var permissionsToDeteleQuery: IUserGlobalPermissions[] =
@@ -141,16 +142,16 @@ export class UserDataHandler {
       transacting: transaction
     };
 
-    var deleteUserPermissionsPromise: Promise<UserGlobalPermissions>[] =
+    var deleteUserPermissionsPromise: bluebirdPromise<UserGlobalPermissions>[] =
       _.map(permissionsToDelete, _permission => _permission.destroy(destroyOptions));
 
-    return Promise.all(deleteUserPermissionsPromise);
+    return bluebirdPromise.all(deleteUserPermissionsPromise);
   }
 
   private static _addNotExistingGlobalPermissions(userId: number,
     existingPermissionsCollection: Collection<UserGlobalPermissions>,
     permissionsToAdd: GlobalPermission[],
-    transaction: Transaction): Promise<UserGlobalPermissions[]> {
+    transaction: Transaction): bluebirdPromise<UserGlobalPermissions[]> {
 
     var existingPermissions: GlobalPermission[] =
       this._convertPermissionsCollectionsToGlobalPermissions(existingPermissionsCollection);
@@ -165,10 +166,10 @@ export class UserDataHandler {
       transacting: transaction
     }
 
-    var newUserPermissionsPromise: Promise<UserGlobalPermissions>[] =
+    var newUserPermissionsPromise: bluebirdPromise<UserGlobalPermissions>[] =
       _.map(newUserPermissions, _permission => _permission.save(null, saveOptions));
 
-    return Promise.all(newUserPermissionsPromise);
+    return bluebirdPromise.all(newUserPermissionsPromise);
   }
 
   private static _createUserGlobalPermission(userId: number, permissions: GlobalPermission[]): UserGlobalPermissions[] {

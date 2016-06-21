@@ -16,7 +16,7 @@ export class UserGlobalPermissions extends ModelBase<UserGlobalPermissions, IUse
 export class UsersGlobalPermissions extends bookshelf.Collection<UserGlobalPermissions> {
   model = UserGlobalPermissions;
 
-  public static clearAll(): Promise<any> {
+  public static clearAll(): Promise<void> {
     return new UsersGlobalPermissions().query().del();
   }
 }

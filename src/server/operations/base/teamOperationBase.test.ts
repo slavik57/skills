@@ -10,6 +10,7 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised'
 import {TeamOperationBase} from './teamOperationBase';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -33,7 +34,7 @@ class TestTeamOperationBase extends TeamOperationBase<any> {
 
   protected get isRegularTeamMemberAlowedToExecute(): boolean { return this.isRegularTeamMemberAlowedToExecuteToReturn; }
 
-  protected doWork(): Promise<any> {
+  protected doWork(): bluebirdPromise<any> {
     this.wasExecuted = true;
 
     if (this.executeOperationErrorToThrow) {
@@ -76,7 +77,7 @@ describe('TeamOperationBase', () => {
     var team: Team;
 
     beforeEach(() => {
-      var teamCreationPromise: Promise<any> =
+      var teamCreationPromise: bluebirdPromise<any> =
         TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1'))
           .then((_team: Team) => {
             team = _team;
@@ -92,7 +93,7 @@ describe('TeamOperationBase', () => {
 
       beforeEach(() => {
 
-        var userCreationPromise: Promise<any> =
+        var userCreationPromise: bluebirdPromise<any> =
           UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1))
             .then((_user: User) => {
               user = _user;
@@ -122,7 +123,7 @@ describe('TeamOperationBase', () => {
 
           it('has no global permissions should fail and not execute', () => {
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.rejected
@@ -133,11 +134,11 @@ describe('TeamOperationBase', () => {
 
           it('has global admin permissions should execute', () => {
             // Arrange
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -152,11 +153,11 @@ describe('TeamOperationBase', () => {
             var expectedResult = {};
             operation.executeOperationResultToReturn = Promise.resolve(expectedResult);
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -172,11 +173,11 @@ describe('TeamOperationBase', () => {
             var expectedError = {};
             operation.executeOperationResultToReturn = Promise.reject(expectedError);
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -192,11 +193,11 @@ describe('TeamOperationBase', () => {
             var expectedResult = {};
             operation.executeOperationResultToReturn = expectedResult;
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -212,11 +213,11 @@ describe('TeamOperationBase', () => {
             var expectedError = {};
             operation.executeOperationErrorToThrow = expectedError;
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -241,11 +242,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -268,11 +269,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -298,11 +299,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -329,11 +330,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -360,11 +361,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -391,11 +392,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -416,7 +417,7 @@ describe('TeamOperationBase', () => {
 
           it('has no global permissions should succeed and execute', () => {
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.fulfilled
@@ -427,11 +428,11 @@ describe('TeamOperationBase', () => {
 
           it('has global admin permissions should execute', () => {
             // Arrange
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -446,11 +447,11 @@ describe('TeamOperationBase', () => {
             var expectedResult = {};
             operation.executeOperationResultToReturn = Promise.resolve(expectedResult);
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -466,11 +467,11 @@ describe('TeamOperationBase', () => {
             var expectedError = {};
             operation.executeOperationResultToReturn = Promise.reject(expectedError);
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -486,11 +487,11 @@ describe('TeamOperationBase', () => {
             var expectedResult = {};
             operation.executeOperationResultToReturn = expectedResult;
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -506,11 +507,11 @@ describe('TeamOperationBase', () => {
             var expectedError = {};
             operation.executeOperationErrorToThrow = expectedError;
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -535,11 +536,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -562,11 +563,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -582,7 +583,7 @@ describe('TeamOperationBase', () => {
             operation.executeOperationResultToReturn = Promise.resolve(expectedResult);
 
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.fulfilled
@@ -598,7 +599,7 @@ describe('TeamOperationBase', () => {
             operation.executeOperationResultToReturn = Promise.reject(expectedError);
 
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.rejected
@@ -614,7 +615,7 @@ describe('TeamOperationBase', () => {
             operation.executeOperationResultToReturn = expectedResult;
 
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.fulfilled
@@ -630,7 +631,7 @@ describe('TeamOperationBase', () => {
             operation.executeOperationErrorToThrow = expectedError;
 
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.rejected
@@ -657,11 +658,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -689,11 +690,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -721,11 +722,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -753,11 +754,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -784,11 +785,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -815,11 +816,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -846,11 +847,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -877,11 +878,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -910,7 +911,7 @@ describe('TeamOperationBase', () => {
 
           it('has no global permissions should succeed and execute', () => {
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.fulfilled
@@ -921,11 +922,11 @@ describe('TeamOperationBase', () => {
 
           it('has global admin permissions should execute', () => {
             // Arrange
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -940,11 +941,11 @@ describe('TeamOperationBase', () => {
             var expectedResult = {};
             operation.executeOperationResultToReturn = Promise.resolve(expectedResult);
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -960,11 +961,11 @@ describe('TeamOperationBase', () => {
             var expectedError = {};
             operation.executeOperationResultToReturn = Promise.reject(expectedError);
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -980,11 +981,11 @@ describe('TeamOperationBase', () => {
             var expectedResult = {};
             operation.executeOperationResultToReturn = expectedResult;
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -1000,11 +1001,11 @@ describe('TeamOperationBase', () => {
             var expectedError = {};
             operation.executeOperationErrorToThrow = expectedError;
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -1029,11 +1030,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -1060,11 +1061,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -1092,11 +1093,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -1124,11 +1125,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, userPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -1156,11 +1157,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, userPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -1184,11 +1185,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -1204,7 +1205,7 @@ describe('TeamOperationBase', () => {
             operation.executeOperationResultToReturn = Promise.resolve(expectedResult);
 
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.fulfilled
@@ -1220,7 +1221,7 @@ describe('TeamOperationBase', () => {
             operation.executeOperationResultToReturn = Promise.reject(expectedError);
 
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.rejected
@@ -1236,7 +1237,7 @@ describe('TeamOperationBase', () => {
             operation.executeOperationResultToReturn = expectedResult;
 
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.fulfilled
@@ -1252,7 +1253,7 @@ describe('TeamOperationBase', () => {
             operation.executeOperationErrorToThrow = expectedError;
 
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.rejected
@@ -1278,11 +1279,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -1309,11 +1310,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -1340,11 +1341,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -1371,11 +1372,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -1396,7 +1397,7 @@ describe('TeamOperationBase', () => {
 
           it('has no global permissions should succeed and execute', () => {
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.fulfilled
@@ -1407,11 +1408,11 @@ describe('TeamOperationBase', () => {
 
           it('has global admin permissions should execute', () => {
             // Arrange
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -1426,11 +1427,11 @@ describe('TeamOperationBase', () => {
             var expectedResult = {};
             operation.executeOperationResultToReturn = Promise.resolve(expectedResult);
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -1446,11 +1447,11 @@ describe('TeamOperationBase', () => {
             var expectedError = {};
             operation.executeOperationResultToReturn = Promise.reject(expectedError);
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -1466,11 +1467,11 @@ describe('TeamOperationBase', () => {
             var expectedResult = {};
             operation.executeOperationResultToReturn = expectedResult;
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -1486,11 +1487,11 @@ describe('TeamOperationBase', () => {
             var expectedError = {};
             operation.executeOperationErrorToThrow = expectedError;
 
-            var createAdminPermissions: Promise<any> =
+            var createAdminPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createAdminPermissions.then(() => operation.execute());
 
             // Assert
@@ -1515,11 +1516,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -1546,11 +1547,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -1578,11 +1579,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -1610,11 +1611,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -1642,11 +1643,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var addGlobalPermissionsPromise: Promise<any> =
+            var addGlobalPermissionsPromise: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               addGlobalPermissionsPromise.then(() => operation.execute());
 
             // Assert
@@ -1670,11 +1671,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -1690,7 +1691,7 @@ describe('TeamOperationBase', () => {
             operation.executeOperationResultToReturn = Promise.resolve(expectedResult);
 
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.fulfilled
@@ -1706,7 +1707,7 @@ describe('TeamOperationBase', () => {
             operation.executeOperationResultToReturn = Promise.reject(expectedError);
 
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.rejected
@@ -1722,7 +1723,7 @@ describe('TeamOperationBase', () => {
             operation.executeOperationResultToReturn = expectedResult;
 
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.fulfilled
@@ -1738,7 +1739,7 @@ describe('TeamOperationBase', () => {
             operation.executeOperationErrorToThrow = expectedError;
 
             // Act
-            var executionPromise: Promise<any> = operation.execute();
+            var executionPromise: bluebirdPromise<any> = operation.execute();
 
             // Assert
             return expect(executionPromise).to.eventually.rejected
@@ -1764,11 +1765,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -1795,11 +1796,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -1826,11 +1827,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -1857,11 +1858,11 @@ describe('TeamOperationBase', () => {
                 GlobalPermission.GUEST
               ];
 
-            var createUserPermissions: Promise<any> =
+            var createUserPermissions: bluebirdPromise<any> =
               UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
             // Act
-            var executionPromise: Promise<any> =
+            var executionPromise: bluebirdPromise<any> =
               createUserPermissions.then(() => operation.execute());
 
             // Assert
@@ -1885,7 +1886,7 @@ describe('TeamOperationBase', () => {
 
       beforeEach(() => {
 
-        var userCreationPromise: Promise<any> =
+        var userCreationPromise: bluebirdPromise<any> =
           UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(2))
             .then((_user: User) => {
               user = _user;
@@ -1898,7 +1899,7 @@ describe('TeamOperationBase', () => {
 
       it('has no global permissions should fail', () => {
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           new TestTeamOperationBase(team.id, user.id).execute();
 
         // Assert
@@ -1907,11 +1908,11 @@ describe('TeamOperationBase', () => {
 
       it('has global admin permissions should execute', () => {
         // Arrange
-        var createAdminPermissions: Promise<any> =
+        var createAdminPermissions: bluebirdPromise<any> =
           UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           createAdminPermissions.then(() => operation.execute());
 
         // Assert
@@ -1926,11 +1927,11 @@ describe('TeamOperationBase', () => {
         var expectedResult = {};
         operation.executeOperationResultToReturn = Promise.resolve(expectedResult);
 
-        var createAdminPermissions: Promise<any> =
+        var createAdminPermissions: bluebirdPromise<any> =
           UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           createAdminPermissions.then(() => operation.execute());
 
         // Assert
@@ -1946,11 +1947,11 @@ describe('TeamOperationBase', () => {
         var expectedError = {};
         operation.executeOperationResultToReturn = Promise.reject(expectedError);
 
-        var createAdminPermissions: Promise<any> =
+        var createAdminPermissions: bluebirdPromise<any> =
           UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           createAdminPermissions.then(() => operation.execute());
 
         // Assert
@@ -1966,11 +1967,11 @@ describe('TeamOperationBase', () => {
         var expectedResult = {};
         operation.executeOperationResultToReturn = expectedResult;
 
-        var createAdminPermissions: Promise<any> =
+        var createAdminPermissions: bluebirdPromise<any> =
           UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           createAdminPermissions.then(() => operation.execute());
 
         // Assert
@@ -1986,11 +1987,11 @@ describe('TeamOperationBase', () => {
         var expectedError = {};
         operation.executeOperationErrorToThrow = expectedError
 
-        var createAdminPermissions: Promise<any> =
+        var createAdminPermissions: bluebirdPromise<any> =
           UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
 
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           createAdminPermissions.then(() => operation.execute());
 
         // Assert
@@ -2015,11 +2016,11 @@ describe('TeamOperationBase', () => {
             GlobalPermission.GUEST
           ];
 
-        var addGlobalPermissionsPromise: Promise<any> =
+        var addGlobalPermissionsPromise: bluebirdPromise<any> =
           UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           addGlobalPermissionsPromise.then(() => operation.execute());
 
         // Assert
@@ -2042,11 +2043,11 @@ describe('TeamOperationBase', () => {
             GlobalPermission.GUEST
           ];
 
-        var createUserPermissions: Promise<any> =
+        var createUserPermissions: bluebirdPromise<any> =
           UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           createUserPermissions.then(() => operation.execute());
 
         // Assert
@@ -2072,11 +2073,11 @@ describe('TeamOperationBase', () => {
             GlobalPermission.GUEST
           ];
 
-        var createUserPermissions: Promise<any> =
+        var createUserPermissions: bluebirdPromise<any> =
           UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           createUserPermissions.then(() => operation.execute());
 
         // Assert
@@ -2103,11 +2104,11 @@ describe('TeamOperationBase', () => {
             GlobalPermission.GUEST
           ];
 
-        var createUserPermissions: Promise<any> =
+        var createUserPermissions: bluebirdPromise<any> =
           UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           createUserPermissions.then(() => operation.execute());
 
         // Assert
@@ -2134,11 +2135,11 @@ describe('TeamOperationBase', () => {
             GlobalPermission.GUEST
           ];
 
-        var createUserPermissions: Promise<any> =
+        var createUserPermissions: bluebirdPromise<any> =
           UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           createUserPermissions.then(() => operation.execute());
 
         // Assert
@@ -2165,11 +2166,11 @@ describe('TeamOperationBase', () => {
             GlobalPermission.GUEST
           ];
 
-        var createUserPermissions: Promise<any> =
+        var createUserPermissions: bluebirdPromise<any> =
           UserDataHandler.addGlobalPermissions(user.id, uerPermissions);
 
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           createUserPermissions.then(() => operation.execute());
 
         // Assert
@@ -2192,7 +2193,7 @@ describe('TeamOperationBase', () => {
         var operation = new TestTeamOperationBase(team.id, notExistingUserId);
 
         // Act
-        var executionPromise: Promise<any> = operation.execute();
+        var executionPromise: bluebirdPromise<any> = operation.execute();
 
         // Assert
         return expect(executionPromise).to.eventually.rejected
@@ -2203,13 +2204,13 @@ describe('TeamOperationBase', () => {
 
       it('not existing team id should not execute', () => {
         // Arrange
-        var userCreationPromise: Promise<User> =
+        var userCreationPromise: bluebirdPromise<User> =
           UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(3));
 
         var operation: TestTeamOperationBase;
 
         // Act
-        var executionPromise: Promise<any> =
+        var executionPromise: bluebirdPromise<any> =
           userCreationPromise.then((_user: User) => {
             operation = new TestTeamOperationBase(notExistingTeamId, _user.id);
 
