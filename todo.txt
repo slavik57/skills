@@ -1,9 +1,9 @@
 todo:
 - create a reverse proxy for the server and the app and share the session
+- dont give up on angular2
 - add credits footer
 - fix the issue with slow loading page shows the design before the styles
 - split the ui from the server....(still keep the authentication...share the session cookie...possible with passport shared secrets...)
-- dont give up on angular2
 - for every operation the user has insuficient permissions should return unauthorized
 - add ui tests?
 - ui in angular 2
