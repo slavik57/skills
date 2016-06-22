@@ -4,7 +4,7 @@ var config = {
     development: {
         appConfig: {
             hostName: 'localhost',
-            port: 443,
+            port: 8021,
             certificate: {
                 keyFilePath: pathHelper_1.PathHelper.getPathFromRoot('ssl', 'development-localhost.key'),
                 certificateFilePath: pathHelper_1.PathHelper.getPathFromRoot('ssl', 'development-localhost.cert')
@@ -21,7 +21,7 @@ var config = {
     tests: {
         appConfig: {
             hostName: 'localhost',
-            port: 443,
+            port: 8021,
             certificate: {
                 keyFilePath: pathHelper_1.PathHelper.getPathFromRoot('ssl', 'development-localhost.key'),
                 certificateFilePath: pathHelper_1.PathHelper.getPathFromRoot('ssl', 'development-localhost.cert'),

@@ -28,7 +28,7 @@ var config = {
   development: <IEnvironmentConfig>{
     appConfig: <IAppConfig>{
       hostName: 'localhost',
-      port: 443,
+      port: 8021,
       certificate: {
         keyFilePath: PathHelper.getPathFromRoot('ssl', 'development-localhost.key'),
         certificateFilePath: PathHelper.getPathFromRoot('ssl', 'development-localhost.cert')
@@ -45,7 +45,7 @@ var config = {
   tests: <IEnvironmentConfig>{
     appConfig: <IAppConfig>{
       hostName: 'localhost',
-      port: 443,
+      port: 8021,
       certificate: {
         keyFilePath: PathHelper.getPathFromRoot('ssl', 'development-localhost.key'),
         certificateFilePath: PathHelper.getPathFromRoot('ssl', 'development-localhost.cert'),

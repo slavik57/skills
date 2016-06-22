@@ -1,6 +1,5 @@
 todo:
-- add separate db for the application server
-- create a reverse proxy for the server and the app and share the session
+- share the session
 - dont give up on angular2
 - load the minified jquery and the icons
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
