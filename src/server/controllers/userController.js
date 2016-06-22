@@ -4,4 +4,4 @@ module.exports = {
         response.json(request.user);
     }
 };
-//# sourceMappingURL=apiUserController.js.map
+//# sourceMappingURL=userController.js.map

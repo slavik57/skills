@@ -1,10 +1,15 @@
 todo:
-- share the session
+- share the session:
+	create a users service
+	it should do the login
+	it should do the register
+	it should do the logout
+	it should retrieve the session from the db (use the postgressql store)
 - dont give up on angular2
 - load the minified jquery and the icons
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
 - add credits footer
-- fix the issue with slow loading page shows the design before the styles
+- fix the issue with slow loading page shows the design before the styles (mayve because the files are fetched with a session without a cookie)
 - split the ui from the server....(still keep the authentication...share the session cookie...possible with passport shared secrets...)
 - for every operation the user has insuficient permissions should return unauthorized
 - add ui tests?

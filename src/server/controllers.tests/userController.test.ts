@@ -15,7 +15,7 @@ import {webpackInitializationTimeout} from '../../../testConfigurations';
 
 chai.use(chaiAsPromised);
 
-describe('ApiUserController', () => {
+describe('userController', () => {
 
   var expressServer: ExpressServer;
   var server: SuperTest;
@@ -74,7 +74,7 @@ describe('ApiUserController', () => {
     })
 
     it('getting user details should fail', (done) => {
-      server.get('/apiuser')
+      server.get('/user')
         .expect(StatusCode.UNAUTHORIZED)
         .end(done);
     });
@@ -96,7 +96,7 @@ describe('ApiUserController', () => {
     it('getting user details should succeed', (done) => {
       var expectedUser = getExpectedUserDetails(user);
 
-      server.get('/apiuser')
+      server.get('/user')
         .expect(StatusCode.OK)
         .expect(expectedUser)
         .end(done);
@@ -109,7 +109,7 @@ describe('ApiUserController', () => {
       });
 
       it('getting user details should fail', (done) => {
-        server.get('/apiuser')
+        server.get('/user')
           .expect(StatusCode.UNAUTHORIZED)
           .end(done);
       });
@@ -134,7 +134,7 @@ describe('ApiUserController', () => {
     it('getting user details should succeed', (done) => {
       var expectedUser = getExpectedUserDetails(user);
 
-      server.get('/apiuser')
+      server.get('/user')
         .expect(StatusCode.OK)
         .expect(expectedUser)
         .end(done);
@@ -147,7 +147,7 @@ describe('ApiUserController', () => {
       });
 
       it('getting user details should fail', (done) => {
-        server.get('/apiuser')
+        server.get('/user')
           .expect(StatusCode.UNAUTHORIZED)
           .end(done);
       });

@@ -97,7 +97,6 @@ export class ExpressServer {
     this._expressApp.use(methodOverride('X-HTTP-Method-Override'));
     this._configureSession();
     this._configurePassport();
-    this._configureSessionPersistedMessageMiddleware();
     this._configureControllersForApp();
     this._configurePassportLoginStrategies();
   }
@@ -120,24 +119,6 @@ export class ExpressServer {
   private _configurePassport() {
     this._expressApp.use(passport.initialize());
     this._expressApp.use(passport.session());
-  }
-
-  private _configureSessionPersistedMessageMiddleware() {
-    this._expressApp.use((req: any, res: any, next) => {
-      var err = req.session.error,
-        msg = req.session.notice,
-        success = req.session.success;
-
-      delete req.session.error;
-      delete req.session.success;
-      delete req.session.notice;
-
-      if (err) res.locals.error = err;
-      if (msg) res.locals.notice = msg;
-      if (success) res.locals.success = success;
-
-      next();
-    });
   }
 
   private _configureControllersForApp() {

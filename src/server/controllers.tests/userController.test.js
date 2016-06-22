@@ -9,7 +9,7 @@ var chaiAsPromised = require('chai-as-promised');
 var statusCode_1 = require('../enums/statusCode');
 var testConfigurations_1 = require('../../../testConfigurations');
 chai.use(chaiAsPromised);
-describe('ApiUserController', function () {
+describe('userController', function () {
     var expressServer;
     var server;
     var userDefinition;
@@ -53,7 +53,7 @@ describe('ApiUserController', function () {
             return userLoginManager_1.UserLoginManager.logoutUser(server);
         });
         it('getting user details should fail', function (done) {
-            server.get('/apiuser')
+            server.get('/user')
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
@@ -69,7 +69,7 @@ describe('ApiUserController', function () {
         });
         it('getting user details should succeed', function (done) {
             var expectedUser = getExpectedUserDetails(user);
-            server.get('/apiuser')
+            server.get('/user')
                 .expect(statusCode_1.StatusCode.OK)
                 .expect(expectedUser)
                 .end(done);
@@ -79,7 +79,7 @@ describe('ApiUserController', function () {
                 return userLoginManager_1.UserLoginManager.logoutUser(server);
             });
             it('getting user details should fail', function (done) {
-                server.get('/apiuser')
+                server.get('/user')
                     .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                     .end(done);
             });
@@ -97,7 +97,7 @@ describe('ApiUserController', function () {
         });
         it('getting user details should succeed', function (done) {
             var expectedUser = getExpectedUserDetails(user);
-            server.get('/apiuser')
+            server.get('/user')
                 .expect(statusCode_1.StatusCode.OK)
                 .expect(expectedUser)
                 .end(done);
@@ -107,11 +107,11 @@ describe('ApiUserController', function () {
                 return userLoginManager_1.UserLoginManager.logoutUser(server);
             });
             it('getting user details should fail', function (done) {
-                server.get('/apiuser')
+                server.get('/user')
                     .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                     .end(done);
             });
         });
     });
 });
-//# sourceMappingURL=apiUserController.test.js.map
+//# sourceMappingURL=userController.test.js.map
