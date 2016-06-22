@@ -1,10 +1,4 @@
 todo:
-- share the session:
-	create a users service
-	it should do the login
-	it should do the register
-	it should do the logout
-	it should retrieve the session from the db (use the postgressql store)
 - dont give up on angular2
 - load the minified jquery and the icons
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
