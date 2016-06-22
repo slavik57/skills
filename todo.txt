@@ -1,6 +1,9 @@
 todo:
+- add separate db for the application server
 - create a reverse proxy for the server and the app and share the session
 - dont give up on angular2
+- load the minified jquery and the icons
+- add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
 - add credits footer
 - fix the issue with slow loading page shows the design before the styles
 - split the ui from the server....(still keep the authentication...share the session cookie...possible with passport shared secrets...)
@@ -8,4 +11,7 @@ todo:
 - add ui tests?
 - ui in angular 2
 - add style (material)
+
+More features:
+- add skill description
 - add guilds
