@@ -1,5 +1,4 @@
 todo:
-- solve the fonts issue
 - move to the new forms of angular: https://angular.io/docs/ts/latest/guide/forms.html
 - add tests to angular as in the example
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
@@ -8,6 +7,7 @@ todo:
 - add ui tests?
 - ui in angular 2
 - add style (material)
+- solve the fonts issue???
 
 More features:
 - add skill description
