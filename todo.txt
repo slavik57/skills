@@ -1,7 +1,8 @@
 todo:
+- solve the fonts issue
+- move to the new forms of angular: https://angular.io/docs/ts/latest/guide/forms.html
 - add tests to angular as in the example
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
-- add credits footer
 - split the ui from the server....(still keep the authentication...share the session cookie...possible with passport shared secrets...)
 - for every operation the user has insuficient permissions should return unauthorized
 - add ui tests?
