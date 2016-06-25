@@ -1,6 +1,8 @@
 todo:
 - test the UserService
 - test signin.component
+- implement register and test it
+- implement home
 - move to the new forms of angular: https://angular.io/docs/ts/latest/guide/forms.html
 - for every operation the user has insuficient permissions should return unauthorized
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
