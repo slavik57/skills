@@ -78,8 +78,8 @@ describe('RegisterStrategy', () => {
     it('should redirect to home page', (done) => {
       server.post('/register')
         .send(userDefinition)
-        .expect(StatusCode.REDIRECT)
-        .expect('Location', '/')
+        .expect(StatusCode.OK)
+        .expect('redirect-path', '/')
         .end(done);
     });
 

@@ -140,26 +140,11 @@ export class ExpressServer {
 
   private _ensureAuthenticated(request: Request, response: Response, nextFunction: NextFunction): void {
     if (request.isAuthenticated()) {
-      request.path === '/signin' ? response.redirect('/') : nextFunction();
-      return;
-    }
-
-    if (request.path.indexOf('/dist/') === 0) {
       nextFunction();
       return;
     }
 
-    if (request.path === '/signin') {
-      nextFunction();
-      return;
-    }
-
-    if (request.path.indexOf('/api') === 0) {
-      response.status(StatusCode.UNAUTHORIZED).send();
-      return;
-    }
-
-    response.redirect('/signin');
+    response.status(StatusCode.UNAUTHORIZED).send();
   }
 
   private _logServerIsUp(serverAddress: { address: string, port: number }) {

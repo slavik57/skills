@@ -52,8 +52,8 @@ describe('RegisterStrategy', function () {
         it('should redirect to home page', function (done) {
             server.post('/register')
                 .send(userDefinition)
-                .expect(statusCode_1.StatusCode.REDIRECT)
-                .expect('Location', '/')
+                .expect(statusCode_1.StatusCode.OK)
+                .expect('redirect-path', '/')
                 .end(done);
         });
         it('should create a user', function (done) {

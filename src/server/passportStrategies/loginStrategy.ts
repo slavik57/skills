@@ -10,15 +10,37 @@ export class LoginStrategy {
   private static NAME = 'login';
 
   public static initialize(app: Express): void {
-    app.post('/login', passport.authenticate(LoginStrategy.NAME, {
-      successRedirect: '/'
-    }));
+    app.post('/login', (request: Request, response: Response, nextFunction: NextFunction) => {
+      var authenticateHandler =
+        passport.authenticate(LoginStrategy.NAME, (_error, _user) => this._handleLoginResult(_error, _user, request, response, nextFunction));
+
+      authenticateHandler(request, response, nextFunction);
+    });
 
     var options: IStrategyOptionsWithRequest = {
       passReqToCallback: true
     }
 
     passport.use(LoginStrategy.NAME, new Strategy(options, this._loginUser));
+  }
+
+  private static _handleLoginResult(error: any, user: any, request: Request, response: Response, nextFunction: NextFunction): any {
+    if (error) {
+      return nextFunction(error);
+    }
+    if (!user) {
+      return response.status(StatusCode.UNAUTHORIZED).send();
+    }
+
+    request.logIn(user, (_error) => {
+      if (_error) {
+        return nextFunction(_error);
+      }
+
+      response.status(StatusCode.OK);
+      response.setHeader('redirect-path', '/');
+      response.send();
+    });
   }
 
   private static _loginUser(req: Request, username: string, password: string, done: (error: any, user?: IUserInfoResponse, options?: IVerifyOptions) => void) {

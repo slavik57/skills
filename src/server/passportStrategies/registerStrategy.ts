@@ -40,7 +40,9 @@ export class RegisterStrategy {
         return nextFunction(_error);
       }
 
-      response.redirect('/');
+      response.status(StatusCode.OK);
+      response.setHeader('redirect-path', '/');
+      response.send();
     });
   }
 

@@ -66,8 +66,8 @@ describe('LoginStrategy', () => {
     it('existing user should secceed and redirect', (done) => {
       server.post('/login')
         .send({ username: userDefinition.username, password: userDefinition.password })
-        .expect(StatusCode.REDIRECT)
-        .expect('Location', '/')
+        .expect(StatusCode.OK)
+        .expect('redirect-path', '/')
         .end(done);
     });
 

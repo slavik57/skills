@@ -112,22 +112,10 @@ var ExpressServer = (function () {
     };
     ExpressServer.prototype._ensureAuthenticated = function (request, response, nextFunction) {
         if (request.isAuthenticated()) {
-            request.path === '/signin' ? response.redirect('/') : nextFunction();
-            return;
-        }
-        if (request.path.indexOf('/dist/') === 0) {
             nextFunction();
             return;
         }
-        if (request.path === '/signin') {
-            nextFunction();
-            return;
-        }
-        if (request.path.indexOf('/api') === 0) {
-            response.status(statusCode_1.StatusCode.UNAUTHORIZED).send();
-            return;
-        }
-        response.redirect('/signin');
+        response.status(statusCode_1.StatusCode.UNAUTHORIZED).send();
     };
     ExpressServer.prototype._logServerIsUp = function (serverAddress) {
         var host = serverAddress.address;

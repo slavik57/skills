@@ -47,8 +47,8 @@ describe('LoginStrategy', function () {
         it('existing user should secceed and redirect', function (done) {
             server.post('/login')
                 .send({ username: userDefinition.username, password: userDefinition.password })
-                .expect(statusCode_1.StatusCode.REDIRECT)
-                .expect('Location', '/')
+                .expect(statusCode_1.StatusCode.OK)
+                .expect('redirect-path', '/')
                 .end(done);
         });
         it('not existing user should fail', function (done) {

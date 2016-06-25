@@ -28,7 +28,9 @@ var RegisterStrategy = (function () {
             if (_error) {
                 return nextFunction(_error);
             }
-            response.redirect('/');
+            response.status(statusCode_1.StatusCode.OK);
+            response.setHeader('redirect-path', '/');
+            response.send();
         });
     };
     RegisterStrategy._registerUser = function (req, username, password, done) {
