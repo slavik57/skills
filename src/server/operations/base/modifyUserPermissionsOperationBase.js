@@ -37,8 +37,9 @@ var ModifyUserPermissionsOperationBase = (function (_super) {
     };
     ModifyUserPermissionsOperationBase.prototype._rejectWithNotAllowedPermissionsToModify = function (permissionsTheExecutingUserCannotAdd) {
         var permissionNames = _.map(permissionsTheExecutingUserCannotAdd, function (_permission) { return globalPermission_1.GlobalPermission[_permission]; });
-        var message = 'The executing user cannot modify the permissions: ' + permissionNames.join(', ');
-        return bluebirdPromise.reject(message);
+        var error = new Error();
+        error.message = 'The executing user cannot modify the permissions: ' + permissionNames.join(', ');
+        return bluebirdPromise.reject(error);
     };
     return ModifyUserPermissionsOperationBase;
 }(operationBase_1.OperationBase));

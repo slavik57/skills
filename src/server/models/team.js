@@ -56,7 +56,9 @@ var Team = (function (_super) {
     };
     Team.prototype.validateTeam = function (team) {
         if (!typesValidator_1.TypesValidator.isLongEnoughString(team.attributes.name, 1)) {
-            return bluebirdPromise.reject('The team name must not be empty');
+            var error = new Error();
+            error.message = 'The team name must not be empty';
+            return bluebirdPromise.reject(error);
         }
         return bluebirdPromise.resolve(true);
     };

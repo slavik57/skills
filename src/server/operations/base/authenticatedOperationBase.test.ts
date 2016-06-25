@@ -240,7 +240,7 @@ describe('AuthenticatedOperationBase', () => {
       var operation = new TestAuthenticatedOperation(user.id);
 
       var expectedError = {};
-      operation.executeOperationResult = Promise.reject(expectedError);
+      operation.executeOperationResult = bluebirdPromise.reject(expectedError);
 
       // Act
       var executionPromise: Promise<any> =
@@ -359,7 +359,7 @@ describe('AuthenticatedOperationBase', () => {
       return expect(executionPromise).to.eventually.rejected
         .then((actualError: any) => {
           expect(operation.wasExecuted).to.be.true;
-          expect(actualError).to.be.equal(expectedError);
+          expect(actualError.innerError).to.be.equal(expectedError);
         });
     });
 
@@ -424,7 +424,7 @@ describe('AuthenticatedOperationBase', () => {
       return expect(executionPromise).to.eventually.rejected
         .then((_actualError: any) => {
           expect(operation.wasExecuted).to.be.true;
-          expect(_actualError).to.be.equal(expectedError);
+          expect(_actualError.innerError).to.be.equal(expectedError);
         });
     });
 

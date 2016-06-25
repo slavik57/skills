@@ -109,7 +109,7 @@ describe('OperationBase', () => {
         return expect(promise).to.eventually.rejected
           .then((_actualError) => {
             expect(operation.wasExecuted).to.be.true;
-            expect(_actualError).to.be.equal(expectedError);
+            expect(_actualError.innerError).to.be.equal(expectedError);
           });
       });
 

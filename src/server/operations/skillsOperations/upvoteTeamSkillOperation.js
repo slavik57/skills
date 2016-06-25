@@ -38,7 +38,9 @@ var UpvoteTeamSkillOperation = (function (_super) {
         var _this = this;
         var teamSkill = _.find(teamSkills, function (_teamSkill) { return _teamSkill.skill.id === _this._skillIdToUpvote; });
         if (!teamSkill) {
-            return bluebirdPromise.reject('The skill is not part of the team skills');
+            var error = new Error();
+            error.message = 'The skill is not part of the team skills';
+            return bluebirdPromise.reject(error);
         }
         return teamsDataHandler_1.TeamsDataHandler.upvoteTeamSkill(teamSkill.teamSkill.id, this.executingUserId);
     };

@@ -77,7 +77,7 @@ describe('OperationBase', function () {
                 return chai_1.expect(promise).to.eventually.rejected
                     .then(function (_actualError) {
                     chai_1.expect(operation.wasExecuted).to.be.true;
-                    chai_1.expect(_actualError).to.be.equal(expectedError);
+                    chai_1.expect(_actualError.innerError).to.be.equal(expectedError);
                 });
             });
             it('operation returning resolved promise should succeed execute and return correct result', function () {

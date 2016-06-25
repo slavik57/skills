@@ -12,6 +12,7 @@ var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 var authenticatedOperationBase_1 = require('./authenticatedOperationBase');
+var bluebirdPromise = require('bluebird');
 chai.use(chaiAsPromised);
 var TestAuthenticatedOperation = (function (_super) {
     __extends(TestAuthenticatedOperation, _super);
@@ -154,7 +155,7 @@ describe('AuthenticatedOperationBase', function () {
             var createAdminPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.ADMIN]);
             var operation = new TestAuthenticatedOperation(user.id);
             var expectedError = {};
-            operation.executeOperationResult = Promise.reject(expectedError);
+            operation.executeOperationResult = bluebirdPromise.reject(expectedError);
             var executionPromise = createAdminPermissions.then(function () { return operation.execute(); });
             return chai_1.expect(executionPromise).to.eventually.rejected
                 .then(function (actualError) {
@@ -223,7 +224,7 @@ describe('AuthenticatedOperationBase', function () {
             return chai_1.expect(executionPromise).to.eventually.rejected
                 .then(function (actualError) {
                 chai_1.expect(operation.wasExecuted).to.be.true;
-                chai_1.expect(actualError).to.be.equal(expectedError);
+                chai_1.expect(actualError.innerError).to.be.equal(expectedError);
             });
         });
         it('executing with existing user id that has sufficient permissions and operation returning result should execute and resolve the correct result', function () {
@@ -263,7 +264,7 @@ describe('AuthenticatedOperationBase', function () {
             return chai_1.expect(executionPromise).to.eventually.rejected
                 .then(function (_actualError) {
                 chai_1.expect(operation.wasExecuted).to.be.true;
-                chai_1.expect(_actualError).to.be.equal(expectedError);
+                chai_1.expect(_actualError.innerError).to.be.equal(expectedError);
             });
         });
     });

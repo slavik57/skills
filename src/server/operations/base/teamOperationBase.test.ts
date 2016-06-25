@@ -224,7 +224,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((actualError: any) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(actualError).to.be.equal(expectedError);
+                expect(actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -403,7 +403,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((_actualError: any) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(_actualError).to.be.equal(expectedError);
+                expect(_actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -518,7 +518,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((actualError: any) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(actualError).to.be.equal(expectedError);
+                expect(actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -637,7 +637,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((actualError: any) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(actualError).to.be.equal(expectedError);
+                expect(actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -765,7 +765,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((_actualError) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(_actualError).to.be.equal(expectedError);
+                expect(_actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -889,7 +889,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((_actualError: any) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(_actualError).to.be.equal(expectedError);
+                expect(_actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -1012,7 +1012,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((actualError: any) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(actualError).to.be.equal(expectedError);
+                expect(actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -1168,7 +1168,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((_actualError) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(_actualError).to.be.equal(expectedError);
+                expect(_actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -1259,7 +1259,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((actualError: any) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(actualError).to.be.equal(expectedError);
+                expect(actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -1383,7 +1383,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((_actualError: any) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(_actualError).to.be.equal(expectedError);
+                expect(_actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -1498,7 +1498,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((actualError: any) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(actualError).to.be.equal(expectedError);
+                expect(actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -1654,7 +1654,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((_actualError) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(_actualError).to.be.equal(expectedError);
+                expect(_actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -1745,7 +1745,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((actualError: any) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(actualError).to.be.equal(expectedError);
+                expect(actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -1869,7 +1869,7 @@ describe('TeamOperationBase', () => {
             return expect(executionPromise).to.eventually.rejected
               .then((_actualError: any) => {
                 expect(operation.wasExecuted).to.be.true;
-                expect(_actualError).to.be.equal(expectedError);
+                expect(_actualError.innerError).to.be.equal(expectedError);
               });
           });
 
@@ -1998,7 +1998,7 @@ describe('TeamOperationBase', () => {
         return expect(executionPromise).to.eventually.rejected
           .then((actualError: any) => {
             expect(operation.wasExecuted).to.be.true;
-            expect(actualError).to.be.equal(expectedError);
+            expect(actualError.innerError).to.be.equal(expectedError);
           });
       });
 
@@ -2177,7 +2177,7 @@ describe('TeamOperationBase', () => {
         return expect(executionPromise).to.eventually.rejected
           .then((_actualError: any) => {
             expect(operation.wasExecuted).to.be.true;
-            expect(_actualError).to.be.equal(expectedError);
+            expect(_actualError.innerError).to.be.equal(expectedError);
           });
       });
 

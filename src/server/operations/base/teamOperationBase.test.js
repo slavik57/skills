@@ -156,7 +156,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(actualError).to.be.equal(expectedError);
+                            chai_1.expect(actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                     it('has insufficient global permissions should fail and not execute', function () {
@@ -265,7 +265,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (_actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(_actualError).to.be.equal(expectedError);
+                            chai_1.expect(_actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                 });
@@ -329,7 +329,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(actualError).to.be.equal(expectedError);
+                            chai_1.expect(actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                     it('has insufficient global permissions should succeed and execute', function () {
@@ -402,7 +402,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(actualError).to.be.equal(expectedError);
+                            chai_1.expect(actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                     it('has insufficient global permissions and operation returning resolving promise should execute and return correct result', function () {
@@ -482,7 +482,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (_actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(_actualError).to.be.equal(expectedError);
+                            chai_1.expect(_actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                     it('has sufficient global permissions and operation returning resolving promise should execute and resolve the correct result', function () {
@@ -558,7 +558,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (_actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(_actualError).to.be.equal(expectedError);
+                            chai_1.expect(_actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                 });
@@ -627,7 +627,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(actualError).to.be.equal(expectedError);
+                            chai_1.expect(actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                     it('has insufficient global permissions should succeed and execute', function () {
@@ -724,7 +724,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (_actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(_actualError).to.be.equal(expectedError);
+                            chai_1.expect(_actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                     it('has sufficient global permissions should succeed and execute', function () {
@@ -780,7 +780,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(actualError).to.be.equal(expectedError);
+                            chai_1.expect(actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                     it('has sufficient global permissions and operation returning resolving promise should execute and resolve the correct result', function () {
@@ -856,7 +856,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (_actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(_actualError).to.be.equal(expectedError);
+                            chai_1.expect(_actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                 });
@@ -920,7 +920,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(actualError).to.be.equal(expectedError);
+                            chai_1.expect(actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                     it('has insufficient global permissions should succeed and execute', function () {
@@ -1017,7 +1017,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (_actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(_actualError).to.be.equal(expectedError);
+                            chai_1.expect(_actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                     it('has sufficient global permissions should succeed and execute', function () {
@@ -1073,7 +1073,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(actualError).to.be.equal(expectedError);
+                            chai_1.expect(actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                     it('has sufficient global permissions and operation returning resolving promise should execute and resolve the correct result', function () {
@@ -1149,7 +1149,7 @@ describe('TeamOperationBase', function () {
                         return chai_1.expect(executionPromise).to.eventually.rejected
                             .then(function (_actualError) {
                             chai_1.expect(operation.wasExecuted).to.be.true;
-                            chai_1.expect(_actualError).to.be.equal(expectedError);
+                            chai_1.expect(_actualError.innerError).to.be.equal(expectedError);
                         });
                     });
                 });
@@ -1219,7 +1219,7 @@ describe('TeamOperationBase', function () {
                 return chai_1.expect(executionPromise).to.eventually.rejected
                     .then(function (actualError) {
                     chai_1.expect(operation.wasExecuted).to.be.true;
-                    chai_1.expect(actualError).to.be.equal(expectedError);
+                    chai_1.expect(actualError.innerError).to.be.equal(expectedError);
                 });
             });
             it('has insufficient global permissions should fail and not execute', function () {
@@ -1328,7 +1328,7 @@ describe('TeamOperationBase', function () {
                 return chai_1.expect(executionPromise).to.eventually.rejected
                     .then(function (_actualError) {
                     chai_1.expect(operation.wasExecuted).to.be.true;
-                    chai_1.expect(_actualError).to.be.equal(expectedError);
+                    chai_1.expect(_actualError.innerError).to.be.equal(expectedError);
                 });
             });
         });

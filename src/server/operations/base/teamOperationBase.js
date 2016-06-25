@@ -45,13 +45,18 @@ var TeamOperationBase = (function (_super) {
             }
             return this._userHasSufficientAdminRights(isAdmin);
         }
-        return bluebirdPromise.reject('The user is not in the team');
+        return bluebirdPromise.reject(this._createError('The user is not in the team'));
     };
     TeamOperationBase.prototype._userHasSufficientAdminRights = function (isAdmin) {
         if (this.isRegularTeamMemberAlowedToExecute || isAdmin) {
             return bluebirdPromise.resolve();
         }
-        return bluebirdPromise.reject('The user must be team admin');
+        return bluebirdPromise.reject(this._createError('The user must be team admin'));
+    };
+    TeamOperationBase.prototype._createError = function (errorMessage) {
+        var error = new Error();
+        error.message = errorMessage;
+        return error;
     };
     return TeamOperationBase;
 }(authenticatedOperationBase_1.AuthenticatedOperationBase));

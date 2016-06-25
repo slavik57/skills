@@ -1,3 +1,4 @@
+import {ExtendedError} from "../../../common/ExtendedError";
 import {IOperationExecutionError} from "../interfaces/iOperationExecutionError";
 import * as bluebirdPromise from 'bluebird';
 
@@ -25,15 +26,18 @@ export class OperationBase<T> {
     try {
       return this.doWork();
     } catch (error) {
-      return bluebirdPromise.reject(error);
+      var rejectionError = new ExtendedError();
+      rejectionError.innerError = error;
+      return bluebirdPromise.reject(rejectionError);
     }
   }
 
   private _failExecution(error: any): bluebirdPromise<T> {
-    return bluebirdPromise.reject({
-      message: 'The operation cannot be executed',
-      innerError: error
-    });
+    var rejectionError = new ExtendedError();
+    rejectionError.message = 'The operation cannot be executed';
+    rejectionError.innerError = error;
+
+    return bluebirdPromise.reject(rejectionError);
   }
 
 }

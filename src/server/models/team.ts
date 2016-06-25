@@ -42,7 +42,9 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
 
   public validateTeam(team: Team): bluebirdPromise<boolean> {
     if (!TypesValidator.isLongEnoughString(team.attributes.name, 1)) {
-      return bluebirdPromise.reject('The team name must not be empty');
+      var error = new Error();
+      error.message = 'The team name must not be empty';
+      return bluebirdPromise.reject(error);
     }
 
     return bluebirdPromise.resolve(true);

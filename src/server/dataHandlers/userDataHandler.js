@@ -93,7 +93,9 @@ var UserDataHandler = (function () {
             .fetch(fetchOptions)
             .then(function (user) {
             if (!user) {
-                return bluebirdPromise.reject('User does not exist');
+                var error = new Error();
+                error.message = 'User does not exist';
+                return bluebirdPromise.reject(error);
             }
             var existingPermissionsCollection = user.relations.globalPermissions;
             return _this._addNotExistingGlobalPermissions(user.id, existingPermissionsCollection, permissionsToAdd, transaction);

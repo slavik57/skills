@@ -31,7 +31,9 @@ export class UpvoteTeamSkillOperation extends AuthenticatedOperationBase<TeamSki
       _.find(teamSkills, _teamSkill => _teamSkill.skill.id === this._skillIdToUpvote);
 
     if (!teamSkill) {
-      return bluebirdPromise.reject('The skill is not part of the team skills');
+      var error = new Error();
+      error.message = 'The skill is not part of the team skills';
+      return bluebirdPromise.reject(error);
     }
 
     return TeamsDataHandler.upvoteTeamSkill(teamSkill.teamSkill.id, this.executingUserId);

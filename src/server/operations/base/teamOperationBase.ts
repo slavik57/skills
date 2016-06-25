@@ -43,7 +43,7 @@ export class TeamOperationBase<T> extends AuthenticatedOperationBase<T> {
       return this._userHasSufficientAdminRights(isAdmin);
     }
 
-    return bluebirdPromise.reject('The user is not in the team');
+    return bluebirdPromise.reject(this._createError('The user is not in the team'));
   }
 
   private _userHasSufficientAdminRights(isAdmin: boolean): bluebirdPromise<any> {
@@ -51,6 +51,13 @@ export class TeamOperationBase<T> extends AuthenticatedOperationBase<T> {
       return bluebirdPromise.resolve();
     }
 
-    return bluebirdPromise.reject('The user must be team admin');
+    return bluebirdPromise.reject(this._createError('The user must be team admin'));
+  }
+
+  private _createError(errorMessage: string): Error {
+    var error = new Error();
+    error.message = errorMessage;
+
+    return error;
   }
 }

@@ -31,7 +31,9 @@ export class DownvoteTeamSkillOperation extends AuthenticatedOperationBase<TeamS
       _.find(teamSkills, _teamSkill => _teamSkill.skill.id === this._skillIdToDownvote);
 
     if (!teamSkill) {
-      return bluebirdPromise.reject('The skill is not part of the team skills');
+      var error = new Error();
+      error.message = 'The skill is not part of the team skills';
+      return bluebirdPromise.reject(error);
     }
 
     return TeamsDataHandler.removeUpvoteForTeamSkill(teamSkill.teamSkill.id, this.executingUserId);

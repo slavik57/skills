@@ -37,15 +37,20 @@ var SkillPrerequisite = (function (_super) {
     };
     SkillPrerequisite.prototype.validateSkillPrerequisite = function (skillPrerequisite) {
         if (!typesValidator_1.TypesValidator.isInteger(skillPrerequisite.attributes.skill_id)) {
-            return bluebirdPromise.reject('The skill_id must be an integer');
+            return bluebirdPromise.reject(this._createError('The skill_id must be an integer'));
         }
         if (!typesValidator_1.TypesValidator.isInteger(skillPrerequisite.attributes.skill_prerequisite_id)) {
-            return bluebirdPromise.reject('The skill_prerequisite_id be an integer');
+            return bluebirdPromise.reject(this._createError('The skill_prerequisite_id be an integer'));
         }
         if (skillPrerequisite.attributes.skill_id === skillPrerequisite.attributes.skill_prerequisite_id) {
-            return bluebirdPromise.reject('Skill can not be a prerequisite of itself');
+            return bluebirdPromise.reject(this._createError('Skill can not be a prerequisite of itself'));
         }
         return bluebirdPromise.resolve(true);
+    };
+    SkillPrerequisite.prototype._createError = function (errorMessage) {
+        var error = new Error();
+        error.message = errorMessage;
+        return error;
     };
     return SkillPrerequisite;
 }(modelBase_1.ModelBase));

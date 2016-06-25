@@ -41,9 +41,9 @@ export class ModifyUserPermissionsOperationBase<T> extends OperationBase<T> {
   private _rejectWithNotAllowedPermissionsToModify(permissionsTheExecutingUserCannotAdd: GlobalPermission[]): bluebirdPromise<any> {
     var permissionNames: string[] = _.map(permissionsTheExecutingUserCannotAdd, _permission => GlobalPermission[_permission]);
 
-    var message = 'The executing user cannot modify the permissions: ' + permissionNames.join(', ');
-
-    return bluebirdPromise.reject(message);
+    var error = new Error();
+    error.message = 'The executing user cannot modify the permissions: ' + permissionNames.join(', ');
+    return bluebirdPromise.reject(error);
   }
 
 }

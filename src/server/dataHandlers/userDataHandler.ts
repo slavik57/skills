@@ -115,7 +115,9 @@ export class UserDataHandler {
       .fetch(fetchOptions)
       .then((user: User) => {
         if (!user) {
-          return bluebirdPromise.reject('User does not exist');
+          var error = new Error();
+          error.message = 'User does not exist';
+          return bluebirdPromise.reject(error);
         }
 
         var existingPermissionsCollection: Collection<UserGlobalPermissions> = user.relations.globalPermissions;
