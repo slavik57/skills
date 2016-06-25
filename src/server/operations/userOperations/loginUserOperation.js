@@ -24,7 +24,9 @@ var LoginUserOperation = (function (_super) {
         return userDataHandler_1.UserDataHandler.getUserByUsername(this._username)
             .then(function (_user) {
             if (!_user) {
-                return bluebirdPromise.reject('Invalid username');
+                var error = new Error();
+                error.message = 'Invalid username';
+                return bluebirdPromise.reject(error);
             }
             return _user;
         });
@@ -35,7 +37,9 @@ var LoginUserOperation = (function (_super) {
             return bluebirdPromise.resolve(user);
         }
         else {
-            return bluebirdPromise.reject('Incorrect password');
+            var error = new Error();
+            error.message = 'Incorrect password';
+            return bluebirdPromise.reject(error);
         }
     };
     return LoginUserOperation;

@@ -19,7 +19,9 @@ export class LoginUserOperation extends OperationBase<User> {
     return UserDataHandler.getUserByUsername(this._username)
       .then((_user: User) => {
         if (!_user) {
-          return bluebirdPromise.reject('Invalid username');
+          var error = new Error();
+          error.message = 'Invalid username';
+          return bluebirdPromise.reject(error);
         }
 
         return _user;
@@ -33,7 +35,9 @@ export class LoginUserOperation extends OperationBase<User> {
     if (isCorrectPassword) {
       return bluebirdPromise.resolve(user);
     } else {
-      return bluebirdPromise.reject('Incorrect password');
+      var error = new Error();
+      error.message = 'Incorrect password';
+      return bluebirdPromise.reject(error);
     }
   }
 

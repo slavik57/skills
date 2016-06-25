@@ -1,4 +1,6 @@
 todo:
+- fix all bluebirdPromise.reject to return an error
+- test the UserService
 - move to the new forms of angular: https://angular.io/docs/ts/latest/guide/forms.html
 - for every operation the user has insuficient permissions should return unauthorized
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
