@@ -1,5 +1,4 @@
 todo:
-- test signin.component
 - implement register with double password and test it
 - implement home (use onInit of app component to get the user details)
 - move to the new forms of angular: https://angular.io/docs/ts/latest/guide/forms.html
