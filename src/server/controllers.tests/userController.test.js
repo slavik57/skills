@@ -57,6 +57,11 @@ describe('userController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
+        it('checking if user exists should fail', function (done) {
+            server.get('/user/someuser/exists')
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
     });
     describe('user registered', function () {
         var user;
@@ -74,12 +79,29 @@ describe('userController', function () {
                 .expect(expectedUser)
                 .end(done);
         });
+        it('checking if not existing user exists should return false', function (done) {
+            server.get('/user/notExistingUser/exists')
+                .expect(statusCode_1.StatusCode.OK)
+                .expect({ userExists: false })
+                .end(done);
+        });
+        it('checking if existing user exists should return true', function (done) {
+            server.get('/user/' + userDefinition.username + '/exists')
+                .expect(statusCode_1.StatusCode.OK)
+                .expect({ userExists: true })
+                .end(done);
+        });
         describe('logout', function () {
             beforeEach(function () {
                 return userLoginManager_1.UserLoginManager.logoutUser(server);
             });
             it('getting user details should fail', function (done) {
                 server.get('/user')
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .end(done);
+            });
+            it('checking if user exists should fail', function (done) {
+                server.get('/user/someuser/exists')
                     .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                     .end(done);
             });
@@ -102,12 +124,29 @@ describe('userController', function () {
                 .expect(expectedUser)
                 .end(done);
         });
+        it('checking if not existing user exists should return false', function (done) {
+            server.get('/user/notExistingUser/exists')
+                .expect(statusCode_1.StatusCode.OK)
+                .expect({ userExists: false })
+                .end(done);
+        });
+        it('checking if existing user exists should return true', function (done) {
+            server.get('/user/' + userDefinition.username + '/exists')
+                .expect(statusCode_1.StatusCode.OK)
+                .expect({ userExists: true })
+                .end(done);
+        });
         describe('logout', function () {
             beforeEach(function () {
                 return userLoginManager_1.UserLoginManager.logoutUser(server);
             });
             it('getting user details should fail', function (done) {
                 server.get('/user')
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .end(done);
+            });
+            it('checking if user exists should fail', function (done) {
+                server.get('/user/someuser/exists')
                     .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                     .end(done);
             });

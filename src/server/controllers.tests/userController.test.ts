@@ -79,6 +79,12 @@ describe('userController', () => {
         .end(done);
     });
 
+    it('checking if user exists should fail', (done) => {
+      server.get('/user/someuser/exists')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
   });
 
   describe('user registered', () => {
@@ -102,6 +108,20 @@ describe('userController', () => {
         .end(done);
     });
 
+    it('checking if not existing user exists should return false', (done) => {
+      server.get('/user/notExistingUser/exists')
+        .expect(StatusCode.OK)
+        .expect({ userExists: false })
+        .end(done);
+    });
+
+    it('checking if existing user exists should return true', (done) => {
+      server.get('/user/' + userDefinition.username + '/exists')
+        .expect(StatusCode.OK)
+        .expect({ userExists: true })
+        .end(done);
+    });
+
     describe('logout', () => {
 
       beforeEach(() => {
@@ -110,6 +130,12 @@ describe('userController', () => {
 
       it('getting user details should fail', (done) => {
         server.get('/user')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
+      it('checking if user exists should fail', (done) => {
+        server.get('/user/someuser/exists')
           .expect(StatusCode.UNAUTHORIZED)
           .end(done);
       });
@@ -140,6 +166,20 @@ describe('userController', () => {
         .end(done);
     });
 
+    it('checking if not existing user exists should return false', (done) => {
+      server.get('/user/notExistingUser/exists')
+        .expect(StatusCode.OK)
+        .expect({ userExists: false })
+        .end(done);
+    });
+
+    it('checking if existing user exists should return true', (done) => {
+      server.get('/user/' + userDefinition.username + '/exists')
+        .expect(StatusCode.OK)
+        .expect({ userExists: true })
+        .end(done);
+    });
+
     describe('logout', () => {
 
       beforeEach(() => {
@@ -148,6 +188,12 @@ describe('userController', () => {
 
       it('getting user details should fail', (done) => {
         server.get('/user')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
+      it('checking if user exists should fail', (done) => {
+        server.get('/user/someuser/exists')
           .expect(StatusCode.UNAUTHORIZED)
           .end(done);
       });
