@@ -53,6 +53,9 @@ var UserDataHandler = (function () {
     UserDataHandler.getUserByUsername = function (username) {
         return this._initializeUserByUsernameQuery(username).fetch();
     };
+    UserDataHandler.getUserByEmail = function (email) {
+        return this._initializeUserByEmailQuery(email).fetch();
+    };
     UserDataHandler._createUserWithPermissions = function (userInfo, permissionsToAdd, transaction) {
         var _this = this;
         var saveOptions = {
@@ -72,6 +75,11 @@ var UserDataHandler = (function () {
     UserDataHandler._initializeUserByUsernameQuery = function (username) {
         var queryCondition = {};
         queryCondition[user_1.User.usernameAttribute] = username;
+        return new user_1.User(queryCondition);
+    };
+    UserDataHandler._initializeUserByEmailQuery = function (email) {
+        var queryCondition = {};
+        queryCondition[user_1.User.emailAttribute] = email;
         return new user_1.User(queryCondition);
     };
     UserDataHandler._fetchUserGlobalPermissions = function (userId) {

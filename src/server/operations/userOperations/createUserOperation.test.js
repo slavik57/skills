@@ -63,6 +63,20 @@ describe('CreateUserOperation', function () {
                     chai_1.expect(user.attributes.lastName).to.be.equal(userInfo.lastName);
                 });
             });
+            it('without an email should create a correct user', function () {
+                operation = new createUserOperation_1.CreateUserOperation(userInfo.username, password, null, userInfo.firstName, userInfo.lastName);
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.fulfilled
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUsers(); })
+                    .then(function (_users) {
+                    chai_1.expect(_users).to.be.length(1);
+                    var user = _users[0];
+                    chai_1.expect(user.attributes.username).to.be.equal(userInfo.username);
+                    chai_1.expect(user.attributes.email).to.be.null;
+                    chai_1.expect(user.attributes.firstName).to.be.equal(userInfo.firstName);
+                    chai_1.expect(user.attributes.lastName).to.be.equal(userInfo.lastName);
+                });
+            });
             it('should add READER global permissions to the user', function () {
                 var result = operation.execute();
                 return chai_1.expect(result).to.eventually.fulfilled
@@ -93,6 +107,24 @@ describe('CreateUserOperation', function () {
                     chai_1.expect(_user.attributes.email).to.be.equal(userInfo.email);
                     chai_1.expect(_user.attributes.firstName).to.be.equal(userInfo.firstName);
                     chai_1.expect(_user.attributes.lastName).to.be.equal(userInfo.lastName);
+                });
+            });
+            it('with existing username should fail', function () {
+                var createUserOperation = new createUserOperation_1.CreateUserOperation(userInfo.username, password + 1, 'a' + userInfo.email, userInfo.firstName + 1, userInfo.lastName + 1);
+                var result = createUserOperation.execute()
+                    .then(function () { return operation.execute(); });
+                return chai_1.expect(result).to.eventually.rejected
+                    .then(function (error) {
+                    chai_1.expect(error).to.be.equal('The username is taken');
+                });
+            });
+            it('with existing email should fail', function () {
+                var createUserOperation = new createUserOperation_1.CreateUserOperation(userInfo.username + 1, password + 1, userInfo.email, userInfo.firstName + 1, userInfo.lastName + 1);
+                var result = createUserOperation.execute()
+                    .then(function () { return operation.execute(); });
+                return chai_1.expect(result).to.eventually.rejected
+                    .then(function (error) {
+                    chai_1.expect(error).to.be.equal('The email is taken');
                 });
             });
         });

@@ -19,7 +19,7 @@ var RegisterStrategy = (function () {
     };
     RegisterStrategy._handleRegistrationResult = function (error, user, request, response, nextFunction) {
         if (error) {
-            return nextFunction(error);
+            return this._respondWithError(error, response, nextFunction);
         }
         if (!user) {
             return response.status(statusCode_1.StatusCode.BAD_REQUEST).send();
@@ -32,6 +32,14 @@ var RegisterStrategy = (function () {
             response.setHeader('redirect-path', '/');
             response.send();
         });
+    };
+    RegisterStrategy._respondWithError = function (error, response, nextFunction) {
+        if (typeof error === "string") {
+            return response.status(statusCode_1.StatusCode.BAD_REQUEST).send({ error: error });
+        }
+        else {
+            return nextFunction(error);
+        }
     };
     RegisterStrategy._registerUser = function (req, username, password, done) {
         var userRegistrationDefinition = req.body;
@@ -46,7 +54,7 @@ var RegisterStrategy = (function () {
             });
         })
             .catch(function (error) {
-            done(null, null);
+            done(error, null);
         });
     };
     RegisterStrategy.NAME = 'register';

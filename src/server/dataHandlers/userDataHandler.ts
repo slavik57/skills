@@ -66,6 +66,10 @@ export class UserDataHandler {
     return this._initializeUserByUsernameQuery(username).fetch();
   }
 
+  public static getUserByEmail(email: string): bluebirdPromise<User> {
+    return this._initializeUserByEmailQuery(email).fetch();
+  }
+
   private static _createUserWithPermissions(userInfo: IUserInfo, permissionsToAdd: GlobalPermission[], transaction: Transaction): bluebirdPromise<User> {
     var saveOptions: SaveOptions = {
       transacting: transaction
@@ -88,6 +92,13 @@ export class UserDataHandler {
   private static _initializeUserByUsernameQuery(username: string): User {
     var queryCondition = {};
     queryCondition[User.usernameAttribute] = username;
+
+    return new User(queryCondition);
+  }
+
+  private static _initializeUserByEmailQuery(email: string): User {
+    var queryCondition = {};
+    queryCondition[User.emailAttribute] = email;
 
     return new User(queryCondition);
   }

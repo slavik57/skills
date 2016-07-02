@@ -28,7 +28,7 @@ export class RegisterStrategy {
 
   private static _handleRegistrationResult(error: any, user: any, request: Request, response: Response, nextFunction: NextFunction): any {
     if (error) {
-      return nextFunction(error);
+      return this._respondWithError(error, response, nextFunction);
     }
 
     if (!user) {
@@ -44,6 +44,14 @@ export class RegisterStrategy {
       response.setHeader('redirect-path', '/');
       response.send();
     });
+  }
+
+  private static _respondWithError(error: any, response: Response, nextFunction: NextFunction): any {
+    if (typeof error === "string") {
+      return response.status(StatusCode.BAD_REQUEST).send({ error: error });
+    } else {
+      return nextFunction(error);
+    }
   }
 
   private static _registerUser(req: Request, username: string, password: string, done: (error: any, user?: IUserInfoResponse, options?: IVerifyOptions) => void) {
@@ -66,7 +74,7 @@ export class RegisterStrategy {
         });
       })
       .catch((error) => {
-        done(null, null);
+        done(error, null);
       });
   }
 }

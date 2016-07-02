@@ -107,6 +107,32 @@ describe('CreateUserOperation', () => {
           });
       });
 
+      it('without an email should create a correct user', () => {
+        // Arrange
+        operation = new CreateUserOperation(userInfo.username,
+          password,
+          null,
+          userInfo.firstName,
+          userInfo.lastName);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled
+          .then(() => UserDataHandler.getUsers())
+          .then((_users: User[]) => {
+            expect(_users).to.be.length(1);
+
+            var user: User = _users[0];
+
+            expect(user.attributes.username).to.be.equal(userInfo.username);
+            expect(user.attributes.email).to.be.null;
+            expect(user.attributes.firstName).to.be.equal(userInfo.firstName);
+            expect(user.attributes.lastName).to.be.equal(userInfo.lastName);
+          });
+      });
+
       it('should add READER global permissions to the user', () => {
         // Act
         var result: Promise<any> = operation.execute();
@@ -150,6 +176,44 @@ describe('CreateUserOperation', () => {
             expect(_user.attributes.email).to.be.equal(userInfo.email);
             expect(_user.attributes.firstName).to.be.equal(userInfo.firstName);
             expect(_user.attributes.lastName).to.be.equal(userInfo.lastName);
+          });
+      });
+
+      it('with existing username should fail', () => {
+        // Arrange
+        var createUserOperation = new CreateUserOperation(userInfo.username,
+          password + 1,
+          'a' + userInfo.email,
+          userInfo.firstName + 1,
+          userInfo.lastName + 1);
+
+        // Act
+        var result: Promise<any> = createUserOperation.execute()
+          .then(() => operation.execute());
+
+        // Assert
+        return expect(result).to.eventually.rejected
+          .then((error: any) => {
+            expect(error).to.be.equal('The username is taken');
+          });
+      });
+
+      it('with existing email should fail', () => {
+        // Arrange
+        var createUserOperation = new CreateUserOperation(userInfo.username + 1,
+          password + 1,
+          userInfo.email,
+          userInfo.firstName + 1,
+          userInfo.lastName + 1);
+
+        // Act
+        var result: Promise<any> = createUserOperation.execute()
+          .then(() => operation.execute());
+
+        // Assert
+        return expect(result).to.eventually.rejected
+          .then((error: any) => {
+            expect(error).to.be.equal('The email is taken');
           });
       });
 

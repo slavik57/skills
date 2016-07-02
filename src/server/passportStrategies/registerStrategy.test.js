@@ -47,6 +47,7 @@ describe('RegisterStrategy', function () {
             server.post('/register')
                 .send(userDefinition)
                 .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                .expect({ error: 'Email is not valid' })
                 .end(done);
         });
         it('should redirect to home page', function (done) {
@@ -68,6 +69,42 @@ describe('RegisterStrategy', function () {
                     chai_1.expect(true, 'should create a user').to.be.false;
                     done();
                 });
+            });
+        });
+        it('existing email should fail', function (done) {
+            var otherUserDefinition = {
+                username: 'some other username',
+                password: 'some other password',
+                email: userDefinition.email,
+                firstName: 'some other first name',
+                lastName: 'some other last name'
+            };
+            server.post('/register')
+                .send(userDefinition)
+                .end(function () {
+                server.post('/register')
+                    .send(otherUserDefinition)
+                    .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                    .expect({ error: 'The email is taken' })
+                    .end(done);
+            });
+        });
+        it('existing username should fail', function (done) {
+            var otherUserDefinition = {
+                username: userDefinition.username,
+                password: 'some other password',
+                email: 'someOther@email.com',
+                firstName: 'some other first name',
+                lastName: 'some other last name'
+            };
+            server.post('/register')
+                .send(userDefinition)
+                .end(function () {
+                server.post('/register')
+                    .send(otherUserDefinition)
+                    .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                    .expect({ error: 'The username is taken' })
+                    .end(done);
             });
         });
     });

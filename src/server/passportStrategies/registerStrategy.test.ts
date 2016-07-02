@@ -72,6 +72,7 @@ describe('RegisterStrategy', () => {
       server.post('/register')
         .send(userDefinition)
         .expect(StatusCode.BAD_REQUEST)
+        .expect({ error: 'Email is not valid' })
         .end(done);
     });
 
@@ -97,6 +98,47 @@ describe('RegisterStrategy', () => {
               done();
             })
 
+        });
+    });
+
+    it('existing email should fail', (done) => {
+      var otherUserDefinition: IUserDefinition = {
+        username: 'some other username',
+        password: 'some other password',
+        email: userDefinition.email,
+        firstName: 'some other first name',
+        lastName: 'some other last name'
+      }
+
+      server.post('/register')
+        .send(userDefinition)
+        .end(() => {
+          server.post('/register')
+            .send(otherUserDefinition)
+            .expect(StatusCode.BAD_REQUEST)
+            .expect({ error: 'The email is taken' })
+            .end(done);
+        });
+    });
+
+
+    it('existing username should fail', (done) => {
+      var otherUserDefinition: IUserDefinition = {
+        username: userDefinition.username,
+        password: 'some other password',
+        email: 'someOther@email.com',
+        firstName: 'some other first name',
+        lastName: 'some other last name'
+      }
+
+      server.post('/register')
+        .send(userDefinition)
+        .end(() => {
+          server.post('/register')
+            .send(otherUserDefinition)
+            .expect(StatusCode.BAD_REQUEST)
+            .expect({ error: 'The username is taken' })
+            .end(done);
         });
     });
 
