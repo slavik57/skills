@@ -79,9 +79,10 @@ describe('userController', () => {
         .end(done);
     });
 
-    it('checking if user exists should fail', (done) => {
-      server.get('/user/someuser/exists')
-        .expect(StatusCode.UNAUTHORIZED)
+    it('checking if not existing user exists should return false', (done) => {
+      server.get('/user/notExistingUser/exists')
+        .expect(StatusCode.OK)
+        .expect({ userExists: false })
         .end(done);
     });
 
@@ -134,9 +135,17 @@ describe('userController', () => {
           .end(done);
       });
 
-      it('checking if user exists should fail', (done) => {
-        server.get('/user/someuser/exists')
-          .expect(StatusCode.UNAUTHORIZED)
+      it('checking if not existing user exists should return false', (done) => {
+        server.get('/user/notExistingUser/exists')
+          .expect(StatusCode.OK)
+          .expect({ userExists: false })
+          .end(done);
+      });
+
+      it('checking if existing user exists should return true', (done) => {
+        server.get('/user/' + userDefinition.username + '/exists')
+          .expect(StatusCode.OK)
+          .expect({ userExists: true })
           .end(done);
       });
 
@@ -192,9 +201,17 @@ describe('userController', () => {
           .end(done);
       });
 
-      it('checking if user exists should fail', (done) => {
-        server.get('/user/someuser/exists')
-          .expect(StatusCode.UNAUTHORIZED)
+      it('checking if not existing user exists should return false', (done) => {
+        server.get('/user/notExistingUser/exists')
+          .expect(StatusCode.OK)
+          .expect({ userExists: false })
+          .end(done);
+      });
+
+      it('checking if existing user exists should return true', (done) => {
+        server.get('/user/' + userDefinition.username + '/exists')
+          .expect(StatusCode.OK)
+          .expect({ userExists: true })
           .end(done);
       });
 

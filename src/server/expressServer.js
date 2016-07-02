@@ -1,6 +1,5 @@
 "use strict";
 var createAdminUserOperation_1 = require("./operations/userOperations/createAdminUserOperation");
-var statusCode_1 = require("./enums/statusCode");
 var registerStrategy_1 = require("./passportStrategies/registerStrategy");
 var loginStrategy_1 = require("./passportStrategies/loginStrategy");
 var logoutStrategy_1 = require("./passportStrategies/logoutStrategy");
@@ -102,20 +101,11 @@ var ExpressServer = (function () {
             .bind(this._expressApp);
     };
     ExpressServer.prototype._configurePassportLoginStrategies = function () {
-        var _this = this;
         loginStrategy_1.LoginStrategy.initialize(this._expressApp);
         logoutStrategy_1.LogoutStrategy.initialize(this._expressApp);
         registerStrategy_1.RegisterStrategy.initialize(this._expressApp);
         passport.serializeUser(function (user, done) { done(null, user); });
         passport.deserializeUser(function (obj, done) { done(null, obj); });
-        this._expressApp.use(function (request, response, nextFunction) { return _this._ensureAuthenticated(request, response, nextFunction); });
-    };
-    ExpressServer.prototype._ensureAuthenticated = function (request, response, nextFunction) {
-        if (request.isAuthenticated()) {
-            nextFunction();
-            return;
-        }
-        response.status(statusCode_1.StatusCode.UNAUTHORIZED).send();
     };
     ExpressServer.prototype._logServerIsUp = function (serverAddress) {
         var host = serverAddress.address;

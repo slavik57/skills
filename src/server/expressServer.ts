@@ -133,19 +133,9 @@ export class ExpressServer {
 
     passport.serializeUser((user, done) => { done(null, user); });
     passport.deserializeUser((obj, done) => { done(null, obj); });
-
-    this._expressApp.use(
-      (request, response, nextFunction) => this._ensureAuthenticated(request, response, nextFunction));
   }
 
-  private _ensureAuthenticated(request: Request, response: Response, nextFunction: NextFunction): void {
-    if (request.isAuthenticated()) {
-      nextFunction();
-      return;
-    }
 
-    response.status(StatusCode.UNAUTHORIZED).send();
-  }
 
   private _logServerIsUp(serverAddress: { address: string, port: number }) {
     var host = serverAddress.address;
