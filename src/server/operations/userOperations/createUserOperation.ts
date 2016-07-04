@@ -19,6 +19,10 @@ export class CreateUserOperation extends OperationBase<User> {
   protected doWork(): bluebirdPromise<User> {
     var readerPermissions = [GlobalPermission.READER];
 
+    if (this._email === '') {
+      this._email = undefined;
+    }
+
     var userInfo: IUserInfo = {
       username: this._username,
       password_hash: this.hashThePassword(),
@@ -48,6 +52,10 @@ export class CreateUserOperation extends OperationBase<User> {
   }
 
   private checkEmailDoesNotExist(): bluebirdPromise<void> {
+    if (!this._email) {
+      return bluebirdPromise.resolve();
+    }
+
     return UserDataHandler.getUserByEmail(this._email)
       .then((user: User) => {
         if (user) {

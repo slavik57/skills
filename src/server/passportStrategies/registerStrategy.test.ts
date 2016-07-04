@@ -121,7 +121,6 @@ describe('RegisterStrategy', () => {
         });
     });
 
-
     it('existing username should fail', (done) => {
       var otherUserDefinition: IUserDefinition = {
         username: userDefinition.username,
@@ -139,6 +138,25 @@ describe('RegisterStrategy', () => {
             .expect(StatusCode.BAD_REQUEST)
             .expect({ error: 'The username is taken' })
             .end(done);
+        });
+    });
+
+    it('no email should create a user', (done) => {
+      delete userDefinition.email;
+
+      server.post('/register')
+        .send(userDefinition)
+        .end(() => {
+
+          UserDataHandler.getUserByUsername(userDefinition.username)
+            .then((_user: User) => {
+              expect(_user.attributes.username).to.be.equal(userDefinition.username);
+              done();
+            }, () => {
+              expect(true, 'should create a user').to.be.false;
+              done();
+            })
+
         });
     });
 

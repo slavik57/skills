@@ -219,6 +219,80 @@ describe('CreateUserOperation', () => {
 
     });
 
+    describe('without email', () => {
+
+      var operation: CreateUserOperation;
+      var userInfo: IUserInfo;
+
+      beforeEach(() => {
+        userInfo = ModelInfoMockFactory.createUserInfo(1);
+        delete userInfo.email;
+
+        operation = new CreateUserOperation(userInfo.username,
+          userInfo.password_hash,
+          userInfo.email,
+          userInfo.firstName,
+          userInfo.lastName);
+      });
+
+      it('should create a correct user', () => {
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled
+          .then(() => UserDataHandler.getUsers())
+          .then((_users: User[]) => {
+            expect(_users).to.be.length(1);
+
+            var user: User = _users[0];
+
+            expect(user.attributes.username).to.be.equal(userInfo.username);
+            expect(user.attributes.email).to.be.null;
+            expect(user.attributes.firstName).to.be.equal(userInfo.firstName);
+            expect(user.attributes.lastName).to.be.equal(userInfo.lastName);
+          });
+      });
+
+    });
+
+    describe('with empty email', () => {
+
+      var operation: CreateUserOperation;
+      var userInfo: IUserInfo;
+
+      beforeEach(() => {
+        userInfo = ModelInfoMockFactory.createUserInfo(1);
+        userInfo.email = '';
+
+        operation = new CreateUserOperation(userInfo.username,
+          userInfo.password_hash,
+          userInfo.email,
+          userInfo.firstName,
+          userInfo.lastName);
+      });
+
+      it('should create a correct user', () => {
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled
+          .then(() => UserDataHandler.getUsers())
+          .then((_users: User[]) => {
+            expect(_users).to.be.length(1);
+
+            var user: User = _users[0];
+
+            expect(user.attributes.username).to.be.equal(userInfo.username);
+            expect(user.attributes.email).to.be.null;
+            expect(user.attributes.firstName).to.be.equal(userInfo.firstName);
+            expect(user.attributes.lastName).to.be.equal(userInfo.lastName);
+          });
+      });
+
+    });
+
   })
 
 });

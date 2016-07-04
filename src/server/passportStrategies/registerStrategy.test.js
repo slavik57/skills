@@ -107,6 +107,21 @@ describe('RegisterStrategy', function () {
                     .end(done);
             });
         });
+        it('no email should create a user', function (done) {
+            delete userDefinition.email;
+            server.post('/register')
+                .send(userDefinition)
+                .end(function () {
+                userDataHandler_1.UserDataHandler.getUserByUsername(userDefinition.username)
+                    .then(function (_user) {
+                    chai_1.expect(_user.attributes.username).to.be.equal(userDefinition.username);
+                    done();
+                }, function () {
+                    chai_1.expect(true, 'should create a user').to.be.false;
+                    done();
+                });
+            });
+        });
     });
 });
 //# sourceMappingURL=registerStrategy.test.js.map

@@ -128,6 +128,50 @@ describe('CreateUserOperation', function () {
                 });
             });
         });
+        describe('without email', function () {
+            var operation;
+            var userInfo;
+            beforeEach(function () {
+                userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+                delete userInfo.email;
+                operation = new createUserOperation_1.CreateUserOperation(userInfo.username, userInfo.password_hash, userInfo.email, userInfo.firstName, userInfo.lastName);
+            });
+            it('should create a correct user', function () {
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.fulfilled
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUsers(); })
+                    .then(function (_users) {
+                    chai_1.expect(_users).to.be.length(1);
+                    var user = _users[0];
+                    chai_1.expect(user.attributes.username).to.be.equal(userInfo.username);
+                    chai_1.expect(user.attributes.email).to.be.null;
+                    chai_1.expect(user.attributes.firstName).to.be.equal(userInfo.firstName);
+                    chai_1.expect(user.attributes.lastName).to.be.equal(userInfo.lastName);
+                });
+            });
+        });
+        describe('with empty email', function () {
+            var operation;
+            var userInfo;
+            beforeEach(function () {
+                userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+                userInfo.email = '';
+                operation = new createUserOperation_1.CreateUserOperation(userInfo.username, userInfo.password_hash, userInfo.email, userInfo.firstName, userInfo.lastName);
+            });
+            it('should create a correct user', function () {
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.fulfilled
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUsers(); })
+                    .then(function (_users) {
+                    chai_1.expect(_users).to.be.length(1);
+                    var user = _users[0];
+                    chai_1.expect(user.attributes.username).to.be.equal(userInfo.username);
+                    chai_1.expect(user.attributes.email).to.be.null;
+                    chai_1.expect(user.attributes.firstName).to.be.equal(userInfo.firstName);
+                    chai_1.expect(user.attributes.lastName).to.be.equal(userInfo.lastName);
+                });
+            });
+        });
     });
 });
 //# sourceMappingURL=createUserOperation.test.js.map

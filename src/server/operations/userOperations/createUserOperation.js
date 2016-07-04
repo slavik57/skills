@@ -22,6 +22,9 @@ var CreateUserOperation = (function (_super) {
     CreateUserOperation.prototype.doWork = function () {
         var _this = this;
         var readerPermissions = [globalPermission_1.GlobalPermission.READER];
+        if (this._email === '') {
+            this._email = undefined;
+        }
         var userInfo = {
             username: this._username,
             password_hash: this.hashThePassword(),
@@ -46,6 +49,9 @@ var CreateUserOperation = (function (_super) {
         });
     };
     CreateUserOperation.prototype.checkEmailDoesNotExist = function () {
+        if (!this._email) {
+            return bluebirdPromise.resolve();
+        }
         return userDataHandler_1.UserDataHandler.getUserByEmail(this._email)
             .then(function (user) {
             if (user) {
