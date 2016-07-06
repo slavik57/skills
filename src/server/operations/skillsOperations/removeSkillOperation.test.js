@@ -1,4 +1,5 @@
 "use strict";
+var environmentDirtifier_1 = require("../../testUtils/environmentDirtifier");
 var skillsDataHandler_1 = require("../../dataHandlers/skillsDataHandler");
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var environmentCleaner_1 = require("../../testUtils/environmentCleaner");
@@ -26,7 +27,8 @@ describe('RemoveSkillOperation', function () {
                 executingUser = _user;
             });
             var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill');
-            var createSkillPromise = skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo)
+            var createSkillPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, _users[0].id); })
                 .then(function (_skill) {
                 skillToRemove = _skill;
                 operation = new removeSkillOperation_1.RemoveSkillOperation(executingUser.id, skillToRemove.id);

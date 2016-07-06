@@ -11,6 +11,6 @@ export class AddSkillOperation extends SkillOperationBase<Skill> {
   }
 
   protected doWork(): bluebirdPromise<Skill> {
-    return SkillsDataHandler.createSkill(this._skillInfo);
+    return SkillsDataHandler.createSkill(this._skillInfo, this.executingUserId);
   }
 }

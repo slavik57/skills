@@ -1,11 +1,32 @@
 "use strict";
+var skillCreator_1 = require("../models/skillCreator");
+var skillCreator_2 = require("../models/skillCreator");
 var skill_1 = require('../models/skill');
 var skillPrerequisite_1 = require('../models/skillPrerequisite');
+var bookshelf_1 = require('../../../bookshelf');
 var SkillsDataHandler = (function () {
     function SkillsDataHandler() {
     }
-    SkillsDataHandler.createSkill = function (skillInfo) {
-        return new skill_1.Skill(skillInfo).save();
+    SkillsDataHandler.createSkill = function (skillInfo, creatorId) {
+        return bookshelf_1.bookshelf.transaction(function (_transaction) {
+            var saveOptions = {
+                transacting: _transaction
+            };
+            var skill;
+            var skillCreatorInfo;
+            return new skill_1.Skill(skillInfo).save(null, saveOptions)
+                .then(function (_skill) {
+                skill = _skill;
+                skillCreatorInfo = {
+                    user_id: creatorId,
+                    skill_id: skill.id
+                };
+            })
+                .then(function () { return new skillCreator_2.SkillCreator(skillCreatorInfo).save(null, saveOptions); })
+                .then(function () {
+                return skill;
+            });
+        });
     };
     SkillsDataHandler.deleteSkill = function (skillId) {
         return this._initializeSkillByIdQuery(skillId).destroy();
@@ -60,6 +81,12 @@ var SkillsDataHandler = (function () {
     };
     SkillsDataHandler.getTeamsOfSkills = function () {
         return skill_1.Skills.getTeamsOfSkills();
+    };
+    SkillsDataHandler.getSkillsCreators = function () {
+        return new skillCreator_1.SkillCreators().fetch()
+            .then(function (_skillsCreatorsCollection) {
+            return _skillsCreatorsCollection.toArray();
+        });
     };
     SkillsDataHandler._initializeSkillByIdQuery = function (skillId) {
         var queryCondition = {};

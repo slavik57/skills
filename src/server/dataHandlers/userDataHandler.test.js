@@ -1,4 +1,5 @@
 "use strict";
+var skillsDataHandler_1 = require("./skillsDataHandler");
 var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
 var environmentDirtifier_1 = require("../testUtils/environmentDirtifier");
 var environmentCleaner_1 = require("../testUtils/environmentCleaner");
@@ -135,6 +136,18 @@ describe('userDataHandler', function () {
             })
                 .then(function (_upvotes) {
                 return _.map(_upvotes, function (_) { return _.attributes.user_id; });
+            })
+                .then(function (_userIds) {
+                chai_1.expect(_userIds).not.to.contain(userToDelete.id);
+            });
+        });
+        it('existing user should remove the relevant skill creators', function () {
+            var userToDelete = testModels.users[0];
+            var promise = userDataHandler_1.UserDataHandler.deleteUser(userToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsCreators(); })
+                .then(function (_skillsCreators) {
+                return _.map(_skillsCreators, function (_) { return _.attributes.user_id; });
             })
                 .then(function (_userIds) {
                 chai_1.expect(_userIds).not.to.contain(userToDelete.id);

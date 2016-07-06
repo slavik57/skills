@@ -8,6 +8,9 @@ var ModelInfoComparers = (function () {
     ModelInfoComparers.compareSkillInfos = function (skillInfo1, skillInfo2) {
         return skillInfo1.name.localeCompare(skillInfo2.name);
     };
+    ModelInfoComparers.compareSkillsCreators = function (skillCreator1, skillCreator2) {
+        return skillCreator1.skill_id - skillCreator2.skill_id;
+    };
     ModelInfoComparers.compareSkillPrerequisiteInfos = function (skillPrerequisiteInfo1, skillPrerequisiteInfo2) {
         return skillPrerequisiteInfo1.skill_id - skillPrerequisiteInfo2.skill_id;
     };

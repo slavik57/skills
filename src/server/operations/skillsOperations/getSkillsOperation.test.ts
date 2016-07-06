@@ -1,3 +1,4 @@
+import {User} from "../../models/user";
 import {ModelVerificator} from "../../testUtils/modelVerificator";
 import {Skill} from "../../models/skill";
 import {EnvironmentDirtifier} from "../../testUtils/environmentDirtifier";
@@ -28,7 +29,8 @@ describe('GetSkillsOperation', () => {
 
     beforeEach(() => {
       var createSkillsPromise: Promise<any> =
-        EnvironmentDirtifier.createSkills(4)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createSkills(4, _users[0].id))
           .then((_skills: Skill[]) => {
             skills = _skills;
           });

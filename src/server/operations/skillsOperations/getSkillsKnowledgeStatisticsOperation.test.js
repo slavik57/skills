@@ -36,7 +36,8 @@ describe('GetSkillsKnowledgeStatisticsOperation', function () {
                 teams = _teams;
                 team1 = _teams[0], team2 = _teams[1], team3 = _teams[2];
             });
-            var createSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createSkills(3)
+            var createSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(3, _users[0].id); })
                 .then(function (_skills) {
                 skill1 = _skills[0], skill2 = _skills[1], skill3 = _skills[2];
             });

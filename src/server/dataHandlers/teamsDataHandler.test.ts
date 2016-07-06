@@ -503,10 +503,12 @@ describe('TeamsDataHandler', () => {
       var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo('a');
       var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('skill1');
 
-      var createTeamAndSkillsPromise: Promise<any[]> = Promise.all<any>([
-        TeamsDataHandler.createTeam(teamInfo),
-        SkillsDataHandler.createSkill(skillInfo)
-      ]);
+      var createTeamAndSkillsPromise: Promise<any[]> =
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => Promise.all<any>([
+            TeamsDataHandler.createTeam(teamInfo),
+            SkillsDataHandler.createSkill(skillInfo, _users[0].id)
+          ]));
 
       var teamSkillPromise: Promise<TeamSkill> =
         createTeamAndSkillsPromise.then((teamAndSkill: any[]) => {
@@ -663,6 +665,9 @@ describe('TeamsDataHandler', () => {
     var user2: User;
 
     beforeEach(() => {
+      userInfo1 = ModelInfoMockFactory.createUserInfo(1);
+      userInfo2 = ModelInfoMockFactory.createUserInfo(2);
+
       skillInfo1 = ModelInfoMockFactory.createSkillInfo('skill1');
       skillInfo2 = ModelInfoMockFactory.createSkillInfo('skill2');
       skillInfo3 = ModelInfoMockFactory.createSkillInfo('skill3');
@@ -670,26 +675,27 @@ describe('TeamsDataHandler', () => {
       teamInfo1 = ModelInfoMockFactory.createTeamInfo('a');
       teamInfo2 = ModelInfoMockFactory.createTeamInfo('b');
 
-      userInfo1 = ModelInfoMockFactory.createUserInfo(1);
-      userInfo2 = ModelInfoMockFactory.createUserInfo(2);
-
       return Promise.all<any>([
-        TeamsDataHandler.createTeam(teamInfo1),
-        TeamsDataHandler.createTeam(teamInfo2),
-        SkillsDataHandler.createSkill(skillInfo1),
-        SkillsDataHandler.createSkill(skillInfo2),
-        SkillsDataHandler.createSkill(skillInfo3),
         UserDataHandler.createUser(userInfo1),
         UserDataHandler.createUser(userInfo2)
-      ]).then((results: any[]) => {
-        team1 = results[0];
-        team2 = results[1];
-        skill1 = results[2];
-        skill2 = results[3];
-        skill3 = results[4];
-        user1 = results[5];
-        user2 = results[6];
-      });
+      ])
+        .then((results: any[]) => {
+          user1 = results[0];
+          user2 = results[1];
+        })
+        .then(() => Promise.all<any>([
+          TeamsDataHandler.createTeam(teamInfo1),
+          TeamsDataHandler.createTeam(teamInfo2),
+          SkillsDataHandler.createSkill(skillInfo1, user1.id),
+          SkillsDataHandler.createSkill(skillInfo2, user1.id),
+          SkillsDataHandler.createSkill(skillInfo3, user1.id)
+        ])).then((results: any[]) => {
+          team1 = results[0];
+          team2 = results[1];
+          skill1 = results[2];
+          skill2 = results[3];
+          skill3 = results[4];
+        });
     });
 
     it('not existing team should return empty', () => {
@@ -869,23 +875,25 @@ describe('TeamsDataHandler', () => {
       var userInfo2 = ModelInfoMockFactory.createUserInfo(2);
 
       return Promise.all<any>([
-        TeamsDataHandler.createTeam(teamInfo),
-        SkillsDataHandler.createSkill(skillInfo),
         UserDataHandler.createUser(userInfo1),
         UserDataHandler.createUser(userInfo2)
-      ]).then((teamSkillAndUser: any[]) => {
-        team = teamSkillAndUser[0];
-        var skill: Skill = teamSkillAndUser[1];
+      ])
+        .then((_users: User[]) => {
+          [user1, user2] = _users;
+        })
+        .then(() => Promise.all<any>([
+          TeamsDataHandler.createTeam(teamInfo),
+          SkillsDataHandler.createSkill(skillInfo, user1.id),
+        ])).then((teamAndSkill: any[]) => {
+          team = teamAndSkill[0];
+          var skill: Skill = teamAndSkill[1];
 
-        user1 = teamSkillAndUser[2];
-        user2 = teamSkillAndUser[3];
+          var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team, skill);
 
-        var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team, skill);
-
-        return TeamsDataHandler.addTeamSkill(teamSkillInfo);
-      }).then((_teamSkill: TeamSkill) => {
-        teamSkill = _teamSkill;
-      });
+          return TeamsDataHandler.addTeamSkill(teamSkillInfo);
+        }).then((_teamSkill: TeamSkill) => {
+          teamSkill = _teamSkill;
+        });
     });
 
     it('upvote with non existing team skill id should fail', () => {
@@ -1006,30 +1014,33 @@ describe('TeamsDataHandler', () => {
       var notUpvotedUserInfo = ModelInfoMockFactory.createUserInfo(3);
       //
       return Promise.all<any>([
-        TeamsDataHandler.createTeam(teamInfo),
-        SkillsDataHandler.createSkill(skillInfo),
         UserDataHandler.createUser(upvotedUserInfo1),
         UserDataHandler.createUser(upvotedUserInfo2),
         UserDataHandler.createUser(notUpvotedUserInfo)
-      ]).then((teamSkillAndUser: any[]) => {
-        team = teamSkillAndUser[0];
-        var skill: Skill = teamSkillAndUser[1];
+      ])
+        .then((_users: User[]) => {
+          upvotedUser1 = _users[0];
+          upvotedUser2 = _users[1];
+          notUpvotedUser = _users[2];
+        })
+        .then(() => Promise.all<any>([
+          TeamsDataHandler.createTeam(teamInfo),
+          SkillsDataHandler.createSkill(skillInfo, upvotedUser1.id),
+        ])).then((teamSkillAndUser: any[]) => {
+          team = teamSkillAndUser[0];
+          var skill: Skill = teamSkillAndUser[1];
 
-        upvotedUser1 = teamSkillAndUser[2];
-        upvotedUser2 = teamSkillAndUser[3];
-        notUpvotedUser = teamSkillAndUser[4];
+          var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team, skill);
 
-        var teamSkillInfo: ITeamSkillInfo = ModelInfoMockFactory.createTeamSkillInfo(team, skill);
+          return TeamsDataHandler.addTeamSkill(teamSkillInfo);
+        }).then((_teamSkill: TeamSkill) => {
+          teamSkill = _teamSkill;
 
-        return TeamsDataHandler.addTeamSkill(teamSkillInfo);
-      }).then((_teamSkill: TeamSkill) => {
-        teamSkill = _teamSkill;
-
-        return Promise.all([
-          TeamsDataHandler.upvoteTeamSkill(teamSkill.id, upvotedUser1.id),
-          TeamsDataHandler.upvoteTeamSkill(teamSkill.id, upvotedUser2.id)
-        ]);
-      });
+          return Promise.all([
+            TeamsDataHandler.upvoteTeamSkill(teamSkill.id, upvotedUser1.id),
+            TeamsDataHandler.upvoteTeamSkill(teamSkill.id, upvotedUser2.id)
+          ]);
+        });
     });
 
     it('with non existing team skill id should fail', () => {
@@ -1358,7 +1369,8 @@ describe('TeamsDataHandler', () => {
       var numberOfSkills = 4;
       var skills: Skill[];
       var addSkillsPromise: Promise<any> =
-        EnvironmentDirtifier.createSkills(numberOfSkills)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id))
           .then((_skills: Skill[]) => {
             skills = _skills;
           });
@@ -1416,7 +1428,8 @@ describe('TeamsDataHandler', () => {
       var numberOfSkills = 4;
       var skills: Skill[];
       var addSkillsPromise: Promise<any> =
-        EnvironmentDirtifier.createSkills(numberOfSkills)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id))
           .then((_skills: Skill[]) => {
             skills = _skills;
           });

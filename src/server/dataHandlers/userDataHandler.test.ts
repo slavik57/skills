@@ -1,3 +1,5 @@
+import {SkillCreator} from "../models/skillCreator";
+import {SkillsDataHandler} from "./skillsDataHandler";
 import {ModelInfoVerificator} from "../testUtils/modelInfoVerificator";
 import {TeamSkillUpvote, TeamSkillUpvotes} from "../models/teamSkillUpvote";
 import {EnvironmentDirtifier} from "../testUtils/environmentDirtifier";
@@ -221,6 +223,25 @@ describe('userDataHandler', () => {
         })
         .then((_upvotes: TeamSkillUpvote[]) => {
           return _.map(_upvotes, _ => _.attributes.user_id);
+        })
+        .then((_userIds: number[]) => {
+          expect(_userIds).not.to.contain(userToDelete.id);
+        });
+    });
+
+    it('existing user should remove the relevant skill creators', () => {
+      // Arrange
+      var userToDelete: User = testModels.users[0];
+
+      // Act
+      var promise: Promise<User> =
+        UserDataHandler.deleteUser(userToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => SkillsDataHandler.getSkillsCreators())
+        .then((_skillsCreators: SkillCreator[]) => {
+          return _.map(_skillsCreators, _ => _.attributes.user_id);
         })
         .then((_userIds: number[]) => {
           expect(_userIds).not.to.contain(userToDelete.id);

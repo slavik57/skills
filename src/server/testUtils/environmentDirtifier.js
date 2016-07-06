@@ -51,6 +51,7 @@ var EnvironmentDirtifier = (function () {
         return this._fillLevel0Tables(testModels)
             .then(function () { return _this._fillLevel1Tables(testModels); })
             .then(function () { return _this._fillLevel2Tables(testModels); })
+            .then(function () { return _this._fillLevel3Tables(testModels); })
             .then(function () { return testModels; });
     };
     EnvironmentDirtifier.createUsers = function (numberOfUsers) {
@@ -61,11 +62,12 @@ var EnvironmentDirtifier = (function () {
         }
         return bluebirdPromise.all(userCreationPromises);
     };
-    EnvironmentDirtifier.createSkills = function (numberOfSkills) {
+    EnvironmentDirtifier.createSkills = function (numberOfSkills, creatorId) {
         var skillCreationPromises = [];
         for (var i = 0; i < numberOfSkills; i++) {
-            var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo(i.toString());
-            skillCreationPromises.push(skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo));
+            var skillName = i.toString() + ' created by ' + creatorId.toString();
+            var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo(skillName);
+            skillCreationPromises.push(skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, creatorId));
         }
         return bluebirdPromise.all(skillCreationPromises);
     };
@@ -93,19 +95,23 @@ var EnvironmentDirtifier = (function () {
     EnvironmentDirtifier._fillLevel0Tables = function (testModels) {
         return bluebirdPromise.all([
             this._fillUsers(testModels),
-            this._fillTeams(testModels),
-            this._fillSkills(testModels)
+            this._fillTeams(testModels)
         ]);
     };
     EnvironmentDirtifier._fillLevel1Tables = function (testModels) {
         return bluebirdPromise.all([
+            this._fillSkills(testModels),
             this._fillUsersGlobalPermissions(testModels),
             this._fillTeamMembers(testModels),
+        ]);
+    };
+    EnvironmentDirtifier._fillLevel2Tables = function (testModels) {
+        return bluebirdPromise.all([
             this._fillSkillPrerequisites(testModels),
             this._fillTeamSkills(testModels)
         ]);
     };
-    EnvironmentDirtifier._fillLevel2Tables = function (testModels) {
+    EnvironmentDirtifier._fillLevel3Tables = function (testModels) {
         return this._fillTeamSkillUpvotes(testModels);
     };
     EnvironmentDirtifier._fillUsers = function (testModels) {
@@ -121,9 +127,15 @@ var EnvironmentDirtifier = (function () {
         });
     };
     EnvironmentDirtifier._fillSkills = function (testModels) {
-        return this.createSkills(this.numberOfSkills)
-            .then(function (skills) {
-            testModels.skills = skills;
+        var _this = this;
+        var skillsPromises = [];
+        testModels.users.forEach(function (_user) {
+            var skillsPromise = _this.createSkills(_this.numberOfSkills, _user.id);
+            skillsPromises.push(skillsPromise);
+        });
+        return bluebirdPromise.all(skillsPromises)
+            .then(function (_skills) {
+            testModels.skills = _.flatten(_skills);
         });
     };
     EnvironmentDirtifier._fillUsersGlobalPermissions = function (testModels) {

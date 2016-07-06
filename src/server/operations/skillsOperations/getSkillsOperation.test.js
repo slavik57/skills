@@ -18,7 +18,8 @@ describe('GetSkillsOperation', function () {
         var skills;
         var operation;
         beforeEach(function () {
-            var createSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createSkills(4)
+            var createSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(4, _users[0].id); })
                 .then(function (_skills) {
                 skills = _skills;
             });

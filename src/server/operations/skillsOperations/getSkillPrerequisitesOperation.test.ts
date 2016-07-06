@@ -1,3 +1,4 @@
+import {User} from "../../models/user";
 import {ModelVerificator} from "../../testUtils/modelVerificator";
 import {ModelInfoMockFactory} from "../../testUtils/modelInfoMockFactory";
 import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
@@ -35,7 +36,8 @@ describe('GetSkillPrerequisitesOperation', () => {
     beforeEach(() => {
 
       var createSkillPrerequisitesPromise: Promise<any> =
-        EnvironmentDirtifier.createSkills(4)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createSkills(4, _users[0].id))
           .then((_skills: Skill[]) => {
             [skill, skillPrerequisite1, skillPrerequisite2, skillPrerequisite3] = _skills;
           }).then(() => Promise.all([

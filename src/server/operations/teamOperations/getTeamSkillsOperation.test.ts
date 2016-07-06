@@ -51,22 +51,22 @@ describe('GetTeamSkillsOperation', () => {
             [team] = _teams;
           });
 
-      var createSkillsPromise: bluebirdPromise<any> =
-        EnvironmentDirtifier.createSkills(3)
-          .then((_skills: Skill[]) => {
-            [teamSkill1, teamSkill2, teamSkill3] = _skills;
-          });
-
       var createUsersPromise: bluebirdPromise<any> =
         EnvironmentDirtifier.createUsers(3)
           .then((_users: User[]) => {
             [user1, user2, user3] = _users;
           });
 
+      var createSkillsPromise: bluebirdPromise<any> =
+        createUsersPromise
+          .then(() => EnvironmentDirtifier.createSkills(3, user1.id))
+          .then((_skills: Skill[]) => {
+            [teamSkill1, teamSkill2, teamSkill3] = _skills;
+          });
+
       return Promise.all([
         createTeamPromise,
-        createSkillsPromise,
-        createUsersPromise
+        createSkillsPromise
       ]).then(() => Promise.all([
         TeamsDataHandler.addTeamSkill(ModelInfoMockFactory.createTeamSkillInfo(team, teamSkill1)),
         TeamsDataHandler.addTeamSkill(ModelInfoMockFactory.createTeamSkillInfo(team, teamSkill2)),

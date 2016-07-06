@@ -64,6 +64,23 @@ describe('AddSkillOperation', function () {
                     modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillInfo);
                 });
             });
+            it('should add the user as skill creator', function () {
+                var resultPromise = operation.execute();
+                var skill;
+                return chai_1.expect(resultPromise).to.eventually.fulfilled
+                    .then(function (_skill) {
+                    skill = _skill;
+                })
+                    .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsCreators(); })
+                    .then(function (_skillsCreators) {
+                    chai_1.expect(_skillsCreators).to.be.length(1);
+                    var expectedSkillCreatorInfo = {
+                        user_id: executingUser.id,
+                        skill_id: skill.id
+                    };
+                    modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_skillsCreators[0].attributes, expectedSkillCreatorInfo);
+                });
+            });
         });
         describe('executing user is SKILLS_LIST_ADMIN', function () {
             beforeEach(function () {
@@ -79,6 +96,23 @@ describe('AddSkillOperation', function () {
                     .then(function (_skills) {
                     chai_1.expect(_skills).to.be.length(1);
                     modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillInfo);
+                });
+            });
+            it('should add the user as skill creator', function () {
+                var resultPromise = operation.execute();
+                var skill;
+                return chai_1.expect(resultPromise).to.eventually.fulfilled
+                    .then(function (_skill) {
+                    skill = _skill;
+                })
+                    .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsCreators(); })
+                    .then(function (_skillsCreators) {
+                    chai_1.expect(_skillsCreators).to.be.length(1);
+                    var expectedSkillCreatorInfo = {
+                        user_id: executingUser.id,
+                        skill_id: skill.id
+                    };
+                    modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_skillsCreators[0].attributes, expectedSkillCreatorInfo);
                 });
             });
         });

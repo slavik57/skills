@@ -26,7 +26,7 @@ describe('UpvoteTeamSkillOperation', function () {
             .then(function (_team) {
             team = _team;
         })
-            .then(function () { return skillsDataHandler_1.SkillsDataHandler.createSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill')); })
+            .then(function () { return skillsDataHandler_1.SkillsDataHandler.createSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill'), executingUser.id); })
             .then(function (_skill) {
             skillToUpvote = _skill;
         })

@@ -40,18 +40,17 @@ describe('GetTeamSkillsOperation', function () {
                 .then(function (_teams) {
                 team1 = _teams[0], team2 = _teams[1];
             });
-            var createSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createSkills(4)
-                .then(function (_skills) {
-                team1Skill1 = _skills[0], team1Skill2 = _skills[1], team2Skill1 = _skills[2], team2Skill2 = _skills[3];
-            });
             var createUsersPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(3)
                 .then(function (_users) {
                 user1 = _users[0], user2 = _users[1], user3 = _users[2];
             });
+            var createSkillsPromise = createUsersPromise.then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(4, user1.id); })
+                .then(function (_skills) {
+                team1Skill1 = _skills[0], team1Skill2 = _skills[1], team2Skill1 = _skills[2], team2Skill2 = _skills[3];
+            });
             return Promise.all([
                 createTeamPromise,
                 createSkillsPromise,
-                createUsersPromise
             ]).then(function () { return Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, team1Skill1)),
                 teamsDataHandler_1.TeamsDataHandler.addTeamSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team1, team1Skill2)),

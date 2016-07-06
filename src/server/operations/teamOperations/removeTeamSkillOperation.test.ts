@@ -32,12 +32,12 @@ describe('RemoveTeamSkillOperation', () => {
         TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team2'))
       ])).then((_teams: Team[]) => {
         [teamOfTheSkill, otherTeam] = _teams;
-      }).then(() => SkillsDataHandler.createSkill(ModelInfoMockFactory.createSkillInfo('skill1')))
-      .then((_skill: Skill) => {
-        skillToRemove = _skill;
       }).then(() => UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1)))
       .then((_user: User) => {
         executingUser = _user;
+      }).then(() => SkillsDataHandler.createSkill(ModelInfoMockFactory.createSkillInfo('skill1'), executingUser.id))
+      .then((_skill: Skill) => {
+        skillToRemove = _skill;
       }).then(() => {
         var teamSkillInfo: ITeamSkillInfo =
           ModelInfoMockFactory.createTeamSkillInfo(teamOfTheSkill, skillToRemove)

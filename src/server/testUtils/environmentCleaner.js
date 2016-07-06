@@ -1,4 +1,5 @@
 "use strict";
+var skillCreator_1 = require("../models/skillCreator");
 var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
 var teamSkill_1 = require("../models/teamSkill");
 var skillPrerequisite_1 = require("../models/skillPrerequisite");
@@ -12,26 +13,32 @@ var EnvironmentCleaner = (function () {
     }
     EnvironmentCleaner.clearTables = function () {
         var _this = this;
-        return this._clearLevel2Tables()
+        return this._clearLevel3Tables()
+            .then(function () { return _this._clearLevel2Tables(); })
             .then(function () { return _this._clearLevel1Tables(); })
             .then(function () { return _this._clearLevel0Tables(); });
     };
-    EnvironmentCleaner._clearLevel2Tables = function () {
+    EnvironmentCleaner._clearLevel3Tables = function () {
         return teamSkillUpvote_1.TeamSkillUpvotes.clearAll();
+    };
+    EnvironmentCleaner._clearLevel2Tables = function () {
+        return Promise.all([
+            skillPrerequisite_1.SkillPrerequisites.clearAll(),
+            teamSkill_1.TeamSkills.clearAll(),
+            skillCreator_1.SkillCreators.clearAll()
+        ]);
     };
     EnvironmentCleaner._clearLevel1Tables = function () {
         return Promise.all([
             usersGlobalPermissions_1.UsersGlobalPermissions.clearAll(),
             teamMember_1.TeamMembers.clearAll(),
-            skillPrerequisite_1.SkillPrerequisites.clearAll(),
-            teamSkill_1.TeamSkills.clearAll()
+            skill_1.Skills.clearAll()
         ]);
     };
     EnvironmentCleaner._clearLevel0Tables = function () {
         return Promise.all([
             user_1.Users.clearAll(),
-            team_1.Teams.clearAll(),
-            skill_1.Skills.clearAll()
+            team_1.Teams.clearAll()
         ]);
     };
     return EnvironmentCleaner;

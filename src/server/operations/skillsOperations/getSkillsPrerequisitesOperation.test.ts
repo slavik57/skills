@@ -1,3 +1,4 @@
+import {User} from "../../models/user";
 import {SkillPrerquisitesVerificator} from "../../testUtils/skillPrerequisitesVerificator";
 import {IPrerequisitesOfASkill} from "../../models/interfaces/iPrerequisitesOfASkill";
 import {ModelVerificator} from "../../testUtils/modelVerificator";
@@ -41,7 +42,8 @@ describe('GetSkillsPrerequisitesOperation', () => {
     beforeEach(() => {
 
       var createSkillPrerequisitesPromise: Promise<any> =
-        EnvironmentDirtifier.createSkills(3)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createSkills(3, _users[0].id))
           .then((_skills: Skill[]) => {
             skills = _skills;
             [skill1, skill2, skill3] = _skills;

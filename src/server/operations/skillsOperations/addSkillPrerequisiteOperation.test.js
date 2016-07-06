@@ -1,4 +1,5 @@
 "use strict";
+var environmentDirtifier_1 = require("../../testUtils/environmentDirtifier");
 var modelInfoVerificator_1 = require("../../testUtils/modelInfoVerificator");
 var skillsDataHandler_1 = require("../../dataHandlers/skillsDataHandler");
 var globalPermission_1 = require("../../models/enums/globalPermission");
@@ -29,10 +30,11 @@ describe('AddSkillPrerequisiteOperation', function () {
             });
             var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill');
             var skillPrerequisiteInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skillPrerequisite');
-            var createSkillPromise = Promise.all([
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillPrerequisiteInfo)
-            ])
+            var createSkillPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return Promise.all([
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, _users[0].id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillPrerequisiteInfo, _users[0].id)
+            ]); })
                 .then(function (_skills) {
                 skill = _skills[0], skillPrerequisite = _skills[1];
                 operation = new addSkillPrerequisiteOperation_1.AddSkillPrerequisiteOperation(skill.id, skillPrerequisite.id, executingUser.id);

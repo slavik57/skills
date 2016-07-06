@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var skillCreator_1 = require("./skillCreator");
 var modelBase_1 = require("./modelBase");
 var team_1 = require("./team");
 var bookshelf_1 = require('../../../bookshelf');
@@ -27,7 +28,8 @@ var Skill = (function (_super) {
             return [
                 Skill.relatedSkillPrerequisitesAttribute,
                 Skill.relatedSkillContributorsAttribute,
-                Skill.relatedTeamSkillsAttribute
+                Skill.relatedTeamSkillsAttribute,
+                Skill.relatedSkillCreatorAttribute
             ];
         },
         enumerable: true,
@@ -53,6 +55,11 @@ var Skill = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Skill, "relatedSkillCreatorAttribute", {
+        get: function () { return 'skillCreator'; },
+        enumerable: true,
+        configurable: true
+    });
     Skill.collection = function (skills, options) {
         return new Skills(skills, options);
     };
@@ -68,6 +75,9 @@ var Skill = (function (_super) {
     };
     Skill.prototype.teamSkills = function () {
         return this.hasMany(teamSkill_1.TeamSkill, teamSkill_1.TeamSkill.skillIdAttribute);
+    };
+    Skill.prototype.skillCreator = function () {
+        return this.hasOne(skillCreator_1.SkillCreator, skillCreator_1.SkillCreator.skillIdAttribute);
     };
     Skill.prototype.prerequisiteSkills = function () {
         return this.belongsToMany(Skill)

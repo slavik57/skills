@@ -13,7 +13,7 @@ var AddSkillOperation = (function (_super) {
         this._skillInfo = _skillInfo;
     }
     AddSkillOperation.prototype.doWork = function () {
-        return skillsDataHandler_1.SkillsDataHandler.createSkill(this._skillInfo);
+        return skillsDataHandler_1.SkillsDataHandler.createSkill(this._skillInfo, this.executingUserId);
     };
     return AddSkillOperation;
 }(skillOperationBase_1.SkillOperationBase));

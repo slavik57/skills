@@ -298,10 +298,11 @@ describe('TeamsDataHandler', function () {
         it('should create a team skill', function () {
             var teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');
             var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill1');
-            var createTeamAndSkillsPromise = Promise.all([
+            var createTeamAndSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return Promise.all([
                 teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo)
-            ]);
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, _users[0].id)
+            ]); });
             var teamSkillPromise = createTeamAndSkillsPromise.then(function (teamAndSkill) {
                 var team = teamAndSkill[0];
                 var skill = teamAndSkill[1];
@@ -397,29 +398,33 @@ describe('TeamsDataHandler', function () {
         var user1;
         var user2;
         beforeEach(function () {
+            userInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+            userInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2);
             skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill1');
             skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill2');
             skillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill3');
             teamInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');
             teamInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('b');
-            userInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
-            userInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2);
             return Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3),
                 userDataHandler_1.UserDataHandler.createUser(userInfo1),
                 userDataHandler_1.UserDataHandler.createUser(userInfo2)
-            ]).then(function (results) {
+            ])
+                .then(function (results) {
+                user1 = results[0];
+                user2 = results[1];
+            })
+                .then(function () { return Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1, user1.id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2, user1.id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3, user1.id)
+            ]); }).then(function (results) {
                 team1 = results[0];
                 team2 = results[1];
                 skill1 = results[2];
                 skill2 = results[3];
                 skill3 = results[4];
-                user1 = results[5];
-                user2 = results[6];
             });
         });
         it('not existing team should return empty', function () {
@@ -530,15 +535,18 @@ describe('TeamsDataHandler', function () {
             var userInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             var userInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2);
             return Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo),
                 userDataHandler_1.UserDataHandler.createUser(userInfo1),
                 userDataHandler_1.UserDataHandler.createUser(userInfo2)
-            ]).then(function (teamSkillAndUser) {
-                team = teamSkillAndUser[0];
-                var skill = teamSkillAndUser[1];
-                user1 = teamSkillAndUser[2];
-                user2 = teamSkillAndUser[3];
+            ])
+                .then(function (_users) {
+                user1 = _users[0], user2 = _users[1];
+            })
+                .then(function () { return Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, user1.id),
+            ]); }).then(function (teamAndSkill) {
+                team = teamAndSkill[0];
+                var skill = teamAndSkill[1];
                 var teamSkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team, skill);
                 return teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo);
             }).then(function (_teamSkill) {
@@ -615,17 +623,21 @@ describe('TeamsDataHandler', function () {
             var upvotedUserInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2);
             var notUpvotedUserInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(3);
             return Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo),
                 userDataHandler_1.UserDataHandler.createUser(upvotedUserInfo1),
                 userDataHandler_1.UserDataHandler.createUser(upvotedUserInfo2),
                 userDataHandler_1.UserDataHandler.createUser(notUpvotedUserInfo)
-            ]).then(function (teamSkillAndUser) {
+            ])
+                .then(function (_users) {
+                upvotedUser1 = _users[0];
+                upvotedUser2 = _users[1];
+                notUpvotedUser = _users[2];
+            })
+                .then(function () { return Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, upvotedUser1.id),
+            ]); }).then(function (teamSkillAndUser) {
                 team = teamSkillAndUser[0];
                 var skill = teamSkillAndUser[1];
-                upvotedUser1 = teamSkillAndUser[2];
-                upvotedUser2 = teamSkillAndUser[3];
-                notUpvotedUser = teamSkillAndUser[4];
                 var teamSkillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team, skill);
                 return teamsDataHandler_1.TeamsDataHandler.addTeamSkill(teamSkillInfo);
             }).then(function (_teamSkill) {
@@ -837,7 +849,8 @@ describe('TeamsDataHandler', function () {
             });
             var numberOfSkills = 4;
             var skills;
-            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills)
+            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id); })
                 .then(function (_skills) {
                 skills = _skills;
             });
@@ -880,7 +893,8 @@ describe('TeamsDataHandler', function () {
             });
             var numberOfSkills = 4;
             var skills;
-            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills)
+            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id); })
                 .then(function (_skills) {
                 skills = _skills;
             });

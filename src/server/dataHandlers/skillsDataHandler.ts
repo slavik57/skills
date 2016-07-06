@@ -1,3 +1,6 @@
+import {ISkillCreatorInfo} from "../models/interfaces/iSkillCreatorInfo";
+import {SkillCreators} from "../models/skillCreator";
+import {SkillCreator} from "../models/skillCreator";
 import {IPrerequisitesOfASkill} from "../models/interfaces/iPrerequisitesOfASkill";
 import {TeamSkills} from "../models/teamSkill";
 import {ITeamsOfASkill} from "../models/interfaces/iTeamsOfASkill";
@@ -5,14 +8,36 @@ import {IDestroyOptions} from "./interfaces/iDestroyOptions";
 import {ITeamOfASkill} from "../models/interfaces/iTeamOfASkill";
 import {ISkillPrerequisiteInfo} from "../models/interfaces/iSkillPrerequisiteInfo";
 import {ISkillInfo} from "../models/interfaces/iSkillInfo";
-import {Collection, FetchOptions, CollectionFetchOptions} from 'bookshelf';
+import {SaveOptions, Collection, FetchOptions, CollectionFetchOptions} from 'bookshelf';
 import {Skill, Skills} from '../models/skill';
 import {SkillPrerequisite, SkillPrerequisites} from '../models/skillPrerequisite';
 import * as bluebirdPromise from 'bluebird';
+import {Transaction}from 'knex';
+import {bookshelf} from '../../../bookshelf';
 
 export class SkillsDataHandler {
-  public static createSkill(skillInfo: ISkillInfo): bluebirdPromise<Skill> {
-    return new Skill(skillInfo).save();
+  public static createSkill(skillInfo: ISkillInfo, creatorId: number): bluebirdPromise<Skill> {
+    return bookshelf.transaction((_transaction: Transaction) => {
+      var saveOptions: SaveOptions = {
+        transacting: _transaction
+      }
+
+      var skill: Skill;
+      var skillCreatorInfo: ISkillCreatorInfo;
+      return new Skill(skillInfo).save(null, saveOptions)
+        .then((_skill: Skill) => {
+          skill = _skill;
+
+          skillCreatorInfo = {
+            user_id: creatorId,
+            skill_id: skill.id
+          };
+        })
+        .then(() => new SkillCreator(skillCreatorInfo).save(null, saveOptions))
+        .then(() => {
+          return skill;
+        });
+    });
   }
 
   public static deleteSkill(skillId: number): bluebirdPromise<Skill> {
@@ -84,6 +109,13 @@ export class SkillsDataHandler {
 
   public static getTeamsOfSkills(): bluebirdPromise<ITeamsOfASkill[]> {
     return Skills.getTeamsOfSkills();
+  }
+
+  public static getSkillsCreators(): bluebirdPromise<SkillCreator[]> {
+    return new SkillCreators().fetch()
+      .then((_skillsCreatorsCollection: Collection<SkillCreator>) => {
+        return _skillsCreatorsCollection.toArray();
+      });
   }
 
   private static _initializeSkillByIdQuery(skillId: number): Skill {

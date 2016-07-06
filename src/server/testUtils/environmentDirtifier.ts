@@ -49,6 +49,7 @@ export class EnvironmentDirtifier {
     return this._fillLevel0Tables(testModels)
       .then(() => this._fillLevel1Tables(testModels))
       .then(() => this._fillLevel2Tables(testModels))
+      .then(() => this._fillLevel3Tables(testModels))
       .then(() => testModels);
   }
 
@@ -63,12 +64,14 @@ export class EnvironmentDirtifier {
     return bluebirdPromise.all(userCreationPromises);
   }
 
-  public static createSkills(numberOfSkills: number): bluebirdPromise<Skill[]> {
+  public static createSkills(numberOfSkills: number, creatorId: number): bluebirdPromise<Skill[]> {
     var skillCreationPromises: bluebirdPromise<Skill>[] = [];
     for (var i = 0; i < numberOfSkills; i++) {
-      var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo(i.toString());
+      var skillName: string = i.toString() + ' created by ' + creatorId.toString();
 
-      skillCreationPromises.push(SkillsDataHandler.createSkill(skillInfo));
+      var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo(skillName);
+
+      skillCreationPromises.push(SkillsDataHandler.createSkill(skillInfo, creatorId));
     }
 
     return bluebirdPromise.all(skillCreationPromises);
@@ -107,21 +110,26 @@ export class EnvironmentDirtifier {
   private static _fillLevel0Tables(testModels: ITestModels): bluebirdPromise<any> {
     return bluebirdPromise.all([
       this._fillUsers(testModels),
-      this._fillTeams(testModels),
-      this._fillSkills(testModels)
+      this._fillTeams(testModels)
     ]);
   }
 
   private static _fillLevel1Tables(testModels: ITestModels): bluebirdPromise<any> {
     return bluebirdPromise.all([
+      this._fillSkills(testModels),
       this._fillUsersGlobalPermissions(testModels),
       this._fillTeamMembers(testModels),
+    ]);
+  }
+
+  private static _fillLevel2Tables(testModels: ITestModels): bluebirdPromise<any> {
+    return bluebirdPromise.all([
       this._fillSkillPrerequisites(testModels),
       this._fillTeamSkills(testModels)
     ]);
   }
 
-  private static _fillLevel2Tables(testModels: ITestModels): bluebirdPromise<any> {
+  private static _fillLevel3Tables(testModels: ITestModels): bluebirdPromise<any> {
     return this._fillTeamSkillUpvotes(testModels);
   }
 
@@ -140,9 +148,18 @@ export class EnvironmentDirtifier {
   }
 
   private static _fillSkills(testModels: ITestModels): bluebirdPromise<any> {
-    return this.createSkills(this.numberOfSkills)
-      .then((skills: Skill[]) => {
-        testModels.skills = skills;
+    var skillsPromises: bluebirdPromise<Skill[]>[] = [];
+
+    testModels.users.forEach((_user: User) => {
+      var skillsPromise: bluebirdPromise<Skill[]> =
+        this.createSkills(this.numberOfSkills, _user.id);
+
+      skillsPromises.push(skillsPromise);
+    });
+
+    return bluebirdPromise.all(skillsPromises)
+      .then((_skills: Skill[][]) => {
+        testModels.skills = _.flatten(_skills);
       });
   }
 

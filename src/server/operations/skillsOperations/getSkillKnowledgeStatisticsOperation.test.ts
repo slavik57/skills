@@ -1,3 +1,4 @@
+import {User} from "../../models/user";
 import {IKnowledgeStatistics} from "../interfaces/iKnowledgeStatistics";
 import {GetSkillKnowledgeStatisticsOperation} from "./getSkillKnowledgeStatisticsOperation";
 import {ModelInfoMockFactory} from "../../testUtils/modelInfoMockFactory";
@@ -45,7 +46,8 @@ describe('GetSkillKnowledgeStatisticsOperation', () => {
           });
 
       var createSkillsPromise: Promise<any> =
-        EnvironmentDirtifier.createSkills(1)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createSkills(1, _users[0].id))
           .then((_skills: Skill[]) => {
             [skill] = _skills;
           });

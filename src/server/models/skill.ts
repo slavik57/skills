@@ -1,3 +1,4 @@
+import {SkillCreator} from "./skillCreator";
 import {IPrerequisitesOfASkill} from "./interfaces/iPrerequisitesOfASkill";
 import {ISkillRelations} from "./interfaces/iSkillRelations";
 import {ITeamsOfASkill} from "./interfaces/iTeamsOfASkill";
@@ -20,7 +21,8 @@ export class Skill extends ModelBase<Skill, ISkillInfo> {
     return [
       Skill.relatedSkillPrerequisitesAttribute,
       Skill.relatedSkillContributorsAttribute,
-      Skill.relatedTeamSkillsAttribute
+      Skill.relatedTeamSkillsAttribute,
+      Skill.relatedSkillCreatorAttribute
     ];
   }
 
@@ -30,6 +32,7 @@ export class Skill extends ModelBase<Skill, ISkillInfo> {
   public static get relatedSkillPrerequisitesAttribute(): string { return 'skillPrerequisites'; }
   public static get relatedSkillContributorsAttribute(): string { return 'skillContributors'; }
   public static get relatedTeamSkillsAttribute(): string { return 'teamSkills'; }
+  public static get relatedSkillCreatorAttribute(): string { return 'skillCreator'; }
 
   public static collection(skills?: Skill[], options?: CollectionOptions<Skill>): Collection<Skill> {
     return new Skills(skills, options);
@@ -49,6 +52,10 @@ export class Skill extends ModelBase<Skill, ISkillInfo> {
 
   public teamSkills(): Collection<TeamSkill> {
     return this.hasMany(TeamSkill, TeamSkill.skillIdAttribute);
+  }
+
+  public skillCreator(): SkillCreator {
+    return this.hasOne(SkillCreator, SkillCreator.skillIdAttribute);
   }
 
   public prerequisiteSkills(): Collection<Skill> {

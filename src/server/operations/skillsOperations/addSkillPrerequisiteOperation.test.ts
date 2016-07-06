@@ -1,3 +1,4 @@
+import {EnvironmentDirtifier} from "../../testUtils/environmentDirtifier";
 import {ModelInfoVerificator} from "../../testUtils/modelInfoVerificator";
 import {Skill} from "../../models/skill";
 import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
@@ -43,10 +44,11 @@ describe('AddSkillPrerequisiteOperation', () => {
       var skillPrerequisiteInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('skillPrerequisite');
 
       var createSkillPromise: Promise<any> =
-        Promise.all([
-          SkillsDataHandler.createSkill(skillInfo),
-          SkillsDataHandler.createSkill(skillPrerequisiteInfo)
-        ])
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => Promise.all([
+            SkillsDataHandler.createSkill(skillInfo, _users[0].id),
+            SkillsDataHandler.createSkill(skillPrerequisiteInfo, _users[0].id)
+          ]))
           .then((_skills: Skill[]) => {
             [skill, skillPrerequisite] = _skills;
 

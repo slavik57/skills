@@ -23,12 +23,12 @@ describe('AddTeamSkillOperation', function () {
             teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team2'))
         ]); }).then(function (_teams) {
             teamToAddTheSkillTo = _teams[0], otherTeam = _teams[1];
-        }).then(function () { return skillsDataHandler_1.SkillsDataHandler.createSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill1')); })
-            .then(function (_skill) {
-            skillToAdd = _skill;
         }).then(function () { return userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1)); })
             .then(function (_user) {
             executingUser = _user;
+        }).then(function () { return skillsDataHandler_1.SkillsDataHandler.createSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill1'), executingUser.id); })
+            .then(function (_skill) {
+            skillToAdd = _skill;
         });
     });
     afterEach(function () {

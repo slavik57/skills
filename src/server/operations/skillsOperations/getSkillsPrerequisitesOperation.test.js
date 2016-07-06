@@ -26,7 +26,8 @@ describe('GetSkillsPrerequisitesOperation', function () {
         var skill3PrerequisitesIds;
         var operation;
         beforeEach(function () {
-            var createSkillPrerequisitesPromise = environmentDirtifier_1.EnvironmentDirtifier.createSkills(3)
+            var createSkillPrerequisitesPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(3, _users[0].id); })
                 .then(function (_skills) {
                 skills = _skills;
                 skill1 = _skills[0], skill2 = _skills[1], skill3 = _skills[2];

@@ -1,3 +1,6 @@
+import {SkillCreators} from "../models/skillCreator";
+import {ISkillCreatorInfo} from "../models/interfaces/iSkillCreatorInfo";
+import {SkillCreator} from "../models/skillCreator";
 import {IPrerequisitesOfASkill} from "../models/interfaces/iPrerequisitesOfASkill";
 import {ITeamsOfASkill} from "../models/interfaces/iTeamsOfASkill";
 import {TeamSkillUpvote} from "../models/teamSkillUpvote";
@@ -44,14 +47,47 @@ describe('SkillsDataHandler', () => {
 
   describe('createSkill', () => {
 
+    var user: User;
+
+    beforeEach(() => {
+      return EnvironmentDirtifier.createUsers(1)
+        .then((_users: User[]) => {
+          [user] = _users;
+        });
+    })
+
     it('should create a skill correctly', () => {
       // Act
       var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('1');
       var skillPromise: bluebirdPromise<Skill> =
-        SkillsDataHandler.createSkill(skillInfo);
+        SkillsDataHandler.createSkill(skillInfo, user.id);
 
       // Assert
       return ModelVerificator.verifyModelInfoAsync(skillPromise, skillInfo);
+    });
+
+    it('should add the creator to skill creators', () => {
+      // Act
+      var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('1');
+      var skillPromise: bluebirdPromise<Skill> =
+        SkillsDataHandler.createSkill(skillInfo, user.id);
+
+      // Assert
+      var skill: Skill;
+      return expect(skillPromise).to.eventually.fulfilled
+        .then((_skill: Skill) => {
+          skill = _skill
+        })
+        .then(() => SkillsDataHandler.getSkillsCreators())
+        .then((_skillsCreators: SkillCreator[]) => {
+          expect(_skillsCreators).to.be.length(1);
+
+          var expectedInfo: ISkillCreatorInfo = {
+            user_id: user.id,
+            skill_id: skill.id
+          };
+          ModelInfoVerificator.verifyInfo(_skillsCreators[0].attributes, expectedInfo);
+        });
     });
 
   });
@@ -188,6 +224,25 @@ describe('SkillsDataHandler', () => {
         });
     });
 
+    it('existing skill should remove the relevant skill creators', () => {
+      // Arrange
+      var skillToDelete = testModels.skills[0];
+
+      // Act
+      var promise: bluebirdPromise<Skill> =
+        SkillsDataHandler.deleteSkill(skillToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => SkillsDataHandler.getSkillsCreators())
+        .then((_creators: SkillCreator[]) => {
+          return _.map(_creators, _ => _.attributes.skill_id);
+        })
+        .then((_skillIds: number[]) => {
+          expect(_skillIds).not.to.contain(skillToDelete.id);
+        });
+    });
+
   });
 
   describe('getSkill', () => {
@@ -205,7 +260,8 @@ describe('SkillsDataHandler', () => {
       // Arrange
       var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('1');
       var createSkillPromise: bluebirdPromise<Skill> =
-        SkillsDataHandler.createSkill(skillInfo);
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => SkillsDataHandler.createSkill(skillInfo, _users[0].id));
 
       // Act
       var getSkillPromise: bluebirdPromise<Skill> =
@@ -237,11 +293,12 @@ describe('SkillsDataHandler', () => {
       var skillInfo3: ISkillInfo = ModelInfoMockFactory.createSkillInfo('3');
 
       var createAllSkillsPromise: bluebirdPromise<any> =
-        bluebirdPromise.all([
-          SkillsDataHandler.createSkill(skillInfo1),
-          SkillsDataHandler.createSkill(skillInfo2),
-          SkillsDataHandler.createSkill(skillInfo3)
-        ]);
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => bluebirdPromise.all([
+            SkillsDataHandler.createSkill(skillInfo1, _users[0].id),
+            SkillsDataHandler.createSkill(skillInfo2, _users[0].id),
+            SkillsDataHandler.createSkill(skillInfo3, _users[0].id)
+          ]));
 
       // Act
       var skillsPromise: bluebirdPromise<Skill[]> =
@@ -264,10 +321,11 @@ describe('SkillsDataHandler', () => {
       var skillInfo2: ISkillInfo = ModelInfoMockFactory.createSkillInfo('2');
 
       var createAllSkillsPromise =
-        bluebirdPromise.all([
-          SkillsDataHandler.createSkill(skillInfo1),
-          SkillsDataHandler.createSkill(skillInfo2)
-        ]);
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => bluebirdPromise.all([
+            SkillsDataHandler.createSkill(skillInfo1, _users[0].id),
+            SkillsDataHandler.createSkill(skillInfo2, _users[0].id)
+          ]));
 
       var skillPrerequisitePromise: bluebirdPromise<SkillPrerequisite> =
         createAllSkillsPromise.then((skills: Skill[]) => {
@@ -365,10 +423,11 @@ describe('SkillsDataHandler', () => {
       var skillInfo2: ISkillInfo = ModelInfoMockFactory.createSkillInfo('2');
 
       var createAllSkillsPromise =
-        bluebirdPromise.all([
-          SkillsDataHandler.createSkill(skillInfo1),
-          SkillsDataHandler.createSkill(skillInfo2)
-        ]);
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => bluebirdPromise.all([
+            SkillsDataHandler.createSkill(skillInfo1, _users[0].id),
+            SkillsDataHandler.createSkill(skillInfo2, _users[0].id)
+          ]));
 
       var skillPrerequisiteInfo1: ISkillPrerequisiteInfo;
       var skillPrerequisiteInfo2: ISkillPrerequisiteInfo;
@@ -418,15 +477,16 @@ describe('SkillsDataHandler', () => {
       skillInfo2 = ModelInfoMockFactory.createSkillInfo('2');
       skillInfo3 = ModelInfoMockFactory.createSkillInfo('3');
 
-      return bluebirdPromise.all([
-        SkillsDataHandler.createSkill(skillInfo1),
-        SkillsDataHandler.createSkill(skillInfo2),
-        SkillsDataHandler.createSkill(skillInfo3)
-      ]).then((skills: Skill[]) => {
-        skill1 = skills[0];
-        skill2 = skills[1];
-        skill3 = skills[2];
-      });
+      return EnvironmentDirtifier.createUsers(1)
+        .then((_users: User[]) => bluebirdPromise.all([
+          SkillsDataHandler.createSkill(skillInfo1, _users[0].id),
+          SkillsDataHandler.createSkill(skillInfo2, _users[0].id),
+          SkillsDataHandler.createSkill(skillInfo3, _users[0].id)
+        ])).then((skills: Skill[]) => {
+          skill1 = skills[0];
+          skill2 = skills[1];
+          skill3 = skills[2];
+        });
     });
 
     it('no such skill should return empty', () => {
@@ -517,15 +577,16 @@ describe('SkillsDataHandler', () => {
       skillInfo2 = ModelInfoMockFactory.createSkillInfo('2');
       skillInfo3 = ModelInfoMockFactory.createSkillInfo('3');
 
-      return bluebirdPromise.all([
-        SkillsDataHandler.createSkill(skillInfo1),
-        SkillsDataHandler.createSkill(skillInfo2),
-        SkillsDataHandler.createSkill(skillInfo3)
-      ]).then((skills: Skill[]) => {
-        skill1 = skills[0];
-        skill2 = skills[1];
-        skill3 = skills[2];
-      });
+      return EnvironmentDirtifier.createUsers(1)
+        .then((_users: User[]) => bluebirdPromise.all([
+          SkillsDataHandler.createSkill(skillInfo1, _users[0].id),
+          SkillsDataHandler.createSkill(skillInfo2, _users[0].id),
+          SkillsDataHandler.createSkill(skillInfo3, _users[0].id)
+        ])).then((skills: Skill[]) => {
+          skill1 = skills[0];
+          skill2 = skills[1];
+          skill3 = skills[2];
+        });
     });
 
     it('no such skill should return empty', () => {
@@ -685,7 +746,8 @@ describe('SkillsDataHandler', () => {
       var expectedSkillsToPrerequisites: IPrerequisitesOfASkill[];
 
       var addSkillsPromise: bluebirdPromise<Skill[]> =
-        EnvironmentDirtifier.createSkills(numberOfSkills)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id))
           .then((_skills: Skill[]) => {
             skills = _skills;
 
@@ -717,7 +779,8 @@ describe('SkillsDataHandler', () => {
       var numberOfSkills = 5;
       var skills: Skill[];
       var addSkillsPromise: bluebirdPromise<Skill[]> =
-        EnvironmentDirtifier.createSkills(numberOfSkills)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id))
           .then((_skills: Skill[]) => {
             skills = _skills;
             return _skills;
@@ -802,22 +865,24 @@ describe('SkillsDataHandler', () => {
       userInfo1 = ModelInfoMockFactory.createUserInfo(1);
       userInfo2 = ModelInfoMockFactory.createUserInfo(2);
 
-      return Promise.all<any>([
-        TeamsDataHandler.createTeam(teamInfo1),
-        TeamsDataHandler.createTeam(teamInfo2),
-        TeamsDataHandler.createTeam(teamInfo3),
-        SkillsDataHandler.createSkill(skillInfo1),
-        SkillsDataHandler.createSkill(skillInfo2),
+      return Promise.all([
         UserDataHandler.createUser(userInfo1),
         UserDataHandler.createUser(userInfo2)
       ]).then((results: any[]) => {
+        user1 = results[0];
+        user2 = results[1];
+      }).then(() => Promise.all<any>([
+        TeamsDataHandler.createTeam(teamInfo1),
+        TeamsDataHandler.createTeam(teamInfo2),
+        TeamsDataHandler.createTeam(teamInfo3),
+        SkillsDataHandler.createSkill(skillInfo1, user1.id),
+        SkillsDataHandler.createSkill(skillInfo2, user2.id)
+      ])).then((results: any[]) => {
         team1 = results[0];
         team2 = results[1];
         team3 = results[2];
         skill1 = results[3];
         skill2 = results[4];
-        user1 = results[5];
-        user2 = results[6];
       });
     });
 
@@ -1021,7 +1086,8 @@ describe('SkillsDataHandler', () => {
       var expectedSkillsToTeams: ITeamsOfASkill[];
 
       var addSkillsPromise: bluebirdPromise<Skill[]> =
-        EnvironmentDirtifier.createSkills(numberOfSkills)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id))
           .then((_skills: Skill[]) => {
             skills = _skills;
 
@@ -1053,7 +1119,8 @@ describe('SkillsDataHandler', () => {
       var numberOfSkills = 3;
       var skills: Skill[];
       var addSkillsPromise: bluebirdPromise<Skill[]> =
-        EnvironmentDirtifier.createSkills(numberOfSkills)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id))
           .then((_skills: Skill[]) => {
             skills = _skills;
             return _skills;
@@ -1090,6 +1157,67 @@ describe('SkillsDataHandler', () => {
       return expect(promise).to.eventually.fulfilled
         .then((_skillsToTeams: ITeamsOfASkill[]) => {
           verifySkillsToTeams(_skillsToTeams, expectedSkillsToTeams);
+        });
+    });
+
+  });
+
+  describe('getSkillsCreators', () => {
+
+    var user1: User;
+    var user2: User;
+
+    beforeEach(() => {
+      return EnvironmentDirtifier.createUsers(2)
+        .then((_users: User[]) => {
+          [user1, user2] = _users;
+        });
+    });
+
+    it('no skills should return empty', () => {
+      // Act
+      var promise: bluebirdPromise<SkillCreator[]> =
+        SkillsDataHandler.getSkillsCreators();
+
+      // Arrange
+      return expect(promise).to.eventually.deep.equal([]);
+    });
+
+    it('skills created should return correct result', () => {
+      // Arrange
+      var skillInfo1: ISkillInfo = ModelInfoMockFactory.createSkillInfo('1');
+      var skillInfo2: ISkillInfo = ModelInfoMockFactory.createSkillInfo('2');
+
+      var expected: ISkillCreatorInfo[];
+
+      var skillsPromise: bluebirdPromise<void> =
+        bluebirdPromise.all([
+          SkillsDataHandler.createSkill(skillInfo1, user1.id),
+          SkillsDataHandler.createSkill(skillInfo2, user2.id)
+        ]).then((_skills: Skill[]) => {
+          expected = [
+            {
+              user_id: user1.id,
+              skill_id: _skills[0].id
+            },
+            {
+              user_id: user2.id,
+              skill_id: _skills[1].id
+            }
+          ];
+        });
+
+      // Act
+      var promise: bluebirdPromise<SkillCreator[]> =
+        skillsPromise.then(() => SkillsDataHandler.getSkillsCreators());
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then((_creators: SkillCreator[]) => {
+          return _.map(_creators, _ => _.attributes);
+        })
+        .then((_creatorsInfos: ISkillCreatorInfo[]) => {
+          ModelInfoVerificator.verifyMultipleInfosOrdered(_creatorsInfos, expected, ModelInfoComparers.compareSkillsCreators)
         });
     });
 

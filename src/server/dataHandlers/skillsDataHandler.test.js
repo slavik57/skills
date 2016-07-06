@@ -3,6 +3,7 @@ var environmentDirtifier_1 = require("../testUtils/environmentDirtifier");
 var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var modelInfoComparers_1 = require("../testUtils/modelInfoComparers");
 var modelVerificator_1 = require("../testUtils/modelVerificator");
+var modelInfoVerificator_1 = require("../testUtils/modelInfoVerificator");
 var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
 var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
 var teamSkill_1 = require("../models/teamSkill");
@@ -23,10 +24,35 @@ describe('SkillsDataHandler', function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
     describe('createSkill', function () {
+        var user;
+        beforeEach(function () {
+            return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) {
+                user = _users[0];
+            });
+        });
         it('should create a skill correctly', function () {
             var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
-            var skillPromise = skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo);
+            var skillPromise = skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, user.id);
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(skillPromise, skillInfo);
+        });
+        it('should add the creator to skill creators', function () {
+            var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
+            var skillPromise = skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, user.id);
+            var skill;
+            return chai_1.expect(skillPromise).to.eventually.fulfilled
+                .then(function (_skill) {
+                skill = _skill;
+            })
+                .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsCreators(); })
+                .then(function (_skillsCreators) {
+                chai_1.expect(_skillsCreators).to.be.length(1);
+                var expectedInfo = {
+                    user_id: user.id,
+                    skill_id: skill.id
+                };
+                modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_skillsCreators[0].attributes, expectedInfo);
+            });
         });
     });
     describe('deleteSkill', function () {
@@ -111,6 +137,18 @@ describe('SkillsDataHandler', function () {
                 chai_1.expect(_skillIds).not.to.contain(skillToDelete.id);
             });
         });
+        it('existing skill should remove the relevant skill creators', function () {
+            var skillToDelete = testModels.skills[0];
+            var promise = skillsDataHandler_1.SkillsDataHandler.deleteSkill(skillToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsCreators(); })
+                .then(function (_creators) {
+                return _.map(_creators, function (_) { return _.attributes.skill_id; });
+            })
+                .then(function (_skillIds) {
+                chai_1.expect(_skillIds).not.to.contain(skillToDelete.id);
+            });
+        });
     });
     describe('getSkill', function () {
         it('no such skill should return null', function () {
@@ -119,7 +157,8 @@ describe('SkillsDataHandler', function () {
         });
         it('skill exists should return correct skill', function () {
             var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
-            var createSkillPromise = skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo);
+            var createSkillPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, _users[0].id); });
             var getSkillPromise = createSkillPromise.then(function (skill) { return skillsDataHandler_1.SkillsDataHandler.getSkill(skill.id); });
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(getSkillPromise, skillInfo);
         });
@@ -134,11 +173,12 @@ describe('SkillsDataHandler', function () {
             var skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             var skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
             var skillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('3');
-            var createAllSkillsPromise = bluebirdPromise.all([
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3)
-            ]);
+            var createAllSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return bluebirdPromise.all([
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1, _users[0].id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2, _users[0].id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3, _users[0].id)
+            ]); });
             var skillsPromise = createAllSkillsPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkills(); });
             var expectedSkillsInfo = [skillInfo1, skillInfo2, skillInfo3];
             return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(skillsPromise, expectedSkillsInfo, modelInfoComparers_1.ModelInfoComparers.compareSkillInfos);
@@ -148,10 +188,11 @@ describe('SkillsDataHandler', function () {
         it('should create a skillPrerequisite', function () {
             var skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             var skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
-            var createAllSkillsPromise = bluebirdPromise.all([
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2)
-            ]);
+            var createAllSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return bluebirdPromise.all([
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1, _users[0].id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2, _users[0].id)
+            ]); });
             var skillPrerequisitePromise = createAllSkillsPromise.then(function (skills) {
                 var skill1 = skills[0];
                 var skill2 = skills[1];
@@ -205,10 +246,11 @@ describe('SkillsDataHandler', function () {
         it('should return all created skill prerequisites', function () {
             var skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             var skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
-            var createAllSkillsPromise = bluebirdPromise.all([
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2)
-            ]);
+            var createAllSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return bluebirdPromise.all([
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1, _users[0].id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2, _users[0].id)
+            ]); });
             var skillPrerequisiteInfo1;
             var skillPrerequisiteInfo2;
             var createAllSkillPrerequisitesPromise = createAllSkillsPromise.then(function (skills) {
@@ -239,11 +281,12 @@ describe('SkillsDataHandler', function () {
             skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
             skillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('3');
-            return bluebirdPromise.all([
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3)
-            ]).then(function (skills) {
+            return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return bluebirdPromise.all([
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1, _users[0].id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2, _users[0].id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3, _users[0].id)
+            ]); }).then(function (skills) {
                 skill1 = skills[0];
                 skill2 = skills[1];
                 skill3 = skills[2];
@@ -295,11 +338,12 @@ describe('SkillsDataHandler', function () {
             skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
             skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
             skillInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('3');
-            return bluebirdPromise.all([
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3)
-            ]).then(function (skills) {
+            return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return bluebirdPromise.all([
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1, _users[0].id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2, _users[0].id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3, _users[0].id)
+            ]); }).then(function (skills) {
                 skill1 = skills[0];
                 skill2 = skills[1];
                 skill3 = skills[2];
@@ -389,7 +433,8 @@ describe('SkillsDataHandler', function () {
             var numberOfSkills = 5;
             var skills;
             var expectedSkillsToPrerequisites;
-            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills)
+            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id); })
                 .then(function (_skills) {
                 skills = _skills;
                 expectedSkillsToPrerequisites =
@@ -410,7 +455,8 @@ describe('SkillsDataHandler', function () {
         it('has skills with teams knowing them should return correct result', function () {
             var numberOfSkills = 5;
             var skills;
-            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills)
+            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id); })
                 .then(function (_skills) {
                 skills = _skills;
                 return _skills;
@@ -469,21 +515,23 @@ describe('SkillsDataHandler', function () {
             userInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             userInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2);
             return Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo3),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1),
-                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2),
                 userDataHandler_1.UserDataHandler.createUser(userInfo1),
                 userDataHandler_1.UserDataHandler.createUser(userInfo2)
             ]).then(function (results) {
+                user1 = results[0];
+                user2 = results[1];
+            }).then(function () { return Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo3),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1, user1.id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2, user2.id)
+            ]); }).then(function (results) {
                 team1 = results[0];
                 team2 = results[1];
                 team3 = results[2];
                 skill1 = results[3];
                 skill2 = results[4];
-                user1 = results[5];
-                user2 = results[6];
             });
         });
         it('no such skill should return empty teams list', function () {
@@ -605,7 +653,8 @@ describe('SkillsDataHandler', function () {
             var numberOfSkills = 5;
             var skills;
             var expectedSkillsToTeams;
-            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills)
+            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id); })
                 .then(function (_skills) {
                 skills = _skills;
                 expectedSkillsToTeams =
@@ -626,7 +675,8 @@ describe('SkillsDataHandler', function () {
         it('has skills with teams knowing them should return correct result', function () {
             var numberOfSkills = 3;
             var skills;
-            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills)
+            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id); })
                 .then(function (_skills) {
                 skills = _skills;
                 return _skills;
@@ -653,6 +703,48 @@ describe('SkillsDataHandler', function () {
             return chai_1.expect(promise).to.eventually.fulfilled
                 .then(function (_skillsToTeams) {
                 verifySkillsToTeams(_skillsToTeams, expectedSkillsToTeams);
+            });
+        });
+    });
+    describe('getSkillsCreators', function () {
+        var user1;
+        var user2;
+        beforeEach(function () {
+            return environmentDirtifier_1.EnvironmentDirtifier.createUsers(2)
+                .then(function (_users) {
+                user1 = _users[0], user2 = _users[1];
+            });
+        });
+        it('no skills should return empty', function () {
+            var promise = skillsDataHandler_1.SkillsDataHandler.getSkillsCreators();
+            return chai_1.expect(promise).to.eventually.deep.equal([]);
+        });
+        it('skills created should return correct result', function () {
+            var skillInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1');
+            var skillInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2');
+            var expected;
+            var skillsPromise = bluebirdPromise.all([
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1, user1.id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2, user2.id)
+            ]).then(function (_skills) {
+                expected = [
+                    {
+                        user_id: user1.id,
+                        skill_id: _skills[0].id
+                    },
+                    {
+                        user_id: user2.id,
+                        skill_id: _skills[1].id
+                    }
+                ];
+            });
+            var promise = skillsPromise.then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillsCreators(); });
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function (_creators) {
+                return _.map(_creators, function (_) { return _.attributes; });
+            })
+                .then(function (_creatorsInfos) {
+                modelInfoVerificator_1.ModelInfoVerificator.verifyMultipleInfosOrdered(_creatorsInfos, expected, modelInfoComparers_1.ModelInfoComparers.compareSkillsCreators);
             });
         });
     });

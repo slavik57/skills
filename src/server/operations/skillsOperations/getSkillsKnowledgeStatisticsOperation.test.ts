@@ -1,3 +1,4 @@
+import {User} from "../../models/user";
 import {ISkillKnowledgeStatistics} from "../interfaces/iSkillKnowledgeStatistics";
 import {GetSkillsKnowledgeStatisticsOperation} from "./getSkillsKnowledgeStatisticsOperation";
 import {ModelInfoMockFactory} from "../../testUtils/modelInfoMockFactory";
@@ -51,7 +52,8 @@ describe('GetSkillsKnowledgeStatisticsOperation', () => {
           });
 
       var createSkillsPromise: bluebirdPromise<any> =
-        EnvironmentDirtifier.createSkills(3)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createSkills(3, _users[0].id))
           .then((_skills: Skill[]) => {
             [skill1, skill2, skill3] = _skills;
           });

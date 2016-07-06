@@ -20,13 +20,18 @@ describe('TeamSkillUpvote', function () {
         beforeEach(function () {
             return environmentCleaner_1.EnvironmentCleaner.clearTables()
                 .then(function () { return bluebirdPromise.all([
-                skillsDataHandler_1.SkillsDataHandler.createSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill1')),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1')),
                 userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1)),
                 userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2))
             ]); })
+                .then(function (_users) {
+                user1 = _users[0], user2 = _users[1];
+            })
+                .then(function () { return bluebirdPromise.all([
+                skillsDataHandler_1.SkillsDataHandler.createSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill1'), user1.id),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1')),
+            ]); })
                 .then(function (results) {
-                skill = results[0], team = results[1], user1 = results[2], user2 = results[3];
+                skill = results[0], team = results[1];
                 return Promise.all([
                     teamsDataHandler_1.TeamsDataHandler.addTeamSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamSkillInfo(team, skill)),
                 ]);

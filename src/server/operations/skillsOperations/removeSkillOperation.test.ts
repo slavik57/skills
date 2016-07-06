@@ -1,3 +1,4 @@
+import {EnvironmentDirtifier} from "../../testUtils/environmentDirtifier";
 import {Skill} from "../../models/skill";
 import {SkillsDataHandler} from "../../dataHandlers/skillsDataHandler";
 import {ISkillInfo} from "../../models/interfaces/iSkillInfo";
@@ -39,7 +40,8 @@ describe('RemoveSkillOperation', () => {
       var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('skill');
 
       var createSkillPromise: Promise<any> =
-        SkillsDataHandler.createSkill(skillInfo)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => SkillsDataHandler.createSkill(skillInfo, _users[0].id))
           .then((_skill) => {
             skillToRemove = _skill;
 

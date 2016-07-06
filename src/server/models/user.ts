@@ -1,3 +1,4 @@
+import {SkillCreator} from "./skillCreator";
 import {TeamSkillUpvote} from "./teamSkillUpvote";
 import {IUserRelations} from "./interfaces/iUserRelations";
 import {ModelBase} from "./modelBase";
@@ -20,7 +21,8 @@ export class User extends ModelBase<User, IUserInfo> implements IHasPivot<TeamMe
     return [
       User.relatedUserGlobalPermissionsAttribute,
       User.relatedTeamMembersAttribute,
-      User.relatedTeamSkillUpvotesAttribute
+      User.relatedTeamSkillUpvotesAttribute,
+      User.relatedSkillsCreatorAttribute
     ];
   }
 
@@ -32,6 +34,7 @@ export class User extends ModelBase<User, IUserInfo> implements IHasPivot<TeamMe
   public static get relatedUserGlobalPermissionsAttribute(): string { return 'globalPermissions'; }
   public static get relatedTeamMembersAttribute(): string { return 'teamMembers'; }
   public static get relatedTeamSkillUpvotesAttribute(): string { return 'teamSkillUpvotes'; }
+  public static get relatedSkillsCreatorAttribute(): string { return 'skillsCreator'; }
 
   public static collection(users?: User[], options?: CollectionOptions<User>): Collection<User> {
     return new Users(users, options);
@@ -76,6 +79,10 @@ export class User extends ModelBase<User, IUserInfo> implements IHasPivot<TeamMe
 
   public teamSkillUpvotes(): Collection<TeamSkillUpvote> {
     return this.hasMany(TeamSkillUpvote, TeamSkillUpvote.userIdAttribute);
+  }
+
+  public skillsCreator(): Collection<SkillCreator> {
+    return this.hasMany(SkillCreator, SkillCreator.userIdAttribute);
   }
 
   public getTeams(): Promise<ITeamOfAUser[]> {
