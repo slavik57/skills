@@ -8,6 +8,7 @@ var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 var passwordHash = require('password-hash');
+var bluebirdPromise = require('bluebird');
 chai.use(chaiAsPromised);
 describe('CreateUserOperation', function () {
     beforeEach(function () {
@@ -125,6 +126,28 @@ describe('CreateUserOperation', function () {
                 return chai_1.expect(result).to.eventually.rejected
                     .then(function (error) {
                     chai_1.expect(error).to.be.equal('The email is taken');
+                });
+            });
+            it('creating 2 users with same passwords should hash each password differently', function () {
+                var user1Operation = new createUserOperation_1.CreateUserOperation(userInfo.username + 1, password, '1' + userInfo.email, userInfo.firstName + 1, userInfo.lastName + 1);
+                var user2Operation = new createUserOperation_1.CreateUserOperation(userInfo.username + 2, password, '2' + userInfo.email, userInfo.firstName + 2, userInfo.lastName + 2);
+                var result = bluebirdPromise.all([
+                    user1Operation.execute(),
+                    user2Operation.execute()
+                ]);
+                return chai_1.expect(result).to.eventually.fulfilled
+                    .then(function () { return userDataHandler_1.UserDataHandler.getUsers(); })
+                    .then(function (_users) {
+                    chai_1.expect(_users).to.be.length(2);
+                    var user1 = _users[0];
+                    var user2 = _users[1];
+                    var actualHashedPassword1 = user1.attributes.password_hash;
+                    var actualHashedPassword2 = user2.attributes.password_hash;
+                    chai_1.expect(passwordHash.isHashed(actualHashedPassword1), 'should hash the first password').to.be.true;
+                    chai_1.expect(passwordHash.isHashed(actualHashedPassword2), 'should hash the second password').to.be.true;
+                    chai_1.expect(passwordHash.verify(password, actualHashedPassword1), 'the first password should be hashed correctly').to.be.true;
+                    chai_1.expect(passwordHash.verify(password, actualHashedPassword2), 'the second password should be hashed correctly').to.be.true;
+                    chai_1.expect(actualHashedPassword1).to.not.be.equal(actualHashedPassword2);
                 });
             });
         });

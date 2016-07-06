@@ -10,6 +10,7 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as passwordHash from 'password-hash';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -214,6 +215,46 @@ describe('CreateUserOperation', () => {
         return expect(result).to.eventually.rejected
           .then((error: any) => {
             expect(error).to.be.equal('The email is taken');
+          });
+      });
+
+      it('creating 2 users with same passwords should hash each password differently', () => {
+        // Arrange
+        var user1Operation = new CreateUserOperation(userInfo.username + 1,
+          password,
+          '1' + userInfo.email,
+          userInfo.firstName + 1,
+          userInfo.lastName + 1);
+
+        var user2Operation = new CreateUserOperation(userInfo.username + 2,
+          password,
+          '2' + userInfo.email,
+          userInfo.firstName + 2,
+          userInfo.lastName + 2);
+
+        // Act
+        var result: bluebirdPromise<User[]> = bluebirdPromise.all([
+          user1Operation.execute(),
+          user2Operation.execute()
+        ]);
+
+        // Assert
+        return expect(result).to.eventually.fulfilled
+          .then(() => UserDataHandler.getUsers())
+          .then((_users: User[]) => {
+            expect(_users).to.be.length(2);
+
+            var user1: User = _users[0];
+            var user2: User = _users[1];
+            var actualHashedPassword1 = user1.attributes.password_hash;
+            var actualHashedPassword2 = user2.attributes.password_hash;
+
+            expect(passwordHash.isHashed(actualHashedPassword1), 'should hash the first password').to.be.true;
+            expect(passwordHash.isHashed(actualHashedPassword2), 'should hash the second password').to.be.true;
+            expect(passwordHash.verify(password, actualHashedPassword1), 'the first password should be hashed correctly').to.be.true;
+            expect(passwordHash.verify(password, actualHashedPassword2), 'the second password should be hashed correctly').to.be.true;
+
+            expect(actualHashedPassword1).to.not.be.equal(actualHashedPassword2);
           });
       });
 
