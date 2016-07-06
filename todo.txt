@@ -1,11 +1,13 @@
 todo:
+- encript the password with sha256 and save the hash and the seed to the db. Use the CSPRNG to generate the random seed.
 - use the onInit in the signin and register components
+- Add to Team and to Skill a column "creator_id" which will tell which user created the team or the skill
 - implement home (use onInit of app component to get the user details)
+- enable profile editing (name/last name/password change)
+
+Maybe:
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
 - solve the fonts issue???
-- encript the password with sha256 and save the hash and the seed to the db. Use the CSPRNG to generate the random seed.
-- Add to Team and to Skill a column "creator_id" which will tell which user created the team or the skill
-- enable profile editing (name/last name/password change)
 
 More features:
 - add skill description
