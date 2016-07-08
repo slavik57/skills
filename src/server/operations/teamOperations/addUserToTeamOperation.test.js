@@ -18,15 +18,16 @@ describe('AddUserToTeamOperation', function () {
     beforeEach(function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables()
             .then(function () { return Promise.all([
-            teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1')),
-            teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team2'))
-        ]); }).then(function (_teams) {
-            teamToAddTheUser = _teams[0], otherTeam = _teams[1];
-        }).then(function () { return Promise.all([
             userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1)),
             userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2))
         ]); }).then(function (_users) {
             executingUser = _users[0], userToAdd = _users[1];
+        })
+            .then(function () { return Promise.all([
+            teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1'), executingUser.id),
+            teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team2'), executingUser.id)
+        ]); }).then(function (_teams) {
+            teamToAddTheUser = _teams[0], otherTeam = _teams[1];
         });
     });
     afterEach(function () {

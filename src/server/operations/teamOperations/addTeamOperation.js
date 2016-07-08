@@ -21,7 +21,7 @@ var AddTeamOperation = (function (_super) {
         configurable: true
     });
     AddTeamOperation.prototype.doWork = function () {
-        return teamsDataHandler_1.TeamsDataHandler.createTeam(this._teamInfo);
+        return teamsDataHandler_1.TeamsDataHandler.createTeam(this._teamInfo, this.executingUserId);
     };
     return AddTeamOperation;
 }(authenticatedOperationBase_1.AuthenticatedOperationBase));

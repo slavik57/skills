@@ -872,9 +872,9 @@ describe('SkillsDataHandler', () => {
         user1 = results[0];
         user2 = results[1];
       }).then(() => Promise.all<any>([
-        TeamsDataHandler.createTeam(teamInfo1),
-        TeamsDataHandler.createTeam(teamInfo2),
-        TeamsDataHandler.createTeam(teamInfo3),
+        TeamsDataHandler.createTeam(teamInfo1, user1.id),
+        TeamsDataHandler.createTeam(teamInfo2, user2.id),
+        TeamsDataHandler.createTeam(teamInfo3, user1.id),
         SkillsDataHandler.createSkill(skillInfo1, user1.id),
         SkillsDataHandler.createSkill(skillInfo2, user2.id)
       ])).then((results: any[]) => {
@@ -1116,11 +1116,18 @@ describe('SkillsDataHandler', () => {
 
     it('has skills with teams knowing them should return correct result', () => {
       // Arrange
+      var user: User;
+      var createUsersPromise: bluebirdPromise<void> =
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => {
+            [user] = _users;
+          });
+
       var numberOfSkills = 3;
       var skills: Skill[];
       var addSkillsPromise: bluebirdPromise<Skill[]> =
-        EnvironmentDirtifier.createUsers(1)
-          .then((_users: User[]) => EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id))
+        createUsersPromise
+          .then(() => EnvironmentDirtifier.createSkills(numberOfSkills, user.id))
           .then((_skills: Skill[]) => {
             skills = _skills;
             return _skills;
@@ -1129,7 +1136,7 @@ describe('SkillsDataHandler', () => {
       var numberOfTeams = 5;
       var teams: Team[];
       var addTeamsPromise: bluebirdPromise<Team[]> =
-        EnvironmentDirtifier.createTeams(numberOfTeams)
+        createUsersPromise.then(() => EnvironmentDirtifier.createTeams(numberOfTeams, user.id))
           .then((_teams: Team[]) => {
             teams = _teams;
             return _teams;

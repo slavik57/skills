@@ -36,13 +36,13 @@ describe('GetTeamSkillsOperation', function () {
         var team2Skill2UpvotingUserIds;
         var operation;
         beforeEach(function () {
-            var createTeamPromise = environmentDirtifier_1.EnvironmentDirtifier.createTeams(2)
-                .then(function (_teams) {
-                team1 = _teams[0], team2 = _teams[1];
-            });
             var createUsersPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(3)
                 .then(function (_users) {
                 user1 = _users[0], user2 = _users[1], user3 = _users[2];
+            });
+            var createTeamPromise = createUsersPromise.then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createTeams(2, user1.id); })
+                .then(function (_teams) {
+                team1 = _teams[0], team2 = _teams[1];
             });
             var createSkillsPromise = createUsersPromise.then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(4, user1.id); })
                 .then(function (_skills) {

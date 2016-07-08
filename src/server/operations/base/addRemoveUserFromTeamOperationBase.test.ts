@@ -1,3 +1,4 @@
+import {EnvironmentDirtifier} from "../../testUtils/environmentDirtifier";
 import {ITeamMemberInfo} from "../../models/interfaces/iTeamMemberInfo";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {UserDataHandler} from "../../dataHandlers/userDataHandler";
@@ -21,14 +22,15 @@ describe('AddRemoveUserFromTeamOperationBase', () => {
 
   beforeEach(() => {
     return EnvironmentCleaner.clearTables()
-      .then(() => Promise.all([
-        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1')),
-        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team2'))
-      ])).then((_teams: Team[]) => {
-        [team, otherTeam] = _teams;
-      }).then(() => UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1)))
+      .then(() => UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1)))
       .then((_user: User) => {
         executingUser = _user;
+      })
+      .then(() => Promise.all([
+        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1'), executingUser.id),
+        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team2'), executingUser.id)
+      ])).then((_teams: Team[]) => {
+        [team, otherTeam] = _teams;
       });
   });
 

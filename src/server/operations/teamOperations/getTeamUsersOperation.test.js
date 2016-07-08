@@ -27,18 +27,17 @@ describe('GetTeamUsersOperation', function () {
         var isUser3Admin = true;
         var operation;
         beforeEach(function () {
-            var createTeamPromise = environmentDirtifier_1.EnvironmentDirtifier.createTeams(1)
-                .then(function (_teams) {
-                team = _teams[0];
-            });
             var createUsersPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(3)
                 .then(function (_users) {
                 teamUser1 = _users[0], teamUser2 = _users[1], teamUser3 = _users[2];
             });
-            return Promise.all([
-                createTeamPromise,
-                createUsersPromise
-            ]).then(function () {
+            var createTeamPromise = createUsersPromise
+                .then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createTeams(1, teamUser1.id); })
+                .then(function (_teams) {
+                team = _teams[0];
+            });
+            return createTeamPromise
+                .then(function () {
                 return Promise.all([
                     teamsDataHandler_1.TeamsDataHandler.addTeamMember(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team, teamUser1, isUser1Admin)),
                     teamsDataHandler_1.TeamsDataHandler.addTeamMember(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team, teamUser2, isUser2Admin)),

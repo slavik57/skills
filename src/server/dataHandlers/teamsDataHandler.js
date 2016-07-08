@@ -1,4 +1,5 @@
 "use strict";
+var teamCreator_1 = require("../models/teamCreator");
 var team_1 = require("../models/team");
 var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
 var bookshelf_1 = require('../../../bookshelf');
@@ -8,8 +9,26 @@ var teamSkill_1 = require('../models/teamSkill');
 var TeamsDataHandler = (function () {
     function TeamsDataHandler() {
     }
-    TeamsDataHandler.createTeam = function (teamInfo) {
-        return new team_2.Team(teamInfo).save();
+    TeamsDataHandler.createTeam = function (teamInfo, creatorId) {
+        return bookshelf_1.bookshelf.transaction(function (_transaction) {
+            var saveOptions = {
+                transacting: _transaction
+            };
+            var team;
+            var teamCreatorInfo;
+            return new team_2.Team(teamInfo).save(null, saveOptions)
+                .then(function (_team) {
+                team = _team;
+                teamCreatorInfo = {
+                    user_id: creatorId,
+                    team_id: team.id
+                };
+            })
+                .then(function () { return new teamCreator_1.TeamCreator(teamCreatorInfo).save(null, saveOptions); })
+                .then(function () {
+                return team;
+            });
+        });
     };
     TeamsDataHandler.deleteTeam = function (teamId) {
         return this._initializeTeamByIdQuery(teamId).destroy();
@@ -85,6 +104,12 @@ var TeamsDataHandler = (function () {
         var _this = this;
         return bookshelf_1.bookshelf.transaction(function (_transaction) {
             return _this._setAdminRightsInternal(teamId, userId, newAdminRights, _transaction);
+        });
+    };
+    TeamsDataHandler.getTeamsCreators = function () {
+        return new teamCreator_1.TeamCreators().fetch()
+            .then(function (_teamsCreatorsCollection) {
+            return _teamsCreatorsCollection.toArray();
         });
     };
     TeamsDataHandler._initializeTeamByIdQuery = function (teamId) {

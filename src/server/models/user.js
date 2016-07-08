@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var teamCreator_1 = require("./teamCreator");
 var skillCreator_1 = require("./skillCreator");
 var teamSkillUpvote_1 = require("./teamSkillUpvote");
 var modelBase_1 = require("./modelBase");
@@ -31,7 +32,8 @@ var User = (function (_super) {
                 User.relatedUserGlobalPermissionsAttribute,
                 User.relatedTeamMembersAttribute,
                 User.relatedTeamSkillUpvotesAttribute,
-                User.relatedSkillsCreatorAttribute
+                User.relatedSkillsCreatorAttribute,
+                User.relatedTeamsCreatorAttribute
             ];
         },
         enumerable: true,
@@ -64,6 +66,11 @@ var User = (function (_super) {
     });
     Object.defineProperty(User, "relatedSkillsCreatorAttribute", {
         get: function () { return 'skillsCreator'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(User, "relatedTeamsCreatorAttribute", {
+        get: function () { return 'teamsCreator'; },
         enumerable: true,
         configurable: true
     });
@@ -104,6 +111,9 @@ var User = (function (_super) {
     };
     User.prototype.skillsCreator = function () {
         return this.hasMany(skillCreator_1.SkillCreator, skillCreator_1.SkillCreator.userIdAttribute);
+    };
+    User.prototype.teamsCreator = function () {
+        return this.hasMany(teamCreator_1.TeamCreator, teamCreator_1.TeamCreator.userIdAttribute);
     };
     User.prototype.getTeams = function () {
         var _this = this;

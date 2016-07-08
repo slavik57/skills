@@ -44,16 +44,22 @@ describe('GetSkillsKnowledgeStatisticsOperation', () => {
     var skill3KnowingTeams: Team[];
 
     beforeEach(() => {
+      var user: User;
+      var createUserPromise: bluebirdPromise<void> =
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => {
+            [user] = _users;
+          });
+
       var createTeamsPromise: bluebirdPromise<any> =
-        EnvironmentDirtifier.createTeams(3)
+        createUserPromise.then(() => EnvironmentDirtifier.createTeams(3, user.id))
           .then((_teams: Team[]) => {
             teams = _teams;
             [team1, team2, team3] = _teams;
           });
 
       var createSkillsPromise: bluebirdPromise<any> =
-        EnvironmentDirtifier.createUsers(1)
-          .then((_users: User[]) => EnvironmentDirtifier.createSkills(3, _users[0].id))
+        createUserPromise.then(() => EnvironmentDirtifier.createSkills(3, user.id))
           .then((_skills: Skill[]) => {
             [skill1, skill2, skill3] = _skills;
           });

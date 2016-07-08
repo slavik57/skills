@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var teamCreator_1 = require("./teamCreator");
 var modelBase_1 = require("./modelBase");
 var bookshelf_1 = require('../../../bookshelf');
 var _ = require('lodash');
@@ -26,7 +27,8 @@ var Team = (function (_super) {
         get: function () {
             return [
                 Team.relatedTeamMembersAttribute,
-                Team.relatedTeamSkillsAttribute
+                Team.relatedTeamSkillsAttribute,
+                Team.relatedTeamCreatorAttribute
             ];
         },
         enumerable: true,
@@ -44,6 +46,11 @@ var Team = (function (_super) {
     });
     Object.defineProperty(Team, "relatedTeamSkillsAttribute", {
         get: function () { return 'teamSkills'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Team, "relatedTeamCreatorAttribute", {
+        get: function () { return 'teamCreator'; },
         enumerable: true,
         configurable: true
     });
@@ -67,6 +74,9 @@ var Team = (function (_super) {
     };
     Team.prototype.teamSkills = function () {
         return this.hasMany(teamSkill_1.TeamSkill, teamSkill_1.TeamSkill.teamIdAttribute);
+    };
+    Team.prototype.teamCreator = function () {
+        return this.hasOne(teamCreator_1.TeamCreator, teamCreator_1.TeamCreator.teamIdAttribute);
     };
     Team.prototype.getTeamMembers = function () {
         var _this = this;

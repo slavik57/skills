@@ -26,16 +26,17 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
   beforeEach(() => {
     return EnvironmentCleaner.clearTables()
       .then(() => Promise.all([
-        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1')),
-        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team2'))
-      ])).then((_teams: Team[]) => {
-        [teamOfTheUser, otherTeam] = _teams;
-      }).then(() => Promise.all([
         UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1)),
         UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(2)),
         UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(3))
       ])).then((_users: User[]) => {
         [executingUser, adminUser, notAdminUser] = _users;
+      })
+      .then(() => Promise.all([
+        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1'), adminUser.id),
+        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team2'), adminUser.id)
+      ])).then((_teams: Team[]) => {
+        [teamOfTheUser, otherTeam] = _teams;
       }).then(() => {
         var adminTeamMemberInfo: ITeamMemberInfo =
           ModelInfoMockFactory.createTeamMemberInfo(teamOfTheUser, adminUser)

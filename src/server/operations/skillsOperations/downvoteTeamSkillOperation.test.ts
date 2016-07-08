@@ -30,7 +30,7 @@ describe('DownvoteTeamSkillOperation', () => {
       .then((_user: User) => {
         executingUser = _user;
       })
-      .then(() => TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team')))
+      .then(() => TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team'), executingUser.id))
       .then((_team: Team) => {
         team = _team;
       })

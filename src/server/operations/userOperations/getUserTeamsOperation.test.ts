@@ -45,23 +45,21 @@ describe('GetUserTeamsOperation', () => {
           });
 
       var createTeamsPromise: bluebirdPromise<any> =
-        EnvironmentDirtifier.createTeams(3)
+        createUserPromise.then(() => EnvironmentDirtifier.createTeams(3, user.id))
           .then((_teams: Team[]) => {
             [userTeam1, userTeam2, userTeam3] = _teams;
           });
 
-      return Promise.all([
-        createUserPromise,
-        createTeamsPromise
-      ]).then(() => {
-        return Promise.all([
-          TeamsDataHandler.addTeamMember(ModelInfoMockFactory.createTeamMemberInfo(userTeam1, user, isAdminInTeam1)),
-          TeamsDataHandler.addTeamMember(ModelInfoMockFactory.createTeamMemberInfo(userTeam2, user, isAdminInTeam2)),
-          TeamsDataHandler.addTeamMember(ModelInfoMockFactory.createTeamMemberInfo(userTeam3, user, isAdminInTeam3))
-        ]);
-      }).then(() => {
-        operation = new GetUserTeamsOperation(user.id);
-      })
+      return createTeamsPromise
+        .then(() => {
+          return Promise.all([
+            TeamsDataHandler.addTeamMember(ModelInfoMockFactory.createTeamMemberInfo(userTeam1, user, isAdminInTeam1)),
+            TeamsDataHandler.addTeamMember(ModelInfoMockFactory.createTeamMemberInfo(userTeam2, user, isAdminInTeam2)),
+            TeamsDataHandler.addTeamMember(ModelInfoMockFactory.createTeamMemberInfo(userTeam3, user, isAdminInTeam3))
+          ]);
+        }).then(() => {
+          operation = new GetUserTeamsOperation(user.id);
+        })
     });
 
     it('should return correct teams', () => {

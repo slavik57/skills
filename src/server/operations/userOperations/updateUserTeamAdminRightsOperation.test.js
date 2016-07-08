@@ -19,16 +19,17 @@ describe('UpdateUserTeamAdminRightsOperation', function () {
     beforeEach(function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables()
             .then(function () { return Promise.all([
-            teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1')),
-            teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team2'))
-        ]); }).then(function (_teams) {
-            teamOfTheUser = _teams[0], otherTeam = _teams[1];
-        }).then(function () { return Promise.all([
             userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1)),
             userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2)),
             userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(3))
         ]); }).then(function (_users) {
             executingUser = _users[0], adminUser = _users[1], notAdminUser = _users[2];
+        })
+            .then(function () { return Promise.all([
+            teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1'), adminUser.id),
+            teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team2'), adminUser.id)
+        ]); }).then(function (_teams) {
+            teamOfTheUser = _teams[0], otherTeam = _teams[1];
         }).then(function () {
             var adminTeamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(teamOfTheUser, adminUser);
             adminTeamMemberInfo.is_admin = true;

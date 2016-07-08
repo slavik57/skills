@@ -27,16 +27,17 @@ describe('AddUserToTeamOperation', () => {
   beforeEach(() => {
     return EnvironmentCleaner.clearTables()
       .then(() => Promise.all([
-        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1')),
-        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team2'))
-      ])).then((_teams: Team[]) => {
-        [teamToAddTheUser, otherTeam] = _teams;
-      }).then(() => Promise.all([
         UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1)),
         UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(2))
       ])).then((_users: User[]) => {
         [executingUser, userToAdd] = _users;
       })
+      .then(() => Promise.all([
+        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1'), executingUser.id),
+        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team2'), executingUser.id)
+      ])).then((_teams: Team[]) => {
+        [teamToAddTheUser, otherTeam] = _teams;
+      });
   });
 
   afterEach(() => {

@@ -1,3 +1,4 @@
+import {ITeamCreatorInfo} from "../models/interfaces/iTeamCreatorInfo";
 import {ISkillCreatorInfo} from "../models/interfaces/iSkillCreatorInfo";
 import {ITeamSkillInfo} from "../models/interfaces/iTeamSkillInfo";
 import {IUserInfo} from "../models/interfaces/iUserInfo";
@@ -28,6 +29,12 @@ export class ModelInfoComparers {
 
   public static compareTeamInfos(teamInfo1: ITeamInfo, teamInfo2: ITeamInfo): number {
     return teamInfo1.name.localeCompare(teamInfo2.name);
+  }
+
+  public static compareTeamsCreators(teamCreator1: ITeamCreatorInfo,
+    teamCreator2: ITeamCreatorInfo): number {
+
+    return teamCreator1.team_id - teamCreator2.team_id;
   }
 
   public static compareTeamSkillInfos(teamSkillInfo1: ITeamSkillInfo, teamSkillInfo2: ITeamSkillInfo): number {

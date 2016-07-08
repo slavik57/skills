@@ -1,3 +1,5 @@
+import {TeamCreator, TeamCreators} from "../models/teamCreator";
+import {ITeamCreatorInfo} from "../models/interfaces/iTeamCreatorInfo";
 import {Teams} from "../models/team";
 import {ISkillsOfATeam} from "../models/interfaces/iSkillsOfATeam";
 import {IDestroyOptions} from "./interfaces/iDestroyOptions";
@@ -20,8 +22,28 @@ import * as bluebirdPromise from 'bluebird';
 
 export class TeamsDataHandler {
 
-  public static createTeam(teamInfo: ITeamInfo): bluebirdPromise<Team> {
-    return new Team(teamInfo).save();
+  public static createTeam(teamInfo: ITeamInfo, creatorId: number): bluebirdPromise<Team> {
+    return bookshelf.transaction((_transaction: Transaction) => {
+      var saveOptions: SaveOptions = {
+        transacting: _transaction
+      }
+
+      var team: Team;
+      var teamCreatorInfo: ITeamCreatorInfo;
+      return new Team(teamInfo).save(null, saveOptions)
+        .then((_team: Team) => {
+          team = _team;
+
+          teamCreatorInfo = {
+            user_id: creatorId,
+            team_id: team.id
+          };
+        })
+        .then(() => new TeamCreator(teamCreatorInfo).save(null, saveOptions))
+        .then(() => {
+          return team;
+        });
+    });
   }
 
   public static deleteTeam(teamId: number): bluebirdPromise<Team> {
@@ -120,6 +142,13 @@ export class TeamsDataHandler {
     return bookshelf.transaction((_transaction: Transaction) => {
       return this._setAdminRightsInternal(teamId, userId, newAdminRights, _transaction);
     });
+  }
+
+  public static getTeamsCreators(): bluebirdPromise<TeamCreator[]> {
+    return new TeamCreators().fetch()
+      .then((_teamsCreatorsCollection: Collection<TeamCreator>) => {
+        return _teamsCreatorsCollection.toArray();
+      });
   }
 
   private static _initializeTeamByIdQuery(teamId: number): Team {

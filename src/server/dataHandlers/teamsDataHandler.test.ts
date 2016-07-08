@@ -1,3 +1,6 @@
+import {ModelInfoVerificator} from "../testUtils/modelInfoVerificator";
+import {ITeamCreatorInfo} from "../models/interfaces/iTeamCreatorInfo";
+import {TeamCreator} from "../models/teamCreator";
 import {ISkillsOfATeam} from "../models/interfaces/iSkillsOfATeam";
 import {TeamSkillUpvote} from "../models/teamSkillUpvote";
 import {EnvironmentDirtifier} from "../testUtils/environmentDirtifier";
@@ -27,6 +30,7 @@ import {UserDataHandler} from './userDataHandler';
 import {IUserOfATeam} from '../models/interfaces/iUserOfATeam';
 import {ISkillOfATeam} from '../models/interfaces/iSkillOfATeam';
 import {TeamSkill, TeamSkills} from '../models/teamSkill';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -42,14 +46,47 @@ describe('TeamsDataHandler', () => {
 
   describe('createTeam', () => {
 
+    var user: User;
+
+    beforeEach(() => {
+      return EnvironmentDirtifier.createUsers(1)
+        .then((_users: User[]) => {
+          [user] = _users;
+        });
+    })
+
     it('should create a team correctly', () => {
       // Act
       var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo('a');
       var teamPromise: Promise<Team> =
-        TeamsDataHandler.createTeam(teamInfo);
+        TeamsDataHandler.createTeam(teamInfo, user.id);
 
       // Assert
       return ModelVerificator.verifyModelInfoAsync(teamPromise, teamInfo);
+    });
+
+    it('should add the creator to team creators', () => {
+      // Act
+      var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo('1');
+      var teamPromise: bluebirdPromise<Team> =
+        TeamsDataHandler.createTeam(teamInfo, user.id);
+
+      // Assert
+      var team: Team;
+      return expect(teamPromise).to.eventually.fulfilled
+        .then((_team: Team) => {
+          team = _team
+        })
+        .then(() => TeamsDataHandler.getTeamsCreators())
+        .then((_teamsCreators: TeamCreator[]) => {
+          expect(_teamsCreators).to.be.length(1);
+
+          var expectedInfo: ITeamCreatorInfo = {
+            user_id: user.id,
+            team_id: team.id
+          };
+          ModelInfoVerificator.verifyInfo(_teamsCreators[0].attributes, expectedInfo);
+        });
     });
 
   });
@@ -168,6 +205,25 @@ describe('TeamsDataHandler', () => {
         });
     });
 
+    it('existing team should remove the relevant team creators', () => {
+      // Arrange
+      var teamToDelete = testModels.teams[0];
+
+      // Act
+      var promise: bluebirdPromise<Team> =
+        TeamsDataHandler.deleteTeam(teamToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => TeamsDataHandler.getTeamsCreators())
+        .then((_creators: TeamCreator[]) => {
+          return _.map(_creators, _ => _.attributes.team_id);
+        })
+        .then((_teamIds: number[]) => {
+          expect(_teamIds).not.to.contain(teamToDelete.id);
+        });
+    });
+
   });
 
   describe('getTeam', () => {
@@ -185,7 +241,8 @@ describe('TeamsDataHandler', () => {
       // Arrange
       var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo('a');
       var createTeamPromose: Promise<Team> =
-        TeamsDataHandler.createTeam(teamInfo);
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => TeamsDataHandler.createTeam(teamInfo, _users[0].id));
 
       // Act
       var getTeamPromise: Promise<Team> =
@@ -213,11 +270,14 @@ describe('TeamsDataHandler', () => {
       var teamInfo1: ITeamInfo = ModelInfoMockFactory.createTeamInfo('a');
       var teamInfo2: ITeamInfo = ModelInfoMockFactory.createTeamInfo('b');
       var teamInfo3: ITeamInfo = ModelInfoMockFactory.createTeamInfo('c');
-      var createTeamsPromise: Promise<Team[]> = Promise.all([
-        TeamsDataHandler.createTeam(teamInfo1),
-        TeamsDataHandler.createTeam(teamInfo2),
-        TeamsDataHandler.createTeam(teamInfo3)
-      ]);
+
+      var createTeamsPromise: Promise<Team[]> =
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => Promise.all([
+            TeamsDataHandler.createTeam(teamInfo1, _users[0].id),
+            TeamsDataHandler.createTeam(teamInfo2, _users[0].id),
+            TeamsDataHandler.createTeam(teamInfo3, _users[0].id)
+          ]));
 
       // Act
       var getTeamsPromise: Promise<Team[]> =
@@ -239,15 +299,17 @@ describe('TeamsDataHandler', () => {
       var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo('a');
       var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
 
-      var createTeamAndUserPromise: Promise<any[]> = Promise.all<any>([
-        TeamsDataHandler.createTeam(teamInfo),
+      var user: User;
+      var createTeamAndUserPromise: Promise<Team> =
         UserDataHandler.createUser(userInfo)
-      ]);
+          .then((_user: User) => {
+            user = _user;
+          })
+          .then(() => TeamsDataHandler.createTeam(teamInfo, user.id));
 
       var teamMemberPromise: Promise<TeamMember> =
-        createTeamAndUserPromise.then((teamAndUser: any[]) => {
-          var team: Team = teamAndUser[0];
-          var user: User = teamAndUser[1];
+        createTeamAndUserPromise.then((_team: Team) => {
+          var team: Team = _team;
 
           var teamMemberInfo: ITeamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team, user);
 
@@ -378,18 +440,19 @@ describe('TeamsDataHandler', () => {
       teamInfo2 = ModelInfoMockFactory.createTeamInfo('b');
 
       return Promise.all<any>([
-        TeamsDataHandler.createTeam(teamInfo1),
-        TeamsDataHandler.createTeam(teamInfo2),
         UserDataHandler.createUser(userInfo1),
         UserDataHandler.createUser(userInfo2),
         UserDataHandler.createUser(userInfo3)
-      ]).then((teamAndUsers: any[]) => {
-        team1 = teamAndUsers[0];
-        team2 = teamAndUsers[1];
-        user1 = teamAndUsers[2];
-        user2 = teamAndUsers[3];
-        user3 = teamAndUsers[4];
-      });
+      ])
+        .then((_users: User[]) => {
+          [user1, user2, user3] = _users;
+        })
+        .then(() => Promise.all<any>([
+          TeamsDataHandler.createTeam(teamInfo1, user1.id),
+          TeamsDataHandler.createTeam(teamInfo2, user1.id)
+        ])).then((_teams: Team[]) => {
+          [team1, team2] = _teams;
+        });
     });
 
     it('not existing team should return empty', () => {
@@ -506,7 +569,7 @@ describe('TeamsDataHandler', () => {
       var createTeamAndSkillsPromise: Promise<any[]> =
         EnvironmentDirtifier.createUsers(1)
           .then((_users: User[]) => Promise.all<any>([
-            TeamsDataHandler.createTeam(teamInfo),
+            TeamsDataHandler.createTeam(teamInfo, _users[0].id),
             SkillsDataHandler.createSkill(skillInfo, _users[0].id)
           ]));
 
@@ -684,8 +747,8 @@ describe('TeamsDataHandler', () => {
           user2 = results[1];
         })
         .then(() => Promise.all<any>([
-          TeamsDataHandler.createTeam(teamInfo1),
-          TeamsDataHandler.createTeam(teamInfo2),
+          TeamsDataHandler.createTeam(teamInfo1, user1.id),
+          TeamsDataHandler.createTeam(teamInfo2, user1.id),
           SkillsDataHandler.createSkill(skillInfo1, user1.id),
           SkillsDataHandler.createSkill(skillInfo2, user1.id),
           SkillsDataHandler.createSkill(skillInfo3, user1.id)
@@ -882,7 +945,7 @@ describe('TeamsDataHandler', () => {
           [user1, user2] = _users;
         })
         .then(() => Promise.all<any>([
-          TeamsDataHandler.createTeam(teamInfo),
+          TeamsDataHandler.createTeam(teamInfo, user1.id),
           SkillsDataHandler.createSkill(skillInfo, user1.id),
         ])).then((teamAndSkill: any[]) => {
           team = teamAndSkill[0];
@@ -1024,7 +1087,7 @@ describe('TeamsDataHandler', () => {
           notUpvotedUser = _users[2];
         })
         .then(() => Promise.all<any>([
-          TeamsDataHandler.createTeam(teamInfo),
+          TeamsDataHandler.createTeam(teamInfo, upvotedUser1.id),
           SkillsDataHandler.createSkill(skillInfo, upvotedUser1.id),
         ])).then((teamSkillAndUser: any[]) => {
           team = teamSkillAndUser[0];
@@ -1184,18 +1247,20 @@ describe('TeamsDataHandler', () => {
       teamInfo = ModelInfoMockFactory.createTeamInfo('team 1');
       userInfo = ModelInfoMockFactory.createUserInfo(1);
 
-      return Promise.all<any>([
-        TeamsDataHandler.createTeam(teamInfo),
-        UserDataHandler.createUser(userInfo)
-      ]).then((teamAndUser: any[]) => {
-        team = teamAndUser[0];
-        var user: User = teamAndUser[1];
+      var user: User;
+      return UserDataHandler.createUser(userInfo)
+        .then((_user: User) => {
+          user = _user;
+        })
+        .then(() => TeamsDataHandler.createTeam(teamInfo, user.id))
+        .then((_team: Team) => {
+          team = _team;
 
-        teamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team, user);
-        teamMemberInfo.is_admin = false;
+          teamMemberInfo = ModelInfoMockFactory.createTeamMemberInfo(team, user);
+          teamMemberInfo.is_admin = false;
 
-        return TeamsDataHandler.addTeamMember(teamMemberInfo);
-      });
+          return TeamsDataHandler.addTeamMember(teamMemberInfo);
+        });
     });
 
     it('with non existing team id should fail', () => {
@@ -1330,7 +1395,8 @@ describe('TeamsDataHandler', () => {
       var expectedTeamsToSkills: ISkillsOfATeam[];
 
       var addTeamsPromise: Promise<Team[]> =
-        EnvironmentDirtifier.createTeams(numberOfTeams)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createTeams(numberOfTeams, _users[0].id))
           .then((_teams: Team[]) => {
             teams = _teams;
 
@@ -1358,10 +1424,17 @@ describe('TeamsDataHandler', () => {
 
     it('has teams with skills should return correct result', () => {
       // Arrange
+      var user: User;
+      var createUsersPromise: Promise<void> =
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => {
+            [user] = _users;
+          });
+
       var numberOfTeams = 3;
       var teams: Team[];
       var addTeamsPromise: Promise<any> =
-        EnvironmentDirtifier.createTeams(numberOfTeams)
+        createUsersPromise.then(() => EnvironmentDirtifier.createTeams(numberOfTeams, user.id))
           .then((_teams: Team[]) => {
             teams = _teams;
           });
@@ -1369,8 +1442,8 @@ describe('TeamsDataHandler', () => {
       var numberOfSkills = 4;
       var skills: Skill[];
       var addSkillsPromise: Promise<any> =
-        EnvironmentDirtifier.createUsers(1)
-          .then((_users: User[]) => EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id))
+        createUsersPromise
+          .then(() => EnvironmentDirtifier.createSkills(numberOfSkills, user.id))
           .then((_skills: Skill[]) => {
             skills = _skills;
           });
@@ -1417,10 +1490,17 @@ describe('TeamsDataHandler', () => {
 
     it('has teams with skills with upvotes should return correct result', () => {
       // Arrange
+      var user: User;
+      var createUsersPromise: Promise<void> =
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => {
+            [user] = _users;
+          });
+
       var numberOfTeams = 3;
       var teams: Team[];
       var addTeamsPromise: Promise<any> =
-        EnvironmentDirtifier.createTeams(numberOfTeams)
+        createUsersPromise.then(() => EnvironmentDirtifier.createTeams(numberOfTeams, user.id))
           .then((_teams: Team[]) => {
             teams = _teams;
           });
@@ -1428,8 +1508,8 @@ describe('TeamsDataHandler', () => {
       var numberOfSkills = 4;
       var skills: Skill[];
       var addSkillsPromise: Promise<any> =
-        EnvironmentDirtifier.createUsers(1)
-          .then((_users: User[]) => EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id))
+        createUsersPromise
+          .then(() => EnvironmentDirtifier.createSkills(numberOfSkills, user.id))
           .then((_skills: Skill[]) => {
             skills = _skills;
           });
@@ -1511,7 +1591,8 @@ describe('TeamsDataHandler', () => {
       // Arrangev
       var numberOfTeams = 12;
       var createTeamsPromise: Promise<any> =
-        EnvironmentDirtifier.createTeams(numberOfTeams);
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createTeams(numberOfTeams, _users[0].id));
 
       // Act
       var resultPromise: Promise<number> =
@@ -1519,6 +1600,67 @@ describe('TeamsDataHandler', () => {
 
       // Assert
       return expect(resultPromise).to.eventually.equal(numberOfTeams);
+    });
+
+  });
+
+  describe('getTeamsCreators', () => {
+
+    var user1: User;
+    var user2: User;
+
+    beforeEach(() => {
+      return EnvironmentDirtifier.createUsers(2)
+        .then((_users: User[]) => {
+          [user1, user2] = _users;
+        });
+    });
+
+    it('no teams should return empty', () => {
+      // Act
+      var promise: bluebirdPromise<TeamCreator[]> =
+        TeamsDataHandler.getTeamsCreators();
+
+      // Arrange
+      return expect(promise).to.eventually.deep.equal([]);
+    });
+
+    it('teams created should return correct result', () => {
+      // Arrange
+      var teamInfo1: ITeamInfo = ModelInfoMockFactory.createTeamInfo('1');
+      var teamInfo2: ITeamInfo = ModelInfoMockFactory.createTeamInfo('2');
+
+      var expected: ITeamCreatorInfo[];
+
+      var teamsPromise: bluebirdPromise<void> =
+        bluebirdPromise.all([
+          TeamsDataHandler.createTeam(teamInfo1, user1.id),
+          TeamsDataHandler.createTeam(teamInfo2, user2.id)
+        ]).then((_teams: Team[]) => {
+          expected = [
+            {
+              user_id: user1.id,
+              team_id: _teams[0].id
+            },
+            {
+              user_id: user2.id,
+              team_id: _teams[1].id
+            }
+          ];
+        });
+
+      // Act
+      var promise: bluebirdPromise<TeamCreator[]> =
+        teamsPromise.then(() => TeamsDataHandler.getTeamsCreators());
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then((_creators: TeamCreator[]) => {
+          return _.map(_creators, _ => _.attributes);
+        })
+        .then((_creatorsInfos: ITeamCreatorInfo[]) => {
+          ModelInfoVerificator.verifyMultipleInfosOrdered(_creatorsInfos, expected, ModelInfoComparers.compareTeamsCreators)
+        });
     });
 
   });

@@ -24,13 +24,17 @@ describe('GetSkillKnowledgeStatisticsOperation', function () {
         var skillKnowingTeams;
         var operation;
         beforeEach(function () {
-            var createTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createTeams(3)
+            var user;
+            var createUserPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) {
+                user = _users[0];
+            });
+            var createTeamsPromise = createUserPromise.then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createTeams(3, user.id); })
                 .then(function (_teams) {
                 teams = _teams;
                 team1 = _teams[0], team2 = _teams[1], team3 = _teams[2];
             });
-            var createSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
-                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(1, _users[0].id); })
+            var createSkillsPromise = createUserPromise.then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(1, user.id); })
                 .then(function (_skills) {
                 skill = _skills[0];
             });

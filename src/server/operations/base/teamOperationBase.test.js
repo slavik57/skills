@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var environmentDirtifier_1 = require("../../testUtils/environmentDirtifier");
 var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
 var environmentCleaner_1 = require("../../testUtils/environmentCleaner");
 var globalPermission_1 = require("../../models/enums/globalPermission");
@@ -72,7 +73,13 @@ describe('TeamOperationBase', function () {
     describe('execute', function () {
         var team;
         beforeEach(function () {
-            var teamCreationPromise = teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1'))
+            var user;
+            var teamCreationPromise = environmentCleaner_1.EnvironmentCleaner.clearTables()
+                .then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1); })
+                .then(function (_users) {
+                user = _users[0];
+            })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1'), user.id); })
                 .then(function (_team) {
                 team = _team;
             });

@@ -41,7 +41,7 @@ describe('TeamSkillUpvote', () => {
         })
         .then(() => bluebirdPromise.all([
           SkillsDataHandler.createSkill(ModelInfoMockFactory.createSkillInfo('skill1'), user1.id),
-          TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1')),
+          TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1'), user1.id),
         ]))
         .then((results: any[]) => {
           [skill, team] = results;

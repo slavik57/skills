@@ -53,16 +53,16 @@ describe('GetTeamSkillsOperation', () => {
     var operation: GetTeamsSkillsOperation;
 
     beforeEach(() => {
-      var createTeamPromise: bluebirdPromise<any> =
-        EnvironmentDirtifier.createTeams(2)
-          .then((_teams: Team[]) => {
-            [team1, team2] = _teams;
-          });
-
       var createUsersPromise: bluebirdPromise<any> =
         EnvironmentDirtifier.createUsers(3)
           .then((_users: User[]) => {
             [user1, user2, user3] = _users;
+          });
+
+      var createTeamPromise: bluebirdPromise<any> =
+        createUsersPromise.then(() => EnvironmentDirtifier.createTeams(2, user1.id))
+          .then((_teams: Team[]) => {
+            [team1, team2] = _teams;
           });
 
       var createSkillsPromise: bluebirdPromise<any> =

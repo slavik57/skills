@@ -31,14 +31,12 @@ describe('GetUserTeamsOperation', function () {
                 .then(function (_users) {
                 user = _users[0];
             });
-            var createTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createTeams(3)
+            var createTeamsPromise = createUserPromise.then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createTeams(3, user.id); })
                 .then(function (_teams) {
                 userTeam1 = _teams[0], userTeam2 = _teams[1], userTeam3 = _teams[2];
             });
-            return Promise.all([
-                createUserPromise,
-                createTeamsPromise
-            ]).then(function () {
+            return createTeamsPromise
+                .then(function () {
                 return Promise.all([
                     teamsDataHandler_1.TeamsDataHandler.addTeamMember(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(userTeam1, user, isAdminInTeam1)),
                     teamsDataHandler_1.TeamsDataHandler.addTeamMember(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(userTeam2, user, isAdminInTeam2)),

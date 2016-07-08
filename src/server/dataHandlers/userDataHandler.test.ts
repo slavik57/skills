@@ -1,3 +1,4 @@
+import {TeamCreator} from "../models/teamCreator";
 import {SkillCreator} from "../models/skillCreator";
 import {SkillsDataHandler} from "./skillsDataHandler";
 import {ModelInfoVerificator} from "../testUtils/modelInfoVerificator";
@@ -242,6 +243,25 @@ describe('userDataHandler', () => {
         .then(() => SkillsDataHandler.getSkillsCreators())
         .then((_skillsCreators: SkillCreator[]) => {
           return _.map(_skillsCreators, _ => _.attributes.user_id);
+        })
+        .then((_userIds: number[]) => {
+          expect(_userIds).not.to.contain(userToDelete.id);
+        });
+    });
+
+    it('existing user should remove the relevant team creators', () => {
+      // Arrange
+      var userToDelete: User = testModels.users[0];
+
+      // Act
+      var promise: Promise<User> =
+        UserDataHandler.deleteUser(userToDelete.id);
+
+      // Assert
+      return expect(promise).to.eventually.fulfilled
+        .then(() => TeamsDataHandler.getTeamsCreators())
+        .then((_teamsCreators: TeamCreator[]) => {
+          return _.map(_teamsCreators, _ => _.attributes.user_id);
         })
         .then((_userIds: number[]) => {
           expect(_userIds).not.to.contain(userToDelete.id);
@@ -546,18 +566,19 @@ describe('userDataHandler', () => {
       userInfo2 = ModelInfoMockFactory.createUserInfo(2);
 
       return Promise.all<any>([
-        TeamsDataHandler.createTeam(teamInfo1),
-        TeamsDataHandler.createTeam(teamInfo2),
-        TeamsDataHandler.createTeam(teamInfo3),
         UserDataHandler.createUser(userInfo1),
         UserDataHandler.createUser(userInfo2)
-      ]).then((teamsAndUser: any[]) => {
-        team1 = teamsAndUser[0];
-        team2 = teamsAndUser[1];
-        team3 = teamsAndUser[2];
-        user1 = teamsAndUser[3];
-        user2 = teamsAndUser[4];
-      });
+      ])
+        .then((_users: User[]) => {
+          [user1, user2] = _users;
+        })
+        .then(() => Promise.all<any>([
+          TeamsDataHandler.createTeam(teamInfo1, user1.id),
+          TeamsDataHandler.createTeam(teamInfo2, user1.id),
+          TeamsDataHandler.createTeam(teamInfo3, user1.id)
+        ])).then((_teams: Team[]) => {
+          [team1, team2, team3] = _teams;
+        });
     });
 
     it('no such user should return empty teams list', () => {

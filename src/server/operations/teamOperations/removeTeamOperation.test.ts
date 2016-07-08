@@ -25,7 +25,7 @@ describe('RemoveTeamOperation', () => {
       .then((_user: User) => {
         executingUser = _user;
       })
-      .then(() => TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team')))
+      .then(() => TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team'), executingUser.id))
       .then((_team: Team) => {
         teamToRemove = _team;
       })

@@ -23,8 +23,6 @@ import * as bluebirdPromise from 'bluebird';
 
 export class EnvironmentDirtifier {
   private static get numberOfUsers(): number { return 5; }
-  private static get numberOfTeams(): number { return 5; }
-  private static get numberOfSkills(): number { return 5; }
   private static get permissionsForEachUser(): GlobalPermission[] {
     return [
       GlobalPermission.ADMIN,
@@ -96,12 +94,14 @@ export class EnvironmentDirtifier {
     return bluebirdPromise.all(skillPrerequisitesCreationPromises);
   }
 
-  public static createTeams(numberOfTeams: number): bluebirdPromise<Team[]> {
+  public static createTeams(numberOfTeams: number, creatorId: number): bluebirdPromise<Team[]> {
     var teamCreationPromises: bluebirdPromise<Team>[] = [];
     for (var i = 0; i < numberOfTeams; i++) {
-      var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo(i.toString());
+      var teamName: string = i.toString() + ' created by ' + creatorId.toString();
 
-      teamCreationPromises.push(TeamsDataHandler.createTeam(teamInfo));
+      var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo(teamName);
+
+      teamCreationPromises.push(TeamsDataHandler.createTeam(teamInfo, creatorId));
     }
 
     return bluebirdPromise.all(teamCreationPromises);
@@ -109,21 +109,21 @@ export class EnvironmentDirtifier {
 
   private static _fillLevel0Tables(testModels: ITestModels): bluebirdPromise<any> {
     return bluebirdPromise.all([
-      this._fillUsers(testModels),
-      this._fillTeams(testModels)
+      this._fillUsers(testModels)
     ]);
   }
 
   private static _fillLevel1Tables(testModels: ITestModels): bluebirdPromise<any> {
     return bluebirdPromise.all([
       this._fillSkills(testModels),
+      this._fillTeams(testModels),
       this._fillUsersGlobalPermissions(testModels),
-      this._fillTeamMembers(testModels),
     ]);
   }
 
   private static _fillLevel2Tables(testModels: ITestModels): bluebirdPromise<any> {
     return bluebirdPromise.all([
+      this._fillTeamMembers(testModels),
       this._fillSkillPrerequisites(testModels),
       this._fillTeamSkills(testModels)
     ]);
@@ -141,9 +141,18 @@ export class EnvironmentDirtifier {
   }
 
   private static _fillTeams(testModels: ITestModels): bluebirdPromise<any> {
-    return this.createTeams(this.numberOfTeams)
-      .then((teams: Team[]) => {
-        testModels.teams = teams;
+    var teamsPromises: bluebirdPromise<Team[]>[] = [];
+
+    testModels.users.forEach((_user: User) => {
+      var teamsPromise: bluebirdPromise<Team[]> =
+        this.createTeams(1, _user.id);
+
+      teamsPromises.push(teamsPromise);
+    });
+
+    return bluebirdPromise.all(teamsPromises)
+      .then((_teams: Team[][]) => {
+        testModels.teams = _.flatten(_teams);
       });
   }
 
@@ -152,7 +161,7 @@ export class EnvironmentDirtifier {
 
     testModels.users.forEach((_user: User) => {
       var skillsPromise: bluebirdPromise<Skill[]> =
-        this.createSkills(this.numberOfSkills, _user.id);
+        this.createSkills(1, _user.id);
 
       skillsPromises.push(skillsPromise);
     });

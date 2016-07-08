@@ -18,7 +18,8 @@ describe('GetTeamsOperation', function () {
         var teams;
         var operation;
         beforeEach(function () {
-            var createTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createTeams(4)
+            var createTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createTeams(4, _users[0].id); })
                 .then(function (_teams) {
                 teams = _teams;
             });

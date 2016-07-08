@@ -1,3 +1,4 @@
+import {User} from "../../models/user";
 import {ModelVerificator} from "../../testUtils/modelVerificator";
 import {Team} from "../../models/team";
 import {EnvironmentDirtifier} from "../../testUtils/environmentDirtifier";
@@ -28,7 +29,8 @@ describe('GetTeamsOperation', () => {
 
     beforeEach(() => {
       var createTeamsPromise: Promise<any> =
-        EnvironmentDirtifier.createTeams(4)
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => EnvironmentDirtifier.createTeams(4, _users[0].id))
           .then((_teams: Team[]) => {
             teams = _teams;
           });

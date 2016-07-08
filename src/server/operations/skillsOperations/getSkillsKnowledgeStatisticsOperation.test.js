@@ -31,13 +31,17 @@ describe('GetSkillsKnowledgeStatisticsOperation', function () {
         var skill2KnowingTeams;
         var skill3KnowingTeams;
         beforeEach(function () {
-            var createTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createTeams(3)
+            var user;
+            var createUserPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) {
+                user = _users[0];
+            });
+            var createTeamsPromise = createUserPromise.then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createTeams(3, user.id); })
                 .then(function (_teams) {
                 teams = _teams;
                 team1 = _teams[0], team2 = _teams[1], team3 = _teams[2];
             });
-            var createSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
-                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(3, _users[0].id); })
+            var createSkillsPromise = createUserPromise.then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(3, user.id); })
                 .then(function (_skills) {
                 skill1 = _skills[0], skill2 = _skills[1], skill3 = _skills[2];
             });

@@ -28,7 +28,7 @@ describe('TeamSkillUpvote', function () {
             })
                 .then(function () { return bluebirdPromise.all([
                 skillsDataHandler_1.SkillsDataHandler.createSkill(modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill1'), user1.id),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1')),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1'), user1.id),
             ]); })
                 .then(function (results) {
                 skill = results[0], team = results[1];

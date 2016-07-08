@@ -1,3 +1,4 @@
+import {TeamCreator} from "./teamCreator";
 import {ITeamRelations} from "./interfaces/iTeamRelations";
 import {ISkillsOfATeam} from "./interfaces/iSkillsOfATeam";
 import {ModelBase} from "./modelBase";
@@ -21,7 +22,8 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
   public static get dependents(): string[] {
     return [
       Team.relatedTeamMembersAttribute,
-      Team.relatedTeamSkillsAttribute
+      Team.relatedTeamSkillsAttribute,
+      Team.relatedTeamCreatorAttribute
     ];
   }
 
@@ -31,6 +33,7 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
   public static get nameAttribute(): string { return 'name'; }
   public static get relatedTeamMembersAttribute(): string { return 'teamMembers'; }
   public static get relatedTeamSkillsAttribute(): string { return 'teamSkills'; }
+  public static get relatedTeamCreatorAttribute(): string { return 'teamCreator'; }
 
   public static collection(teams?: Team[], options?: CollectionOptions<Team>): Collection<Team> {
     return new Teams(teams, options);
@@ -56,6 +59,10 @@ export class Team extends ModelBase<Team, ITeamInfo> implements IHasPivot<TeamMe
 
   public teamSkills(): Collection<TeamSkill> {
     return this.hasMany(TeamSkill, TeamSkill.teamIdAttribute);
+  }
+
+  public teamCreator(): TeamCreator {
+    return this.hasOne(TeamCreator, TeamCreator.teamIdAttribute);
   }
 
   public getTeamMembers(): bluebirdPromise<IUserOfATeam[]> {

@@ -17,6 +17,9 @@ var ModelInfoComparers = (function () {
     ModelInfoComparers.compareTeamInfos = function (teamInfo1, teamInfo2) {
         return teamInfo1.name.localeCompare(teamInfo2.name);
     };
+    ModelInfoComparers.compareTeamsCreators = function (teamCreator1, teamCreator2) {
+        return teamCreator1.team_id - teamCreator2.team_id;
+    };
     ModelInfoComparers.compareTeamSkillInfos = function (teamSkillInfo1, teamSkillInfo2) {
         if (teamSkillInfo1.team_id !== teamSkillInfo2.team_id) {
             return teamSkillInfo1.team_id - teamSkillInfo2.team_id;

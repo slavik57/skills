@@ -37,30 +37,29 @@ describe('GetTeamUsersOperation', () => {
     var operation: GetTeamUsersOperation;
 
     beforeEach(() => {
-      var createTeamPromise: Promise<any> =
-        EnvironmentDirtifier.createTeams(1)
-          .then((_teams: Team[]) => {
-            [team] = _teams;
-          });
-
       var createUsersPromise: Promise<any> =
         EnvironmentDirtifier.createUsers(3)
           .then((_users: User[]) => {
             [teamUser1, teamUser2, teamUser3] = _users;
           });
 
-      return Promise.all([
-        createTeamPromise,
+      var createTeamPromise: Promise<any> =
         createUsersPromise
-      ]).then(() => {
-        return Promise.all([
-          TeamsDataHandler.addTeamMember(ModelInfoMockFactory.createTeamMemberInfo(team, teamUser1, isUser1Admin)),
-          TeamsDataHandler.addTeamMember(ModelInfoMockFactory.createTeamMemberInfo(team, teamUser2, isUser2Admin)),
-          TeamsDataHandler.addTeamMember(ModelInfoMockFactory.createTeamMemberInfo(team, teamUser3, isUser3Admin))
-        ]);
-      }).then(() => {
-        operation = new GetTeamUsersOperation(team.id);
-      })
+          .then(() => EnvironmentDirtifier.createTeams(1, teamUser1.id))
+          .then((_teams: Team[]) => {
+            [team] = _teams;
+          });
+
+      return createTeamPromise
+        .then(() => {
+          return Promise.all([
+            TeamsDataHandler.addTeamMember(ModelInfoMockFactory.createTeamMemberInfo(team, teamUser1, isUser1Admin)),
+            TeamsDataHandler.addTeamMember(ModelInfoMockFactory.createTeamMemberInfo(team, teamUser2, isUser2Admin)),
+            TeamsDataHandler.addTeamMember(ModelInfoMockFactory.createTeamMemberInfo(team, teamUser3, isUser3Admin))
+          ]);
+        }).then(() => {
+          operation = new GetTeamUsersOperation(team.id);
+        })
     });
 
     it('should return correct users', () => {

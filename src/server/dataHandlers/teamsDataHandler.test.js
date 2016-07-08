@@ -1,4 +1,5 @@
 "use strict";
+var modelInfoVerificator_1 = require("../testUtils/modelInfoVerificator");
 var environmentDirtifier_1 = require("../testUtils/environmentDirtifier");
 var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var modelInfoComparers_1 = require("../testUtils/modelInfoComparers");
@@ -14,6 +15,7 @@ var teamMember_1 = require('../models/teamMember');
 var teamsDataHandler_1 = require('./teamsDataHandler');
 var userDataHandler_1 = require('./userDataHandler');
 var teamSkill_1 = require('../models/teamSkill');
+var bluebirdPromise = require('bluebird');
 chai.use(chaiAsPromised);
 describe('TeamsDataHandler', function () {
     beforeEach(function () {
@@ -23,10 +25,35 @@ describe('TeamsDataHandler', function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
     describe('createTeam', function () {
+        var user;
+        beforeEach(function () {
+            return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) {
+                user = _users[0];
+            });
+        });
         it('should create a team correctly', function () {
             var teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');
-            var teamPromise = teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo);
+            var teamPromise = teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo, user.id);
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(teamPromise, teamInfo);
+        });
+        it('should add the creator to team creators', function () {
+            var teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('1');
+            var teamPromise = teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo, user.id);
+            var team;
+            return chai_1.expect(teamPromise).to.eventually.fulfilled
+                .then(function (_team) {
+                team = _team;
+            })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamsCreators(); })
+                .then(function (_teamsCreators) {
+                chai_1.expect(_teamsCreators).to.be.length(1);
+                var expectedInfo = {
+                    user_id: user.id,
+                    team_id: team.id
+                };
+                modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_teamsCreators[0].attributes, expectedInfo);
+            });
         });
     });
     describe('deleteTeam', function () {
@@ -100,6 +127,18 @@ describe('TeamsDataHandler', function () {
                 chai_1.expect(_teamIds).not.to.contain(teamToDelete.id);
             });
         });
+        it('existing team should remove the relevant team creators', function () {
+            var teamToDelete = testModels.teams[0];
+            var promise = teamsDataHandler_1.TeamsDataHandler.deleteTeam(teamToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamsCreators(); })
+                .then(function (_creators) {
+                return _.map(_creators, function (_) { return _.attributes.team_id; });
+            })
+                .then(function (_teamIds) {
+                chai_1.expect(_teamIds).not.to.contain(teamToDelete.id);
+            });
+        });
     });
     describe('getTeam', function () {
         it('no such team should return null', function () {
@@ -108,7 +147,8 @@ describe('TeamsDataHandler', function () {
         });
         it('team exists should return correct team', function () {
             var teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');
-            var createTeamPromose = teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo);
+            var createTeamPromose = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo, _users[0].id); });
             var getTeamPromise = createTeamPromose.then(function (team) { return teamsDataHandler_1.TeamsDataHandler.getTeam(team.id); });
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(getTeamPromise, teamInfo);
         });
@@ -122,11 +162,12 @@ describe('TeamsDataHandler', function () {
             var teamInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');
             var teamInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('b');
             var teamInfo3 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('c');
-            var createTeamsPromise = Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo3)
-            ]);
+            var createTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1, _users[0].id),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2, _users[0].id),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo3, _users[0].id)
+            ]); });
             var getTeamsPromise = createTeamsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeams(); });
             var expectedInfos = [teamInfo1, teamInfo2, teamInfo3];
             return modelVerificator_1.ModelVerificator.verifyMultipleModelInfosOrderedAsync(getTeamsPromise, expectedInfos, modelInfoComparers_1.ModelInfoComparers.compareTeamInfos);
@@ -136,13 +177,14 @@ describe('TeamsDataHandler', function () {
         it('should create a team member', function () {
             var teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');
             var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
-            var createTeamAndUserPromise = Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
-                userDataHandler_1.UserDataHandler.createUser(userInfo)
-            ]);
-            var teamMemberPromise = createTeamAndUserPromise.then(function (teamAndUser) {
-                var team = teamAndUser[0];
-                var user = teamAndUser[1];
+            var user;
+            var createTeamAndUserPromise = userDataHandler_1.UserDataHandler.createUser(userInfo)
+                .then(function (_user) {
+                user = _user;
+            })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo, user.id); });
+            var teamMemberPromise = createTeamAndUserPromise.then(function (_team) {
+                var team = _team;
                 var teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team, user);
                 return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
             });
@@ -220,17 +262,18 @@ describe('TeamsDataHandler', function () {
             teamInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('a');
             teamInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('b');
             return Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
                 userDataHandler_1.UserDataHandler.createUser(userInfo1),
                 userDataHandler_1.UserDataHandler.createUser(userInfo2),
                 userDataHandler_1.UserDataHandler.createUser(userInfo3)
-            ]).then(function (teamAndUsers) {
-                team1 = teamAndUsers[0];
-                team2 = teamAndUsers[1];
-                user1 = teamAndUsers[2];
-                user2 = teamAndUsers[3];
-                user3 = teamAndUsers[4];
+            ])
+                .then(function (_users) {
+                user1 = _users[0], user2 = _users[1], user3 = _users[2];
+            })
+                .then(function () { return Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1, user1.id),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2, user1.id)
+            ]); }).then(function (_teams) {
+                team1 = _teams[0], team2 = _teams[1];
             });
         });
         it('not existing team should return empty', function () {
@@ -300,7 +343,7 @@ describe('TeamsDataHandler', function () {
             var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill1');
             var createTeamAndSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
                 .then(function (_users) { return Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo, _users[0].id),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, _users[0].id)
             ]); });
             var teamSkillPromise = createTeamAndSkillsPromise.then(function (teamAndSkill) {
@@ -414,8 +457,8 @@ describe('TeamsDataHandler', function () {
                 user2 = results[1];
             })
                 .then(function () { return Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1, user1.id),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2, user1.id),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1, user1.id),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2, user1.id),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo3, user1.id)
@@ -542,7 +585,7 @@ describe('TeamsDataHandler', function () {
                 user1 = _users[0], user2 = _users[1];
             })
                 .then(function () { return Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo, user1.id),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, user1.id),
             ]); }).then(function (teamAndSkill) {
                 team = teamAndSkill[0];
@@ -633,7 +676,7 @@ describe('TeamsDataHandler', function () {
                 notUpvotedUser = _users[2];
             })
                 .then(function () { return Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo, upvotedUser1.id),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, upvotedUser1.id),
             ]); }).then(function (teamSkillAndUser) {
                 team = teamSkillAndUser[0];
@@ -729,12 +772,14 @@ describe('TeamsDataHandler', function () {
         beforeEach(function () {
             teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team 1');
             userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
-            return Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo),
-                userDataHandler_1.UserDataHandler.createUser(userInfo)
-            ]).then(function (teamAndUser) {
-                team = teamAndUser[0];
-                var user = teamAndUser[1];
+            var user;
+            return userDataHandler_1.UserDataHandler.createUser(userInfo)
+                .then(function (_user) {
+                user = _user;
+            })
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo, user.id); })
+                .then(function (_team) {
+                team = _team;
                 teamMemberInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamMemberInfo(team, user);
                 teamMemberInfo.is_admin = false;
                 return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
@@ -822,7 +867,8 @@ describe('TeamsDataHandler', function () {
             var numberOfTeams = 5;
             var teams;
             var expectedTeamsToSkills;
-            var addTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createTeams(numberOfTeams)
+            var addTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createTeams(numberOfTeams, _users[0].id); })
                 .then(function (_teams) {
                 teams = _teams;
                 expectedTeamsToSkills =
@@ -841,16 +887,21 @@ describe('TeamsDataHandler', function () {
             });
         });
         it('has teams with skills should return correct result', function () {
+            var user;
+            var createUsersPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) {
+                user = _users[0];
+            });
             var numberOfTeams = 3;
             var teams;
-            var addTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createTeams(numberOfTeams)
+            var addTeamsPromise = createUsersPromise.then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createTeams(numberOfTeams, user.id); })
                 .then(function (_teams) {
                 teams = _teams;
             });
             var numberOfSkills = 4;
             var skills;
-            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
-                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id); })
+            var addSkillsPromise = createUsersPromise
+                .then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills, user.id); })
                 .then(function (_skills) {
                 skills = _skills;
             });
@@ -885,16 +936,21 @@ describe('TeamsDataHandler', function () {
             });
         });
         it('has teams with skills with upvotes should return correct result', function () {
+            var user;
+            var createUsersPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) {
+                user = _users[0];
+            });
             var numberOfTeams = 3;
             var teams;
-            var addTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createTeams(numberOfTeams)
+            var addTeamsPromise = createUsersPromise.then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createTeams(numberOfTeams, user.id); })
                 .then(function (_teams) {
                 teams = _teams;
             });
             var numberOfSkills = 4;
             var skills;
-            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
-                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id); })
+            var addSkillsPromise = createUsersPromise
+                .then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills, user.id); })
                 .then(function (_skills) {
                 skills = _skills;
             });
@@ -955,9 +1011,52 @@ describe('TeamsDataHandler', function () {
         });
         it('has teams should return correct number', function () {
             var numberOfTeams = 12;
-            var createTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createTeams(numberOfTeams);
+            var createTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createTeams(numberOfTeams, _users[0].id); });
             var resultPromise = createTeamsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getNumberOfTeams(); });
             return chai_1.expect(resultPromise).to.eventually.equal(numberOfTeams);
+        });
+    });
+    describe('getTeamsCreators', function () {
+        var user1;
+        var user2;
+        beforeEach(function () {
+            return environmentDirtifier_1.EnvironmentDirtifier.createUsers(2)
+                .then(function (_users) {
+                user1 = _users[0], user2 = _users[1];
+            });
+        });
+        it('no teams should return empty', function () {
+            var promise = teamsDataHandler_1.TeamsDataHandler.getTeamsCreators();
+            return chai_1.expect(promise).to.eventually.deep.equal([]);
+        });
+        it('teams created should return correct result', function () {
+            var teamInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('1');
+            var teamInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('2');
+            var expected;
+            var teamsPromise = bluebirdPromise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1, user1.id),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2, user2.id)
+            ]).then(function (_teams) {
+                expected = [
+                    {
+                        user_id: user1.id,
+                        team_id: _teams[0].id
+                    },
+                    {
+                        user_id: user2.id,
+                        team_id: _teams[1].id
+                    }
+                ];
+            });
+            var promise = teamsPromise.then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamsCreators(); });
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function (_creators) {
+                return _.map(_creators, function (_) { return _.attributes; });
+            })
+                .then(function (_creatorsInfos) {
+                modelInfoVerificator_1.ModelInfoVerificator.verifyMultipleInfosOrdered(_creatorsInfos, expected, modelInfoComparers_1.ModelInfoComparers.compareTeamsCreators);
+            });
         });
     });
 });

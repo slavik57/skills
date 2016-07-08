@@ -38,16 +38,22 @@ describe('GetSkillKnowledgeStatisticsOperation', () => {
     var operation: GetSkillKnowledgeStatisticsOperation;
 
     beforeEach(() => {
+      var user: User;
+      var createUserPromise: Promise<void> =
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => {
+            [user] = _users;
+          });
+
       var createTeamsPromise: Promise<any> =
-        EnvironmentDirtifier.createTeams(3)
+        createUserPromise.then(() => EnvironmentDirtifier.createTeams(3, user.id))
           .then((_teams: Team[]) => {
             teams = _teams;
             [team1, team2, team3] = _teams;
           });
 
       var createSkillsPromise: Promise<any> =
-        EnvironmentDirtifier.createUsers(1)
-          .then((_users: User[]) => EnvironmentDirtifier.createSkills(1, _users[0].id))
+        createUserPromise.then(() => EnvironmentDirtifier.createSkills(1, user.id))
           .then((_skills: Skill[]) => {
             [skill] = _skills;
           });

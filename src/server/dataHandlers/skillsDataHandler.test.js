@@ -521,9 +521,9 @@ describe('SkillsDataHandler', function () {
                 user1 = results[0];
                 user2 = results[1];
             }).then(function () { return Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo3),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1, user1.id),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2, user2.id),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo3, user1.id),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo1, user1.id),
                 skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo2, user2.id)
             ]); }).then(function (results) {
@@ -673,17 +673,22 @@ describe('SkillsDataHandler', function () {
             });
         });
         it('has skills with teams knowing them should return correct result', function () {
+            var user;
+            var createUsersPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) {
+                user = _users[0];
+            });
             var numberOfSkills = 3;
             var skills;
-            var addSkillsPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
-                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills, _users[0].id); })
+            var addSkillsPromise = createUsersPromise
+                .then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createSkills(numberOfSkills, user.id); })
                 .then(function (_skills) {
                 skills = _skills;
                 return _skills;
             });
             var numberOfTeams = 5;
             var teams;
-            var addTeamsPromise = environmentDirtifier_1.EnvironmentDirtifier.createTeams(numberOfTeams)
+            var addTeamsPromise = createUsersPromise.then(function () { return environmentDirtifier_1.EnvironmentDirtifier.createTeams(numberOfTeams, user.id); })
                 .then(function (_teams) {
                 teams = _teams;
                 return _teams;

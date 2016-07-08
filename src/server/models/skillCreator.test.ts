@@ -247,7 +247,7 @@ describe('SkillCreator', () => {
 describe('SkillCreators', () => {
   describe('clearAll', () => {
 
-    it('should clear all the users', () => {
+    it('should clear all the creators', () => {
       // Act
       var promise: Promise<void> = SkillCreators.clearAll();
 

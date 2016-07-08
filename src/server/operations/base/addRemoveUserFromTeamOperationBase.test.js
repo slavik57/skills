@@ -15,14 +15,15 @@ describe('AddRemoveUserFromTeamOperationBase', function () {
     var executingUser;
     beforeEach(function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables()
-            .then(function () { return Promise.all([
-            teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1')),
-            teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team2'))
-        ]); }).then(function (_teams) {
-            team = _teams[0], otherTeam = _teams[1];
-        }).then(function () { return userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1)); })
+            .then(function () { return userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1)); })
             .then(function (_user) {
             executingUser = _user;
+        })
+            .then(function () { return Promise.all([
+            teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team1'), executingUser.id),
+            teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team2'), executingUser.id)
+        ]); }).then(function (_teams) {
+            team = _teams[0], otherTeam = _teams[1];
         });
     });
     afterEach(function () {

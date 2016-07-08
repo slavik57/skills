@@ -1,3 +1,4 @@
+import {EnvironmentDirtifier} from "../../testUtils/environmentDirtifier";
 import {ITeamMemberInfo} from "../../models/interfaces/iTeamMemberInfo";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {Team} from "../../models/team";
@@ -77,8 +78,15 @@ describe('TeamOperationBase', () => {
     var team: Team;
 
     beforeEach(() => {
-      var teamCreationPromise: bluebirdPromise<any> =
-        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1'))
+      var user: User;
+
+      var teamCreationPromise: bluebirdPromise<void> =
+        EnvironmentCleaner.clearTables()
+          .then(() => EnvironmentDirtifier.createUsers(1))
+          .then((_users: User[]) => {
+            [user] = _users;
+          })
+          .then(() => TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1'), user.id))
           .then((_team: Team) => {
             team = _team;
           });

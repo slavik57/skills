@@ -1,3 +1,4 @@
+import {EnvironmentDirtifier} from "../../testUtils/environmentDirtifier";
 import {ITeamMemberInfo} from "../../models/interfaces/iTeamMemberInfo";
 import {ISkillOfATeam} from "../../models/interfaces/iSkillOfATeam";
 import {ITeamSkillInfo} from "../../models/interfaces/iTeamSkillInfo";
@@ -26,14 +27,15 @@ describe('AddRemoveTeamSkillOperationBase', () => {
 
   beforeEach(() => {
     return EnvironmentCleaner.clearTables()
-      .then(() => Promise.all([
-        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1')),
-        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team2'))
-      ])).then((_teams: Team[]) => {
-        [teamToAddTheSkillTo, otherTeam] = _teams;
-      }).then(() => UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1)))
+      .then(() => UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1)))
       .then((_user: User) => {
         executingUser = _user;
+      })
+      .then(() => Promise.all([
+        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team1'), executingUser.id),
+        TeamsDataHandler.createTeam(ModelInfoMockFactory.createTeamInfo('team2'), executingUser.id)
+      ])).then((_teams: Team[]) => {
+        [teamToAddTheSkillTo, otherTeam] = _teams;
       });
   });
 

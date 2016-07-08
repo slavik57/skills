@@ -1,3 +1,4 @@
+import {TeamCreators} from "../models/teamCreator";
 import {SkillCreators} from "../models/skillCreator";
 import {TeamSkillUpvotes} from "../models/teamSkillUpvote";
 import {TeamSkills} from "../models/teamSkill";
@@ -7,9 +8,10 @@ import {Teams} from "../models/team";
 import {Users} from "../models/user";
 import {TeamMembers} from "../models/teamMember";
 import {UsersGlobalPermissions} from "../models/usersGlobalPermissions";
+import * as bluebirdPromise from 'bluebird';
 
 export class EnvironmentCleaner {
-  public static clearTables(): Promise<any> {
+  public static clearTables(): bluebirdPromise<any> {
 
     return this._clearLevel3Tables()
       .then(() => this._clearLevel2Tables())
@@ -17,28 +19,29 @@ export class EnvironmentCleaner {
       .then(() => this._clearLevel0Tables());
   }
 
-  private static _clearLevel3Tables(): Promise<any> {
+  private static _clearLevel3Tables(): bluebirdPromise<any> {
     return TeamSkillUpvotes.clearAll();
   }
 
-  private static _clearLevel2Tables(): Promise<any> {
-    return Promise.all([
+  private static _clearLevel2Tables(): bluebirdPromise<any> {
+    return bluebirdPromise.all([
       SkillPrerequisites.clearAll(),
       TeamSkills.clearAll(),
-      SkillCreators.clearAll()
+      SkillCreators.clearAll(),
+      TeamCreators.clearAll()
     ]);
   }
 
-  private static _clearLevel1Tables(): Promise<any> {
-    return Promise.all([
+  private static _clearLevel1Tables(): bluebirdPromise<any> {
+    return bluebirdPromise.all([
       UsersGlobalPermissions.clearAll(),
       TeamMembers.clearAll(),
       Skills.clearAll()
     ]);
   }
 
-  private static _clearLevel0Tables(): Promise<any> {
-    return Promise.all([
+  private static _clearLevel0Tables(): bluebirdPromise<any> {
+    return bluebirdPromise.all([
       Users.clearAll(),
       Teams.clearAll()
     ]);

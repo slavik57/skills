@@ -22,7 +22,7 @@ describe('UpvoteTeamSkillOperation', function () {
             .then(function (_user) {
             executingUser = _user;
         })
-            .then(function () { return teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team')); })
+            .then(function () { return teamsDataHandler_1.TeamsDataHandler.createTeam(modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo('team'), executingUser.id); })
             .then(function (_team) {
             team = _team;
         })

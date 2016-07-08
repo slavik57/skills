@@ -4,6 +4,7 @@ var globalPermission_1 = require("../../models/enums/globalPermission");
 var addTeamOperation_1 = require("./addTeamOperation");
 var userDataHandler_1 = require("../../dataHandlers/userDataHandler");
 var modelInfoMockFactory_1 = require("../../testUtils/modelInfoMockFactory");
+var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
 var team_1 = require("../../models/team");
 var environmentCleaner_1 = require("../../testUtils/environmentCleaner");
 var chai = require('chai');
@@ -105,6 +106,23 @@ describe('AddTeamOperation', function () {
                     modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_teams[0].attributes, teamInfoToAdd);
                 });
             });
+            it('should add the user as skill creator', function () {
+                var resultPromise = operation.execute();
+                var team;
+                return chai_1.expect(resultPromise).to.eventually.fulfilled
+                    .then(function (_teamm) {
+                    team = _teamm;
+                })
+                    .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamsCreators(); })
+                    .then(function (_teamsCreators) {
+                    chai_1.expect(_teamsCreators).to.be.length(1);
+                    var expectedTeamCreatorInfo = {
+                        user_id: executingUser.id,
+                        team_id: team.id
+                    };
+                    modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_teamsCreators[0].attributes, expectedTeamCreatorInfo);
+                });
+            });
         });
         describe('executing user is TEAMS_LIST_ADMIN', function () {
             beforeEach(function () {
@@ -121,6 +139,23 @@ describe('AddTeamOperation', function () {
                     .then(function (_teams) {
                     chai_1.expect(_teams).to.be.length(1);
                     modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_teams[0].attributes, teamInfoToAdd);
+                });
+            });
+            it('should add the user as team creator', function () {
+                var resultPromise = operation.execute();
+                var team;
+                return chai_1.expect(resultPromise).to.eventually.fulfilled
+                    .then(function (_team) {
+                    team = _team;
+                })
+                    .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamsCreators(); })
+                    .then(function (_teamsCreators) {
+                    chai_1.expect(_teamsCreators).to.be.length(1);
+                    var expectedTeamCreatorInfo = {
+                        user_id: executingUser.id,
+                        team_id: team.id
+                    };
+                    modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_teamsCreators[0].attributes, expectedTeamCreatorInfo);
                 });
             });
         });

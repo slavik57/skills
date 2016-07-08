@@ -153,6 +153,18 @@ describe('userDataHandler', function () {
                 chai_1.expect(_userIds).not.to.contain(userToDelete.id);
             });
         });
+        it('existing user should remove the relevant team creators', function () {
+            var userToDelete = testModels.users[0];
+            var promise = userDataHandler_1.UserDataHandler.deleteUser(userToDelete.id);
+            return chai_1.expect(promise).to.eventually.fulfilled
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamsCreators(); })
+                .then(function (_teamsCreators) {
+                return _.map(_teamsCreators, function (_) { return _.attributes.user_id; });
+            })
+                .then(function (_userIds) {
+                chai_1.expect(_userIds).not.to.contain(userToDelete.id);
+            });
+        });
     });
     describe('getUser', function () {
         it('no such user should return null', function () {
@@ -319,17 +331,18 @@ describe('userDataHandler', function () {
             userInfo1 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
             userInfo2 = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2);
             return Promise.all([
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2),
-                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo3),
                 userDataHandler_1.UserDataHandler.createUser(userInfo1),
                 userDataHandler_1.UserDataHandler.createUser(userInfo2)
-            ]).then(function (teamsAndUser) {
-                team1 = teamsAndUser[0];
-                team2 = teamsAndUser[1];
-                team3 = teamsAndUser[2];
-                user1 = teamsAndUser[3];
-                user2 = teamsAndUser[4];
+            ])
+                .then(function (_users) {
+                user1 = _users[0], user2 = _users[1];
+            })
+                .then(function () { return Promise.all([
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo1, user1.id),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo2, user1.id),
+                teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo3, user1.id)
+            ]); }).then(function (_teams) {
+                team1 = _teams[0], team2 = _teams[1], team3 = _teams[2];
             });
         });
         it('no such user should return empty teams list', function () {

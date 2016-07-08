@@ -15,6 +15,6 @@ export class AddTeamOperation extends AuthenticatedOperationBase<Team> {
   }
 
   protected doWork(): bluebirdPromise<Team> {
-    return TeamsDataHandler.createTeam(this._teamInfo);
+    return TeamsDataHandler.createTeam(this._teamInfo, this.executingUserId);
   }
 }
