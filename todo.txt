@@ -1,5 +1,4 @@
 todo:
-- Add TeamCreator table
 - implement home (use onInit of app component to get the user details)
 - enable profile editing (name/last name/password change)
 
