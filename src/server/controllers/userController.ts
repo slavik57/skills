@@ -31,7 +31,6 @@ export = {
   put_id: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, id: string): void {
     var updateUserDetails = <IUpdateUserDetailsDefinition>request.body;
 
-
     if (!request.user ||
       !request.user.id ||
       request.user.id.toString() !== id) {
