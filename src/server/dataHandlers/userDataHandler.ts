@@ -23,11 +23,24 @@ export class UserDataHandler {
     });
   }
 
-  public static deleteUser(userId: number): bluebirdPromise<User> {
-    var idQuery = {}
-    idQuery[User.idAttribute] = userId;
+  public static updateUserDetails(userId: number, username: string, email: string, firstName: string, lastName: string): bluebirdPromise<User> {
+    var updateValues = {};
+    updateValues[User.usernameAttribute] = username;
+    updateValues[User.emailAttribute] = email || null;
+    updateValues[User.firstNameAttribute] = firstName;
+    updateValues[User.lastNameAttribute] = lastName;
 
-    return new User(idQuery).destroy();
+    var saveOptions: SaveOptions = {
+      method: 'update'
+    }
+
+    return this._initializeUserByIdQuery(userId).fetch().then((_user: User) => {
+      return _user.save(updateValues, saveOptions);
+    });
+  }
+
+  public static deleteUser(userId: number): bluebirdPromise<User> {
+    return this._initializeUserByIdQuery(userId).destroy();
   }
 
   public static getUsers(): bluebirdPromise<User[]> {

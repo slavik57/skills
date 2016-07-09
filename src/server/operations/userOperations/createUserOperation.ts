@@ -1,12 +1,12 @@
+import {UserOperationBase} from "../base/userOperationBase";
 import {User} from "../../models/user";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {UserDataHandler} from "../../dataHandlers/userDataHandler";
-import {OperationBase} from "../base/operationBase";
 import {IUserInfo} from "../../models/interfaces/iUserInfo";
 import * as passwordHash from 'password-hash';
 import * as bluebirdPromise from 'bluebird';
 
-export class CreateUserOperation extends OperationBase<User> {
+export class CreateUserOperation extends UserOperationBase {
 
   constructor(private _username: string,
     private _password: string,
@@ -31,8 +31,8 @@ export class CreateUserOperation extends OperationBase<User> {
       lastName: this._lastName
     };
 
-    return this._checkUsernameDoesNotExist()
-      .then(() => this.checkEmailDoesNotExist())
+    return this.checkUsernameDoesNotExist(this._username)
+      .then(() => this.checkEmailDoesNotExist(this._email))
       .then(() => UserDataHandler.createUserWithPermissions(userInfo, readerPermissions));
   }
 
@@ -40,30 +40,6 @@ export class CreateUserOperation extends OperationBase<User> {
     return passwordHash.generate(this._password);
   }
 
-  private _checkUsernameDoesNotExist(): bluebirdPromise<void> {
-    return UserDataHandler.getUserByUsername(this._username)
-      .then((user: User) => {
-        if (user) {
-          return bluebirdPromise.reject('The username is taken');
-        }
 
-        return bluebirdPromise.resolve();
-      });
-  }
-
-  private checkEmailDoesNotExist(): bluebirdPromise<void> {
-    if (!this._email) {
-      return bluebirdPromise.resolve();
-    }
-
-    return UserDataHandler.getUserByEmail(this._email)
-      .then((user: User) => {
-        if (user) {
-          return bluebirdPromise.reject('The email is taken');
-        }
-
-        return bluebirdPromise.resolve();
-      });
-  }
 
 }

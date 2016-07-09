@@ -17,10 +17,21 @@ var UserDataHandler = (function () {
             return _this._createUserWithPermissions(userInfo, permissionsToAdd, _transaction);
         });
     };
+    UserDataHandler.updateUserDetails = function (userId, username, email, firstName, lastName) {
+        var updateValues = {};
+        updateValues[user_1.User.usernameAttribute] = username;
+        updateValues[user_1.User.emailAttribute] = email || null;
+        updateValues[user_1.User.firstNameAttribute] = firstName;
+        updateValues[user_1.User.lastNameAttribute] = lastName;
+        var saveOptions = {
+            method: 'update'
+        };
+        return this._initializeUserByIdQuery(userId).fetch().then(function (_user) {
+            return _user.save(updateValues, saveOptions);
+        });
+    };
     UserDataHandler.deleteUser = function (userId) {
-        var idQuery = {};
-        idQuery[user_1.User.idAttribute] = userId;
-        return new user_1.User(idQuery).destroy();
+        return this._initializeUserByIdQuery(userId).destroy();
     };
     UserDataHandler.getUsers = function () {
         return new user_1.Users().fetch()

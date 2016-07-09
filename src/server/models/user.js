@@ -49,6 +49,16 @@ var User = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(User, "firstNameAttribute", {
+        get: function () { return 'firstName'; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(User, "lastNameAttribute", {
+        get: function () { return 'lastName'; },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(User, "relatedUserGlobalPermissionsAttribute", {
         get: function () { return 'globalPermissions'; },
         enumerable: true,

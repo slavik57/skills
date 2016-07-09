@@ -1,3 +1,5 @@
+import {IUserInfo} from "../models/interfaces/iUserInfo";
+import {ModelInfoVerificator} from "../testUtils/modelInfoVerificator";
 import {IUserRegistrationDefinition} from "../passportStrategies/interfaces/iUserRegistrationDefinition";
 import {IUserInfoResponse} from "../apiResponses/iUserInfoResponse";
 import {UserLoginManager} from "../testUtils/userLoginManager";
@@ -87,6 +89,12 @@ describe('userController', () => {
         .end(done);
     });
 
+    it('updating user details should fail', (done) => {
+      server.put('/user/1')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
   });
 
   describe('user registered', () => {
@@ -124,6 +132,40 @@ describe('userController', () => {
         .end(done);
     });
 
+    it('updating user details should succeed and update the user details', (done) => {
+      var newUserDetails = {
+        username: 'new user',
+        email: 'new@gmail.com',
+        firstName: 'new first name',
+        lastName: 'new last name'
+      };
+
+      var expectedUserInfo: IUserInfo = {
+        username: newUserDetails.username,
+        password_hash: user.attributes.password_hash,
+        email: newUserDetails.email,
+        firstName: newUserDetails.firstName,
+        lastName: newUserDetails.lastName
+      }
+
+      server.put('/user/' + user.id)
+        .send(newUserDetails)
+        .expect(StatusCode.OK)
+        .end(() => {
+          UserDataHandler.getUser(user.id)
+            .then((_user: User) => {
+              ModelInfoVerificator.verifyInfo(_user.attributes, expectedUserInfo);
+              done();
+            });
+        });
+    });
+
+    it('updating other user details should fail', (done) => {
+      server.put('/user/' + (user.id + 1))
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
     describe('logout', () => {
 
       beforeEach(() => {
@@ -147,6 +189,12 @@ describe('userController', () => {
         server.get('/user/' + userDefinition.username + '/exists')
           .expect(StatusCode.OK)
           .expect({ userExists: true })
+          .end(done);
+      });
+
+      it('updating user details should fail', (done) => {
+        server.put('/user/' + user.id)
+          .expect(StatusCode.UNAUTHORIZED)
           .end(done);
       });
 
@@ -190,6 +238,40 @@ describe('userController', () => {
         .end(done);
     });
 
+    it('updating user details should succeed and update the user details', (done) => {
+      var newUserDetails = {
+        username: 'new user',
+        email: 'new@gmail.com',
+        firstName: 'new first name',
+        lastName: 'new last name'
+      };
+
+      var expectedUserInfo: IUserInfo = {
+        username: newUserDetails.username,
+        password_hash: user.attributes.password_hash,
+        email: newUserDetails.email,
+        firstName: newUserDetails.firstName,
+        lastName: newUserDetails.lastName
+      }
+
+      server.put('/user/' + user.id)
+        .send(newUserDetails)
+        .expect(StatusCode.OK)
+        .end(() => {
+          UserDataHandler.getUser(user.id)
+            .then((_user: User) => {
+              ModelInfoVerificator.verifyInfo(_user.attributes, expectedUserInfo);
+              done();
+            });
+        });
+    });
+
+    it('updating other user details should fail', (done) => {
+      server.put('/user/' + (user.id + 1))
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
     describe('logout', () => {
 
       beforeEach(() => {
@@ -213,6 +295,12 @@ describe('userController', () => {
         server.get('/user/' + userDefinition.username + '/exists')
           .expect(StatusCode.OK)
           .expect({ userExists: true })
+          .end(done);
+      });
+
+      it('updating user details should fail', (done) => {
+        server.put('/user/' + user.id)
+          .expect(StatusCode.UNAUTHORIZED)
           .end(done);
       });
 

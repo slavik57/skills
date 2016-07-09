@@ -1,4 +1,6 @@
 "use strict";
+var updateUserDetailsOperation_1 = require("../operations/userOperations/updateUserDetailsOperation");
+var statusCode_1 = require("../enums/statusCode");
 var authenticator_1 = require("../expressMiddlewares/authenticator");
 var getUserOperation_1 = require("../operations/userOperations/getUserOperation");
 module.exports = {
@@ -14,6 +16,19 @@ module.exports = {
                 userExists: userExists
             });
         });
-    }
+    },
+    put_id: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, id) {
+            var updateUserDetails = request.body;
+            if (!request.user ||
+                !request.user.id ||
+                request.user.id.toString() !== id) {
+                response.status(statusCode_1.StatusCode.UNAUTHORIZED).send();
+                return;
+            }
+            var numberId = Number(id);
+            var operation = new updateUserDetailsOperation_1.UpdateUserDetailsOperation(numberId, updateUserDetails.username, updateUserDetails.email, updateUserDetails.firstName, updateUserDetails.lastName);
+            operation.execute()
+                .then(function () { return response.status(statusCode_1.StatusCode.OK).send(); }, function (error) { return response.status(statusCode_1.StatusCode.BAD_REQUEST).send({ error: error }); });
+        }]
 };
 //# sourceMappingURL=userController.js.map

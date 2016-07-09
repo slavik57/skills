@@ -1,4 +1,5 @@
 "use strict";
+var modelInfoVerificator_1 = require("../testUtils/modelInfoVerificator");
 var userLoginManager_1 = require("../testUtils/userLoginManager");
 var userDataHandler_1 = require("../dataHandlers/userDataHandler");
 var environmentCleaner_1 = require("../testUtils/environmentCleaner");
@@ -64,6 +65,11 @@ describe('userController', function () {
                 .expect({ userExists: false })
                 .end(done);
         });
+        it('updating user details should fail', function (done) {
+            server.put('/user/1')
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
     });
     describe('user registered', function () {
         var user;
@@ -93,6 +99,36 @@ describe('userController', function () {
                 .expect({ userExists: true })
                 .end(done);
         });
+        it('updating user details should succeed and update the user details', function (done) {
+            var newUserDetails = {
+                username: 'new user',
+                email: 'new@gmail.com',
+                firstName: 'new first name',
+                lastName: 'new last name'
+            };
+            var expectedUserInfo = {
+                username: newUserDetails.username,
+                password_hash: user.attributes.password_hash,
+                email: newUserDetails.email,
+                firstName: newUserDetails.firstName,
+                lastName: newUserDetails.lastName
+            };
+            server.put('/user/' + user.id)
+                .send(newUserDetails)
+                .expect(statusCode_1.StatusCode.OK)
+                .end(function () {
+                userDataHandler_1.UserDataHandler.getUser(user.id)
+                    .then(function (_user) {
+                    modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_user.attributes, expectedUserInfo);
+                    done();
+                });
+            });
+        });
+        it('updating other user details should fail', function (done) {
+            server.put('/user/' + (user.id + 1))
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
         describe('logout', function () {
             beforeEach(function () {
                 return userLoginManager_1.UserLoginManager.logoutUser(server);
@@ -112,6 +148,11 @@ describe('userController', function () {
                 server.get('/user/' + userDefinition.username + '/exists')
                     .expect(statusCode_1.StatusCode.OK)
                     .expect({ userExists: true })
+                    .end(done);
+            });
+            it('updating user details should fail', function (done) {
+                server.put('/user/' + user.id)
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                     .end(done);
             });
         });
@@ -145,6 +186,36 @@ describe('userController', function () {
                 .expect({ userExists: true })
                 .end(done);
         });
+        it('updating user details should succeed and update the user details', function (done) {
+            var newUserDetails = {
+                username: 'new user',
+                email: 'new@gmail.com',
+                firstName: 'new first name',
+                lastName: 'new last name'
+            };
+            var expectedUserInfo = {
+                username: newUserDetails.username,
+                password_hash: user.attributes.password_hash,
+                email: newUserDetails.email,
+                firstName: newUserDetails.firstName,
+                lastName: newUserDetails.lastName
+            };
+            server.put('/user/' + user.id)
+                .send(newUserDetails)
+                .expect(statusCode_1.StatusCode.OK)
+                .end(function () {
+                userDataHandler_1.UserDataHandler.getUser(user.id)
+                    .then(function (_user) {
+                    modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_user.attributes, expectedUserInfo);
+                    done();
+                });
+            });
+        });
+        it('updating other user details should fail', function (done) {
+            server.put('/user/' + (user.id + 1))
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
         describe('logout', function () {
             beforeEach(function () {
                 return userLoginManager_1.UserLoginManager.logoutUser(server);
@@ -164,6 +235,11 @@ describe('userController', function () {
                 server.get('/user/' + userDefinition.username + '/exists')
                     .expect(statusCode_1.StatusCode.OK)
                     .expect({ userExists: true })
+                    .end(done);
+            });
+            it('updating user details should fail', function (done) {
+                server.put('/user/' + user.id)
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                     .end(done);
             });
         });

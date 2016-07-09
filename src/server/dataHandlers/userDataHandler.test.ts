@@ -983,4 +983,81 @@ describe('userDataHandler', () => {
 
   });
 
+  describe('updateUserDetails', () => {
+
+    it('should update the user details correctly', () => {
+      // Arrange
+      var user: User;
+      var newUserInfo: IUserInfo
+      var createUserPromise: Promise<void> =
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => {
+            [user] = _users;
+
+            newUserInfo = {
+              id: user.id,
+              username: user.attributes.username + ' new username',
+              password_hash: user.attributes.password_hash,
+              email: 'newMail' + user.attributes.email,
+              firstName: user.attributes.firstName + ' new first name',
+              lastName: user.attributes.lastName + ' new last name'
+            }
+          });
+
+      // Act
+      var updateUserDetailsPromise: Promise<User> =
+        createUserPromise.then(() =>
+          UserDataHandler.updateUserDetails(user.id,
+            newUserInfo.username,
+            newUserInfo.email,
+            newUserInfo.firstName,
+            newUserInfo.lastName));
+
+      // Assert
+      return expect(updateUserDetailsPromise).to.eventually.fulfilled
+        .then(() => UserDataHandler.getUser(user.id))
+        .then((_user: User) => {
+          ModelInfoVerificator.verifyInfo(_user.attributes, newUserInfo);
+        })
+    });
+
+    it('with undefined email should update the user details correctly', () => {
+      // Arrange
+      var user: User;
+      var newUserInfo: IUserInfo
+      var createUserPromise: Promise<void> =
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => {
+            [user] = _users;
+
+            newUserInfo = {
+              id: user.id,
+              username: user.attributes.username + ' new username',
+              password_hash: user.attributes.password_hash,
+              email: undefined,
+              firstName: user.attributes.firstName + ' new first name',
+              lastName: user.attributes.lastName + ' new last name'
+            }
+          });
+
+      // Act
+      var updateUserDetailsPromise: Promise<User> =
+        createUserPromise.then(() =>
+          UserDataHandler.updateUserDetails(user.id,
+            newUserInfo.username,
+            newUserInfo.email,
+            newUserInfo.firstName,
+            newUserInfo.lastName));
+
+      // Assert
+      return expect(updateUserDetailsPromise).to.eventually.fulfilled
+        .then(() => UserDataHandler.getUser(user.id))
+        .then((_user: User) => {
+          newUserInfo.email = null;
+          ModelInfoVerificator.verifyInfo(_user.attributes, newUserInfo);
+        })
+    });
+
+  });
+
 });

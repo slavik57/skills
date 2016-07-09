@@ -1,5 +1,6 @@
 "use strict";
 var skillsDataHandler_1 = require("./skillsDataHandler");
+var modelInfoVerificator_1 = require("../testUtils/modelInfoVerificator");
 var teamSkillUpvote_1 = require("../models/teamSkillUpvote");
 var environmentDirtifier_1 = require("../testUtils/environmentDirtifier");
 var environmentCleaner_1 = require("../testUtils/environmentCleaner");
@@ -569,6 +570,57 @@ describe('userDataHandler', function () {
             ];
             var addPermissionPromise = userDataHandler_1.UserDataHandler.removeGlobalPermissions(999999, permissionsToRemove);
             return chai_1.expect(addPermissionPromise).to.eventually.fulfilled;
+        });
+    });
+    describe('updateUserDetails', function () {
+        it('should update the user details correctly', function () {
+            var user;
+            var newUserInfo;
+            var createUserPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) {
+                user = _users[0];
+                newUserInfo = {
+                    id: user.id,
+                    username: user.attributes.username + ' new username',
+                    password_hash: user.attributes.password_hash,
+                    email: 'newMail' + user.attributes.email,
+                    firstName: user.attributes.firstName + ' new first name',
+                    lastName: user.attributes.lastName + ' new last name'
+                };
+            });
+            var updateUserDetailsPromise = createUserPromise.then(function () {
+                return userDataHandler_1.UserDataHandler.updateUserDetails(user.id, newUserInfo.username, newUserInfo.email, newUserInfo.firstName, newUserInfo.lastName);
+            });
+            return chai_1.expect(updateUserDetailsPromise).to.eventually.fulfilled
+                .then(function () { return userDataHandler_1.UserDataHandler.getUser(user.id); })
+                .then(function (_user) {
+                modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_user.attributes, newUserInfo);
+            });
+        });
+        it('with undefined email should update the user details correctly', function () {
+            var user;
+            var newUserInfo;
+            var createUserPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) {
+                user = _users[0];
+                newUserInfo = {
+                    id: user.id,
+                    username: user.attributes.username + ' new username',
+                    password_hash: user.attributes.password_hash,
+                    email: undefined,
+                    firstName: user.attributes.firstName + ' new first name',
+                    lastName: user.attributes.lastName + ' new last name'
+                };
+            });
+            var updateUserDetailsPromise = createUserPromise.then(function () {
+                return userDataHandler_1.UserDataHandler.updateUserDetails(user.id, newUserInfo.username, newUserInfo.email, newUserInfo.firstName, newUserInfo.lastName);
+            });
+            return chai_1.expect(updateUserDetailsPromise).to.eventually.fulfilled
+                .then(function () { return userDataHandler_1.UserDataHandler.getUser(user.id); })
+                .then(function (_user) {
+                newUserInfo.email = null;
+                modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_user.attributes, newUserInfo);
+            });
         });
     });
 });
