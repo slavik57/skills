@@ -104,13 +104,13 @@ describe('User', function () {
             var promise = user1.save().then(function () { return user2.save(); }, function () { chai_1.expect(true).to.be.false; });
             return chai_1.expect(promise).to.eventually.rejected;
         });
-        it('create user with existing firstName and lastName should return error', function () {
+        it('create user with existing firstName and lastName should succeed', function () {
             var user1 = new user_1.User(validUserInfo1);
             validUserInfo2.firstName = validUserInfo1.firstName;
             validUserInfo2.lastName = validUserInfo1.lastName;
             var user2 = new user_1.User(validUserInfo2);
             var promise = user1.save().then(function () { return user2.save(); }, function () { chai_1.expect(true).to.be.false; });
-            return chai_1.expect(promise).to.eventually.rejected;
+            return chai_1.expect(promise).to.eventually.equal(user2);
         });
         it('create user with existing firstName but different lastName should succeed', function () {
             var user1 = new user_1.User(validUserInfo1);

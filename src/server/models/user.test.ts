@@ -190,7 +190,7 @@ describe('User', () => {
       return expect(promise).to.eventually.rejected;
     });
 
-    it('create user with existing firstName and lastName should return error', () => {
+    it('create user with existing firstName and lastName should succeed', () => {
       // Arrange
       var user1 = new User(validUserInfo1);
 
@@ -205,7 +205,7 @@ describe('User', () => {
           () => { expect(true).to.be.false; });
 
       // Assert
-      return expect(promise).to.eventually.rejected;
+      return expect(promise).to.eventually.equal(user2);
     });
 
     it('create user with existing firstName but different lastName should succeed', () => {
