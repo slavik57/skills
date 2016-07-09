@@ -49,6 +49,7 @@ var RegisterStrategy = (function () {
             done(null, {
                 id: _user.id,
                 username: _user.attributes.username,
+                email: _user.attributes.email,
                 firstName: _user.attributes.firstName,
                 lastName: _user.attributes.lastName
             });

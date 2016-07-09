@@ -44,6 +44,7 @@ describe('userController', function () {
         return {
             id: user.id,
             username: user.attributes.username,
+            email: user.attributes.email,
             firstName: user.attributes.firstName,
             lastName: user.attributes.lastName
         };

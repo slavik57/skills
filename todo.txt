@@ -1,6 +1,12 @@
 todo:
+- solve reverse proxy for localhost/server name
+- implement the ui for the user profile page
+- enable changing the user details (username, firstname, lastname, email)
+- handle errors for email and username exists
+- enable changing the password for user
 - implement home (use onInit of app component to get the user details)
 - enable profile editing (name/last name/password change)
+- webpack production with minification and separate DB. check for loading speed on the phone
 
 Maybe:
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
