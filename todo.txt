@@ -1,5 +1,4 @@
 todo:
-- solve reverse proxy for localhost/server name
 - implement the ui for the user profile page
 - enable changing the user details (username, firstname, lastname, email)
 - handle errors for email and username exists
