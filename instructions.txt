@@ -9,6 +9,12 @@ https://github.com/slavik57/skills-reverse-proxy
 https://www.postgresql.org/
 If you install beta its on you if something doesn't work
 
+- Add local user to your postgres db
+	a. Open pgAdmin
+	b. Right click on the Login roles -> new login role
+- If in windows add to the envirotment variable PATH the path to the postgresql/bin directory
+
+
 3) Run the create db scripts in the "skills" repository:
 	- create_dev_db.bat
 	- create_test_db.bat
