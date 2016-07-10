@@ -1,16 +1,59 @@
 todo:
-- implement the ui for the user profile page
-- enable changing the user details (username, firstname, lastname, email)
-- handle errors for email and username exists
 - enable changing the password for user
 - implement home (use onInit of app component to get the user details)
-- enable profile editing (name/last name/password change)
 - webpack production with minification and separate DB. check for loading speed on the phone
+- settings page
+- user settings page - show users
+- user settings page - remove users
+- user settings page - filter users
+- user settings page - show permissions
+- user settings page - add/remove permissions
+- teams settings page - show teams
+- teams settings page - add/remove teams
+- teams settings page - filter teams
+- teams settings page - add/remove users to team (make as team users component)
+- teams settings page - modify team admins
+- user settings page - show user teams
+- user settings page - add/remove teams of the user
+- user settings page - modify team admins
+- skills settings page - show skills
+- skills settings page - add/remove skill
+- skills settings page - show skill prerequisites
+- skills settings page - show skill contributions
+- skills settings page - add/remove skill prerequisites (make as skill prerequisites component)
+- skills settings page - add/remove skill contributions (make as skill contributions component)
+- teams settings page - show team skills (make as team skills component)
+- teams settings page - add/remove team skills
+- teams settings page - show team skills likes
+- teams settings page - show if i liked or didn't like the team skill
+- teams settings page - like/dislike team skill
+- teams page - show my/other teams titles
+- teams page - filter my/other/maybe all teams
+- teams page - show skill likes pie chart per team (make as team skills component that will use generic pie component to share in other charts)
+- teams page - click on team navigates to team page
+- team page - use the team users component from teams settings page
+- team page - use the team skills component from teams settings page
+- team page - use the team skills component from teams page
+- skills page - show all skills
+- skills page - filter skills
+- skills page - show team knowledge pie chart (use the generic pic component and make as team knowledge component)
+- skills page - clicking on skill navigates to skill page
+- skill page - show the skill prerequisites component
+- skill page - show the skill contributions component
+- skill page - show the team knowledge pie chart component
+- skill page - show teams who know the skill
+- skill page - show the likes of the teams on that skill
+- skill page - show if i liked the skill for the team
+- skill page - like/dislike the skill for a team
+- skills dependencies page - show all the skills graph sorted topologycally
+- skills dependencies page - filter by team skills. Marks the skills of the team
+- skills dependencies page - hover/select skill shows all the dependencies and prerequisites of the skill
+- add skill description in the skills settings page and the skill page
+- add guild special sign for a team
 
 Maybe:
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
 - solve the fonts issue???
 
 More features:
-- add skill description
 - add guilds
