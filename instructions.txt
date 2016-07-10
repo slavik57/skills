@@ -1,0 +1,58 @@
+Setup:
+
+1) clone the repositories:
+https://github.com/slavik57/skills
+https://github.com/slavik57/skills-app
+https://github.com/slavik57/skills-reverse-proxy
+
+2) Install the DB:
+https://www.postgresql.org/
+If you install beta its on you if something doesn't work
+
+3) Run the create db scripts in the "skills" repository:
+	- create_dev_db.bat
+	- create_test_db.bat
+
+* In some cases you will need to install some node packages globally (such as mocha/knex)
+	Don't rush into it...you will know when it will happen
+	
+Running tests:
+1) In each repository (except skills-reverse-proxy) with "npm test"
+2) In the skills-app repository there are also separate tests for the frontend/backend
+	- "npm run app-tests"
+	- "npm run server-tests"
+3) In the skills-app repository you can run the frontend tests with watcher to automatically rerun tests on file changes
+	to do this open the karma.configs/karma.config.ts file and switch the comments on the "singleRun" configuration
+4) To see the console logs in the frontend tests of skills-app 
+	open the karma.configs/karma.confit.ts file and switch the comments on the "logLevel" configuration
+5) debugging tests can be done with node inspector:
+	- run the command "npm install node-inspector -g"
+	- open the project folder you want to debug
+	- run the command "node-inspector"
+	- open chrome: http://127.0.0.1:8080/?ws=127.0.0.1:8080&port=5858 (or other page that is given in the command line)
+	- run the tests on other command line of the same project
+	
+
+Running the app:
+1) open node in the skills repository and use: "npm start"
+2) open another node in the skills-app repository and use: "npm start"
+3) open another node in the skills-reverse-proxy and use: "npm start"
+4) open chrome and navigate to: "https://localhost"
+
+
+
+Some development rules:
+- There is a todo.txt file in the skills repository
+- Each line of code needs to be tested!!!
+- Use separate branch for each todo
+- Before merging to the master REBASE with it first
+- Merging to the master cannot be done by the same user who created the pull request
+- node_modules and typings should be checked in
+- ckecking in node_modules and typings should be done in a separate commit (not with other code) 
+	to be able to view the changes in github. If there are too many files it doesn't show them in the commit
+- code review is based on pull requests so dont make them too long
+- use angular2 guidelines. some documentation can be found here: https://angular.io/docs/ts/latest/
+	and other places
+- use materialize css for meterial design and colors. some documentation can be found here: http://materializecss.com/getting-started.html
+- use this font for icons: https://design.google.com/icons/index.html
+	example: <i class="material-icons">account_circle</i>
