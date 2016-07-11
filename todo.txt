@@ -1,5 +1,5 @@
 todo:
-- enable changing the password for user
+- enable changing the password for user (server side and check it looks ok after changing the password)
 - implement home (use onInit of app component to get the user details)
 - webpack production with minification and separate DB. check for loading speed on the phone
 - settings page
