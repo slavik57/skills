@@ -623,5 +623,32 @@ describe('userDataHandler', function () {
             });
         });
     });
+    describe('updateUserPassword', function () {
+        it('should update the user password correctly', function () {
+            var newPasswordHash;
+            var expectedUserInfo;
+            var user;
+            var createUserPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) {
+                user = _users[0];
+                newPasswordHash = 'new ' + user.attributes.password_hash;
+                expectedUserInfo = {
+                    username: user.attributes.username,
+                    password_hash: newPasswordHash,
+                    email: user.attributes.email,
+                    firstName: user.attributes.firstName,
+                    lastName: user.attributes.lastName
+                };
+            });
+            var updateUserPasswordPromise = createUserPromise.then(function () {
+                return userDataHandler_1.UserDataHandler.updateUserPassword(user.id, newPasswordHash);
+            });
+            return chai_1.expect(updateUserPasswordPromise).to.eventually.fulfilled
+                .then(function () { return userDataHandler_1.UserDataHandler.getUser(user.id); })
+                .then(function (_user) {
+                modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_user.attributes, expectedUserInfo);
+            });
+        });
+    });
 });
 //# sourceMappingURL=userDataHandler.test.js.map

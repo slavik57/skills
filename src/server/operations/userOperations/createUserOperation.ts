@@ -40,6 +40,4 @@ export class CreateUserOperation extends UserOperationBase {
     return passwordHash.generate(this._password);
   }
 
-
-
 }

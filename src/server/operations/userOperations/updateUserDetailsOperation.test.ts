@@ -1,4 +1,3 @@
-// import {GlobalPermission} from "../../models/enums/globalPermission";
 import {UpdateUserDetailsOperation} from "./updateUserDetailsOperation";
 import {IUserInfo} from "../../models/interfaces/iUserInfo";
 import {EnvironmentCleaner} from "../../testUtils/environmentCleaner";

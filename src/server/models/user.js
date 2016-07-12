@@ -59,6 +59,11 @@ var User = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(User, "passwordHashAttribute", {
+        get: function () { return 'password_hash'; },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(User, "relatedUserGlobalPermissionsAttribute", {
         get: function () { return 'globalPermissions'; },
         enumerable: true,

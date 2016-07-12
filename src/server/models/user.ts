@@ -35,6 +35,7 @@ export class User extends ModelBase<User, IUserInfo> implements IHasPivot<TeamMe
   public static get emailAttribute(): string { return 'email'; }
   public static get firstNameAttribute(): string { return 'firstName'; }
   public static get lastNameAttribute(): string { return 'lastName'; }
+  public static get passwordHashAttribute(): string { return 'password_hash'; }
   public static get relatedUserGlobalPermissionsAttribute(): string { return 'globalPermissions'; }
   public static get relatedTeamMembersAttribute(): string { return 'teamMembers'; }
   public static get relatedTeamSkillUpvotesAttribute(): string { return 'teamSkillUpvotes'; }

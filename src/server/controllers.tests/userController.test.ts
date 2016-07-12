@@ -14,6 +14,7 @@ import {SuperTest} from 'supertest';
 import * as chaiAsPromised from 'chai-as-promised';
 import {StatusCode} from '../enums/statusCode';
 import {webpackInitializationTimeout} from '../../../testConfigurations';
+import * as passwordHash from 'password-hash';
 
 chai.use(chaiAsPromised);
 
@@ -60,13 +61,13 @@ describe('userController', () => {
     return EnvironmentCleaner.clearTables();
   });
 
-  function getExpectedUserDetails(user: User): IUserInfoResponse {
+  function getExpectedUserDetails(user: User): any {
     return {
       id: user.id,
       username: user.attributes.username,
-      email: user.attributes.email,
       firstName: user.attributes.firstName,
-      lastName: user.attributes.lastName
+      lastName: user.attributes.lastName,
+      email: user.attributes.email
     }
   }
 
@@ -91,6 +92,12 @@ describe('userController', () => {
 
     it('updating user details should fail', (done) => {
       server.put('/user/1')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    it('updating user password should fail', (done) => {
+      server.put('/user/1/password')
         .expect(StatusCode.UNAUTHORIZED)
         .end(done);
     });
@@ -166,6 +173,69 @@ describe('userController', () => {
         .end(done);
     });
 
+    it('updating user password should succeed and update the user password correctly', (done) => {
+      var newUserPassword = {
+        password: userDefinition.password,
+        newPassword: 'some new password'
+      };
+
+      server.put('/user/' + user.id + '/password')
+        .send(newUserPassword)
+        .expect(StatusCode.OK)
+        .end(() => {
+          UserDataHandler.getUser(user.id)
+            .then((_user: User) => {
+              expect(passwordHash.verify(newUserPassword.newPassword, _user.attributes.password_hash));
+              done();
+            });
+        });
+    });
+
+    it('updating other user password should fail', (done) => {
+      server.put('/user/' + (user.id + 1) + '/password')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    it('updating user password with empty password should fail', (done) => {
+      var newUserPassword = {
+        password: '',
+        newPassword: 'some new password'
+      };
+
+      server.put('/user/' + user.id + '/password')
+        .send(newUserPassword)
+        .expect(StatusCode.UNAUTHORIZED)
+        .expect({ error: 'Wrong password' })
+        .end(done);
+    });
+
+    it('updating user password with wrong password should fail', (done) => {
+      var newUserPassword = {
+        password: 'wrong password',
+        newPassword: 'some new password'
+      };
+
+      server.put('/user/' + user.id + '/password')
+        .send(newUserPassword)
+        .expect(StatusCode.UNAUTHORIZED)
+        .expect({ error: 'Wrong password' })
+        .end(done);
+    });
+
+    it('updating user password with empty newPassword should fail', (done) => {
+      var newUserPassword = {
+        password: userDefinition.password,
+        newPassword: ''
+      };
+
+      server.put('/user/' + user.id + '/password')
+        .send(newUserPassword)
+        .expect(StatusCode.BAD_REQUEST)
+        .expect({ error: 'The new password cannot be empty' })
+        .end(done);
+    });
+
     describe('logout', () => {
 
       beforeEach(() => {
@@ -194,6 +264,12 @@ describe('userController', () => {
 
       it('updating user details should fail', (done) => {
         server.put('/user/' + user.id)
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
+      it('updating user password should fail', (done) => {
+        server.put('/user/1/password')
           .expect(StatusCode.UNAUTHORIZED)
           .end(done);
       });
@@ -272,6 +348,77 @@ describe('userController', () => {
         .end(done);
     });
 
+    it('updating user password should succeed and update the user password correctly', (done) => {
+      var newUserPassword = {
+        password: userDefinition.password,
+        newPassword: 'some new password'
+      };
+
+      var expectedUserInfo: IUserInfo = {
+        username: userDefinition.username,
+        password_hash: passwordHash.generate(newUserPassword.newPassword),
+        email: userDefinition.email,
+        firstName: userDefinition.firstName,
+        lastName: userDefinition.lastName
+      }
+
+      server.put('/user/' + user.id + '/password')
+        .send(newUserPassword)
+        .expect(StatusCode.OK)
+        .end(() => {
+          UserDataHandler.getUser(user.id)
+            .then((_user: User) => {
+              expect(passwordHash.verify(newUserPassword.newPassword, _user.attributes.password_hash))
+              done();
+            });
+        });
+    });
+
+    it('updating other user password should fail', (done) => {
+      server.put('/user/' + (user.id + 1) + '/password')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    it('updating user password with empty password should fail', (done) => {
+      var newUserPassword = {
+        password: '',
+        newPassword: 'some new password'
+      };
+
+      server.put('/user/' + user.id + '/password')
+        .send(newUserPassword)
+        .expect(StatusCode.UNAUTHORIZED)
+        .expect({ error: 'Wrong password' })
+        .end(done);
+    });
+
+    it('updating user password with wrong password should fail', (done) => {
+      var newUserPassword = {
+        password: 'wrong password',
+        newPassword: 'some new password'
+      };
+
+      server.put('/user/' + user.id + '/password')
+        .send(newUserPassword)
+        .expect(StatusCode.UNAUTHORIZED)
+        .expect({ error: 'Wrong password' })
+        .end(done);
+    });
+
+    it('updating user password with empty newPassword should fail', (done) => {
+      var newUserPassword = {
+        password: '',
+        newPassword: ''
+      };
+
+      server.put('/user/' + user.id + '/password')
+        .send(newUserPassword)
+        .expect(StatusCode.BAD_REQUEST)
+        .expect({ error: 'The new password cannot be empty' })
+        .end(done);
+    });
+
     describe('logout', () => {
 
       beforeEach(() => {
@@ -300,6 +447,12 @@ describe('userController', () => {
 
       it('updating user details should fail', (done) => {
         server.put('/user/' + user.id)
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
+      it('updating user password should fail', (done) => {
+        server.put('/user/1/password')
           .expect(StatusCode.UNAUTHORIZED)
           .end(done);
       });

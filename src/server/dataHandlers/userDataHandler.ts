@@ -30,13 +30,14 @@ export class UserDataHandler {
     updateValues[User.firstNameAttribute] = firstName;
     updateValues[User.lastNameAttribute] = lastName;
 
-    var saveOptions: SaveOptions = {
-      method: 'update'
-    }
+    return this._updateUser(userId, updateValues);
+  }
 
-    return this._initializeUserByIdQuery(userId).fetch().then((_user: User) => {
-      return _user.save(updateValues, saveOptions);
-    });
+  public static updateUserPassword(userId: number, newPasswordHash): bluebirdPromise<User> {
+    var updateValues = {};
+    updateValues[User.passwordHashAttribute] = newPasswordHash;
+
+    return this._updateUser(userId, updateValues);
   }
 
   public static deleteUser(userId: number): bluebirdPromise<User> {
@@ -214,5 +215,15 @@ export class UserDataHandler {
       user_id: userId,
       global_permissions: GlobalPermission[permission]
     }
+  }
+
+  private static _updateUser(userId: number, updateValues: any): bluebirdPromise<User> {
+    var saveOptions: SaveOptions = {
+      method: 'update'
+    }
+
+    return this._initializeUserByIdQuery(userId).fetch().then((_user: User) => {
+      return _user.save(updateValues, saveOptions);
+    });
   }
 }

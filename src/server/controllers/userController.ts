@@ -1,3 +1,5 @@
+import {UpdateUserPasswordOperation} from "../operations/userOperations/updateUserPasswordOperation";
+import {UserRequestIdValidator} from "../../common/userRequestIdValidator";
 import {GetUserByIdOperation} from "../operations/userOperations/getUserByIdOperation";
 import {UpdateUserDetailsOperation} from "../operations/userOperations/updateUserDetailsOperation";
 import {StatusCode} from "../enums/statusCode";
@@ -12,6 +14,11 @@ interface IUpdateUserDetailsDefinition {
   email: string;
   firstName: string;
   lastName: string;
+}
+
+interface IUpdateUserPasswordDefinition {
+  password: string;
+  newPassword: string;
 }
 
 export = {
@@ -43,10 +50,7 @@ export = {
   put_id: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, id: string): void {
     var updateUserDetails = <IUpdateUserDetailsDefinition>request.body;
 
-    if (!request.user ||
-      !request.user.id ||
-      request.user.id.toString() !== id) {
-
+    if (!UserRequestIdValidator.isRequestFromUser(request, id)) {
       response.status(StatusCode.UNAUTHORIZED).send();
       return;
     }
@@ -64,5 +68,32 @@ export = {
     operation.execute()
       .then(() => response.status(StatusCode.OK).send(),
       (error: any) => response.status(StatusCode.BAD_REQUEST).send({ error: error }));
+  }],
+  put_id_password: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, id: string): void {
+    var updateUserPassword = <IUpdateUserPasswordDefinition>request.body;
+
+    if (!UserRequestIdValidator.isRequestFromUser(request, id)) {
+      response.status(StatusCode.UNAUTHORIZED).send();
+      return;
+    }
+
+    var numberId: number = Number(id);
+
+    var operation =
+      new UpdateUserPasswordOperation(
+        numberId,
+        updateUserPassword.password,
+        updateUserPassword.newPassword);
+
+    operation.execute()
+      .then(() => response.status(StatusCode.OK).send(),
+      (error: any) => {
+        var statusCode = StatusCode.BAD_REQUEST;
+        if (error === 'Wrong password') {
+          statusCode = StatusCode.UNAUTHORIZED;
+        }
+
+        return response.status(statusCode).send({ error: error });
+      });
   }]
 };

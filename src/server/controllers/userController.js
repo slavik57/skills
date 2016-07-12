@@ -1,4 +1,6 @@
 "use strict";
+var updateUserPasswordOperation_1 = require("../operations/userOperations/updateUserPasswordOperation");
+var userRequestIdValidator_1 = require("../../common/userRequestIdValidator");
 var getUserByIdOperation_1 = require("../operations/userOperations/getUserByIdOperation");
 var updateUserDetailsOperation_1 = require("../operations/userOperations/updateUserDetailsOperation");
 var statusCode_1 = require("../enums/statusCode");
@@ -30,9 +32,7 @@ module.exports = {
     },
     put_id: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, id) {
             var updateUserDetails = request.body;
-            if (!request.user ||
-                !request.user.id ||
-                request.user.id.toString() !== id) {
+            if (!userRequestIdValidator_1.UserRequestIdValidator.isRequestFromUser(request, id)) {
                 response.status(statusCode_1.StatusCode.UNAUTHORIZED).send();
                 return;
             }
@@ -40,6 +40,23 @@ module.exports = {
             var operation = new updateUserDetailsOperation_1.UpdateUserDetailsOperation(numberId, updateUserDetails.username, updateUserDetails.email, updateUserDetails.firstName, updateUserDetails.lastName);
             operation.execute()
                 .then(function () { return response.status(statusCode_1.StatusCode.OK).send(); }, function (error) { return response.status(statusCode_1.StatusCode.BAD_REQUEST).send({ error: error }); });
+        }],
+    put_id_password: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, id) {
+            var updateUserPassword = request.body;
+            if (!userRequestIdValidator_1.UserRequestIdValidator.isRequestFromUser(request, id)) {
+                response.status(statusCode_1.StatusCode.UNAUTHORIZED).send();
+                return;
+            }
+            var numberId = Number(id);
+            var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(numberId, updateUserPassword.password, updateUserPassword.newPassword);
+            operation.execute()
+                .then(function () { return response.status(statusCode_1.StatusCode.OK).send(); }, function (error) {
+                var statusCode = statusCode_1.StatusCode.BAD_REQUEST;
+                if (error === 'Wrong password') {
+                    statusCode = statusCode_1.StatusCode.UNAUTHORIZED;
+                }
+                return response.status(statusCode).send({ error: error });
+            });
         }]
 };
 //# sourceMappingURL=userController.js.map

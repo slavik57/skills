@@ -1060,4 +1060,44 @@ describe('userDataHandler', () => {
 
   });
 
+  describe('updateUserPassword', () => {
+
+    it('should update the user password correctly', () => {
+      // Arrange
+      var newPasswordHash: string;
+      var expectedUserInfo: IUserInfo;
+
+      var user: User;
+      var createUserPromise: Promise<void> =
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => {
+            [user] = _users;
+
+            newPasswordHash = 'new ' + user.attributes.password_hash
+
+            expectedUserInfo = {
+              username: user.attributes.username,
+              password_hash: newPasswordHash,
+              email: user.attributes.email,
+              firstName: user.attributes.firstName,
+              lastName: user.attributes.lastName
+            }
+          });
+
+      // Act
+      var updateUserPasswordPromise: Promise<User> =
+        createUserPromise.then(() =>
+          UserDataHandler.updateUserPassword(user.id,
+            newPasswordHash));
+
+      // Assert
+      return expect(updateUserPasswordPromise).to.eventually.fulfilled
+        .then(() => UserDataHandler.getUser(user.id))
+        .then((_user: User) => {
+          ModelInfoVerificator.verifyInfo(_user.attributes, expectedUserInfo);
+        })
+    });
+
+  });
+
 });

@@ -23,12 +23,12 @@ var UserDataHandler = (function () {
         updateValues[user_1.User.emailAttribute] = email || null;
         updateValues[user_1.User.firstNameAttribute] = firstName;
         updateValues[user_1.User.lastNameAttribute] = lastName;
-        var saveOptions = {
-            method: 'update'
-        };
-        return this._initializeUserByIdQuery(userId).fetch().then(function (_user) {
-            return _user.save(updateValues, saveOptions);
-        });
+        return this._updateUser(userId, updateValues);
+    };
+    UserDataHandler.updateUserPassword = function (userId, newPasswordHash) {
+        var updateValues = {};
+        updateValues[user_1.User.passwordHashAttribute] = newPasswordHash;
+        return this._updateUser(userId, updateValues);
     };
     UserDataHandler.deleteUser = function (userId) {
         return this._initializeUserByIdQuery(userId).destroy();
@@ -157,6 +157,14 @@ var UserDataHandler = (function () {
             user_id: userId,
             global_permissions: globalPermission_1.GlobalPermission[permission]
         };
+    };
+    UserDataHandler._updateUser = function (userId, updateValues) {
+        var saveOptions = {
+            method: 'update'
+        };
+        return this._initializeUserByIdQuery(userId).fetch().then(function (_user) {
+            return _user.save(updateValues, saveOptions);
+        });
     };
     return UserDataHandler;
 }());
