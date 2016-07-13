@@ -27,6 +27,18 @@ var config = {
       tableName: 'knex_migrations'
     }
   },
+  production: <Config>{
+    client: 'postgresql',
+    connection: {
+      database: EnvironmentConfig.production.databbaseConfig.databaseName,
+      user: EnvironmentConfig.production.databbaseConfig.databaseUsername,
+      password: EnvironmentConfig.production.databbaseConfig.databasePassword,
+      host: EnvironmentConfig.production.databbaseConfig.databaseHost
+    },
+    migrations: {
+      tableName: 'knex_migrations'
+    }
+  },
   tests: <Config>{
     client: 'postgresql',
     connection: {

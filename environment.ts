@@ -24,9 +24,21 @@ interface IEnvironmentConfig {
   databbaseConfig: IDatabaseConfig;
 }
 
-var config = {
-  development: <IEnvironmentConfig>{
-    appConfig: <IAppConfig>{
+interface IConfig {
+  development: IEnvironmentConfig;
+  production: IEnvironmentConfig;
+  tests: IEnvironmentConfig;
+
+  currentEnvironment: string;
+
+  getCurrentEnvironment: () => IEnvironmentConfig;
+
+  getDbConnectionString: () => string;
+}
+
+var config: IConfig = {
+  development: {
+    appConfig: {
       hostName: 'localhost',
       port: 8021,
       certificate: {
@@ -35,15 +47,32 @@ var config = {
       },
       secret: 'skills_application_secret:712cfb7d-a5fa-4c16-9805-c6da1deb5380',
     },
-    databbaseConfig: <IDatabaseConfig>{
+    databbaseConfig: {
       databaseName: 'skills_development',
       databaseUsername: '',
       databasePassword: '',
       databaseHost: ''
     }
   },
-  tests: <IEnvironmentConfig>{
-    appConfig: <IAppConfig>{
+  production: {
+    appConfig: {
+      hostName: 'localhost',
+      port: 8021,
+      certificate: {
+        keyFilePath: PathHelper.getPathFromRoot('ssl', 'development-localhost.key'),
+        certificateFilePath: PathHelper.getPathFromRoot('ssl', 'development-localhost.cert')
+      },
+      secret: 'skills_application_secret:712cfb7d-a5fa-4c16-9805-c6da1deb5380',
+    },
+    databbaseConfig: {
+      databaseName: 'skills_production',
+      databaseUsername: '',
+      databasePassword: '',
+      databaseHost: ''
+    }
+  },
+  tests: {
+    appConfig: {
       hostName: 'localhost',
       port: 8021,
       certificate: {
@@ -52,7 +81,7 @@ var config = {
       },
       secret: 'skills_application_secret:712cfb7d-a5fa-4c16-9805-c6da1deb5380'
     },
-    databbaseConfig: <IDatabaseConfig>{
+    databbaseConfig: {
       databaseName: 'skills_tests',
       databaseUsername: '',
       databasePassword: '',
@@ -70,6 +99,7 @@ var config = {
 
     return this[this.currentEnvironment];
   },
+
   getDbConnectionString: function(): string {
     var databbaseConfig: IDatabaseConfig =
       config.getCurrentEnvironment().databbaseConfig;

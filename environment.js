@@ -18,6 +18,23 @@ var config = {
             databaseHost: ''
         }
     },
+    production: {
+        appConfig: {
+            hostName: 'localhost',
+            port: 8021,
+            certificate: {
+                keyFilePath: pathHelper_1.PathHelper.getPathFromRoot('ssl', 'development-localhost.key'),
+                certificateFilePath: pathHelper_1.PathHelper.getPathFromRoot('ssl', 'development-localhost.cert')
+            },
+            secret: 'skills_application_secret:712cfb7d-a5fa-4c16-9805-c6da1deb5380',
+        },
+        databbaseConfig: {
+            databaseName: 'skills_production',
+            databaseUsername: '',
+            databasePassword: '',
+            databaseHost: ''
+        }
+    },
     tests: {
         appConfig: {
             hostName: 'localhost',

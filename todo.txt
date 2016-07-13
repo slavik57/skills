@@ -1,5 +1,4 @@
 todo:
-- webpack production with minification and separate DB. check for loading speed on the phone
 - settings page
 - user settings page - show users
 - user settings page - remove users if allowed
