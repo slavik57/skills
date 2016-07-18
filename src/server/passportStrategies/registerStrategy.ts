@@ -1,4 +1,4 @@
-import {IUserInfoResponse} from "../apiResponses/iUserInfoResponse";
+import {IUserLoginInfoResponse} from "../apiResponses/iUserLoginInfoResponse";
 import {IUserRegistrationDefinition} from "./interfaces/iUserRegistrationDefinition";
 import {StatusCode} from "../enums/statusCode";
 import {User} from "../models/user";
@@ -54,7 +54,7 @@ export class RegisterStrategy {
     }
   }
 
-  private static _registerUser(req: Request, username: string, password: string, done: (error: any, user?: IUserInfoResponse, options?: IVerifyOptions) => void) {
+  private static _registerUser(req: Request, username: string, password: string, done: (error: any, user?: IUserLoginInfoResponse, options?: IVerifyOptions) => void) {
 
     var userRegistrationDefinition = <IUserRegistrationDefinition>req.body;
 

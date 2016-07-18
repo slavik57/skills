@@ -1,3 +1,4 @@
-export class IUserInfoResponse {
+export interface IUserInfoResponse {
   id: number;
+  username: string;
 }

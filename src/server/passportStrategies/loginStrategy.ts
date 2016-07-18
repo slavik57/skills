@@ -1,4 +1,4 @@
-import {IUserInfoResponse} from "../apiResponses/iUserInfoResponse";
+import {IUserLoginInfoResponse} from "../apiResponses/iUserLoginInfoResponse";
 import {StatusCode} from "../enums/statusCode";
 import {User} from "../models/user";
 import * as passport from 'passport';
@@ -43,7 +43,7 @@ export class LoginStrategy {
     });
   }
 
-  private static _loginUser(req: Request, username: string, password: string, done: (error: any, user?: IUserInfoResponse, options?: IVerifyOptions) => void) {
+  private static _loginUser(req: Request, username: string, password: string, done: (error: any, user?: IUserLoginInfoResponse, options?: IVerifyOptions) => void) {
     var operation = new LoginUserOperation(username, password);
 
     operation.execute()
