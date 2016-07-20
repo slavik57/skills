@@ -1,5 +1,4 @@
 todo:
-- user settings page - remove users if allowed
 - user settings page - filter users
 - user settings page - show permissions
 - user settings page - add/remove permissions
@@ -56,6 +55,7 @@ todo:
 - teams page - filter my/other/maybe all teams with paging
 - skills page - show all skills with paging
 - skills page - filter skills with paging
+- user settings page - remove users if allowed
 
 Maybe:
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
