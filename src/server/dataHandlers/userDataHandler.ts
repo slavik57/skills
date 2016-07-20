@@ -240,7 +240,7 @@ export class UserDataHandler {
 
   private static _createLikeQueryValue(value: string): string {
     var fixedValue = this._fixValueForLikeQuery(value);
-    console.log(fixedValue);
+
     return '%' + fixedValue + '%';
   }
 

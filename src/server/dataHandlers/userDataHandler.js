@@ -177,7 +177,6 @@ var UserDataHandler = (function () {
     };
     UserDataHandler._createLikeQueryValue = function (value) {
         var fixedValue = this._fixValueForLikeQuery(value);
-        console.log(fixedValue);
         return '%' + fixedValue + '%';
     };
     UserDataHandler._fixValueForLikeQuery = function (value) {
