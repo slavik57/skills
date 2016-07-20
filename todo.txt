@@ -47,6 +47,15 @@ todo:
 - add skill description in the skills settings page and the skill page
 - add guild special sign for a team
 - home page..think of something to put there...somthing like..my stuff and links to usefull things...?
+- user settings page - users paging
+- user settings page - filter users with paging
+- teams settings page - show teams with paging
+- teams settings page - filter teams with paging
+- skills settings page - show skills with paging
+- teams page - show my/other teams titles with paging
+- teams page - filter my/other/maybe all teams with paging
+- skills page - show all skills with paging
+- skills page - filter skills with paging
 
 Maybe:
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory

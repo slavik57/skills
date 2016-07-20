@@ -36,7 +36,7 @@ Running tests:
 	- open the project folder you want to debug
 	- run the command "node-inspector"
 	- open chrome: http://127.0.0.1:8080/?ws=127.0.0.1:8080&port=5858 (or other page that is given in the command line)
-	- run the tests on other command line of the same project
+	- run the tests on other command line of the same project (if mocha then with the flag '--dbg-brk' )
 	
 
 Running the app:
