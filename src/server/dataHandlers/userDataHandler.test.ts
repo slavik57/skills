@@ -1100,4 +1100,109 @@ describe('userDataHandler', () => {
 
   });
 
+  describe('getUsersByPartialUsername', () => {
+
+    var singlePartialUsername: string;
+    var multiplePartialUsername: string;
+    var multiplePartialUsernameWithUnderscore: string;
+    var multiplePartialUsernameWithPercentage: string;
+
+    var userInfos: IUserInfo[];
+
+    beforeEach(() => {
+      singlePartialUsername = '_a_';
+      multiplePartialUsername = '-b-';
+      multiplePartialUsernameWithUnderscore = '_c_';
+      multiplePartialUsernameWithPercentage = '%d%';
+
+      userInfos = [
+        ModelInfoMockFactory.createUserInfo(1),
+        ModelInfoMockFactory.createUserInfo(2),
+        ModelInfoMockFactory.createUserInfo(3),
+        ModelInfoMockFactory.createUserInfo(4),
+        ModelInfoMockFactory.createUserInfo(5),
+        ModelInfoMockFactory.createUserInfo(6),
+        ModelInfoMockFactory.createUserInfo(7)
+      ];
+
+      userInfos[0].username = 'username' + singlePartialUsername + 'username';
+      userInfos[1].username = 'username' + multiplePartialUsername + 'username1';
+      userInfos[2].username = 'username' + multiplePartialUsername + 'username2';
+      userInfos[3].username = 'username' + multiplePartialUsernameWithUnderscore + 'username1';
+      userInfos[4].username = 'username' + multiplePartialUsernameWithUnderscore + 'username2';
+      userInfos[5].username = 'username' + multiplePartialUsernameWithPercentage + 'username1';
+      userInfos[6].username = 'username' + multiplePartialUsernameWithPercentage + 'username2';
+
+      return EnvironmentCleaner.clearTables()
+        .then(() => Promise.all([
+          UserDataHandler.createUser(userInfos[0]),
+          UserDataHandler.createUser(userInfos[1]),
+          UserDataHandler.createUser(userInfos[2]),
+          UserDataHandler.createUser(userInfos[3]),
+          UserDataHandler.createUser(userInfos[4]),
+          UserDataHandler.createUser(userInfos[5]),
+          UserDataHandler.createUser(userInfos[6]),
+        ]));
+    });
+
+    function verifyUsersContainThePartialUsername(users: User[], partialUsername: string) {
+      var usernames: string[] = _.map(users, _ => _.attributes.username);
+
+      usernames.forEach((_username: string) => {
+        expect(_username).to.contain(partialUsername);
+      });
+    }
+
+    it('no username with given partial username should return empty', () => {
+      var result: Promise<User[]> = UserDataHandler.getUsersByPartialUsername('not existing');
+
+      return expect(result).to.eventually.deep.equal([]);
+    });
+
+    it('one username with given partial username should return the user', () => {
+      var result: Promise<User[]> = UserDataHandler.getUsersByPartialUsername(singlePartialUsername);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_users: User[]) => {
+          expect(_users).to.be.length(1, 'should contain atleast one user');
+
+          verifyUsersContainThePartialUsername(_users, singlePartialUsername);
+        });
+    });
+
+    it('multiple usernames with given partial username should return the users 1', () => {
+      var result: Promise<User[]> = UserDataHandler.getUsersByPartialUsername(multiplePartialUsername);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_users: User[]) => {
+          expect(_users.length > 0, 'should contain atleast one user').to.be.true;
+
+          verifyUsersContainThePartialUsername(_users, multiplePartialUsername);
+        });
+    });
+
+    it('multiple usernames with given partial username with _ should return the users', () => {
+      var result: Promise<User[]> = UserDataHandler.getUsersByPartialUsername(multiplePartialUsernameWithUnderscore);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_users: User[]) => {
+          expect(_users.length > 0, 'should contain atleast one user').to.be.true;
+
+          verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithUnderscore);
+        });
+    });
+
+    it('multiple usernames with given partial username with % should return the users', () => {
+      var result: Promise<User[]> = UserDataHandler.getUsersByPartialUsername(multiplePartialUsernameWithPercentage);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_users: User[]) => {
+          expect(_users.length > 0, 'should contain atleast one user').to.be.true;
+
+          verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithPercentage);
+        });
+    });
+
+  });
+
 });

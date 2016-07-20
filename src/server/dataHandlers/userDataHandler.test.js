@@ -650,5 +650,86 @@ describe('userDataHandler', function () {
             });
         });
     });
+    describe('getUsersByPartialUsername', function () {
+        var singlePartialUsername;
+        var multiplePartialUsername;
+        var multiplePartialUsernameWithUnderscore;
+        var multiplePartialUsernameWithPercentage;
+        var userInfos;
+        beforeEach(function () {
+            singlePartialUsername = '_a_';
+            multiplePartialUsername = '-b-';
+            multiplePartialUsernameWithUnderscore = '_c_';
+            multiplePartialUsernameWithPercentage = '%d%';
+            userInfos = [
+                modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1),
+                modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(2),
+                modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(3),
+                modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(4),
+                modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(5),
+                modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(6),
+                modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(7)
+            ];
+            userInfos[0].username = 'username' + singlePartialUsername + 'username';
+            userInfos[1].username = 'username' + multiplePartialUsername + 'username1';
+            userInfos[2].username = 'username' + multiplePartialUsername + 'username2';
+            userInfos[3].username = 'username' + multiplePartialUsernameWithUnderscore + 'username1';
+            userInfos[4].username = 'username' + multiplePartialUsernameWithUnderscore + 'username2';
+            userInfos[5].username = 'username' + multiplePartialUsernameWithPercentage + 'username1';
+            userInfos[6].username = 'username' + multiplePartialUsernameWithPercentage + 'username2';
+            return environmentCleaner_1.EnvironmentCleaner.clearTables()
+                .then(function () { return Promise.all([
+                userDataHandler_1.UserDataHandler.createUser(userInfos[0]),
+                userDataHandler_1.UserDataHandler.createUser(userInfos[1]),
+                userDataHandler_1.UserDataHandler.createUser(userInfos[2]),
+                userDataHandler_1.UserDataHandler.createUser(userInfos[3]),
+                userDataHandler_1.UserDataHandler.createUser(userInfos[4]),
+                userDataHandler_1.UserDataHandler.createUser(userInfos[5]),
+                userDataHandler_1.UserDataHandler.createUser(userInfos[6]),
+            ]); });
+        });
+        function verifyUsersContainThePartialUsername(users, partialUsername) {
+            var usernames = _.map(users, function (_) { return _.attributes.username; });
+            usernames.forEach(function (_username) {
+                chai_1.expect(_username).to.contain(partialUsername);
+            });
+        }
+        it('no username with given partial username should return empty', function () {
+            var result = userDataHandler_1.UserDataHandler.getUsersByPartialUsername('not existing');
+            return chai_1.expect(result).to.eventually.deep.equal([]);
+        });
+        it('one username with given partial username should return the user', function () {
+            var result = userDataHandler_1.UserDataHandler.getUsersByPartialUsername(singlePartialUsername);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_users) {
+                chai_1.expect(_users).to.be.length(1, 'should contain atleast one user');
+                verifyUsersContainThePartialUsername(_users, singlePartialUsername);
+            });
+        });
+        it('multiple usernames with given partial username should return the users 1', function () {
+            var result = userDataHandler_1.UserDataHandler.getUsersByPartialUsername(multiplePartialUsername);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_users) {
+                chai_1.expect(_users.length > 0, 'should contain atleast one user').to.be.true;
+                verifyUsersContainThePartialUsername(_users, multiplePartialUsername);
+            });
+        });
+        it('multiple usernames with given partial username with _ should return the users', function () {
+            var result = userDataHandler_1.UserDataHandler.getUsersByPartialUsername(multiplePartialUsernameWithUnderscore);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_users) {
+                chai_1.expect(_users.length > 0, 'should contain atleast one user').to.be.true;
+                verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithUnderscore);
+            });
+        });
+        it('multiple usernames with given partial username with % should return the users', function () {
+            var result = userDataHandler_1.UserDataHandler.getUsersByPartialUsername(multiplePartialUsernameWithPercentage);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_users) {
+                chai_1.expect(_users.length > 0, 'should contain atleast one user').to.be.true;
+                verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithPercentage);
+            });
+        });
+    });
 });
 //# sourceMappingURL=userDataHandler.test.js.map

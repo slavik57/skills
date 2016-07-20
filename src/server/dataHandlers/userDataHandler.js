@@ -1,4 +1,6 @@
 "use strict";
+var stringManipulator_1 = require("../../common/stringManipulator");
+var querySelectors_1 = require("./querySelectors");
 var globalPermission_1 = require("../models/enums/globalPermission");
 var user_1 = require('../models/user');
 var usersGlobalPermissions_1 = require('../models/usersGlobalPermissions');
@@ -38,6 +40,13 @@ var UserDataHandler = (function () {
             .then(function (users) {
             return users.toArray();
         });
+    };
+    UserDataHandler.getUsersByPartialUsername = function (partialUsername) {
+        var likePartialUsername = this._createLikeQueryValue(partialUsername);
+        return new user_1.Users().query(function (_queryBuilder) {
+            _queryBuilder.where(user_1.User.usernameAttribute, querySelectors_1.QuerySelectors.LIKE, likePartialUsername);
+        }).fetch()
+            .then(function (_usersCollection) { return _usersCollection.toArray(); });
     };
     UserDataHandler.addGlobalPermissions = function (userId, permissionsToAdd) {
         var _this = this;
@@ -165,6 +174,16 @@ var UserDataHandler = (function () {
         return this._initializeUserByIdQuery(userId).fetch().then(function (_user) {
             return _user.save(updateValues, saveOptions);
         });
+    };
+    UserDataHandler._createLikeQueryValue = function (value) {
+        var fixedValue = this._fixValueForLikeQuery(value);
+        console.log(fixedValue);
+        return '%' + fixedValue + '%';
+    };
+    UserDataHandler._fixValueForLikeQuery = function (value) {
+        var noLodash = stringManipulator_1.StringManipulator.replaceAll(value, '_', '\\_');
+        var noPercentage = stringManipulator_1.StringManipulator.replaceAll(noLodash, '%', '\\%');
+        return noPercentage;
     };
     return UserDataHandler;
 }());

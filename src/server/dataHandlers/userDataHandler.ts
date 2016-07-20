@@ -1,3 +1,5 @@
+import {StringManipulator} from "../../common/stringManipulator";
+import {QuerySelectors} from "./querySelectors";
 import {IDestroyOptions} from "./interfaces/iDestroyOptions";
 import {IUserInfo} from "../models/interfaces/iUserInfo";
 import {GlobalPermission} from "../models/enums/globalPermission";
@@ -9,7 +11,7 @@ import * as _ from 'lodash';
 import {Team, Teams} from '../models/team';
 import {ITeamOfAUser} from '../models/interfaces/iTeamOfAUser';
 import {IUserGlobalPermissions} from '../models/interfaces/iUserGlobalPermissions';
-import {Transaction} from 'knex';
+import {Transaction, QueryBuilder} from 'knex';
 import * as bluebirdPromise from 'bluebird';
 
 export class UserDataHandler {
@@ -49,6 +51,15 @@ export class UserDataHandler {
       .then((users: Collection<User>) => {
         return users.toArray();
       });
+  }
+
+  public static getUsersByPartialUsername(partialUsername: string): bluebirdPromise<User[]> {
+    var likePartialUsername = this._createLikeQueryValue(partialUsername);
+
+    return new Users().query((_queryBuilder: QueryBuilder) => {
+      _queryBuilder.where(User.usernameAttribute, QuerySelectors.LIKE, likePartialUsername);
+    }).fetch()
+      .then((_usersCollection: Collection<User>) => _usersCollection.toArray());
   }
 
   public static addGlobalPermissions(userId: number, permissionsToAdd: GlobalPermission[]): bluebirdPromise<UserGlobalPermissions[]> {
@@ -225,5 +236,18 @@ export class UserDataHandler {
     return this._initializeUserByIdQuery(userId).fetch().then((_user: User) => {
       return _user.save(updateValues, saveOptions);
     });
+  }
+
+  private static _createLikeQueryValue(value: string): string {
+    var fixedValue = this._fixValueForLikeQuery(value);
+    console.log(fixedValue);
+    return '%' + fixedValue + '%';
+  }
+
+  private static _fixValueForLikeQuery(value: string): string {
+    var noLodash = StringManipulator.replaceAll(value, '_', '\\_');
+    var noPercentage = StringManipulator.replaceAll(noLodash, '%', '\\%');
+
+    return noPercentage;
   }
 }
