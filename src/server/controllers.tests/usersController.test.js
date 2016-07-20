@@ -5,6 +5,7 @@ var userDataHandler_1 = require("../dataHandlers/userDataHandler");
 var environmentCleaner_1 = require("../testUtils/environmentCleaner");
 var expressServer_1 = require("../expressServer");
 var chai = require('chai');
+var chai_1 = require('chai');
 var supertest = require('supertest');
 var chaiAsPromised = require('chai-as-promised');
 var statusCode_1 = require('../enums/statusCode');
@@ -68,6 +69,11 @@ describe('usersController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
+        it('getting filtered users details by partial username should fail', function (done) {
+            server.get('/users/filtered/1')
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
     });
     describe('user registered', function () {
         var user;
@@ -86,12 +92,35 @@ describe('usersController', function () {
                 .expect(expectedUsers)
                 .end(done);
         });
+        it('getting filtered users details by partial username should return one user', function (done) {
+            var usersWith1 = _.filter(users, function (_) { return _.attributes.username.indexOf('1') >= 0; });
+            var expectedUsers = getExpectedUsersDetails(usersWith1);
+            chai_1.expect(expectedUsers.length > 0).to.be.true;
+            server.get('/users/filtered/1')
+                .expect(statusCode_1.StatusCode.OK)
+                .expect(expectedUsers)
+                .end(done);
+        });
+        it('getting filtered users details by partial username should return all users', function (done) {
+            var usersWithUsername = _.filter(users, function (_) { return _.attributes.username.indexOf('username') >= 0; });
+            var expectedUsers = getExpectedUsersDetails(usersWithUsername);
+            chai_1.expect(expectedUsers.length > 0).to.be.true;
+            server.get('/users/filtered/username')
+                .expect(statusCode_1.StatusCode.OK)
+                .expect(expectedUsers)
+                .end(done);
+        });
         describe('logout', function () {
             beforeEach(function () {
                 return userLoginManager_1.UserLoginManager.logoutUser(server);
             });
             it('getting users details should fail', function (done) {
                 server.get('/users')
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .end(done);
+            });
+            it('getting filtered users details by partial username should fail', function (done) {
+                server.get('/users/filtered/1')
                     .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                     .end(done);
             });
@@ -115,12 +144,35 @@ describe('usersController', function () {
                 .expect(expectedUsers)
                 .end(done);
         });
+        it('getting filtered users details by partial username should return once user', function (done) {
+            var usersWith1 = _.filter(users, function (_) { return _.attributes.username.indexOf('1') >= 0; });
+            var expectedUsers = getExpectedUsersDetails(usersWith1);
+            chai_1.expect(expectedUsers.length > 0).to.be.true;
+            server.get('/users/filtered/1')
+                .expect(statusCode_1.StatusCode.OK)
+                .expect(expectedUsers)
+                .end(done);
+        });
+        it('getting filtered users details by partial username should return all users', function (done) {
+            var usersWithUsername = _.filter(users, function (_) { return _.attributes.username.indexOf('username') >= 0; });
+            var expectedUsers = getExpectedUsersDetails(usersWithUsername);
+            chai_1.expect(expectedUsers.length > 0).to.be.true;
+            server.get('/users/filtered/username')
+                .expect(statusCode_1.StatusCode.OK)
+                .expect(expectedUsers)
+                .end(done);
+        });
         describe('logout', function () {
             beforeEach(function () {
                 return userLoginManager_1.UserLoginManager.logoutUser(server);
             });
             it('getting users details should fail', function (done) {
                 server.get('/users')
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .end(done);
+            });
+            it('getting filtered users details by partial username should fail', function (done) {
+                server.get('/users/filtered/1')
                     .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                     .end(done);
             });

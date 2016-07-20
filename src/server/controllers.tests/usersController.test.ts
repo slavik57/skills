@@ -92,6 +92,12 @@ describe('usersController', () => {
         .end(done);
     });
 
+    it('getting filtered users details by partial username should fail', (done) => {
+      server.get('/users/filtered/1')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
   });
 
   describe('user registered', () => {
@@ -117,6 +123,30 @@ describe('usersController', () => {
         .end(done);
     });
 
+    it('getting filtered users details by partial username should return one user', (done) => {
+      var usersWith1 = _.filter(users, _ => _.attributes.username.indexOf('1') >= 0);
+
+      var expectedUsers = getExpectedUsersDetails(usersWith1);
+      expect(expectedUsers.length > 0).to.be.true;
+
+      server.get('/users/filtered/1')
+        .expect(StatusCode.OK)
+        .expect(expectedUsers)
+        .end(done);
+    });
+
+    it('getting filtered users details by partial username should return all users', (done) => {
+      var usersWithUsername = _.filter(users, _ => _.attributes.username.indexOf('username') >= 0);
+
+      var expectedUsers = getExpectedUsersDetails(usersWithUsername);
+      expect(expectedUsers.length > 0).to.be.true;
+
+      server.get('/users/filtered/username')
+        .expect(StatusCode.OK)
+        .expect(expectedUsers)
+        .end(done);
+    });
+
     describe('logout', () => {
 
       beforeEach(() => {
@@ -125,6 +155,12 @@ describe('usersController', () => {
 
       it('getting users details should fail', (done) => {
         server.get('/users')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
+      it('getting filtered users details by partial username should fail', (done) => {
+        server.get('/users/filtered/1')
           .expect(StatusCode.UNAUTHORIZED)
           .end(done);
       });
@@ -157,6 +193,30 @@ describe('usersController', () => {
         .end(done);
     });
 
+    it('getting filtered users details by partial username should return once user', (done) => {
+      var usersWith1 = _.filter(users, _ => _.attributes.username.indexOf('1') >= 0);
+
+      var expectedUsers = getExpectedUsersDetails(usersWith1);
+      expect(expectedUsers.length > 0).to.be.true;
+
+      server.get('/users/filtered/1')
+        .expect(StatusCode.OK)
+        .expect(expectedUsers)
+        .end(done);
+    });
+
+    it('getting filtered users details by partial username should return all users', (done) => {
+      var usersWithUsername = _.filter(users, _ => _.attributes.username.indexOf('username') >= 0);
+
+      var expectedUsers = getExpectedUsersDetails(usersWithUsername);
+      expect(expectedUsers.length > 0).to.be.true;
+
+      server.get('/users/filtered/username')
+        .expect(StatusCode.OK)
+        .expect(expectedUsers)
+        .end(done);
+    });
+
     describe('logout', () => {
 
       beforeEach(() => {
@@ -165,6 +225,12 @@ describe('usersController', () => {
 
       it('getting users details should fail', (done) => {
         server.get('/users')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
+      it('getting filtered users details by partial username should fail', (done) => {
+        server.get('/users/filtered/1')
           .expect(StatusCode.UNAUTHORIZED)
           .end(done);
       });
