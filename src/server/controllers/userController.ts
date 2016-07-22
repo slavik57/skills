@@ -10,6 +10,7 @@ import {User} from "../models/user";
 import {GetUserOperation} from "../operations/userOperations/getUserOperation";
 import { Express, Request, Response } from 'express';
 import {PathHelper} from '../../common/pathHelper';
+import * as _ from 'lodash';
 
 interface IUpdateUserDetailsDefinition {
   username: string;
@@ -105,7 +106,10 @@ export = {
 
     operation.execute()
       .then((permissions: GlobalPermission[]) => {
-        response.send(permissions);
+        var permissionsNames: string[] =
+          _.map(permissions, _permission => GlobalPermission[_permission]);
+
+        response.send(permissionsNames);
       });
   }]
 };

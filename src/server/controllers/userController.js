@@ -1,4 +1,5 @@
 "use strict";
+var globalPermission_1 = require("../models/enums/globalPermission");
 var getUserPermissionsOperation_1 = require("../operations/userOperations/getUserPermissionsOperation");
 var updateUserPasswordOperation_1 = require("../operations/userOperations/updateUserPasswordOperation");
 var userRequestIdValidator_1 = require("../../common/userRequestIdValidator");
@@ -7,6 +8,7 @@ var updateUserDetailsOperation_1 = require("../operations/userOperations/updateU
 var statusCode_1 = require("../enums/statusCode");
 var authenticator_1 = require("../expressMiddlewares/authenticator");
 var getUserOperation_1 = require("../operations/userOperations/getUserOperation");
+var _ = require('lodash');
 module.exports = {
     get_index: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response) {
             var operation = new getUserByIdOperation_1.GetUserByIdOperation(request.user.id);
@@ -64,7 +66,8 @@ module.exports = {
             var operation = new getUserPermissionsOperation_1.GetUserPermissionsOperation(numberId);
             operation.execute()
                 .then(function (permissions) {
-                response.send(permissions);
+                var permissionsNames = _.map(permissions, function (_permission) { return globalPermission_1.GlobalPermission[_permission]; });
+                response.send(permissionsNames);
             });
         }]
 };

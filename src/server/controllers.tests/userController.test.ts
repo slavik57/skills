@@ -17,6 +17,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import {StatusCode} from '../enums/statusCode';
 import {webpackInitializationTimeout} from '../../../testConfigurations';
 import * as passwordHash from 'password-hash';
+import * as _ from 'lodash';
 
 chai.use(chaiAsPromised);
 
@@ -271,6 +272,7 @@ describe('userController', () => {
 
       var user: User;
       var permissions: GlobalPermission[];
+      var expectedPermissions: string[];
 
       beforeEach(() => {
         permissions = [
@@ -278,6 +280,8 @@ describe('userController', () => {
           GlobalPermission.SKILLS_LIST_ADMIN,
           GlobalPermission.READER
         ];
+
+        expectedPermissions = _.map(permissions, _ => GlobalPermission[_]);
 
         return EnvironmentDirtifier.createUsers(1)
           .then((_users: User[]) => {
@@ -300,7 +304,7 @@ describe('userController', () => {
       it('getting existing user permissions should succeed', (done) => {
         server.get('/user/' + user.id + '/permissions')
           .expect(StatusCode.OK)
-          .expect(permissions)
+          .expect(expectedPermissions)
           .end(done);
       });
 
@@ -522,6 +526,7 @@ describe('userController', () => {
 
       var user: User;
       var permissions: GlobalPermission[];
+      var expectedPermissions: string[];
 
       beforeEach(() => {
         permissions = [
@@ -529,6 +534,8 @@ describe('userController', () => {
           GlobalPermission.SKILLS_LIST_ADMIN,
           GlobalPermission.READER
         ];
+
+        expectedPermissions = _.map(permissions, _ => GlobalPermission[_]);
 
         return EnvironmentDirtifier.createUsers(1)
           .then((_users: User[]) => {
@@ -551,7 +558,7 @@ describe('userController', () => {
       it('getting existing user permissions should succeed', (done) => {
         server.get('/user/' + user.id + '/permissions')
           .expect(StatusCode.OK)
-          .expect(permissions)
+          .expect(expectedPermissions)
           .end(done);
       });
 

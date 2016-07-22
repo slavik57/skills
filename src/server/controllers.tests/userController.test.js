@@ -13,6 +13,7 @@ var chaiAsPromised = require('chai-as-promised');
 var statusCode_1 = require('../enums/statusCode');
 var testConfigurations_1 = require('../../../testConfigurations');
 var passwordHash = require('password-hash');
+var _ = require('lodash');
 chai.use(chaiAsPromised);
 describe('userController', function () {
     var expressServer;
@@ -217,12 +218,14 @@ describe('userController', function () {
         describe('get user permissions', function () {
             var user;
             var permissions;
+            var expectedPermissions;
             beforeEach(function () {
                 permissions = [
                     globalPermission_1.GlobalPermission.ADMIN,
                     globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
                     globalPermission_1.GlobalPermission.READER
                 ];
+                expectedPermissions = _.map(permissions, function (_) { return globalPermission_1.GlobalPermission[_]; });
                 return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
                     .then(function (_users) {
                     user = _users[0];
@@ -241,7 +244,7 @@ describe('userController', function () {
             it('getting existing user permissions should succeed', function (done) {
                 server.get('/user/' + user.id + '/permissions')
                     .expect(statusCode_1.StatusCode.OK)
-                    .expect(permissions)
+                    .expect(expectedPermissions)
                     .end(done);
             });
         });
@@ -423,12 +426,14 @@ describe('userController', function () {
         describe('get user permissions', function () {
             var user;
             var permissions;
+            var expectedPermissions;
             beforeEach(function () {
                 permissions = [
                     globalPermission_1.GlobalPermission.ADMIN,
                     globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
                     globalPermission_1.GlobalPermission.READER
                 ];
+                expectedPermissions = _.map(permissions, function (_) { return globalPermission_1.GlobalPermission[_]; });
                 return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
                     .then(function (_users) {
                     user = _users[0];
@@ -447,7 +452,7 @@ describe('userController', function () {
             it('getting existing user permissions should succeed', function (done) {
                 server.get('/user/' + user.id + '/permissions')
                     .expect(statusCode_1.StatusCode.OK)
-                    .expect(permissions)
+                    .expect(expectedPermissions)
                     .end(done);
             });
         });
