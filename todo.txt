@@ -1,5 +1,4 @@
 todo:
-- user settings page - filter users
 - user settings page - show permissions
 - user settings page - add/remove permissions
 - user settings page - change password if allowed
