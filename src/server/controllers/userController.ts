@@ -1,3 +1,5 @@
+import {GlobalPermission} from "../models/enums/globalPermission";
+import {GetUserPermissionsOperation} from "../operations/userOperations/getUserPermissionsOperation";
 import {UpdateUserPasswordOperation} from "../operations/userOperations/updateUserPasswordOperation";
 import {UserRequestIdValidator} from "../../common/userRequestIdValidator";
 import {GetUserByIdOperation} from "../operations/userOperations/getUserByIdOperation";
@@ -94,6 +96,16 @@ export = {
         }
 
         return response.status(statusCode).send({ error: error });
+      });
+  }],
+  get_userId_permissions: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, userId: string): void {
+    var numberId: number = Number(userId);
+
+    var operation = new GetUserPermissionsOperation(numberId);
+
+    operation.execute()
+      .then((permissions: GlobalPermission[]) => {
+        response.send(permissions);
       });
   }]
 };

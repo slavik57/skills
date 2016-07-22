@@ -1,3 +1,5 @@
+import {GlobalPermission} from '../models/enums/globalPermission';
+import {EnvironmentDirtifier} from "../testUtils/environmentDirtifier";
 import {IUserInfo} from "../models/interfaces/iUserInfo";
 import {ModelInfoVerificator} from "../testUtils/modelInfoVerificator";
 import {IUserRegistrationDefinition} from "../passportStrategies/interfaces/iUserRegistrationDefinition";
@@ -100,6 +102,35 @@ describe('userController', () => {
       server.put('/user/1/password')
         .expect(StatusCode.UNAUTHORIZED)
         .end(done);
+    });
+
+    describe('get user permissions', () => {
+
+      var user: User;
+
+      beforeEach(() => {
+        return EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => {
+            [user] = _users;
+          });
+      });
+
+      afterEach(() => {
+        return EnvironmentCleaner.clearTables();
+      });
+
+      it('getting not existing user permissions should fail', (done) => {
+        server.get('/user/123456/permissions')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
+      it('getting existing user permissions should fail', (done) => {
+        server.get('/user/' + user.id + '/permissions')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
     });
 
   });
@@ -236,6 +267,45 @@ describe('userController', () => {
         .end(done);
     });
 
+    describe('get user permissions', () => {
+
+      var user: User;
+      var permissions: GlobalPermission[];
+
+      beforeEach(() => {
+        permissions = [
+          GlobalPermission.ADMIN,
+          GlobalPermission.SKILLS_LIST_ADMIN,
+          GlobalPermission.READER
+        ];
+
+        return EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => {
+            [user] = _users;
+          })
+          .then(() => UserDataHandler.addGlobalPermissions(user.id, permissions));
+      });
+
+      afterEach(() => {
+        return EnvironmentCleaner.clearTables();
+      });
+
+      it('getting not existing user permissions should succeed with empty permissions', (done) => {
+        server.get('/user/123456/permissions')
+          .expect(StatusCode.OK)
+          .expect([])
+          .end(done);
+      });
+
+      it('getting existing user permissions should succeed', (done) => {
+        server.get('/user/' + user.id + '/permissions')
+          .expect(StatusCode.OK)
+          .expect(permissions)
+          .end(done);
+      });
+
+    });
+
     describe('logout', () => {
 
       beforeEach(() => {
@@ -272,6 +342,35 @@ describe('userController', () => {
         server.put('/user/1/password')
           .expect(StatusCode.UNAUTHORIZED)
           .end(done);
+      });
+
+      describe('get user permissions', () => {
+
+        var user: User;
+
+        beforeEach(() => {
+          return EnvironmentDirtifier.createUsers(1)
+            .then((_users: User[]) => {
+              [user] = _users;
+            });
+        });
+
+        afterEach(() => {
+          return EnvironmentCleaner.clearTables();
+        });
+
+        it('getting not existing user permissions should fail', (done) => {
+          server.get('/user/123456/permissions')
+            .expect(StatusCode.UNAUTHORIZED)
+            .end(done);
+        });
+
+        it('getting existing user permissions should fail', (done) => {
+          server.get('/user/' + user.id + '/permissions')
+            .expect(StatusCode.UNAUTHORIZED)
+            .end(done);
+        });
+
       });
 
     });
@@ -419,6 +518,45 @@ describe('userController', () => {
         .end(done);
     });
 
+    describe('get user permissions', () => {
+
+      var user: User;
+      var permissions: GlobalPermission[];
+
+      beforeEach(() => {
+        permissions = [
+          GlobalPermission.ADMIN,
+          GlobalPermission.SKILLS_LIST_ADMIN,
+          GlobalPermission.READER
+        ];
+
+        return EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => {
+            [user] = _users;
+          })
+          .then(() => UserDataHandler.addGlobalPermissions(user.id, permissions));
+      });
+
+      afterEach(() => {
+        return EnvironmentCleaner.clearTables();
+      });
+
+      it('getting not existing user permissions should succeed with empty permissions', (done) => {
+        server.get('/user/123456/permissions')
+          .expect(StatusCode.OK)
+          .expect([])
+          .end(done);
+      });
+
+      it('getting existing user permissions should succeed', (done) => {
+        server.get('/user/' + user.id + '/permissions')
+          .expect(StatusCode.OK)
+          .expect(permissions)
+          .end(done);
+      });
+
+    });
+
     describe('logout', () => {
 
       beforeEach(() => {
@@ -455,6 +593,35 @@ describe('userController', () => {
         server.put('/user/1/password')
           .expect(StatusCode.UNAUTHORIZED)
           .end(done);
+      });
+
+      describe('get user permissions', () => {
+
+        var user: User;
+
+        beforeEach(() => {
+          return EnvironmentDirtifier.createUsers(1)
+            .then((_users: User[]) => {
+              [user] = _users;
+            });
+        });
+
+        afterEach(() => {
+          return EnvironmentCleaner.clearTables();
+        });
+
+        it('getting not existing user permissions should fail', (done) => {
+          server.get('/user/123456/permissions')
+            .expect(StatusCode.UNAUTHORIZED)
+            .end(done);
+        });
+
+        it('getting existing user permissions should fail', (done) => {
+          server.get('/user/' + user.id + '/permissions')
+            .expect(StatusCode.UNAUTHORIZED)
+            .end(done);
+        });
+
       });
 
     });

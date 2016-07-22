@@ -1,4 +1,5 @@
 "use strict";
+var getUserPermissionsOperation_1 = require("../operations/userOperations/getUserPermissionsOperation");
 var updateUserPasswordOperation_1 = require("../operations/userOperations/updateUserPasswordOperation");
 var userRequestIdValidator_1 = require("../../common/userRequestIdValidator");
 var getUserByIdOperation_1 = require("../operations/userOperations/getUserByIdOperation");
@@ -56,6 +57,14 @@ module.exports = {
                     statusCode = statusCode_1.StatusCode.UNAUTHORIZED;
                 }
                 return response.status(statusCode).send({ error: error });
+            });
+        }],
+    get_userId_permissions: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, userId) {
+            var numberId = Number(userId);
+            var operation = new getUserPermissionsOperation_1.GetUserPermissionsOperation(numberId);
+            operation.execute()
+                .then(function (permissions) {
+                response.send(permissions);
             });
         }]
 };

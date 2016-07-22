@@ -1,4 +1,6 @@
 "use strict";
+var globalPermission_1 = require('../models/enums/globalPermission');
+var environmentDirtifier_1 = require("../testUtils/environmentDirtifier");
 var modelInfoVerificator_1 = require("../testUtils/modelInfoVerificator");
 var userLoginManager_1 = require("../testUtils/userLoginManager");
 var userDataHandler_1 = require("../dataHandlers/userDataHandler");
@@ -76,6 +78,28 @@ describe('userController', function () {
             server.put('/user/1/password')
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
+        });
+        describe('get user permissions', function () {
+            var user;
+            beforeEach(function () {
+                return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                    .then(function (_users) {
+                    user = _users[0];
+                });
+            });
+            afterEach(function () {
+                return environmentCleaner_1.EnvironmentCleaner.clearTables();
+            });
+            it('getting not existing user permissions should fail', function (done) {
+                server.get('/user/123456/permissions')
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .end(done);
+            });
+            it('getting existing user permissions should fail', function (done) {
+                server.get('/user/' + user.id + '/permissions')
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .end(done);
+            });
         });
     });
     describe('user registered', function () {
@@ -190,6 +214,37 @@ describe('userController', function () {
                 .expect({ error: 'The new password cannot be empty' })
                 .end(done);
         });
+        describe('get user permissions', function () {
+            var user;
+            var permissions;
+            beforeEach(function () {
+                permissions = [
+                    globalPermission_1.GlobalPermission.ADMIN,
+                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
+                    globalPermission_1.GlobalPermission.READER
+                ];
+                return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                    .then(function (_users) {
+                    user = _users[0];
+                })
+                    .then(function () { return userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions); });
+            });
+            afterEach(function () {
+                return environmentCleaner_1.EnvironmentCleaner.clearTables();
+            });
+            it('getting not existing user permissions should succeed with empty permissions', function (done) {
+                server.get('/user/123456/permissions')
+                    .expect(statusCode_1.StatusCode.OK)
+                    .expect([])
+                    .end(done);
+            });
+            it('getting existing user permissions should succeed', function (done) {
+                server.get('/user/' + user.id + '/permissions')
+                    .expect(statusCode_1.StatusCode.OK)
+                    .expect(permissions)
+                    .end(done);
+            });
+        });
         describe('logout', function () {
             beforeEach(function () {
                 return userLoginManager_1.UserLoginManager.logoutUser(server);
@@ -220,6 +275,28 @@ describe('userController', function () {
                 server.put('/user/1/password')
                     .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                     .end(done);
+            });
+            describe('get user permissions', function () {
+                var user;
+                beforeEach(function () {
+                    return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                        .then(function (_users) {
+                        user = _users[0];
+                    });
+                });
+                afterEach(function () {
+                    return environmentCleaner_1.EnvironmentCleaner.clearTables();
+                });
+                it('getting not existing user permissions should fail', function (done) {
+                    server.get('/user/123456/permissions')
+                        .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                        .end(done);
+                });
+                it('getting existing user permissions should fail', function (done) {
+                    server.get('/user/' + user.id + '/permissions')
+                        .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                        .end(done);
+                });
             });
         });
     });
@@ -343,6 +420,37 @@ describe('userController', function () {
                 .expect({ error: 'The new password cannot be empty' })
                 .end(done);
         });
+        describe('get user permissions', function () {
+            var user;
+            var permissions;
+            beforeEach(function () {
+                permissions = [
+                    globalPermission_1.GlobalPermission.ADMIN,
+                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
+                    globalPermission_1.GlobalPermission.READER
+                ];
+                return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                    .then(function (_users) {
+                    user = _users[0];
+                })
+                    .then(function () { return userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions); });
+            });
+            afterEach(function () {
+                return environmentCleaner_1.EnvironmentCleaner.clearTables();
+            });
+            it('getting not existing user permissions should succeed with empty permissions', function (done) {
+                server.get('/user/123456/permissions')
+                    .expect(statusCode_1.StatusCode.OK)
+                    .expect([])
+                    .end(done);
+            });
+            it('getting existing user permissions should succeed', function (done) {
+                server.get('/user/' + user.id + '/permissions')
+                    .expect(statusCode_1.StatusCode.OK)
+                    .expect(permissions)
+                    .end(done);
+            });
+        });
         describe('logout', function () {
             beforeEach(function () {
                 return userLoginManager_1.UserLoginManager.logoutUser(server);
@@ -373,6 +481,28 @@ describe('userController', function () {
                 server.put('/user/1/password')
                     .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                     .end(done);
+            });
+            describe('get user permissions', function () {
+                var user;
+                beforeEach(function () {
+                    return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                        .then(function (_users) {
+                        user = _users[0];
+                    });
+                });
+                afterEach(function () {
+                    return environmentCleaner_1.EnvironmentCleaner.clearTables();
+                });
+                it('getting not existing user permissions should fail', function (done) {
+                    server.get('/user/123456/permissions')
+                        .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                        .end(done);
+                });
+                it('getting existing user permissions should fail', function (done) {
+                    server.get('/user/' + user.id + '/permissions')
+                        .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                        .end(done);
+                });
             });
         });
     });
