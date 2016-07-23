@@ -10,7 +10,7 @@ export class GlobalPermissionConverter {
     return {
       value: permission,
       name: name,
-      descrition: description
+      description: description
     }
   }
 

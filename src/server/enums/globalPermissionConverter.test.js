@@ -12,7 +12,7 @@ describe('GlobalPermissionConverter', function () {
                 var result = globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_permission);
                 chai_1.expect(result.value).to.be.equal(_permission);
                 chai_1.expect(result.name, message).to.not.contain('Unknown permission');
-                chai_1.expect(result.descrition, message).to.not.contain('Unknown permission');
+                chai_1.expect(result.description, message).to.not.contain('Unknown permission');
             });
         });
     });

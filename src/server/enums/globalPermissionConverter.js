@@ -9,7 +9,7 @@ var GlobalPermissionConverter = (function () {
         return {
             value: permission,
             name: name,
-            descrition: description
+            description: description
         };
     };
     GlobalPermissionConverter._getName = function (permission) {

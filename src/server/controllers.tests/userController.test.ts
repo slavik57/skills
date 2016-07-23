@@ -306,7 +306,7 @@ describe('userController', () => {
       it('getting existing user permissions should succeed', (done) => {
         server.get('/user/' + user.id + '/permissions')
           .expect(StatusCode.OK)
-          .expect(expectedPermissions)
+          .expect(expectedPermissions.sort(_ => _.value))
           .end(done);
       });
 
@@ -560,7 +560,7 @@ describe('userController', () => {
       it('getting existing user permissions should succeed', (done) => {
         server.get('/user/' + user.id + '/permissions')
           .expect(StatusCode.OK)
-          .expect(expectedPermissions)
+          .expect(expectedPermissions.sort(_ => _.value))
           .end(done);
       });
 

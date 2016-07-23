@@ -245,7 +245,7 @@ describe('userController', function () {
             it('getting existing user permissions should succeed', function (done) {
                 server.get('/user/' + user.id + '/permissions')
                     .expect(statusCode_1.StatusCode.OK)
-                    .expect(expectedPermissions)
+                    .expect(expectedPermissions.sort(function (_) { return _.value; }))
                     .end(done);
             });
         });
@@ -453,7 +453,7 @@ describe('userController', function () {
             it('getting existing user permissions should succeed', function (done) {
                 server.get('/user/' + user.id + '/permissions')
                     .expect(statusCode_1.StatusCode.OK)
-                    .expect(expectedPermissions)
+                    .expect(expectedPermissions.sort(function (_) { return _.value; }))
                     .end(done);
             });
         });

@@ -18,7 +18,7 @@ describe('GlobalPermissionConverter', () => {
 
         expect(result.value).to.be.equal(_permission);
         expect(result.name, message).to.not.contain('Unknown permission');
-        expect(result.descrition, message).to.not.contain('Unknown permission');
+        expect(result.description, message).to.not.contain('Unknown permission');
       });
     });
 
