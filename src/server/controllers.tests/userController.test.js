@@ -1,4 +1,5 @@
 "use strict";
+var enum_values_1 = require("enum-values");
 var globalPermissionConverter_1 = require("../enums/globalPermissionConverter");
 var globalPermission_1 = require('../models/enums/globalPermission');
 var environmentDirtifier_1 = require("../testUtils/environmentDirtifier");
@@ -102,6 +103,11 @@ describe('userController', function () {
                     .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                     .end(done);
             });
+        });
+        it('getting permissions modification rules should fail', function (done) {
+            server.get('/user/permissions-modification-rules')
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
         });
     });
     describe('user registered', function () {
@@ -226,15 +232,14 @@ describe('userController', function () {
                     globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
                     globalPermission_1.GlobalPermission.READER
                 ];
-                expectedPermissions = _.map(permissions, function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); });
+                expectedPermissions =
+                    _.map(permissions, function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); })
+                        .sort(function (_1, _2) { return _1.value - _2.value; });
                 return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
                     .then(function (_users) {
                     user = _users[0];
                 })
                     .then(function () { return userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions); });
-            });
-            afterEach(function () {
-                return environmentCleaner_1.EnvironmentCleaner.clearTables();
             });
             it('getting not existing user permissions should succeed with empty permissions', function (done) {
                 server.get('/user/123456/permissions')
@@ -245,8 +250,56 @@ describe('userController', function () {
             it('getting existing user permissions should succeed', function (done) {
                 server.get('/user/' + user.id + '/permissions')
                     .expect(statusCode_1.StatusCode.OK)
-                    .expect(expectedPermissions.sort(function (_) { return _.value; }))
+                    .expect(expectedPermissions)
                     .end(done);
+            });
+        });
+        describe('getting permissions modification', function () {
+            it('getting admin permissions modification rules should return correct values', function (done) {
+                var allowedToChangeByAdmin = [
+                    globalPermission_1.GlobalPermission.ADMIN,
+                    globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
+                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
+                ];
+                var expectedPermissions = enum_values_1.EnumValues.getValues(globalPermission_1.GlobalPermission)
+                    .map(function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); })
+                    .map(function (_) {
+                    return {
+                        value: _.value,
+                        name: _.name,
+                        description: _.description,
+                        allowedToChange: allowedToChangeByAdmin.indexOf(_.value) >= 0
+                    };
+                }).sort(function (_1, _2) { return _1.value - _2.value; });
+                userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.ADMIN])
+                    .then(function () {
+                    server.get('/user/permissions-modification-rules')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect(expectedPermissions)
+                        .end(done);
+                });
+            });
+            it('getting skill list admin permissions modification rules should return correct values', function (done) {
+                var allowedToChangeBySkillListAdmin = [
+                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
+                ];
+                var expectedPermissions = enum_values_1.EnumValues.getValues(globalPermission_1.GlobalPermission)
+                    .map(function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); })
+                    .map(function (_) {
+                    return {
+                        value: _.value,
+                        name: _.name,
+                        description: _.description,
+                        allowedToChange: allowedToChangeBySkillListAdmin.indexOf(_.value) >= 0
+                    };
+                });
+                userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN])
+                    .then(function () {
+                    server.get('/user/permissions-modification-rules')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect(expectedPermissions.sort(function (_1, _2) { return _1.value - _2.value; }))
+                        .end(done);
+                });
             });
         });
         describe('logout', function () {
@@ -301,6 +354,11 @@ describe('userController', function () {
                         .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                         .end(done);
                 });
+            });
+            it('getting permissions modification rules should fail', function (done) {
+                server.get('/user/permissions-modification-rules')
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .end(done);
             });
         });
     });
@@ -441,9 +499,6 @@ describe('userController', function () {
                 })
                     .then(function () { return userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions); });
             });
-            afterEach(function () {
-                return environmentCleaner_1.EnvironmentCleaner.clearTables();
-            });
             it('getting not existing user permissions should succeed with empty permissions', function (done) {
                 server.get('/user/123456/permissions')
                     .expect(statusCode_1.StatusCode.OK)
@@ -453,8 +508,56 @@ describe('userController', function () {
             it('getting existing user permissions should succeed', function (done) {
                 server.get('/user/' + user.id + '/permissions')
                     .expect(statusCode_1.StatusCode.OK)
-                    .expect(expectedPermissions.sort(function (_) { return _.value; }))
+                    .expect(expectedPermissions.sort(function (_1, _2) { return _1.value - _2.value; }))
                     .end(done);
+            });
+        });
+        describe('getting permissions modification', function () {
+            it('getting admin permissions modification rules should return correct values', function (done) {
+                var allowedToChangeByAdmin = [
+                    globalPermission_1.GlobalPermission.ADMIN,
+                    globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN,
+                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
+                ];
+                var expectedPermissions = enum_values_1.EnumValues.getValues(globalPermission_1.GlobalPermission)
+                    .map(function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); })
+                    .map(function (_) {
+                    return {
+                        value: _.value,
+                        name: _.name,
+                        description: _.description,
+                        allowedToChange: allowedToChangeByAdmin.indexOf(_.value) >= 0
+                    };
+                }).sort(function (_1, _2) { return _1.value - _2.value; });
+                userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.ADMIN])
+                    .then(function () {
+                    server.get('/user/permissions-modification-rules')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect(expectedPermissions)
+                        .end(done);
+                });
+            });
+            it('getting skill list admin permissions modification rules should return correct values', function (done) {
+                var allowedToChangeBySkillListAdmin = [
+                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
+                ];
+                var expectedPermissions = enum_values_1.EnumValues.getValues(globalPermission_1.GlobalPermission)
+                    .map(function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); })
+                    .map(function (_) {
+                    return {
+                        value: _.value,
+                        name: _.name,
+                        description: _.description,
+                        allowedToChange: allowedToChangeBySkillListAdmin.indexOf(_.value) >= 0
+                    };
+                });
+                userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN])
+                    .then(function () {
+                    server.get('/user/permissions-modification-rules')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect(expectedPermissions.sort(function (_1, _2) { return _1.value - _2.value; }))
+                        .end(done);
+                });
             });
         });
         describe('logout', function () {
@@ -509,6 +612,11 @@ describe('userController', function () {
                         .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                         .end(done);
                 });
+            });
+            it('getting permissions modification rules should fail', function (done) {
+                server.get('/user/permissions-modification-rules')
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .end(done);
             });
         });
     });

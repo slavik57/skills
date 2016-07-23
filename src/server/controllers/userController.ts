@@ -1,3 +1,5 @@
+import {IUserPermissionRuleResponse} from "../apiResponses/iUserPermissionRuleResponse";
+import {GetAllowedUserPermissionsToModifyOperation} from "../operations/userOperations/getAllowedUserPermissionsToModifyOperation";
 import {GlobalPermissionConverter} from "../enums/globalPermissionConverter";
 import {IUserPermissionResponse} from "../apiResponses/iUserPermissionResponse";
 import {GlobalPermission} from "../models/enums/globalPermission";
@@ -13,6 +15,7 @@ import {GetUserOperation} from "../operations/userOperations/getUserOperation";
 import { Express, Request, Response } from 'express';
 import {PathHelper} from '../../common/pathHelper';
 import * as _ from 'lodash';
+import {EnumValues} from 'enum-values';
 
 interface IUpdateUserDetailsDefinition {
   username: string;
@@ -111,7 +114,28 @@ export = {
         var permissionsNames: IUserPermissionResponse[] =
           _.map(permissions, _permission => GlobalPermissionConverter.convertToUserPermissionResponse(_permission));
 
-        response.send(permissionsNames);
+        response.send(permissionsNames.sort((_1, _2) => _1.value - _2.value));
+      });
+  }],
+  get_permissionsModificationRules: [Authenticator.ensureAuthenticated, function(request: Request, response: Response): void {
+    var operation = new GetAllowedUserPermissionsToModifyOperation(request.user.id);
+
+    operation.execute()
+      .then((permissions: GlobalPermission[]) => {
+        var allPermissions: GlobalPermission[] = EnumValues.getValues(GlobalPermission);
+
+        var result: IUserPermissionRuleResponse[] =
+          _.map(allPermissions, _permission => GlobalPermissionConverter.convertToUserPermissionResponse(_permission))
+            .map(_userPermissionResult => {
+              return <IUserPermissionRuleResponse>{
+                value: _userPermissionResult.value,
+                name: _userPermissionResult.name,
+                description: _userPermissionResult.description,
+                allowedToChange: permissions.indexOf(_userPermissionResult.value) >= 0
+              }
+            })
+
+        response.send(result.sort((_1, _2) => _1.value - _2.value));
       });
   }]
 };

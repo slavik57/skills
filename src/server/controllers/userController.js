@@ -1,5 +1,7 @@
 "use strict";
+var getAllowedUserPermissionsToModifyOperation_1 = require("../operations/userOperations/getAllowedUserPermissionsToModifyOperation");
 var globalPermissionConverter_1 = require("../enums/globalPermissionConverter");
+var globalPermission_1 = require("../models/enums/globalPermission");
 var getUserPermissionsOperation_1 = require("../operations/userOperations/getUserPermissionsOperation");
 var updateUserPasswordOperation_1 = require("../operations/userOperations/updateUserPasswordOperation");
 var userRequestIdValidator_1 = require("../../common/userRequestIdValidator");
@@ -9,6 +11,7 @@ var statusCode_1 = require("../enums/statusCode");
 var authenticator_1 = require("../expressMiddlewares/authenticator");
 var getUserOperation_1 = require("../operations/userOperations/getUserOperation");
 var _ = require('lodash');
+var enum_values_1 = require('enum-values');
 module.exports = {
     get_index: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response) {
             var operation = new getUserByIdOperation_1.GetUserByIdOperation(request.user.id);
@@ -67,7 +70,24 @@ module.exports = {
             operation.execute()
                 .then(function (permissions) {
                 var permissionsNames = _.map(permissions, function (_permission) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_permission); });
-                response.send(permissionsNames);
+                response.send(permissionsNames.sort(function (_1, _2) { return _1.value - _2.value; }));
+            });
+        }],
+    get_permissionsModificationRules: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response) {
+            var operation = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(request.user.id);
+            operation.execute()
+                .then(function (permissions) {
+                var allPermissions = enum_values_1.EnumValues.getValues(globalPermission_1.GlobalPermission);
+                var result = _.map(allPermissions, function (_permission) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_permission); })
+                    .map(function (_userPermissionResult) {
+                    return {
+                        value: _userPermissionResult.value,
+                        name: _userPermissionResult.name,
+                        description: _userPermissionResult.description,
+                        allowedToChange: permissions.indexOf(_userPermissionResult.value) >= 0
+                    };
+                });
+                response.send(result.sort(function (_1, _2) { return _1.value - _2.value; }));
             });
         }]
 };

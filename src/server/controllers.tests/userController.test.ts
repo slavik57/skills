@@ -1,3 +1,5 @@
+import {EnumValues} from "enum-values";
+import {IUserPermissionRuleResponse} from "../apiResponses/iUserPermissionRuleResponse";
 import {GlobalPermissionConverter} from "../enums/globalPermissionConverter";
 import {IUserPermissionResponse} from "../apiResponses/iUserPermissionResponse";
 import {GlobalPermission} from '../models/enums/globalPermission';
@@ -134,6 +136,12 @@ describe('userController', () => {
           .end(done);
       });
 
+    });
+
+    it('getting permissions modification rules should fail', (done) => {
+      server.get('/user/permissions-modification-rules')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
     });
 
   });
@@ -283,17 +291,15 @@ describe('userController', () => {
           GlobalPermission.READER
         ];
 
-        expectedPermissions = _.map(permissions, _ => GlobalPermissionConverter.convertToUserPermissionResponse(_));
+        expectedPermissions =
+          _.map(permissions, _ => GlobalPermissionConverter.convertToUserPermissionResponse(_))
+            .sort((_1, _2) => _1.value - _2.value);
 
         return EnvironmentDirtifier.createUsers(1)
           .then((_users: User[]) => {
             [user] = _users;
           })
           .then(() => UserDataHandler.addGlobalPermissions(user.id, permissions));
-      });
-
-      afterEach(() => {
-        return EnvironmentCleaner.clearTables();
       });
 
       it('getting not existing user permissions should succeed with empty permissions', (done) => {
@@ -306,8 +312,66 @@ describe('userController', () => {
       it('getting existing user permissions should succeed', (done) => {
         server.get('/user/' + user.id + '/permissions')
           .expect(StatusCode.OK)
-          .expect(expectedPermissions.sort(_ => _.value))
+          .expect(expectedPermissions)
           .end(done);
+      });
+
+    });
+
+    describe('getting permissions modification', () => {
+
+      it('getting admin permissions modification rules should return correct values', (done) => {
+        var allowedToChangeByAdmin: GlobalPermission[] = [
+          GlobalPermission.ADMIN,
+          GlobalPermission.TEAMS_LIST_ADMIN,
+          GlobalPermission.SKILLS_LIST_ADMIN
+        ];
+
+        var expectedPermissions: IUserPermissionRuleResponse[] =
+          EnumValues.getValues(GlobalPermission)
+            .map(_ => GlobalPermissionConverter.convertToUserPermissionResponse(_))
+            .map(_ => {
+              return <IUserPermissionRuleResponse>{
+                value: _.value,
+                name: _.name,
+                description: _.description,
+                allowedToChange: allowedToChangeByAdmin.indexOf(_.value) >= 0
+              }
+            }).sort((_1, _2) => _1.value - _2.value);
+
+        UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN])
+          .then(() => {
+            server.get('/user/permissions-modification-rules')
+              .expect(StatusCode.OK)
+              .expect(expectedPermissions)
+              .end(done);
+          });
+      });
+
+      it('getting skill list admin permissions modification rules should return correct values', (done) => {
+        var allowedToChangeBySkillListAdmin: GlobalPermission[] = [
+          GlobalPermission.SKILLS_LIST_ADMIN
+        ];
+
+        var expectedPermissions: IUserPermissionRuleResponse[] =
+          EnumValues.getValues(GlobalPermission)
+            .map(_ => GlobalPermissionConverter.convertToUserPermissionResponse(_))
+            .map(_ => {
+              return <IUserPermissionRuleResponse>{
+                value: _.value,
+                name: _.name,
+                description: _.description,
+                allowedToChange: allowedToChangeBySkillListAdmin.indexOf(_.value) >= 0
+              }
+            });
+
+        UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.SKILLS_LIST_ADMIN])
+          .then(() => {
+            server.get('/user/permissions-modification-rules')
+              .expect(StatusCode.OK)
+              .expect(expectedPermissions.sort((_1, _2) => _1.value - _2.value))
+              .end(done);
+          });
       });
 
     });
@@ -377,6 +441,12 @@ describe('userController', () => {
             .end(done);
         });
 
+      });
+
+      it('getting permissions modification rules should fail', (done) => {
+        server.get('/user/permissions-modification-rules')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
       });
 
     });
@@ -546,10 +616,6 @@ describe('userController', () => {
           .then(() => UserDataHandler.addGlobalPermissions(user.id, permissions));
       });
 
-      afterEach(() => {
-        return EnvironmentCleaner.clearTables();
-      });
-
       it('getting not existing user permissions should succeed with empty permissions', (done) => {
         server.get('/user/123456/permissions')
           .expect(StatusCode.OK)
@@ -560,8 +626,66 @@ describe('userController', () => {
       it('getting existing user permissions should succeed', (done) => {
         server.get('/user/' + user.id + '/permissions')
           .expect(StatusCode.OK)
-          .expect(expectedPermissions.sort(_ => _.value))
+          .expect(expectedPermissions.sort((_1, _2) => _1.value - _2.value))
           .end(done);
+      });
+
+    });
+
+    describe('getting permissions modification', () => {
+
+      it('getting admin permissions modification rules should return correct values', (done) => {
+        var allowedToChangeByAdmin: GlobalPermission[] = [
+          GlobalPermission.ADMIN,
+          GlobalPermission.TEAMS_LIST_ADMIN,
+          GlobalPermission.SKILLS_LIST_ADMIN
+        ];
+
+        var expectedPermissions: IUserPermissionRuleResponse[] =
+          EnumValues.getValues(GlobalPermission)
+            .map(_ => GlobalPermissionConverter.convertToUserPermissionResponse(_))
+            .map(_ => {
+              return <IUserPermissionRuleResponse>{
+                value: _.value,
+                name: _.name,
+                description: _.description,
+                allowedToChange: allowedToChangeByAdmin.indexOf(_.value) >= 0
+              }
+            }).sort((_1, _2) => _1.value - _2.value);
+
+        UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN])
+          .then(() => {
+            server.get('/user/permissions-modification-rules')
+              .expect(StatusCode.OK)
+              .expect(expectedPermissions)
+              .end(done);
+          });
+      });
+
+      it('getting skill list admin permissions modification rules should return correct values', (done) => {
+        var allowedToChangeBySkillListAdmin: GlobalPermission[] = [
+          GlobalPermission.SKILLS_LIST_ADMIN
+        ];
+
+        var expectedPermissions: IUserPermissionRuleResponse[] =
+          EnumValues.getValues(GlobalPermission)
+            .map(_ => GlobalPermissionConverter.convertToUserPermissionResponse(_))
+            .map(_ => {
+              return <IUserPermissionRuleResponse>{
+                value: _.value,
+                name: _.name,
+                description: _.description,
+                allowedToChange: allowedToChangeBySkillListAdmin.indexOf(_.value) >= 0
+              }
+            });
+
+        UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.SKILLS_LIST_ADMIN])
+          .then(() => {
+            server.get('/user/permissions-modification-rules')
+              .expect(StatusCode.OK)
+              .expect(expectedPermissions.sort((_1, _2) => _1.value - _2.value))
+              .end(done);
+          });
       });
 
     });
@@ -631,6 +755,12 @@ describe('userController', () => {
             .end(done);
         });
 
+      });
+
+      it('getting permissions modification rules should fail', (done) => {
+        server.get('/user/permissions-modification-rules')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
       });
 
     });
