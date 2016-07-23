@@ -1,5 +1,7 @@
 todo:
 - user settings page - add/remove permissions
+- user settings page - when modal is closed with esc and opened again it shows the last detail
+- remove the GUEST global permission from the settings of the user
 - user settings page - change password if allowed(admins only)
 - teams settings page - show teams
 - teams settings page - add/remove teams
