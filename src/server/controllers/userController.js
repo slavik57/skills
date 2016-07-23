@@ -1,5 +1,5 @@
 "use strict";
-var globalPermission_1 = require("../models/enums/globalPermission");
+var globalPermissionConverter_1 = require("../enums/globalPermissionConverter");
 var getUserPermissionsOperation_1 = require("../operations/userOperations/getUserPermissionsOperation");
 var updateUserPasswordOperation_1 = require("../operations/userOperations/updateUserPasswordOperation");
 var userRequestIdValidator_1 = require("../../common/userRequestIdValidator");
@@ -66,7 +66,7 @@ module.exports = {
             var operation = new getUserPermissionsOperation_1.GetUserPermissionsOperation(numberId);
             operation.execute()
                 .then(function (permissions) {
-                var permissionsNames = _.map(permissions, function (_permission) { return globalPermission_1.GlobalPermission[_permission]; });
+                var permissionsNames = _.map(permissions, function (_permission) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_permission); });
                 response.send(permissionsNames);
             });
         }]

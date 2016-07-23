@@ -1,4 +1,5 @@
 "use strict";
+var globalPermissionConverter_1 = require("../enums/globalPermissionConverter");
 var globalPermission_1 = require('../models/enums/globalPermission');
 var environmentDirtifier_1 = require("../testUtils/environmentDirtifier");
 var modelInfoVerificator_1 = require("../testUtils/modelInfoVerificator");
@@ -225,7 +226,7 @@ describe('userController', function () {
                     globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
                     globalPermission_1.GlobalPermission.READER
                 ];
-                expectedPermissions = _.map(permissions, function (_) { return globalPermission_1.GlobalPermission[_]; });
+                expectedPermissions = _.map(permissions, function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); });
                 return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
                     .then(function (_users) {
                     user = _users[0];
@@ -433,7 +434,7 @@ describe('userController', function () {
                     globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
                     globalPermission_1.GlobalPermission.READER
                 ];
-                expectedPermissions = _.map(permissions, function (_) { return globalPermission_1.GlobalPermission[_]; });
+                expectedPermissions = _.map(permissions, function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); });
                 return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
                     .then(function (_users) {
                     user = _users[0];

@@ -1,3 +1,5 @@
+import {GlobalPermissionConverter} from "../enums/globalPermissionConverter";
+import {IUserPermissionResponse} from "../apiResponses/iUserPermissionResponse";
 import {GlobalPermission} from '../models/enums/globalPermission';
 import {EnvironmentDirtifier} from "../testUtils/environmentDirtifier";
 import {IUserInfo} from "../models/interfaces/iUserInfo";
@@ -272,7 +274,7 @@ describe('userController', () => {
 
       var user: User;
       var permissions: GlobalPermission[];
-      var expectedPermissions: string[];
+      var expectedPermissions: IUserPermissionResponse[];
 
       beforeEach(() => {
         permissions = [
@@ -281,7 +283,7 @@ describe('userController', () => {
           GlobalPermission.READER
         ];
 
-        expectedPermissions = _.map(permissions, _ => GlobalPermission[_]);
+        expectedPermissions = _.map(permissions, _ => GlobalPermissionConverter.convertToUserPermissionResponse(_));
 
         return EnvironmentDirtifier.createUsers(1)
           .then((_users: User[]) => {
@@ -526,7 +528,7 @@ describe('userController', () => {
 
       var user: User;
       var permissions: GlobalPermission[];
-      var expectedPermissions: string[];
+      var expectedPermissions: IUserPermissionResponse[];
 
       beforeEach(() => {
         permissions = [
@@ -535,7 +537,7 @@ describe('userController', () => {
           GlobalPermission.READER
         ];
 
-        expectedPermissions = _.map(permissions, _ => GlobalPermission[_]);
+        expectedPermissions = _.map(permissions, _ => GlobalPermissionConverter.convertToUserPermissionResponse(_));
 
         return EnvironmentDirtifier.createUsers(1)
           .then((_users: User[]) => {

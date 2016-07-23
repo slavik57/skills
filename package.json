@@ -35,6 +35,7 @@
     "bookshelf-cascade-delete": "^1.0.4",
     "connect-pg-simple": "^3.1.0",
     "cookie-parser": "^1.4.3",
+    "enum-values": "^1.0.1",
     "express": "^4.14.0",
     "express-controller": "^0.2.9",
     "express-session": "^1.13.0",

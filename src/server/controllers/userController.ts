@@ -1,3 +1,5 @@
+import {GlobalPermissionConverter} from "../enums/globalPermissionConverter";
+import {IUserPermissionResponse} from "../apiResponses/iUserPermissionResponse";
 import {GlobalPermission} from "../models/enums/globalPermission";
 import {GetUserPermissionsOperation} from "../operations/userOperations/getUserPermissionsOperation";
 import {UpdateUserPasswordOperation} from "../operations/userOperations/updateUserPasswordOperation";
@@ -106,8 +108,8 @@ export = {
 
     operation.execute()
       .then((permissions: GlobalPermission[]) => {
-        var permissionsNames: string[] =
-          _.map(permissions, _permission => GlobalPermission[_permission]);
+        var permissionsNames: IUserPermissionResponse[] =
+          _.map(permissions, _permission => GlobalPermissionConverter.convertToUserPermissionResponse(_permission));
 
         response.send(permissionsNames);
       });

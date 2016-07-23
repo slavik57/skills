@@ -1,4 +1,5 @@
 todo:
+- user settings page - filter the users no matter the case(lower/upper)
 - user settings page - add/remove permissions
 - user settings page - change password if allowed(admins only)
 - teams settings page - show teams
