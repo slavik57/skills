@@ -1,5 +1,5 @@
 todo:
-- user settings page - add/remove permissions
+- user settings page - closing the update component after successfull permissions change
 - remove the GUEST global permission from the settings of the user
 - user settings page - change password if allowed(admins only)
 - teams settings page - show teams
