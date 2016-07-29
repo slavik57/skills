@@ -104,9 +104,9 @@ describe('userController', () => {
       UserDataHandler.createUser(userInfo)
         .then(() => {
           server.get('/user/' + userInfo.username + '/exists')
-          .expect(StatusCode.OK)
-          .expect({ userExists: true })
-          .end(done)
+            .expect(StatusCode.OK)
+            .expect({ userExists: true })
+            .end(done)
         });
     });
 
