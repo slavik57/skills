@@ -115,7 +115,7 @@ describe('usersController', () => {
     });
 
     it('getting users details should succeed', (done) => {
-      var expectedUsers = getExpectedUsersDetails(users);
+      var expectedUsers = getExpectedUsersDetails(users).sort((_1, _2) => _1.id - _2.id);
 
       server.get('/users')
         .expect(StatusCode.OK)

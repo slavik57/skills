@@ -1,5 +1,5 @@
 "use strict";
-var ExtendedError_1 = require("../../../common/ExtendedError");
+var extendedError_1 = require("../../../common/errors/extendedError");
 var bluebirdPromise = require('bluebird');
 var OperationBase = (function () {
     function OperationBase() {
@@ -19,13 +19,13 @@ var OperationBase = (function () {
             return this.doWork();
         }
         catch (error) {
-            var rejectionError = new ExtendedError_1.ExtendedError();
+            var rejectionError = new extendedError_1.ExtendedError();
             rejectionError.innerError = error;
             return bluebirdPromise.reject(rejectionError);
         }
     };
     OperationBase.prototype._failExecution = function (error) {
-        var rejectionError = new ExtendedError_1.ExtendedError();
+        var rejectionError = new extendedError_1.ExtendedError();
         rejectionError.message = 'The operation cannot be executed';
         rejectionError.innerError = error;
         return bluebirdPromise.reject(rejectionError);

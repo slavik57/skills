@@ -12,4 +12,4 @@ var ExtendedError = (function (_super) {
     return ExtendedError;
 }(Error));
 exports.ExtendedError = ExtendedError;
-//# sourceMappingURL=ExtendedError.js.map
+//# sourceMappingURL=extendedError.js.map

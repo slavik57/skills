@@ -1,4 +1,4 @@
-import {ExtendedError} from "../../../common/ExtendedError";
+import {ExtendedError} from "../../../common/errors/extendedError";
 import {IOperationExecutionError} from "../interfaces/iOperationExecutionError";
 import * as bluebirdPromise from 'bluebird';
 

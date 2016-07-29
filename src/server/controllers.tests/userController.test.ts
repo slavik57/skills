@@ -157,9 +157,16 @@ describe('userController', () => {
 
     });
 
+    it('updateing user permissions should fail', (done) => {
+      server.put('/user/1/permissions')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
   };
 
   var autorizedTests = (signinUserMethod: () => Promise<User>) => {
+
     return () => {
 
       var user: User;
@@ -390,6 +397,143 @@ describe('userController', () => {
       });
 
       describe('logout', notAuthorizedTests);
+
+      describe('update user permissions', () => {
+
+        var userToModifyPermissionsOf: User;
+        var permissionsOfUserToModify: GlobalPermission[];
+
+        beforeEach(() => {
+          permissionsOfUserToModify = [
+            GlobalPermission.TEAMS_LIST_ADMIN
+          ];
+
+          return EnvironmentDirtifier.createUsers(1)
+            .then((_users: User[]) => {
+              [userToModifyPermissionsOf] = _users;
+            })
+            .then(() => UserDataHandler.addGlobalPermissions(userToModifyPermissionsOf.id, permissionsOfUserToModify));
+        });
+
+        describe('logged in user has insuffisient permissions to modify the user', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.READER]);
+          });
+
+          it('removing permissions should fail', (done) => {
+            var userPermissions = {
+              permissionsToAdd: [],
+              permissionsToRemove: permissionsOfUserToModify
+            };
+
+            server.put('/user/' + userToModifyPermissionsOf.id + '/permissions')
+              .send(userPermissions)
+              .expect(StatusCode.UNAUTHORIZED)
+              .end(done);
+          });
+
+          it('adding permissions should fail', (done) => {
+            var userPermissions = {
+              permissionsToAdd: [GlobalPermission.TEAMS_LIST_ADMIN],
+              permissionsToRemove: []
+            };
+
+            server.put('/user/' + userToModifyPermissionsOf.id + '/permissions')
+              .send(userPermissions)
+              .expect(StatusCode.UNAUTHORIZED)
+              .end(done);
+          });
+
+        });
+
+        describe('logged in user has suffisient permissions to modify the user', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
+          });
+
+          it('removing permissions should succeed', (done) => {
+            var userPermissions = {
+              permissionsToAdd: [],
+              permissionsToRemove: permissionsOfUserToModify
+            };
+
+            server.put('/user/' + userToModifyPermissionsOf.id + '/permissions')
+              .send(userPermissions)
+              .expect(StatusCode.OK)
+              .end(() => {
+                UserDataHandler.getUserGlobalPermissions(userToModifyPermissionsOf.id)
+                  .then((_actualPermissions: GlobalPermission[]) => {
+                    permissionsOfUserToModify.forEach((_permission) => {
+                      expect(_actualPermissions).to.not.contain(_permission);
+                    })
+                    done();
+                  });
+              });
+          });
+
+          it('adding permissions should succeed', (done) => {
+            var userPermissions = {
+              permissionsToAdd: [GlobalPermission.TEAMS_LIST_ADMIN],
+              permissionsToRemove: []
+            };
+
+            server.put('/user/' + userToModifyPermissionsOf.id + '/permissions')
+              .send(userPermissions)
+              .expect(StatusCode.OK)
+              .end(() => {
+                UserDataHandler.getUserGlobalPermissions(userToModifyPermissionsOf.id)
+                  .then((_actualPermissions: GlobalPermission[]) => {
+                    expect(_actualPermissions).to.contain(GlobalPermission.TEAMS_LIST_ADMIN);
+                    done();
+                  });
+              });
+          });
+
+          it('removing not existing permission should succeed', (done) => {
+            var userPermissions = {
+              permissionsToAdd: [],
+              permissionsToRemove: [GlobalPermission.ADMIN]
+            };
+
+            server.put('/user/' + userToModifyPermissionsOf.id + '/permissions')
+              .send(userPermissions)
+              .expect(StatusCode.OK)
+              .end(() => {
+                UserDataHandler.getUserGlobalPermissions(userToModifyPermissionsOf.id)
+                  .then((_actualPermissions: GlobalPermission[]) => {
+                    permissionsOfUserToModify.forEach((_permission) => {
+                      expect(_actualPermissions).to.not.contain(GlobalPermission.ADMIN);
+                    })
+                    done();
+                  });
+              });
+          });
+
+          it('adding existing permissions should succeed', (done) => {
+            var userPermissions = {
+              permissionsToAdd: permissionsOfUserToModify,
+              permissionsToRemove: []
+            };
+
+            server.put('/user/' + userToModifyPermissionsOf.id + '/permissions')
+              .send(userPermissions)
+              .expect(StatusCode.OK)
+              .end(() => {
+                UserDataHandler.getUserGlobalPermissions(userToModifyPermissionsOf.id)
+                  .then((_actualPermissions: GlobalPermission[]) => {
+                    permissionsOfUserToModify.forEach((_permission) => {
+                      expect(_actualPermissions).to.contain(_permission);
+                    });
+                    done();
+                  });
+              });
+          });
+
+        });
+
+      });
 
     };
 

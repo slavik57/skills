@@ -1,3 +1,4 @@
+import {UnauthorizedError} from "../../../common/errors/unauthorizedError";
 import {GetAllowedUserPermissionsToModifyOperation} from "../userOperations/getAllowedUserPermissionsToModifyOperation";
 import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {OperationBase} from "./operationBase";
@@ -7,7 +8,7 @@ import * as bluebirdPromise from 'bluebird';
 
 export class ModifyUserPermissionsOperationBase<T> extends OperationBase<T> {
 
-  constructor(private _userIdToModifyPermissionsOf: number,
+  constructor(protected userIdToModifyPermissionsOf: number,
     private _permissionsToModify: GlobalPermission[],
     private _executingUserId: number) {
 
@@ -41,7 +42,7 @@ export class ModifyUserPermissionsOperationBase<T> extends OperationBase<T> {
   private _rejectWithNotAllowedPermissionsToModify(permissionsTheExecutingUserCannotAdd: GlobalPermission[]): bluebirdPromise<any> {
     var permissionNames: string[] = _.map(permissionsTheExecutingUserCannotAdd, _permission => GlobalPermission[_permission]);
 
-    var error = new Error();
+    var error = new UnauthorizedError();
     error.message = 'The executing user cannot modify the permissions: ' + permissionNames.join(', ');
     return bluebirdPromise.reject(error);
   }

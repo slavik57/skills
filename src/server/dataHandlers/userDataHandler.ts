@@ -70,6 +70,16 @@ export class UserDataHandler {
     return bookshelf.transaction((_transaction: Transaction) => this._removeGlobalPermissionInternal(userId, permissionsToRemove, _transaction));
   }
 
+  public static updateGlobalPermissions(userId: number,
+    permissionsToAdd: GlobalPermission[],
+    permissionsToRemove: GlobalPermission[]): bluebirdPromise<void> {
+    return bookshelf.transaction((_transaction: Transaction) => {
+      return this._addGlobalPermissionInternal(userId, permissionsToAdd, _transaction)
+        .then(() => this._removeGlobalPermissionInternal(userId, permissionsToRemove, _transaction))
+        .then(() => { });
+    });
+  }
+
   public static getUserGlobalPermissions(userId: number): bluebirdPromise<GlobalPermission[]> {
     return this._fetchUserGlobalPermissions(userId)
       .then((usersGlobalPermissions: Collection<UserGlobalPermissions>) => {

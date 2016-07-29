@@ -1,4 +1,6 @@
 "use strict";
+var errorUtils_1 = require("../../common/errors/errorUtils");
+var updateUserPermissionsOperation_1 = require("../operations/userOperations/updateUserPermissionsOperation");
 var getAllowedUserPermissionsToModifyOperation_1 = require("../operations/userOperations/getAllowedUserPermissionsToModifyOperation");
 var globalPermissionConverter_1 = require("../enums/globalPermissionConverter");
 var globalPermission_1 = require("../models/enums/globalPermission");
@@ -88,6 +90,19 @@ module.exports = {
                     };
                 });
                 response.send(result.sort(function (_1, _2) { return _1.value - _2.value; }));
+            });
+        }],
+    put_userId_permissions: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, userId) {
+            var numberId = Number(userId);
+            var updateUserPermissions = request.body;
+            var operation = new updateUserPermissionsOperation_1.UpdateUserPermissionsOperation(numberId, updateUserPermissions.permissionsToAdd, updateUserPermissions.permissionsToRemove, request.user.id);
+            operation.execute()
+                .then(function () { return response.status(statusCode_1.StatusCode.OK).send(); }, function (error) {
+                var statusCode = statusCode_1.StatusCode.INTERNAL_SERVER_ERROR;
+                if (errorUtils_1.ErrorUtils.IsUnautorizedError(error)) {
+                    statusCode = statusCode_1.StatusCode.UNAUTHORIZED;
+                }
+                return response.status(statusCode).send({ error: error });
             });
         }]
 };

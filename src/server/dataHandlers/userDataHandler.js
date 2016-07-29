@@ -56,6 +56,14 @@ var UserDataHandler = (function () {
         var _this = this;
         return bookshelf_1.bookshelf.transaction(function (_transaction) { return _this._removeGlobalPermissionInternal(userId, permissionsToRemove, _transaction); });
     };
+    UserDataHandler.updateGlobalPermissions = function (userId, permissionsToAdd, permissionsToRemove) {
+        var _this = this;
+        return bookshelf_1.bookshelf.transaction(function (_transaction) {
+            return _this._addGlobalPermissionInternal(userId, permissionsToAdd, _transaction)
+                .then(function () { return _this._removeGlobalPermissionInternal(userId, permissionsToRemove, _transaction); })
+                .then(function () { });
+        });
+    };
     UserDataHandler.getUserGlobalPermissions = function (userId) {
         var _this = this;
         return this._fetchUserGlobalPermissions(userId)

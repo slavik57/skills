@@ -86,7 +86,7 @@ describe('usersController', function () {
             });
         });
         it('getting users details should succeed', function (done) {
-            var expectedUsers = getExpectedUsersDetails(users);
+            var expectedUsers = getExpectedUsersDetails(users).sort(function (_1, _2) { return _1.id - _2.id; });
             server.get('/users')
                 .expect(statusCode_1.StatusCode.OK)
                 .expect(expectedUsers)

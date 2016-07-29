@@ -1,3 +1,5 @@
+import {ErrorUtils} from "../../common/errors/errorUtils";
+import {UpdateUserPermissionsOperation} from "../operations/userOperations/updateUserPermissionsOperation";
 import {IUserPermissionRuleResponse} from "../apiResponses/iUserPermissionRuleResponse";
 import {GetAllowedUserPermissionsToModifyOperation} from "../operations/userOperations/getAllowedUserPermissionsToModifyOperation";
 import {GlobalPermissionConverter} from "../enums/globalPermissionConverter";
@@ -27,6 +29,11 @@ interface IUpdateUserDetailsDefinition {
 interface IUpdateUserPasswordDefinition {
   password: string;
   newPassword: string;
+}
+
+interface IUpdateUserPermissionsDefinition {
+  permissionsToAdd: GlobalPermission[];
+  permissionsToRemove: GlobalPermission[];
 }
 
 export = {
@@ -136,6 +143,27 @@ export = {
             })
 
         response.send(result.sort((_1, _2) => _1.value - _2.value));
+      });
+  }],
+  put_userId_permissions: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, userId: string) {
+    var numberId: number = Number(userId);
+    var updateUserPermissions = <IUpdateUserPermissionsDefinition>request.body;
+
+    var operation = new UpdateUserPermissionsOperation(numberId,
+      updateUserPermissions.permissionsToAdd,
+      updateUserPermissions.permissionsToRemove,
+      request.user.id);
+
+    operation.execute()
+      .then(() => response.status(StatusCode.OK).send(),
+      (error: any) => {
+        var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
+
+        if (ErrorUtils.IsUnautorizedError(error)) {
+          statusCode = StatusCode.UNAUTHORIZED;
+        }
+
+        return response.status(statusCode).send({ error: error });
       });
   }]
 };

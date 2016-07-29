@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var unauthorizedError_1 = require("../../../common/errors/unauthorizedError");
 var getAllowedUserPermissionsToModifyOperation_1 = require("../userOperations/getAllowedUserPermissionsToModifyOperation");
 var operationBase_1 = require("./operationBase");
 var globalPermission_1 = require("../../models/enums/globalPermission");
@@ -11,9 +12,9 @@ var _ = require('lodash');
 var bluebirdPromise = require('bluebird');
 var ModifyUserPermissionsOperationBase = (function (_super) {
     __extends(ModifyUserPermissionsOperationBase, _super);
-    function ModifyUserPermissionsOperationBase(_userIdToModifyPermissionsOf, _permissionsToModify, _executingUserId) {
+    function ModifyUserPermissionsOperationBase(userIdToModifyPermissionsOf, _permissionsToModify, _executingUserId) {
         _super.call(this);
-        this._userIdToModifyPermissionsOf = _userIdToModifyPermissionsOf;
+        this.userIdToModifyPermissionsOf = userIdToModifyPermissionsOf;
         this._permissionsToModify = _permissionsToModify;
         this._executingUserId = _executingUserId;
     }
@@ -37,7 +38,7 @@ var ModifyUserPermissionsOperationBase = (function (_super) {
     };
     ModifyUserPermissionsOperationBase.prototype._rejectWithNotAllowedPermissionsToModify = function (permissionsTheExecutingUserCannotAdd) {
         var permissionNames = _.map(permissionsTheExecutingUserCannotAdd, function (_permission) { return globalPermission_1.GlobalPermission[_permission]; });
-        var error = new Error();
+        var error = new unauthorizedError_1.UnauthorizedError();
         error.message = 'The executing user cannot modify the permissions: ' + permissionNames.join(', ');
         return bluebirdPromise.reject(error);
     };
