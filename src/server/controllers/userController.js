@@ -14,6 +14,9 @@ var authenticator_1 = require("../expressMiddlewares/authenticator");
 var getUserOperation_1 = require("../operations/userOperations/getUserOperation");
 var _ = require('lodash');
 var enum_values_1 = require('enum-values');
+function permissionGuestFilter(permissions) {
+    return _.difference(permissions, [globalPermission_1.GlobalPermission.GUEST]);
+}
 module.exports = {
     get_index: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response) {
             var operation = new getUserByIdOperation_1.GetUserByIdOperation(request.user.id);
@@ -71,7 +74,8 @@ module.exports = {
             var operation = new getUserPermissionsOperation_1.GetUserPermissionsOperation(numberId);
             operation.execute()
                 .then(function (permissions) {
-                var permissionsNames = _.map(permissions, function (_permission) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_permission); });
+                var permissionsWithoutGuest = permissionGuestFilter(permissions);
+                var permissionsNames = _.map(permissionsWithoutGuest, function (_permission) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_permission); });
                 response.send(permissionsNames.sort(function (_1, _2) { return _1.value - _2.value; }));
             });
         }],
@@ -80,7 +84,8 @@ module.exports = {
             operation.execute()
                 .then(function (permissions) {
                 var allPermissions = enum_values_1.EnumValues.getValues(globalPermission_1.GlobalPermission);
-                var result = _.map(allPermissions, function (_permission) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_permission); })
+                var permissionsWithoutGuest = permissionGuestFilter(allPermissions);
+                var result = _.map(permissionsWithoutGuest, function (_permission) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_permission); })
                     .map(function (_userPermissionResult) {
                     return {
                         value: _userPermissionResult.value,

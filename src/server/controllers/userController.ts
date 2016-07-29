@@ -36,6 +36,10 @@ interface IUpdateUserPermissionsDefinition {
   permissionsToRemove: GlobalPermission[];
 }
 
+function permissionGuestFilter(permissions: GlobalPermission[]): GlobalPermission[] {
+  return _.difference(permissions, [GlobalPermission.GUEST]);
+}
+
 export = {
   get_index: [Authenticator.ensureAuthenticated, function(request: Request, response: Response): void {
     var operation = new GetUserByIdOperation(request.user.id);
@@ -118,8 +122,11 @@ export = {
 
     operation.execute()
       .then((permissions: GlobalPermission[]) => {
+        var permissionsWithoutGuest: GlobalPermission[] =
+          permissionGuestFilter(permissions);
+
         var permissionsNames: IUserPermissionResponse[] =
-          _.map(permissions, _permission => GlobalPermissionConverter.convertToUserPermissionResponse(_permission));
+          _.map(permissionsWithoutGuest, _permission => GlobalPermissionConverter.convertToUserPermissionResponse(_permission));
 
         response.send(permissionsNames.sort((_1, _2) => _1.value - _2.value));
       });
@@ -131,8 +138,11 @@ export = {
       .then((permissions: GlobalPermission[]) => {
         var allPermissions: GlobalPermission[] = EnumValues.getValues(GlobalPermission);
 
+        var permissionsWithoutGuest: GlobalPermission[] =
+          permissionGuestFilter(allPermissions);
+
         var result: IUserPermissionRuleResponse[] =
-          _.map(allPermissions, _permission => GlobalPermissionConverter.convertToUserPermissionResponse(_permission))
+          _.map(permissionsWithoutGuest, _permission => GlobalPermissionConverter.convertToUserPermissionResponse(_permission))
             .map(_userPermissionResult => {
               return <IUserPermissionRuleResponse>{
                 value: _userPermissionResult.value,

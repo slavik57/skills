@@ -308,11 +308,14 @@ describe('userController', () => {
           permissions = [
             GlobalPermission.ADMIN,
             GlobalPermission.SKILLS_LIST_ADMIN,
-            GlobalPermission.READER
+            GlobalPermission.READER,
+            GlobalPermission.GUEST
           ];
 
+          var permissionsWithoutGuest = _.difference(permissions, [GlobalPermission.GUEST]);
+
           expectedPermissions =
-            _.map(permissions, _ => GlobalPermissionConverter.convertToUserPermissionResponse(_))
+            _.map(permissionsWithoutGuest, _ => GlobalPermissionConverter.convertToUserPermissionResponse(_))
               .sort((_1, _2) => _1.value - _2.value);
 
           return EnvironmentDirtifier.createUsers(1)
@@ -349,6 +352,7 @@ describe('userController', () => {
 
           var expectedPermissions: IUserPermissionRuleResponse[] =
             EnumValues.getValues(GlobalPermission)
+              .filter(_ => _ !== GlobalPermission.GUEST)
               .map(_ => GlobalPermissionConverter.convertToUserPermissionResponse(_))
               .map(_ => {
                 return <IUserPermissionRuleResponse>{
@@ -375,6 +379,7 @@ describe('userController', () => {
 
           var expectedPermissions: IUserPermissionRuleResponse[] =
             EnumValues.getValues(GlobalPermission)
+              .filter(_ => _ !== GlobalPermission.GUEST)
               .map(_ => GlobalPermissionConverter.convertToUserPermissionResponse(_))
               .map(_ => {
                 return <IUserPermissionRuleResponse>{

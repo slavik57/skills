@@ -246,10 +246,12 @@ describe('userController', function () {
                     permissions = [
                         globalPermission_1.GlobalPermission.ADMIN,
                         globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
-                        globalPermission_1.GlobalPermission.READER
+                        globalPermission_1.GlobalPermission.READER,
+                        globalPermission_1.GlobalPermission.GUEST
                     ];
+                    var permissionsWithoutGuest = _.difference(permissions, [globalPermission_1.GlobalPermission.GUEST]);
                     expectedPermissions =
-                        _.map(permissions, function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); })
+                        _.map(permissionsWithoutGuest, function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); })
                             .sort(function (_1, _2) { return _1.value - _2.value; });
                     return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
                         .then(function (_users) {
@@ -278,6 +280,7 @@ describe('userController', function () {
                         globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
                     ];
                     var expectedPermissions = enum_values_1.EnumValues.getValues(globalPermission_1.GlobalPermission)
+                        .filter(function (_) { return _ !== globalPermission_1.GlobalPermission.GUEST; })
                         .map(function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); })
                         .map(function (_) {
                         return {
@@ -300,6 +303,7 @@ describe('userController', function () {
                         globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
                     ];
                     var expectedPermissions = enum_values_1.EnumValues.getValues(globalPermission_1.GlobalPermission)
+                        .filter(function (_) { return _ !== globalPermission_1.GlobalPermission.GUEST; })
                         .map(function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); })
                         .map(function (_) {
                         return {

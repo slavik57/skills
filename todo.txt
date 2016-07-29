@@ -1,5 +1,4 @@
 todo:
-- remove the GUEST global permission from the settings of the user
 - user settings page - change password if allowed(admins only)
 - teams settings page - show teams
 - teams settings page - add/remove teams
