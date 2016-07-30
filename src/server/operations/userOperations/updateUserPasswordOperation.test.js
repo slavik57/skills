@@ -1,4 +1,6 @@
 "use strict";
+var errorUtils_1 = require("../../../common/errors/errorUtils");
+var globalPermission_1 = require("../../models/enums/globalPermission");
 var updateUserPasswordOperation_1 = require("./updateUserPasswordOperation");
 var environmentCleaner_1 = require("../../testUtils/environmentCleaner");
 var modelInfoVerificator_1 = require("../../testUtils/modelInfoVerificator");
@@ -28,7 +30,7 @@ describe('UpdateUserPasswordOperation', function () {
         })
             .then(function () { return Promise.all([
             userDataHandler_1.UserDataHandler.createUser(userInfo),
-            userDataHandler_1.UserDataHandler.createUser(otherUserInfo)
+            userDataHandler_1.UserDataHandler.createUser(otherUserInfo),
         ]); })
             .then(function (_users) {
             user = _users[0], otherUser = _users[1];
@@ -41,7 +43,8 @@ describe('UpdateUserPasswordOperation', function () {
         describe('on not existing user id', function () {
             var operation;
             beforeEach(function () {
-                operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id + otherUser.id + 9999, userPassword, 'new password');
+                var id = user.id + otherUser.id + 9999;
+                operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(id, userPassword, 'new password', id);
             });
             it('should fail execution', function () {
                 var result = operation.execute();
@@ -54,7 +57,7 @@ describe('UpdateUserPasswordOperation', function () {
         describe('on wrong password', function () {
             var operation;
             beforeEach(function () {
-                operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword + 1, 'new password');
+                operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword + 1, 'new password', user.id);
             });
             it('should fail execution', function () {
                 var result = operation.execute();
@@ -75,7 +78,7 @@ describe('UpdateUserPasswordOperation', function () {
         describe('on empty new password', function () {
             var operation;
             beforeEach(function () {
-                operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, '');
+                operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, '', user.id);
             });
             it('should fail execution', function () {
                 var result = operation.execute();
@@ -94,22 +97,114 @@ describe('UpdateUserPasswordOperation', function () {
             });
         });
         describe('on valid user info', function () {
-            var operation;
             var newPassword;
             beforeEach(function () {
                 newPassword = 'some new password for the user';
-                operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, newPassword);
             });
-            it('should succeed execution', function () {
-                var result = operation.execute();
-                return chai_1.expect(result).to.eventually.fulfilled;
+            describe('on same user executing', function () {
+                var operation;
+                beforeEach(function () {
+                    newPassword = 'some new password for the user';
+                    operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, newPassword, user.id);
+                });
+                it('should succeed execution', function () {
+                    var result = operation.execute();
+                    return chai_1.expect(result).to.eventually.fulfilled;
+                });
+                it('should update the user password', function () {
+                    var result = operation.execute();
+                    return chai_1.expect(result).to.eventually.fulfilled
+                        .then(function () { return userDataHandler_1.UserDataHandler.getUser(user.id); })
+                        .then(function (_user) {
+                        chai_1.expect(passwordHash.verify(newPassword, _user.attributes.password_hash)).to.be.true;
+                    });
+                });
             });
-            it('should update the user password', function () {
-                var result = operation.execute();
-                return chai_1.expect(result).to.eventually.fulfilled
-                    .then(function () { return userDataHandler_1.UserDataHandler.getUser(user.id); })
-                    .then(function (_user) {
-                    chai_1.expect(passwordHash.verify(newPassword, _user.attributes.password_hash)).to.be.true;
+            describe('on other user executing', function () {
+                var operation;
+                var executingUser;
+                beforeEach(function () {
+                    newPassword = 'some new password for the user';
+                    return userDataHandler_1.UserDataHandler.createUser(modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(33))
+                        .then(function (_user) {
+                        executingUser = _user;
+                    })
+                        .then(function () {
+                        operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, newPassword, executingUser.id);
+                    });
+                });
+                it('should fail execution', function () {
+                    var result = operation.execute();
+                    return chai_1.expect(result).to.eventually.rejected
+                        .then(function (error) {
+                        chai_1.expect(errorUtils_1.ErrorUtils.IsUnautorizedError(error)).to.be.true;
+                    });
+                });
+                it('should not update the user', function () {
+                    var result = operation.execute();
+                    return chai_1.expect(result).to.eventually.rejected
+                        .then(function () { return userDataHandler_1.UserDataHandler.getUser(user.id); })
+                        .then(function (_user) {
+                        modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_user.attributes, user.attributes);
+                    });
+                });
+                describe('other user is admin', function () {
+                    beforeEach(function () {
+                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.ADMIN]);
+                    });
+                    it('should succeed execution', function () {
+                        var result = operation.execute();
+                        return chai_1.expect(result).to.eventually.fulfilled;
+                    });
+                    it('should update the user password', function () {
+                        var result = operation.execute();
+                        return chai_1.expect(result).to.eventually.fulfilled
+                            .then(function () { return userDataHandler_1.UserDataHandler.getUser(user.id); })
+                            .then(function (_user) {
+                            chai_1.expect(passwordHash.verify(newPassword, _user.attributes.password_hash)).to.be.true;
+                        });
+                    });
+                    describe('on wrong password', function () {
+                        var operation;
+                        var newPassword;
+                        beforeEach(function () {
+                            newPassword = 'new password';
+                            operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, 'wrong password', newPassword, executingUser.id);
+                        });
+                        it('should succeed execution', function () {
+                            var result = operation.execute();
+                            return chai_1.expect(result).to.eventually.fulfilled;
+                        });
+                        it('should update the user password', function () {
+                            var result = operation.execute();
+                            return chai_1.expect(result).to.eventually.fulfilled
+                                .then(function () { return userDataHandler_1.UserDataHandler.getUser(user.id); })
+                                .then(function (_user) {
+                                chai_1.expect(passwordHash.verify(newPassword, _user.attributes.password_hash)).to.be.true;
+                            });
+                        });
+                    });
+                    describe('on empty new password', function () {
+                        var operation;
+                        beforeEach(function () {
+                            operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, '', executingUser.id);
+                        });
+                        it('should fail execution', function () {
+                            var result = operation.execute();
+                            return chai_1.expect(result).to.eventually.rejected
+                                .then(function (error) {
+                                chai_1.expect(error).to.be.equal('The new password cannot be empty');
+                            });
+                        });
+                        it('should not update the user', function () {
+                            var result = operation.execute();
+                            return chai_1.expect(result).to.eventually.rejected
+                                .then(function () { return userDataHandler_1.UserDataHandler.getUser(user.id); })
+                                .then(function (_user) {
+                                modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_user.attributes, user.attributes);
+                            });
+                        });
+                    });
                 });
             });
         });

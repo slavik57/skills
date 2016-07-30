@@ -52,18 +52,15 @@ module.exports = {
             operation.execute()
                 .then(function () { return response.status(statusCode_1.StatusCode.OK).send(); }, function (error) { return response.status(statusCode_1.StatusCode.BAD_REQUEST).send({ error: error }); });
         }],
-    put_id_password: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, id) {
+    put_userId_password: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, userId) {
             var updateUserPassword = request.body;
-            if (!userRequestIdValidator_1.UserRequestIdValidator.isRequestFromUser(request, id)) {
-                response.status(statusCode_1.StatusCode.UNAUTHORIZED).send();
-                return;
-            }
-            var numberId = Number(id);
-            var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(numberId, updateUserPassword.password, updateUserPassword.newPassword);
+            var numberId = Number(userId);
+            var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(numberId, updateUserPassword.password, updateUserPassword.newPassword, request.user.id);
             operation.execute()
                 .then(function () { return response.status(statusCode_1.StatusCode.OK).send(); }, function (error) {
                 var statusCode = statusCode_1.StatusCode.BAD_REQUEST;
-                if (error === 'Wrong password') {
+                if (error === 'Wrong password' ||
+                    errorUtils_1.ErrorUtils.IsUnautorizedError(error)) {
                     statusCode = statusCode_1.StatusCode.UNAUTHORIZED;
                 }
                 return response.status(statusCode).send({ error: error });

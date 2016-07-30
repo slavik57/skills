@@ -25,6 +25,9 @@ var OperationBase = (function () {
         }
     };
     OperationBase.prototype._failExecution = function (error) {
+        if (typeof error === 'string') {
+            return bluebirdPromise.reject(error);
+        }
         var rejectionError = new extendedError_1.ExtendedError();
         rejectionError.message = 'The operation cannot be executed';
         rejectionError.innerError = error;

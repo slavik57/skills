@@ -33,6 +33,10 @@ export class OperationBase<T> {
   }
 
   private _failExecution(error: any): bluebirdPromise<T> {
+    if (typeof error === 'string') {
+      return bluebirdPromise.reject(error);
+    }
+
     var rejectionError = new ExtendedError();
     rejectionError.message = 'The operation cannot be executed';
     rejectionError.innerError = error;

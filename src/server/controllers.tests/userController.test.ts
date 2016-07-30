@@ -235,67 +235,132 @@ describe('userController', () => {
           .end(done);
       });
 
-      it('updating user password should succeed and update the user password correctly', (done) => {
-        var newUserPassword = {
-          password: userDefinition.password,
-          newPassword: 'some new password'
-        };
+      describe('update password', () => {
 
-        server.put('/user/' + user.id + '/password')
-          .send(newUserPassword)
-          .expect(StatusCode.OK)
-          .end(() => {
-            UserDataHandler.getUser(user.id)
-              .then((_user: User) => {
-                expect(passwordHash.verify(newUserPassword.newPassword, _user.attributes.password_hash));
-                done();
-              });
-          });
-      });
+        it('updating user password should succeed and update the user password correctly', (done) => {
+          var newUserPassword = {
+            password: userDefinition.password,
+            newPassword: 'some new password'
+          };
 
-      it('updating other user password should fail', (done) => {
-        server.put('/user/' + (user.id + 1) + '/password')
-          .expect(StatusCode.UNAUTHORIZED)
-          .end(done);
-      });
+          server.put('/user/' + user.id + '/password')
+            .send(newUserPassword)
+            .expect(StatusCode.OK)
+            .end(() => {
+              UserDataHandler.getUser(user.id)
+                .then((_user: User) => {
+                  expect(passwordHash.verify(newUserPassword.newPassword, _user.attributes.password_hash));
+                  done();
+                });
+            });
+        });
 
-      it('updating user password with empty password should fail', (done) => {
-        var newUserPassword = {
-          password: '',
-          newPassword: 'some new password'
-        };
+        it('updating other user password should fail', (done) => {
+          var newUserPassword = {
+            password: userDefinition.password,
+            newPassword: 'some new other user password'
+          };
 
-        server.put('/user/' + user.id + '/password')
-          .send(newUserPassword)
-          .expect(StatusCode.UNAUTHORIZED)
-          .expect({ error: 'Wrong password' })
-          .end(done);
-      });
+          server.put('/user/' + (user.id + 1) + '/password')
+            .send(newUserPassword)
+            .expect(StatusCode.UNAUTHORIZED)
+            .end(done);
+        });
 
-      it('updating user password with wrong password should fail', (done) => {
-        var newUserPassword = {
-          password: 'wrong password',
-          newPassword: 'some new password'
-        };
+        it('updating other user password with admin user should succeed', (done) => {
+          var otherUserInfo = ModelInfoMockFactory.createUserInfo(43);
+          var otherUserPassword = 'some other user password';
+          otherUserInfo.password_hash = passwordHash.generate(otherUserPassword)
 
-        server.put('/user/' + user.id + '/password')
-          .send(newUserPassword)
-          .expect(StatusCode.UNAUTHORIZED)
-          .expect({ error: 'Wrong password' })
-          .end(done);
-      });
+          var otherUser: User;
 
-      it('updating user password with empty newPassword should fail', (done) => {
-        var newUserPassword = {
-          password: userDefinition.password,
-          newPassword: ''
-        };
+          var newUserPassword = {
+            password: otherUserPassword,
+            newPassword: 'some new other user password'
+          };
 
-        server.put('/user/' + user.id + '/password')
-          .send(newUserPassword)
-          .expect(StatusCode.BAD_REQUEST)
-          .expect({ error: 'The new password cannot be empty' })
-          .end(done);
+          UserDataHandler.createUser(otherUserInfo)
+            .then((_user: User) => {
+              otherUser = _user;
+            })
+            .then(() => UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]))
+            .then(() => {
+              server.put('/user/' + otherUser.id + '/password')
+                .send(newUserPassword)
+                .expect(StatusCode.OK)
+                .end(done);
+            });
+        });
+
+        it('updating other user password with admin user should update the user password', (done) => {
+          var otherUserInfo = ModelInfoMockFactory.createUserInfo(43);
+          var otherUserPassword = 'some other user password';
+          otherUserInfo.password_hash = passwordHash.generate(otherUserPassword)
+
+          var otherUser: User;
+
+          var newUserPassword = {
+            password: otherUserPassword,
+            newPassword: 'some new other user password'
+          };
+
+          UserDataHandler.createUser(otherUserInfo)
+            .then((_user: User) => {
+              otherUser = _user;
+            })
+            .then(() => UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]))
+            .then(() => {
+              server.put('/user/' + otherUser.id + '/password')
+                .send(newUserPassword)
+                .end(() => {
+                  UserDataHandler.getUser(otherUser.id)
+                    .then((_user: User) => {
+                      expect(passwordHash.verify(newUserPassword.newPassword, _user.attributes.password_hash));
+                      done();
+                    });
+                });
+            });
+        });
+
+        it('updating user password with empty password should fail', (done) => {
+          var newUserPassword = {
+            password: '',
+            newPassword: 'some new password'
+          };
+
+          server.put('/user/' + user.id + '/password')
+            .send(newUserPassword)
+            .expect(StatusCode.UNAUTHORIZED)
+            .expect({ error: 'Wrong password' })
+            .end(done);
+        });
+
+        it('updating user password with wrong password should fail', (done) => {
+          var newUserPassword = {
+            password: 'wrong password',
+            newPassword: 'some new password'
+          };
+
+          server.put('/user/' + user.id + '/password')
+            .send(newUserPassword)
+            .expect(StatusCode.UNAUTHORIZED)
+            .expect({ error: 'Wrong password' })
+            .end(done);
+        });
+
+        it('updating user password with empty newPassword should fail', (done) => {
+          var newUserPassword = {
+            password: userDefinition.password,
+            newPassword: ''
+          };
+
+          server.put('/user/' + user.id + '/password')
+            .send(newUserPassword)
+            .expect(StatusCode.BAD_REQUEST)
+            .expect({ error: 'The new password cannot be empty' })
+            .end(done);
+        });
+
       });
 
       describe('get user permissions', () => {

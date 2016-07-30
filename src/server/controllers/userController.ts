@@ -88,27 +88,25 @@ export = {
       .then(() => response.status(StatusCode.OK).send(),
       (error: any) => response.status(StatusCode.BAD_REQUEST).send({ error: error }));
   }],
-  put_id_password: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, id: string): void {
+  put_userId_password: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, userId: string): void {
     var updateUserPassword = <IUpdateUserPasswordDefinition>request.body;
 
-    if (!UserRequestIdValidator.isRequestFromUser(request, id)) {
-      response.status(StatusCode.UNAUTHORIZED).send();
-      return;
-    }
-
-    var numberId: number = Number(id);
+    var numberId: number = Number(userId);
 
     var operation =
       new UpdateUserPasswordOperation(
         numberId,
         updateUserPassword.password,
-        updateUserPassword.newPassword);
+        updateUserPassword.newPassword,
+        request.user.id);
 
     operation.execute()
       .then(() => response.status(StatusCode.OK).send(),
       (error: any) => {
         var statusCode = StatusCode.BAD_REQUEST;
-        if (error === 'Wrong password') {
+        if (error === 'Wrong password' ||
+          ErrorUtils.IsUnautorizedError(error)) {
+
           statusCode = StatusCode.UNAUTHORIZED;
         }
 
