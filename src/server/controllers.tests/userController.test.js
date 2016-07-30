@@ -125,6 +125,11 @@ describe('userController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
+        it('checking if user can update other user password should fail', function (done) {
+            server.get('/user/1/can-update-password')
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
     };
     var autorizedTests = function (signinUserMethod) {
         return function () {
@@ -488,6 +493,43 @@ describe('userController', function () {
                                 done();
                             });
                         });
+                    });
+                });
+            });
+            describe('canUpdatePassword', function () {
+                var userToChangePasswordOf;
+                beforeEach(function () {
+                    var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(22);
+                    return userDataHandler_1.UserDataHandler.createUser(userInfo)
+                        .then(function (_user) {
+                        userToChangePasswordOf = _user;
+                    });
+                });
+                it('checking can update password for not existing user should return false', function (done) {
+                    server.get('/user/999999/can-update-password')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect({ canUpdatePassword: false })
+                        .end(done);
+                });
+                it('checking can update password for myself should return true', function (done) {
+                    server.get('/user/' + user.id + '/can-update-password')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect({ canUpdatePassword: true })
+                        .end(done);
+                });
+                it('checking can update password for other user should return false', function (done) {
+                    server.get('/user/' + userToChangePasswordOf.id + '/can-update-password')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect({ canUpdatePassword: false })
+                        .end(done);
+                });
+                it('checking can update password with admin for other user should return true', function (done) {
+                    userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.ADMIN])
+                        .then(function () {
+                        server.get('/user/' + userToChangePasswordOf.id + '/can-update-password')
+                            .expect(statusCode_1.StatusCode.OK)
+                            .expect({ canUpdatePassword: true })
+                            .end(done);
                     });
                 });
             });

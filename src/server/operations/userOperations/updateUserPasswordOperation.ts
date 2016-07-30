@@ -19,7 +19,11 @@ export class UpdateUserPasswordOperation extends UserOperationBase {
   }
 
   public canExecute(): bluebirdPromise<any> {
-    if (!this.newUserPassword) {
+    return this.canChangePassword(true);
+  }
+
+  public canChangePassword(verifyNewPassword: boolean): bluebirdPromise<any> {
+    if (verifyNewPassword && !this.newUserPassword) {
       return bluebirdPromise.reject('The new password cannot be empty');
     }
 

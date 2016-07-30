@@ -163,6 +163,12 @@ describe('userController', () => {
         .end(done);
     });
 
+    it('checking if user can update other user password should fail', (done) => {
+      server.get('/user/1/can-update-password')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
   };
 
   var autorizedTests = (signinUserMethod: () => Promise<User>) => {
@@ -601,6 +607,53 @@ describe('userController', () => {
               });
           });
 
+        });
+
+      });
+
+      describe('canUpdatePassword', () => {
+
+        var userToChangePasswordOf: User;
+
+        beforeEach(() => {
+
+          var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(22);
+
+          return UserDataHandler.createUser(userInfo)
+            .then((_user: User) => {
+              userToChangePasswordOf = _user;
+            });
+        });
+
+        it('checking can update password for not existing user should return false', (done) => {
+          server.get('/user/999999/can-update-password')
+            .expect(StatusCode.OK)
+            .expect({ canUpdatePassword: false })
+            .end(done);
+        });
+
+        it('checking can update password for myself should return true', (done) => {
+          server.get('/user/' + user.id + '/can-update-password')
+            .expect(StatusCode.OK)
+            .expect({ canUpdatePassword: true })
+            .end(done);
+        });
+
+        it('checking can update password for other user should return false', (done) => {
+          server.get('/user/' + userToChangePasswordOf.id + '/can-update-password')
+            .expect(StatusCode.OK)
+            .expect({ canUpdatePassword: false })
+            .end(done);
+        });
+
+        it('checking can update password with admin for other user should return true', (done) => {
+          UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN])
+            .then(() => {
+              server.get('/user/' + userToChangePasswordOf.id + '/can-update-password')
+                .expect(StatusCode.OK)
+                .expect({ canUpdatePassword: true })
+                .end(done);
+            });
         });
 
       });

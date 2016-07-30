@@ -21,8 +21,11 @@ var UpdateUserPasswordOperation = (function (_super) {
         this._shouldCheckUserPassword = true;
     }
     UpdateUserPasswordOperation.prototype.canExecute = function () {
+        return this.canChangePassword(true);
+    };
+    UpdateUserPasswordOperation.prototype.canChangePassword = function (verifyNewPassword) {
         var _this = this;
-        if (!this.newUserPassword) {
+        if (verifyNewPassword && !this.newUserPassword) {
             return bluebirdPromise.reject('The new password cannot be empty');
         }
         if (this.userId === this.executingUserId) {

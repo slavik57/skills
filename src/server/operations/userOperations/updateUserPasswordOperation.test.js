@@ -209,5 +209,64 @@ describe('UpdateUserPasswordOperation', function () {
             });
         });
     });
+    describe('canChangePassword', function () {
+        describe('executing user is same as the password change user', function () {
+            it('null new password, verifyNewPassword = true, should reject', function () {
+                var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, null, user.id);
+                return chai_1.expect(operation.canChangePassword(true)).to.be.rejected;
+            });
+            it('not null new password, verifyNewPassword = true, should resolve', function () {
+                var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, 'new password', user.id);
+                return chai_1.expect(operation.canChangePassword(true)).to.be.fulfilled;
+            });
+            it('null new password, verifyNewPassword = false, should resolve', function () {
+                var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, null, user.id);
+                return chai_1.expect(operation.canChangePassword(false)).to.be.fulfilled;
+            });
+            it('not null new password, verifyNewPassword = false, should resolve', function () {
+                var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, 'new password', user.id);
+                return chai_1.expect(operation.canChangePassword(false)).to.be.fulfilled;
+            });
+        });
+        describe('executing user is not the same as the password change user', function () {
+            it('null new password, verifyNewPassword = true, should reject', function () {
+                var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, null, otherUser.id);
+                return chai_1.expect(operation.canChangePassword(true)).to.be.rejected;
+            });
+            it('not null new password, verifyNewPassword = true, should reject', function () {
+                var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, 'new password', otherUser.id);
+                return chai_1.expect(operation.canChangePassword(true)).to.be.rejected;
+            });
+            it('null new password, verifyNewPassword = false, should reject', function () {
+                var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, null, otherUser.id);
+                return chai_1.expect(operation.canChangePassword(false)).to.be.rejected;
+            });
+            it('not null new password, verifyNewPassword = false, should reject', function () {
+                var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, 'new password', otherUser.id);
+                return chai_1.expect(operation.canChangePassword(false)).to.be.rejected;
+            });
+        });
+        describe('executing user is not the same as the password change user but admin', function () {
+            beforeEach(function () {
+                return userDataHandler_1.UserDataHandler.addGlobalPermissions(otherUser.id, [globalPermission_1.GlobalPermission.ADMIN]);
+            });
+            it('null new password, verifyNewPassword = true, should reject', function () {
+                var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, null, otherUser.id);
+                return chai_1.expect(operation.canChangePassword(true)).to.be.rejected;
+            });
+            it('not null new password, verifyNewPassword = true, should resolve', function () {
+                var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, 'new password', otherUser.id);
+                return chai_1.expect(operation.canChangePassword(true)).to.be.fulfilled;
+            });
+            it('null new password, verifyNewPassword = false, should resolve', function () {
+                var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, null, otherUser.id);
+                return chai_1.expect(operation.canChangePassword(false)).to.be.fulfilled;
+            });
+            it('not null new password, verifyNewPassword = false, should resolve', function () {
+                var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(user.id, userPassword, 'new password', otherUser.id);
+                return chai_1.expect(operation.canChangePassword(false)).to.be.fulfilled;
+            });
+        });
+    });
 });
 //# sourceMappingURL=updateUserPasswordOperation.test.js.map

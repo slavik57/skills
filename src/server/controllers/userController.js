@@ -66,6 +66,14 @@ module.exports = {
                 return response.status(statusCode).send({ error: error });
             });
         }],
+    get_userId_canUpdatePassword: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, userId) {
+            var numberId = Number(userId);
+            var operation = new updateUserPasswordOperation_1.UpdateUserPasswordOperation(numberId, null, null, request.user.id);
+            operation.canChangePassword(false)
+                .then(function () { return response.status(statusCode_1.StatusCode.OK).send({ canUpdatePassword: true }); }, function (error) {
+                return response.status(statusCode_1.StatusCode.OK).send({ canUpdatePassword: false });
+            });
+        }],
     get_userId_permissions: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, userId) {
             var numberId = Number(userId);
             var operation = new getUserPermissionsOperation_1.GetUserPermissionsOperation(numberId);

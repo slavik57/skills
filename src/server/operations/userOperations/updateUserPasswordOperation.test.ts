@@ -345,6 +345,134 @@ describe('UpdateUserPasswordOperation', () => {
 
     });
 
-  })
+  });
+
+  describe('canChangePassword', () => {
+
+    describe('executing user is same as the password change user', () => {
+
+      it('null new password, verifyNewPassword = true, should reject', () => {
+        var operation = new UpdateUserPasswordOperation(user.id,
+          userPassword,
+          null,
+          user.id);
+
+        return expect(operation.canChangePassword(true)).to.be.rejected;
+      });
+
+      it('not null new password, verifyNewPassword = true, should resolve', () => {
+        var operation = new UpdateUserPasswordOperation(user.id,
+          userPassword,
+          'new password',
+          user.id);
+
+        return expect(operation.canChangePassword(true)).to.be.fulfilled;
+      });
+
+      it('null new password, verifyNewPassword = false, should resolve', () => {
+        var operation = new UpdateUserPasswordOperation(user.id,
+          userPassword,
+          null,
+          user.id);
+
+        return expect(operation.canChangePassword(false)).to.be.fulfilled;
+      });
+
+      it('not null new password, verifyNewPassword = false, should resolve', () => {
+        var operation = new UpdateUserPasswordOperation(user.id,
+          userPassword,
+          'new password',
+          user.id);
+
+        return expect(operation.canChangePassword(false)).to.be.fulfilled;
+      });
+
+    });
+
+    describe('executing user is not the same as the password change user', () => {
+
+      it('null new password, verifyNewPassword = true, should reject', () => {
+        var operation = new UpdateUserPasswordOperation(user.id,
+          userPassword,
+          null,
+          otherUser.id);
+
+        return expect(operation.canChangePassword(true)).to.be.rejected;
+      });
+
+      it('not null new password, verifyNewPassword = true, should reject', () => {
+        var operation = new UpdateUserPasswordOperation(user.id,
+          userPassword,
+          'new password',
+          otherUser.id);
+
+        return expect(operation.canChangePassword(true)).to.be.rejected;
+      });
+
+      it('null new password, verifyNewPassword = false, should reject', () => {
+        var operation = new UpdateUserPasswordOperation(user.id,
+          userPassword,
+          null,
+          otherUser.id);
+
+        return expect(operation.canChangePassword(false)).to.be.rejected;
+      });
+
+      it('not null new password, verifyNewPassword = false, should reject', () => {
+        var operation = new UpdateUserPasswordOperation(user.id,
+          userPassword,
+          'new password',
+          otherUser.id);
+
+        return expect(operation.canChangePassword(false)).to.be.rejected;
+      });
+
+    });
+
+    describe('executing user is not the same as the password change user but admin', () => {
+
+      beforeEach(() => {
+        return UserDataHandler.addGlobalPermissions(otherUser.id, [GlobalPermission.ADMIN]);
+      })
+
+      it('null new password, verifyNewPassword = true, should reject', () => {
+        var operation = new UpdateUserPasswordOperation(user.id,
+          userPassword,
+          null,
+          otherUser.id);
+
+        return expect(operation.canChangePassword(true)).to.be.rejected;
+      });
+
+      it('not null new password, verifyNewPassword = true, should resolve', () => {
+        var operation = new UpdateUserPasswordOperation(user.id,
+          userPassword,
+          'new password',
+          otherUser.id);
+
+        return expect(operation.canChangePassword(true)).to.be.fulfilled;
+      });
+
+      it('null new password, verifyNewPassword = false, should resolve', () => {
+        var operation = new UpdateUserPasswordOperation(user.id,
+          userPassword,
+          null,
+          otherUser.id);
+
+        return expect(operation.canChangePassword(false)).to.be.fulfilled;
+      });
+
+      it('not null new password, verifyNewPassword = false, should resolve', () => {
+        var operation = new UpdateUserPasswordOperation(user.id,
+          userPassword,
+          'new password',
+          otherUser.id);
+
+        return expect(operation.canChangePassword(false)).to.be.fulfilled;
+      });
+
+    });
+
+  });
 
 });

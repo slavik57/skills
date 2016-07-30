@@ -113,6 +113,22 @@ export = {
         return response.status(statusCode).send({ error: error });
       });
   }],
+  get_userId_canUpdatePassword: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, userId: string) {
+    var numberId: number = Number(userId);
+
+    var operation =
+      new UpdateUserPasswordOperation(
+        numberId,
+        null,
+        null,
+        request.user.id);
+
+    operation.canChangePassword(false)
+      .then(() => response.status(StatusCode.OK).send({ canUpdatePassword: true }),
+      (error: any) => {
+        return response.status(StatusCode.OK).send({ canUpdatePassword: false });
+      });
+  }],
   get_userId_permissions: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, userId: string): void {
     var numberId: number = Number(userId);
 
