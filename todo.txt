@@ -1,5 +1,5 @@
 todo:
-- user settings page - change password if allowed(admins only)
+- fix the form validation and updating in the register/update user details/update user password
 - teams settings page - show teams
 - teams settings page - add/remove teams
 - teams settings page - filter teams
