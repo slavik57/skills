@@ -1,5 +1,4 @@
 todo:
-- user settings - disable updating the password if not admin: expose "canUserChangePassword" on the server and use it when the user settings modal is opened
 - teams settings page - show teams
 - teams settings page - add/remove teams
 - teams settings page - filter teams
