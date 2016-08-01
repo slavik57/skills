@@ -80,11 +80,11 @@ describe('usersController', () => {
     })
   }
 
-  describe('user not logged in', () => {
+  var notAuthorizedTests = () => {
 
     beforeEach(() => {
       return UserLoginManager.logoutUser(server);
-    })
+    });
 
     it('getting users details should fail', (done) => {
       server.get('/users')
@@ -98,145 +98,86 @@ describe('usersController', () => {
         .end(done);
     });
 
-  });
+  };
 
-  describe('user registered', () => {
+  var autorizedTests = (signinUserMethod: () => Promise<User>) => {
 
-    var user: User;
+    return () => {
 
-    beforeEach(() => {
+      var user: User;
+
+      beforeEach(() => {
+        return signinUserMethod()
+          .then((_user: User) => {
+            user = _user;
+          });
+      });
+
+      it('getting users details should succeed', (done) => {
+        var expectedUsers = getExpectedUsersDetails(users).sort((_1, _2) => _1.id - _2.id);
+
+        server.get('/users')
+          .expect(StatusCode.OK)
+          .expect(expectedUsers)
+          .end(done);
+      });
+
+      it('getting filtered users details by partial username should return one user', (done) => {
+        var usersWith1 = _.filter(users, _ => _.attributes.username.indexOf('1') >= 0);
+
+        var expectedUsers = getExpectedUsersDetails(usersWith1);
+        expect(expectedUsers.length > 0).to.be.true;
+
+        server.get('/users/filtered/1')
+          .expect(StatusCode.OK)
+          .expect(expectedUsers)
+          .end(done);
+      });
+
+      it('getting filtered users details by partial username should return all users', (done) => {
+        var usersWithUsername = _.filter(users, _ => _.attributes.username.indexOf('username') >= 0);
+
+        var expectedUsers = getExpectedUsersDetails(usersWithUsername);
+        expect(expectedUsers.length > 0).to.be.true;
+
+        server.get('/users/filtered/username')
+          .expect(StatusCode.OK)
+          .expect(expectedUsers)
+          .end(done);
+      });
+
+      describe('logout', notAuthorizedTests);
+
+    }
+
+  }
+
+  describe('user not logged in', notAuthorizedTests);
+
+  describe('user registered',
+    autorizedTests(() => {
       return UserLoginManager.registerUser(server, userDefinition)
         .then(() => UserDataHandler.getUserByUsername(userDefinition.username))
         .then((_user: User) => {
-          user = _user;
+          users.push(_user);
 
-          users.push(user);
+          return _user;
         });
-    });
+    })
+  );
 
-    it('getting users details should succeed', (done) => {
-      var expectedUsers = getExpectedUsersDetails(users).sort((_1, _2) => _1.id - _2.id);
-
-      server.get('/users')
-        .expect(StatusCode.OK)
-        .expect(expectedUsers)
-        .end(done);
-    });
-
-    it('getting filtered users details by partial username should return one user', (done) => {
-      var usersWith1 = _.filter(users, _ => _.attributes.username.indexOf('1') >= 0);
-
-      var expectedUsers = getExpectedUsersDetails(usersWith1);
-      expect(expectedUsers.length > 0).to.be.true;
-
-      server.get('/users/filtered/1')
-        .expect(StatusCode.OK)
-        .expect(expectedUsers)
-        .end(done);
-    });
-
-    it('getting filtered users details by partial username should return all users', (done) => {
-      var usersWithUsername = _.filter(users, _ => _.attributes.username.indexOf('username') >= 0);
-
-      var expectedUsers = getExpectedUsersDetails(usersWithUsername);
-      expect(expectedUsers.length > 0).to.be.true;
-
-      server.get('/users/filtered/username')
-        .expect(StatusCode.OK)
-        .expect(expectedUsers)
-        .end(done);
-    });
-
-    describe('logout', () => {
-
-      beforeEach(() => {
-        return UserLoginManager.logoutUser(server);
-      });
-
-      it('getting users details should fail', (done) => {
-        server.get('/users')
-          .expect(StatusCode.UNAUTHORIZED)
-          .end(done);
-      });
-
-      it('getting filtered users details by partial username should fail', (done) => {
-        server.get('/users/filtered/1')
-          .expect(StatusCode.UNAUTHORIZED)
-          .end(done);
-      });
-
-    });
-
-  });
-
-  describe('user logged in', () => {
-
-    var user: User;
-
-    beforeEach(() => {
+  describe('user logged in',
+    autorizedTests(() => {
       return UserLoginManager.registerUser(server, userDefinition)
+        .then(() => UserLoginManager.logoutUser(server))
         .then(() => UserLoginManager.loginUser(server, userDefinition))
         .then(() => UserDataHandler.getUserByUsername(userDefinition.username))
         .then((_user: User) => {
-          user = _user;
+          users.push(_user);
 
-          users.push(user);
+          return _user;
         });
-    });
-
-    it('getting user details should succeed', (done) => {
-      var expectedUsers = getExpectedUsersDetails(users);
-
-      server.get('/users')
-        .expect(StatusCode.OK)
-        .expect(expectedUsers)
-        .end(done);
-    });
-
-    it('getting filtered users details by partial username should return once user', (done) => {
-      var usersWith1 = _.filter(users, _ => _.attributes.username.indexOf('1') >= 0);
-
-      var expectedUsers = getExpectedUsersDetails(usersWith1);
-      expect(expectedUsers.length > 0).to.be.true;
-
-      server.get('/users/filtered/1')
-        .expect(StatusCode.OK)
-        .expect(expectedUsers)
-        .end(done);
-    });
-
-    it('getting filtered users details by partial username should return all users', (done) => {
-      var usersWithUsername = _.filter(users, _ => _.attributes.username.indexOf('username') >= 0);
-
-      var expectedUsers = getExpectedUsersDetails(usersWithUsername);
-      expect(expectedUsers.length > 0).to.be.true;
-
-      server.get('/users/filtered/username')
-        .expect(StatusCode.OK)
-        .expect(expectedUsers)
-        .end(done);
-    });
-
-    describe('logout', () => {
-
-      beforeEach(() => {
-        return UserLoginManager.logoutUser(server);
-      });
-
-      it('getting users details should fail', (done) => {
-        server.get('/users')
-          .expect(StatusCode.UNAUTHORIZED)
-          .end(done);
-      });
-
-      it('getting filtered users details by partial username should fail', (done) => {
-        server.get('/users/filtered/1')
-          .expect(StatusCode.UNAUTHORIZED)
-          .end(done);
-      });
-
-    });
-
-  });
+    })
+  );
 
 });

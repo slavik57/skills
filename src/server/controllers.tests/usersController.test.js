@@ -60,7 +60,7 @@ describe('usersController', function () {
             };
         });
     }
-    describe('user not logged in', function () {
+    var notAuthorizedTests = function () {
         beforeEach(function () {
             return userLoginManager_1.UserLoginManager.logoutUser(server);
         });
@@ -74,109 +74,62 @@ describe('usersController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
-    });
-    describe('user registered', function () {
-        var user;
-        beforeEach(function () {
-            return userLoginManager_1.UserLoginManager.registerUser(server, userDefinition)
-                .then(function () { return userDataHandler_1.UserDataHandler.getUserByUsername(userDefinition.username); })
-                .then(function (_user) {
-                user = _user;
-                users.push(user);
-            });
-        });
-        it('getting users details should succeed', function (done) {
-            var expectedUsers = getExpectedUsersDetails(users).sort(function (_1, _2) { return _1.id - _2.id; });
-            server.get('/users')
-                .expect(statusCode_1.StatusCode.OK)
-                .expect(expectedUsers)
-                .end(done);
-        });
-        it('getting filtered users details by partial username should return one user', function (done) {
-            var usersWith1 = _.filter(users, function (_) { return _.attributes.username.indexOf('1') >= 0; });
-            var expectedUsers = getExpectedUsersDetails(usersWith1);
-            chai_1.expect(expectedUsers.length > 0).to.be.true;
-            server.get('/users/filtered/1')
-                .expect(statusCode_1.StatusCode.OK)
-                .expect(expectedUsers)
-                .end(done);
-        });
-        it('getting filtered users details by partial username should return all users', function (done) {
-            var usersWithUsername = _.filter(users, function (_) { return _.attributes.username.indexOf('username') >= 0; });
-            var expectedUsers = getExpectedUsersDetails(usersWithUsername);
-            chai_1.expect(expectedUsers.length > 0).to.be.true;
-            server.get('/users/filtered/username')
-                .expect(statusCode_1.StatusCode.OK)
-                .expect(expectedUsers)
-                .end(done);
-        });
-        describe('logout', function () {
+    };
+    var autorizedTests = function (signinUserMethod) {
+        return function () {
+            var user;
             beforeEach(function () {
-                return userLoginManager_1.UserLoginManager.logoutUser(server);
+                return signinUserMethod()
+                    .then(function (_user) {
+                    user = _user;
+                });
             });
-            it('getting users details should fail', function (done) {
+            it('getting users details should succeed', function (done) {
+                var expectedUsers = getExpectedUsersDetails(users).sort(function (_1, _2) { return _1.id - _2.id; });
                 server.get('/users')
-                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .expect(statusCode_1.StatusCode.OK)
+                    .expect(expectedUsers)
                     .end(done);
             });
-            it('getting filtered users details by partial username should fail', function (done) {
+            it('getting filtered users details by partial username should return one user', function (done) {
+                var usersWith1 = _.filter(users, function (_) { return _.attributes.username.indexOf('1') >= 0; });
+                var expectedUsers = getExpectedUsersDetails(usersWith1);
+                chai_1.expect(expectedUsers.length > 0).to.be.true;
                 server.get('/users/filtered/1')
-                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .expect(statusCode_1.StatusCode.OK)
+                    .expect(expectedUsers)
                     .end(done);
             });
-        });
-    });
-    describe('user logged in', function () {
-        var user;
-        beforeEach(function () {
-            return userLoginManager_1.UserLoginManager.registerUser(server, userDefinition)
-                .then(function () { return userLoginManager_1.UserLoginManager.loginUser(server, userDefinition); })
-                .then(function () { return userDataHandler_1.UserDataHandler.getUserByUsername(userDefinition.username); })
-                .then(function (_user) {
-                user = _user;
-                users.push(user);
-            });
-        });
-        it('getting user details should succeed', function (done) {
-            var expectedUsers = getExpectedUsersDetails(users);
-            server.get('/users')
-                .expect(statusCode_1.StatusCode.OK)
-                .expect(expectedUsers)
-                .end(done);
-        });
-        it('getting filtered users details by partial username should return once user', function (done) {
-            var usersWith1 = _.filter(users, function (_) { return _.attributes.username.indexOf('1') >= 0; });
-            var expectedUsers = getExpectedUsersDetails(usersWith1);
-            chai_1.expect(expectedUsers.length > 0).to.be.true;
-            server.get('/users/filtered/1')
-                .expect(statusCode_1.StatusCode.OK)
-                .expect(expectedUsers)
-                .end(done);
-        });
-        it('getting filtered users details by partial username should return all users', function (done) {
-            var usersWithUsername = _.filter(users, function (_) { return _.attributes.username.indexOf('username') >= 0; });
-            var expectedUsers = getExpectedUsersDetails(usersWithUsername);
-            chai_1.expect(expectedUsers.length > 0).to.be.true;
-            server.get('/users/filtered/username')
-                .expect(statusCode_1.StatusCode.OK)
-                .expect(expectedUsers)
-                .end(done);
-        });
-        describe('logout', function () {
-            beforeEach(function () {
-                return userLoginManager_1.UserLoginManager.logoutUser(server);
-            });
-            it('getting users details should fail', function (done) {
-                server.get('/users')
-                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+            it('getting filtered users details by partial username should return all users', function (done) {
+                var usersWithUsername = _.filter(users, function (_) { return _.attributes.username.indexOf('username') >= 0; });
+                var expectedUsers = getExpectedUsersDetails(usersWithUsername);
+                chai_1.expect(expectedUsers.length > 0).to.be.true;
+                server.get('/users/filtered/username')
+                    .expect(statusCode_1.StatusCode.OK)
+                    .expect(expectedUsers)
                     .end(done);
             });
-            it('getting filtered users details by partial username should fail', function (done) {
-                server.get('/users/filtered/1')
-                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
-                    .end(done);
-            });
+            describe('logout', notAuthorizedTests);
+        };
+    };
+    describe('user not logged in', notAuthorizedTests);
+    describe('user registered', autorizedTests(function () {
+        return userLoginManager_1.UserLoginManager.registerUser(server, userDefinition)
+            .then(function () { return userDataHandler_1.UserDataHandler.getUserByUsername(userDefinition.username); })
+            .then(function (_user) {
+            users.push(_user);
+            return _user;
         });
-    });
+    }));
+    describe('user logged in', autorizedTests(function () {
+        return userLoginManager_1.UserLoginManager.registerUser(server, userDefinition)
+            .then(function () { return userLoginManager_1.UserLoginManager.logoutUser(server); })
+            .then(function () { return userLoginManager_1.UserLoginManager.loginUser(server, userDefinition); })
+            .then(function () { return userDataHandler_1.UserDataHandler.getUserByUsername(userDefinition.username); })
+            .then(function (_user) {
+            users.push(_user);
+            return _user;
+        });
+    }));
 });
 //# sourceMappingURL=usersController.test.js.map
