@@ -84,6 +84,18 @@ describe('teamsController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
+        describe('checking if team exists', function () {
+            it('not existing team should fail', function (done) {
+                server.get('/teams/notExistingTeam/exists')
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .end(done);
+            });
+            it('existing team should fail', function (done) {
+                server.get('/teams/' + teams[0].attributes.name + '/exists')
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .end(done);
+            });
+        });
     };
     function authorizdedTests(beforeEachFunc) {
         return function () {
@@ -100,6 +112,20 @@ describe('teamsController', function () {
                     .expect(statusCode_1.StatusCode.OK)
                     .expect(expectedUsers)
                     .end(done);
+            });
+            describe('checking if team exists', function () {
+                it('not existing team', function (done) {
+                    server.get('/teams/notExistingTeam/exists')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect({ teamExists: false })
+                        .end(done);
+                });
+                it('existing team should return true', function (done) {
+                    server.get('/teams/' + teams[0].attributes.name + '/exists')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect({ teamExists: true })
+                        .end(done);
+                });
             });
             describe('add team', function () {
                 it('adding team without sufficient permissions should fail', function (done) {

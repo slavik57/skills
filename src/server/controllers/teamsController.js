@@ -1,4 +1,5 @@
 "use strict";
+var getTeamByNameOperation_1 = require("../operations/teamOperations/getTeamByNameOperation");
 var alreadyExistsError_1 = require("../../common/errors/alreadyExistsError");
 var unauthorizedError_1 = require("../../common/errors/unauthorizedError");
 var errorUtils_1 = require("../../common/errors/errorUtils");
@@ -24,6 +25,16 @@ module.exports = {
             })
                 .then(function (_teamInfoResponses) {
                 response.json(_teamInfoResponses);
+            });
+        }],
+    get_teamName_exists: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, teamName) {
+            var operation = new getTeamByNameOperation_1.GetTeamByNameOperation(teamName);
+            operation.execute()
+                .then(function (team) {
+                var teamExists = !!team;
+                response.send({
+                    teamExists: teamExists
+                });
             });
         }],
     post_index: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response) {

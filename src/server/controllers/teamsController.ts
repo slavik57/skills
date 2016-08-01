@@ -1,3 +1,4 @@
+import {GetTeamByNameOperation} from "../operations/teamOperations/getTeamByNameOperation";
 import {AlreadyExistsError} from "../../common/errors/alreadyExistsError";
 import {UnauthorizedError} from "../../common/errors/unauthorizedError";
 import {ErrorUtils} from "../../common/errors/errorUtils";
@@ -33,6 +34,17 @@ export = {
       })
       .then((_teamInfoResponses: ITeamInfoResponse[]) => {
         response.json(_teamInfoResponses);
+      });
+  }],
+  get_teamName_exists: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, teamName: string): void {
+    var operation = new GetTeamByNameOperation(teamName);
+
+    operation.execute()
+      .then((team: Team) => {
+        var teamExists = !!team;
+        response.send({
+          teamExists: teamExists
+        });
       });
   }],
   post_index: [Authenticator.ensureAuthenticated, function(request: Request, response: Response): void {
