@@ -1,16 +1,15 @@
 "use strict";
 var extendedError_1 = require("./extendedError");
-var unauthorizedError_1 = require("./unauthorizedError");
 var ErrorUtils = (function () {
     function ErrorUtils() {
     }
-    ErrorUtils.IsUnautorizedError = function (error) {
-        if (error instanceof unauthorizedError_1.UnauthorizedError) {
+    ErrorUtils.isErrorOfType = function (error, type) {
+        if (error instanceof type) {
             return true;
         }
         while (error instanceof extendedError_1.ExtendedError) {
             error = error.innerError;
-            if (error instanceof unauthorizedError_1.UnauthorizedError) {
+            if (error instanceof type) {
                 return true;
             }
         }

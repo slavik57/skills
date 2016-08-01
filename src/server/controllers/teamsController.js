@@ -1,5 +1,10 @@
 "use strict";
+var alreadyExistsError_1 = require("../../common/errors/alreadyExistsError");
+var unauthorizedError_1 = require("../../common/errors/unauthorizedError");
+var errorUtils_1 = require("../../common/errors/errorUtils");
+var addTeamOperation_1 = require("../operations/teamOperations/addTeamOperation");
 var getTeamsOperation_1 = require("../operations/teamOperations/getTeamsOperation");
+var statusCode_1 = require("../enums/statusCode");
 var authenticator_1 = require("../expressMiddlewares/authenticator");
 var _ = require('lodash');
 module.exports = {
@@ -19,6 +24,36 @@ module.exports = {
             })
                 .then(function (_teamInfoResponses) {
                 response.json(_teamInfoResponses);
+            });
+        }],
+    post_index: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response) {
+            var createTeamRequest = request.body;
+            if (!createTeamRequest || !createTeamRequest.name) {
+                response.status(statusCode_1.StatusCode.BAD_REQUEST);
+                response.send();
+                return;
+            }
+            var teamInfo = {
+                name: createTeamRequest.name
+            };
+            var addOperation = new addTeamOperation_1.AddTeamOperation(teamInfo, request.user.id);
+            addOperation.execute()
+                .then(function (_team) {
+                response.status(statusCode_1.StatusCode.OK);
+                response.send({
+                    id: _team.id,
+                    teamName: _team.attributes.name
+                });
+            }, function (error) {
+                var statusCode = statusCode_1.StatusCode.INTERNAL_SERVER_ERROR;
+                if (errorUtils_1.ErrorUtils.isErrorOfType(error, unauthorizedError_1.UnauthorizedError)) {
+                    statusCode = statusCode_1.StatusCode.UNAUTHORIZED;
+                }
+                else if (errorUtils_1.ErrorUtils.isErrorOfType(error, alreadyExistsError_1.AlreadyExistsError)) {
+                    statusCode = statusCode_1.StatusCode.CONFLICT;
+                }
+                response.status(statusCode);
+                response.send();
             });
         }]
 };

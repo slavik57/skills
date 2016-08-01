@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var unauthorizedError_1 = require("../../../common/errors/unauthorizedError");
 var operationBase_1 = require("./operationBase");
 var userDataHandler_1 = require("../../dataHandlers/userDataHandler");
 var globalPermission_1 = require("../../models/enums/globalPermission");
@@ -37,9 +38,14 @@ var AuthenticatedOperationBase = (function (_super) {
                 return Promise.resolve();
             }
             else {
-                return Promise.reject('User does not have sufficient permissions');
+                return Promise.reject(_this._createUnautorizedError('User does not have sufficient permissions'));
             }
         });
+    };
+    AuthenticatedOperationBase.prototype._createUnautorizedError = function (errorMessage) {
+        var error = new unauthorizedError_1.UnauthorizedError();
+        error.message = errorMessage;
+        return error;
     };
     AuthenticatedOperationBase.prototype._userHasPermissions = function (userPermissions) {
         if (userPermissions.indexOf(globalPermission_1.GlobalPermission.ADMIN) >= 0) {

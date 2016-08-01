@@ -1,3 +1,4 @@
+import {UnauthorizedError} from "../../common/errors/unauthorizedError";
 import {ErrorUtils} from "../../common/errors/errorUtils";
 import {UpdateUserPermissionsOperation} from "../operations/userOperations/updateUserPermissionsOperation";
 import {PermissionsGuestFilter} from "../../common/permissionsGuestFilter";
@@ -97,7 +98,7 @@ export = {
       (error: any) => {
         var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
 
-        if (ErrorUtils.IsUnautorizedError(error)) {
+        if (ErrorUtils.isErrorOfType(error, UnauthorizedError)) {
           statusCode = StatusCode.UNAUTHORIZED;
         }
 

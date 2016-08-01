@@ -1,4 +1,5 @@
 "use strict";
+var unauthorizedError_1 = require("../../common/errors/unauthorizedError");
 var permissionsGuestFilter_1 = require("../../common/permissionsGuestFilter");
 var errorUtils_1 = require("../../common/errors/errorUtils");
 var getAllowedUserPermissionsToModifyOperation_1 = require("../operations/userOperations/getAllowedUserPermissionsToModifyOperation");
@@ -45,7 +46,7 @@ module.exports = {
                 .then(function () { return response.status(statusCode_1.StatusCode.OK).send(); }, function (error) {
                 var statusCode = statusCode_1.StatusCode.BAD_REQUEST;
                 if (error === 'Wrong password' ||
-                    errorUtils_1.ErrorUtils.IsUnautorizedError(error)) {
+                    errorUtils_1.ErrorUtils.isErrorOfType(error, unauthorizedError_1.UnauthorizedError)) {
                     statusCode = statusCode_1.StatusCode.UNAUTHORIZED;
                 }
                 return response.status(statusCode).send({ error: error });

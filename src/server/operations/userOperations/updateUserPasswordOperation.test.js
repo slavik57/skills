@@ -1,5 +1,6 @@
 "use strict";
 var errorUtils_1 = require("../../../common/errors/errorUtils");
+var unauthorizedError_1 = require("../../../common/errors/unauthorizedError");
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var updateUserPasswordOperation_1 = require("./updateUserPasswordOperation");
 var environmentCleaner_1 = require("../../testUtils/environmentCleaner");
@@ -137,7 +138,7 @@ describe('UpdateUserPasswordOperation', function () {
                     var result = operation.execute();
                     return chai_1.expect(result).to.eventually.rejected
                         .then(function (error) {
-                        chai_1.expect(errorUtils_1.ErrorUtils.IsUnautorizedError(error)).to.be.true;
+                        chai_1.expect(errorUtils_1.ErrorUtils.isErrorOfType(error, unauthorizedError_1.UnauthorizedError)).to.be.true;
                     });
                 });
                 it('should not update the user', function () {

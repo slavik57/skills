@@ -101,6 +101,12 @@ export class TeamsDataHandler {
     return team.fetch();
   }
 
+  public static getTeamByName(name: string): bluebirdPromise<Team> {
+    var team: Team = this._initializeTeamByNameQuery(name);
+
+    return team.fetch();
+  }
+
   public static getTeams(): bluebirdPromise<Team[]> {
     return new Teams().fetch()
       .then((_teamsCollection: Collection<Team>) => {
@@ -154,6 +160,13 @@ export class TeamsDataHandler {
   private static _initializeTeamByIdQuery(teamId: number): Team {
     var queryCondition = {};
     queryCondition[Team.idAttribute] = teamId;
+
+    return new Team(queryCondition);
+  }
+
+  private static _initializeTeamByNameQuery(name: string): Team {
+    var queryCondition = {};
+    queryCondition[Team.nameAttribute] = name;
 
     return new Team(queryCondition);
   }

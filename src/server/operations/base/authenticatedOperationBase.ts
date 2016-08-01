@@ -1,3 +1,4 @@
+import {UnauthorizedError} from "../../../common/errors/unauthorizedError";
 import {OperationBase} from "./operationBase";
 import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {GlobalPermission} from "../../models/enums/globalPermission";
@@ -26,9 +27,16 @@ export class AuthenticatedOperationBase<T> extends OperationBase<T> {
         if (this._userHasPermissions(_permissions)) {
           return Promise.resolve();
         } else {
-          return Promise.reject('User does not have sufficient permissions');
+          return Promise.reject(this._createUnautorizedError('User does not have sufficient permissions'));
         }
       });
+  }
+
+  private _createUnautorizedError(errorMessage: string): Error {
+    var error = new UnauthorizedError();
+    error.message = errorMessage;
+
+    return error;
   }
 
   private _userHasPermissions(userPermissions: GlobalPermission[]): boolean {

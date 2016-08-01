@@ -1,3 +1,8 @@
+import {AlreadyExistsError} from "../../common/errors/alreadyExistsError";
+import {UnauthorizedError} from "../../common/errors/unauthorizedError";
+import {ErrorUtils} from "../../common/errors/errorUtils";
+import {ITeamInfo} from "../models/interfaces/iTeamInfo";
+import {AddTeamOperation} from "../operations/teamOperations/addTeamOperation";
 import {GetTeamsOperation} from "../operations/teamOperations/getTeamsOperation";
 import {ITeamInfoResponse} from "../apiResponses/iTeamInfoResponse";
 import {StatusCode} from "../enums/statusCode";
@@ -5,6 +10,10 @@ import {Authenticator} from "../expressMiddlewares/authenticator";
 import {Team} from "../models/team";
 import { Express, Request, Response } from 'express';
 import * as _ from 'lodash';
+
+interface ICreateTeamRequestBody {
+  name: string;
+}
 
 export = {
   get_index: [Authenticator.ensureAuthenticated, function(request: Request, response: Response): void {
@@ -25,5 +34,38 @@ export = {
       .then((_teamInfoResponses: ITeamInfoResponse[]) => {
         response.json(_teamInfoResponses);
       });
+  }],
+  post_index: [Authenticator.ensureAuthenticated, function(request: Request, response: Response): void {
+    var createTeamRequest: ICreateTeamRequestBody = request.body;
+
+    if (!createTeamRequest || !createTeamRequest.name) {
+      response.status(StatusCode.BAD_REQUEST);
+      response.send();
+      return;
+    }
+    var teamInfo: ITeamInfo = {
+      name: createTeamRequest.name
+    }
+
+    var addOperation = new AddTeamOperation(teamInfo, request.user.id);
+    addOperation.execute()
+      .then((_team: Team) => {
+        response.status(StatusCode.OK);
+        response.send(<ITeamInfoResponse>{
+          id: _team.id,
+          teamName: _team.attributes.name
+        });
+      }, (error: any) => {
+        var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
+
+        if (ErrorUtils.isErrorOfType(error, UnauthorizedError)) {
+          statusCode = StatusCode.UNAUTHORIZED;
+        } else if (ErrorUtils.isErrorOfType(error, AlreadyExistsError)) {
+          statusCode = StatusCode.CONFLICT;
+        }
+
+        response.status(statusCode);
+        response.send();
+      })
   }]
 };

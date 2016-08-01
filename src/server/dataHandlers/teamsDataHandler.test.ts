@@ -254,6 +254,35 @@ describe('TeamsDataHandler', () => {
 
   });
 
+  describe('getTeamByName', () => {
+
+    it('no such team should return null', () => {
+      // Act
+      var teamPromise: Promise<Team> =
+        TeamsDataHandler.getTeamByName('not existing team name');
+
+      // Assert
+      return expect(teamPromise).to.eventually.null;
+    });
+
+    it('team exists should return correct team', () => {
+      // Arrange
+      var teamName = 'a';
+      var teamInfo: ITeamInfo = ModelInfoMockFactory.createTeamInfo(teamName);
+      var createTeamPromose: Promise<Team> =
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => TeamsDataHandler.createTeam(teamInfo, _users[0].id));
+
+      // Act
+      var getTeamPromise: Promise<Team> =
+        createTeamPromose.then((team: Team) => TeamsDataHandler.getTeamByName(teamName));
+
+      // Assert
+      return ModelVerificator.verifyModelInfoAsync(getTeamPromise, teamInfo);
+    });
+
+  });
+
   describe('getTeams', () => {
 
     it('no teams should return empty', () => {

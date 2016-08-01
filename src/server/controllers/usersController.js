@@ -1,4 +1,5 @@
 "use strict";
+var unauthorizedError_1 = require("../../common/errors/unauthorizedError");
 var errorUtils_1 = require("../../common/errors/errorUtils");
 var updateUserPermissionsOperation_1 = require("../operations/userOperations/updateUserPermissionsOperation");
 var permissionsGuestFilter_1 = require("../../common/permissionsGuestFilter");
@@ -71,7 +72,7 @@ module.exports = {
             operation.execute()
                 .then(function () { return response.status(statusCode_1.StatusCode.OK).send(); }, function (error) {
                 var statusCode = statusCode_1.StatusCode.INTERNAL_SERVER_ERROR;
-                if (errorUtils_1.ErrorUtils.IsUnautorizedError(error)) {
+                if (errorUtils_1.ErrorUtils.isErrorOfType(error, unauthorizedError_1.UnauthorizedError)) {
                     statusCode = statusCode_1.StatusCode.UNAUTHORIZED;
                 }
                 return response.status(statusCode).send({ error: error });

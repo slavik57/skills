@@ -223,7 +223,7 @@ describe('UpdateUserPasswordOperation', () => {
           // Assert
           return expect(result).to.eventually.rejected
             .then((error) => {
-              expect(ErrorUtils.IsUnautorizedError(error)).to.be.true;
+              expect(ErrorUtils.isErrorOfType(error, UnauthorizedError)).to.be.true;
             });
         });
 

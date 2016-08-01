@@ -70,6 +70,10 @@ var TeamsDataHandler = (function () {
         var team = this._initializeTeamByIdQuery(teamId);
         return team.fetch();
     };
+    TeamsDataHandler.getTeamByName = function (name) {
+        var team = this._initializeTeamByNameQuery(name);
+        return team.fetch();
+    };
     TeamsDataHandler.getTeams = function () {
         return new team_1.Teams().fetch()
             .then(function (_teamsCollection) {
@@ -115,6 +119,11 @@ var TeamsDataHandler = (function () {
     TeamsDataHandler._initializeTeamByIdQuery = function (teamId) {
         var queryCondition = {};
         queryCondition[team_2.Team.idAttribute] = teamId;
+        return new team_2.Team(queryCondition);
+    };
+    TeamsDataHandler._initializeTeamByNameQuery = function (name) {
+        var queryCondition = {};
+        queryCondition[team_2.Team.nameAttribute] = name;
         return new team_2.Team(queryCondition);
     };
     TeamsDataHandler._setAdminRightsInternal = function (teamId, userId, newAdminRights, transaction) {

@@ -1,3 +1,6 @@
+import {ErrorUtils} from "../../../common/errors/errorUtils";
+import {AlreadyExistsError} from "../../../common/errors/alreadyExistsError";
+import {EnvironmentDirtifier} from "../../testUtils/environmentDirtifier";
 import {ITeamCreatorInfo} from "../../models/interfaces/iTeamCreatorInfo";
 import {TeamCreator} from "../../models/teamCreator";
 import {ModelInfoVerificator} from "../../testUtils/modelInfoVerificator";
@@ -14,6 +17,7 @@ import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import {Collection} from 'bookshelf';
+import * as _ from 'lodash';
 
 chai.use(chaiAsPromised);
 
@@ -21,6 +25,7 @@ describe('AddTeamOperation', () => {
 
   var teamInfoToAdd: ITeamInfo;
   var executingUser: User;
+  var existingTeam: Team;
   var operation: AddTeamOperation;
 
   beforeEach(() => {
@@ -30,6 +35,10 @@ describe('AddTeamOperation', () => {
       .then(() => UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1)))
       .then((_user: User) => {
         executingUser = _user;
+      })
+      .then(() => EnvironmentDirtifier.createTeams(1, executingUser.id))
+      .then((_teams: Team[]) => {
+        [existingTeam] = _teams;
       })
       .then(() => {
         operation = new AddTeamOperation(teamInfoToAdd, executingUser.id);
@@ -82,6 +91,18 @@ describe('AddTeamOperation', () => {
         return expect(resultPromise).to.eventually.fulfilled;
       });
 
+      it('adding existing team should fail', () => {
+        var teamInfo: ITeamInfo =
+          ModelInfoMockFactory.createTeamInfo(existingTeam.attributes.name);
+
+        var operation = new AddTeamOperation(teamInfo, executingUser.id);
+
+        return expect(operation.execute()).to.eventually.rejected
+          .then((_error: any) => {
+            expect(ErrorUtils.isErrorOfType(_error, AlreadyExistsError)).to.be.true;
+          });
+      });
+
     });
 
     describe('executing user is TEAMS_LIST_ADMIN', () => {
@@ -100,6 +121,18 @@ describe('AddTeamOperation', () => {
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled;
+      });
+
+      it('adding existing team should fail', () => {
+        var teamInfo: ITeamInfo =
+          ModelInfoMockFactory.createTeamInfo(existingTeam.attributes.name);
+
+        var operation = new AddTeamOperation(teamInfo, executingUser.id);
+
+        return expect(operation.execute()).to.eventually.rejected
+          .then((_error: any) => {
+            expect(ErrorUtils.isErrorOfType(_error, AlreadyExistsError)).to.be.true;
+          });
       });
 
     });
@@ -126,10 +159,9 @@ describe('AddTeamOperation', () => {
 
         // Assert
         return expect(resultPromise).to.eventually.rejected
-          .then(() => new Teams().fetch())
-          .then((_teamsCollection: Collection<Team>) => _teamsCollection.toArray())
-          .then((_teams: Team[]) => {
-            expect(_teams).to.be.length(0);
+          .then(() => TeamsDataHandler.getTeamByName(teamInfoToAdd.name))
+          .then((_team: Team) => {
+            expect(_team).to.not.exist;
           });
       });
 
@@ -151,12 +183,9 @@ describe('AddTeamOperation', () => {
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled
-          .then(() => new Teams().fetch())
-          .then((_teamsCollection: Collection<Team>) => _teamsCollection.toArray())
-          .then((_teams: Team[]) => {
-            expect(_teams).to.be.length(1);
-
-            ModelInfoVerificator.verifyInfo(_teams[0].attributes, teamInfoToAdd);
+          .then(() => TeamsDataHandler.getTeamByName(teamInfoToAdd.name))
+          .then((_team: Team) => {
+            ModelInfoVerificator.verifyInfo(_team.attributes, teamInfoToAdd);
           });
       });
 
@@ -172,14 +201,27 @@ describe('AddTeamOperation', () => {
           })
           .then(() => TeamsDataHandler.getTeamsCreators())
           .then((_teamsCreators: TeamCreator[]) => {
-            expect(_teamsCreators).to.be.length(1);
-
+            return _.find(_teamsCreators, _ => _.attributes.team_id === team.id);
+          })
+          .then((_teamsCreator: TeamCreator) => {
             var expectedTeamCreatorInfo: ITeamCreatorInfo = {
               user_id: executingUser.id,
               team_id: team.id
             };
 
-            ModelInfoVerificator.verifyInfo(_teamsCreators[0].attributes, expectedTeamCreatorInfo);
+            ModelInfoVerificator.verifyInfo(_teamsCreator.attributes, expectedTeamCreatorInfo);
+          });
+      });
+
+      it('adding existing team should fail', () => {
+        var teamInfo: ITeamInfo =
+          ModelInfoMockFactory.createTeamInfo(existingTeam.attributes.name);
+
+        var operation = new AddTeamOperation(teamInfo, executingUser.id);
+
+        return expect(operation.execute()).to.eventually.rejected
+          .then((_error: any) => {
+            expect(ErrorUtils.isErrorOfType(_error, AlreadyExistsError)).to.be.true;
           });
       });
 
@@ -201,12 +243,9 @@ describe('AddTeamOperation', () => {
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled
-          .then(() => new Teams().fetch())
-          .then((_teamsCollection: Collection<Team>) => _teamsCollection.toArray())
-          .then((_teams: Team[]) => {
-            expect(_teams).to.be.length(1);
-
-            ModelInfoVerificator.verifyInfo(_teams[0].attributes, teamInfoToAdd);
+          .then(() => TeamsDataHandler.getTeamByName(teamInfoToAdd.name))
+          .then((_team: Team) => {
+            ModelInfoVerificator.verifyInfo(_team.attributes, teamInfoToAdd);
           });
       });
 
@@ -222,14 +261,27 @@ describe('AddTeamOperation', () => {
           })
           .then(() => TeamsDataHandler.getTeamsCreators())
           .then((_teamsCreators: TeamCreator[]) => {
-            expect(_teamsCreators).to.be.length(1);
-
+            return _.find(_teamsCreators, _ => _.attributes.team_id === team.id);
+          })
+          .then((_teamsCreator: TeamCreator) => {
             var expectedTeamCreatorInfo: ITeamCreatorInfo = {
               user_id: executingUser.id,
               team_id: team.id
             };
 
-            ModelInfoVerificator.verifyInfo(_teamsCreators[0].attributes, expectedTeamCreatorInfo);
+            ModelInfoVerificator.verifyInfo(_teamsCreator.attributes, expectedTeamCreatorInfo);
+          });
+      });
+
+      it('adding existing team should fail', () => {
+        var teamInfo: ITeamInfo =
+          ModelInfoMockFactory.createTeamInfo(existingTeam.attributes.name);
+
+        var operation = new AddTeamOperation(teamInfo, executingUser.id);
+
+        return expect(operation.execute()).to.eventually.rejected
+          .then((_error: any) => {
+            expect(ErrorUtils.isErrorOfType(_error, AlreadyExistsError)).to.be.true;
           });
       });
 

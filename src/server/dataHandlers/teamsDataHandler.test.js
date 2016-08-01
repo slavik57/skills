@@ -153,6 +153,20 @@ describe('TeamsDataHandler', function () {
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(getTeamPromise, teamInfo);
         });
     });
+    describe('getTeamByName', function () {
+        it('no such team should return null', function () {
+            var teamPromise = teamsDataHandler_1.TeamsDataHandler.getTeamByName('not existing team name');
+            return chai_1.expect(teamPromise).to.eventually.null;
+        });
+        it('team exists should return correct team', function () {
+            var teamName = 'a';
+            var teamInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createTeamInfo(teamName);
+            var createTeamPromose = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return teamsDataHandler_1.TeamsDataHandler.createTeam(teamInfo, _users[0].id); });
+            var getTeamPromise = createTeamPromose.then(function (team) { return teamsDataHandler_1.TeamsDataHandler.getTeamByName(teamName); });
+            return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(getTeamPromise, teamInfo);
+        });
+    });
     describe('getTeams', function () {
         it('no teams should return empty', function () {
             var teamsPromise = teamsDataHandler_1.TeamsDataHandler.getTeams();

@@ -1,3 +1,4 @@
+import {UnauthorizedError} from "../../common/errors/unauthorizedError";
 import {PermissionsGuestFilter} from "../../common/permissionsGuestFilter";
 import {ErrorUtils} from "../../common/errors/errorUtils";
 import {UpdateUserPermissionsOperation} from "../operations/userOperations/updateUserPermissionsOperation";
@@ -86,7 +87,7 @@ export = {
       (error: any) => {
         var statusCode = StatusCode.BAD_REQUEST;
         if (error === 'Wrong password' ||
-          ErrorUtils.IsUnautorizedError(error)) {
+          ErrorUtils.isErrorOfType(error, UnauthorizedError)) {
 
           statusCode = StatusCode.UNAUTHORIZED;
         }

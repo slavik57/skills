@@ -2,15 +2,15 @@ import {ExtendedError} from "./extendedError";
 import {UnauthorizedError} from "./unauthorizedError";
 
 export class ErrorUtils {
-  public static IsUnautorizedError(error: any): boolean {
-    if (error instanceof UnauthorizedError) {
+  public static isErrorOfType(error: any, type: Function): boolean {
+    if (error instanceof type) {
       return true;
     }
 
     while (error instanceof ExtendedError) {
       error = error.innerError;
 
-      if (error instanceof UnauthorizedError) {
+      if (error instanceof type) {
         return true;
       }
     }
