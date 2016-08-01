@@ -1,3 +1,4 @@
+import {PermissionsGuestFilter} from "../../common/permissionsGuestFilter";
 import {ErrorUtils} from "../../common/errors/errorUtils";
 import {UpdateUserPermissionsOperation} from "../operations/userOperations/updateUserPermissionsOperation";
 import {IUserPermissionRuleResponse} from "../apiResponses/iUserPermissionRuleResponse";
@@ -31,15 +32,6 @@ interface IUpdateUserPasswordDefinition {
   newPassword: string;
 }
 
-interface IUpdateUserPermissionsDefinition {
-  permissionsToAdd: GlobalPermission[];
-  permissionsToRemove: GlobalPermission[];
-}
-
-function permissionGuestFilter(permissions: GlobalPermission[]): GlobalPermission[] {
-  return _.difference(permissions, [GlobalPermission.GUEST]);
-}
-
 export = {
   get_index: [Authenticator.ensureAuthenticated, function(request: Request, response: Response): void {
     var operation = new GetUserByIdOperation(request.user.id);
@@ -55,17 +47,6 @@ export = {
         })
       });
   }],
-  get_username_exists: function(request: Request, response: Response, username: string): void {
-    var operation = new GetUserOperation(username);
-
-    operation.execute()
-      .then((user: User) => {
-        var userExists = !!user;
-        response.send({
-          userExists: userExists
-        });
-      });
-  },
   put_id: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, id: string): void {
     var updateUserDetails = <IUpdateUserDetailsDefinition>request.body;
 
@@ -129,22 +110,6 @@ export = {
         return response.status(StatusCode.OK).send({ canUpdatePassword: false });
       });
   }],
-  get_userId_permissions: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, userId: string): void {
-    var numberId: number = Number(userId);
-
-    var operation = new GetUserPermissionsOperation(numberId);
-
-    operation.execute()
-      .then((permissions: GlobalPermission[]) => {
-        var permissionsWithoutGuest: GlobalPermission[] =
-          permissionGuestFilter(permissions);
-
-        var permissionsNames: IUserPermissionResponse[] =
-          _.map(permissionsWithoutGuest, _permission => GlobalPermissionConverter.convertToUserPermissionResponse(_permission));
-
-        response.send(permissionsNames.sort((_1, _2) => _1.value - _2.value));
-      });
-  }],
   get_permissionsModificationRules: [Authenticator.ensureAuthenticated, function(request: Request, response: Response): void {
     var operation = new GetAllowedUserPermissionsToModifyOperation(request.user.id);
 
@@ -153,7 +118,7 @@ export = {
         var allPermissions: GlobalPermission[] = EnumValues.getValues(GlobalPermission);
 
         var permissionsWithoutGuest: GlobalPermission[] =
-          permissionGuestFilter(allPermissions);
+          PermissionsGuestFilter.filter(allPermissions);
 
         var result: IUserPermissionRuleResponse[] =
           _.map(permissionsWithoutGuest, _permission => GlobalPermissionConverter.convertToUserPermissionResponse(_permission))
@@ -167,27 +132,6 @@ export = {
             })
 
         response.send(result.sort((_1, _2) => _1.value - _2.value));
-      });
-  }],
-  put_userId_permissions: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, userId: string) {
-    var numberId: number = Number(userId);
-    var updateUserPermissions = <IUpdateUserPermissionsDefinition>request.body;
-
-    var operation = new UpdateUserPermissionsOperation(numberId,
-      updateUserPermissions.permissionsToAdd,
-      updateUserPermissions.permissionsToRemove,
-      request.user.id);
-
-    operation.execute()
-      .then(() => response.status(StatusCode.OK).send(),
-      (error: any) => {
-        var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
-
-        if (ErrorUtils.IsUnautorizedError(error)) {
-          statusCode = StatusCode.UNAUTHORIZED;
-        }
-
-        return response.status(statusCode).send({ error: error });
       });
   }]
 };

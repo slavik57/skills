@@ -3,7 +3,6 @@ var modelInfoMockFactory_1 = require("../testUtils/modelInfoMockFactory");
 var enum_values_1 = require("enum-values");
 var globalPermissionConverter_1 = require("../enums/globalPermissionConverter");
 var globalPermission_1 = require('../models/enums/globalPermission');
-var environmentDirtifier_1 = require("../testUtils/environmentDirtifier");
 var modelInfoVerificator_1 = require("../testUtils/modelInfoVerificator");
 var userLoginManager_1 = require("../testUtils/userLoginManager");
 var userDataHandler_1 = require("../dataHandlers/userDataHandler");
@@ -16,7 +15,6 @@ var chaiAsPromised = require('chai-as-promised');
 var statusCode_1 = require('../enums/statusCode');
 var testConfigurations_1 = require('../../../testConfigurations');
 var passwordHash = require('password-hash');
-var _ = require('lodash');
 chai.use(chaiAsPromised);
 describe('userController', function () {
     var expressServer;
@@ -67,22 +65,6 @@ describe('userController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
-        it('checking if not existing user exists should return false', function (done) {
-            server.get('/user/notExistingUser/exists')
-                .expect(statusCode_1.StatusCode.OK)
-                .expect({ userExists: false })
-                .end(done);
-        });
-        it('checking if existing user exists should return true', function (done) {
-            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(123);
-            userDataHandler_1.UserDataHandler.createUser(userInfo)
-                .then(function () {
-                server.get('/user/' + userInfo.username + '/exists')
-                    .expect(statusCode_1.StatusCode.OK)
-                    .expect({ userExists: true })
-                    .end(done);
-            });
-        });
         it('updating user details should fail', function (done) {
             server.put('/user/1')
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
@@ -95,33 +77,6 @@ describe('userController', function () {
         });
         it('getting permissions modification rules should fail', function (done) {
             server.get('/user/permissions-modification-rules')
-                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
-                .end(done);
-        });
-        describe('get user permissions', function () {
-            var user;
-            beforeEach(function () {
-                return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
-                    .then(function (_users) {
-                    user = _users[0];
-                });
-            });
-            afterEach(function () {
-                return environmentCleaner_1.EnvironmentCleaner.clearTables();
-            });
-            it('getting not existing user permissions should fail', function (done) {
-                server.get('/user/123456/permissions')
-                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
-                    .end(done);
-            });
-            it('getting existing user permissions should fail', function (done) {
-                server.get('/user/' + user.id + '/permissions')
-                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
-                    .end(done);
-            });
-        });
-        it('updateing user permissions should fail', function (done) {
-            server.put('/user/1/permissions')
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
@@ -140,23 +95,11 @@ describe('userController', function () {
                     user = _user;
                 });
             });
-            it('getting user details should succeed', function (done) {
+            it('getting logged in user details should succeed', function (done) {
                 var expectedUser = getExpectedUserDetails(user);
                 server.get('/user')
                     .expect(statusCode_1.StatusCode.OK)
                     .expect(expectedUser)
-                    .end(done);
-            });
-            it('checking if not existing user exists should return false', function (done) {
-                server.get('/user/notExistingUser/exists')
-                    .expect(statusCode_1.StatusCode.OK)
-                    .expect({ userExists: false })
-                    .end(done);
-            });
-            it('checking if existing user exists should return true', function (done) {
-                server.get('/user/' + userDefinition.username + '/exists')
-                    .expect(statusCode_1.StatusCode.OK)
-                    .expect({ userExists: true })
                     .end(done);
             });
             it('updating user details should succeed and update the user details', function (done) {
@@ -297,40 +240,6 @@ describe('userController', function () {
                         .end(done);
                 });
             });
-            describe('get user permissions', function () {
-                var user;
-                var permissions;
-                var expectedPermissions;
-                beforeEach(function () {
-                    permissions = [
-                        globalPermission_1.GlobalPermission.ADMIN,
-                        globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN,
-                        globalPermission_1.GlobalPermission.READER,
-                        globalPermission_1.GlobalPermission.GUEST
-                    ];
-                    var permissionsWithoutGuest = _.difference(permissions, [globalPermission_1.GlobalPermission.GUEST]);
-                    expectedPermissions =
-                        _.map(permissionsWithoutGuest, function (_) { return globalPermissionConverter_1.GlobalPermissionConverter.convertToUserPermissionResponse(_); })
-                            .sort(function (_1, _2) { return _1.value - _2.value; });
-                    return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
-                        .then(function (_users) {
-                        user = _users[0];
-                    })
-                        .then(function () { return userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions); });
-                });
-                it('getting not existing user permissions should succeed with empty permissions', function (done) {
-                    server.get('/user/123456/permissions')
-                        .expect(statusCode_1.StatusCode.OK)
-                        .expect([])
-                        .end(done);
-                });
-                it('getting existing user permissions should succeed', function (done) {
-                    server.get('/user/' + user.id + '/permissions')
-                        .expect(statusCode_1.StatusCode.OK)
-                        .expect(expectedPermissions)
-                        .end(done);
-                });
-            });
             describe('getting permissions modification', function () {
                 it('getting admin permissions modification rules should return correct values', function (done) {
                     var allowedToChangeByAdmin = [
@@ -382,120 +291,6 @@ describe('userController', function () {
                 });
             });
             describe('logout', notAuthorizedTests);
-            describe('update user permissions', function () {
-                var userToModifyPermissionsOf;
-                var permissionsOfUserToModify;
-                beforeEach(function () {
-                    permissionsOfUserToModify = [
-                        globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN
-                    ];
-                    return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
-                        .then(function (_users) {
-                        userToModifyPermissionsOf = _users[0];
-                    })
-                        .then(function () { return userDataHandler_1.UserDataHandler.addGlobalPermissions(userToModifyPermissionsOf.id, permissionsOfUserToModify); });
-                });
-                describe('logged in user has insuffisient permissions to modify the user', function () {
-                    beforeEach(function () {
-                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.READER]);
-                    });
-                    it('removing permissions should fail', function (done) {
-                        var userPermissions = {
-                            permissionsToAdd: [],
-                            permissionsToRemove: permissionsOfUserToModify
-                        };
-                        server.put('/user/' + userToModifyPermissionsOf.id + '/permissions')
-                            .send(userPermissions)
-                            .expect(statusCode_1.StatusCode.UNAUTHORIZED)
-                            .end(done);
-                    });
-                    it('adding permissions should fail', function (done) {
-                        var userPermissions = {
-                            permissionsToAdd: [globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN],
-                            permissionsToRemove: []
-                        };
-                        server.put('/user/' + userToModifyPermissionsOf.id + '/permissions')
-                            .send(userPermissions)
-                            .expect(statusCode_1.StatusCode.UNAUTHORIZED)
-                            .end(done);
-                    });
-                });
-                describe('logged in user has suffisient permissions to modify the user', function () {
-                    beforeEach(function () {
-                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.ADMIN]);
-                    });
-                    it('removing permissions should succeed', function (done) {
-                        var userPermissions = {
-                            permissionsToAdd: [],
-                            permissionsToRemove: permissionsOfUserToModify
-                        };
-                        server.put('/user/' + userToModifyPermissionsOf.id + '/permissions')
-                            .send(userPermissions)
-                            .expect(statusCode_1.StatusCode.OK)
-                            .end(function () {
-                            userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToModifyPermissionsOf.id)
-                                .then(function (_actualPermissions) {
-                                permissionsOfUserToModify.forEach(function (_permission) {
-                                    chai_1.expect(_actualPermissions).to.not.contain(_permission);
-                                });
-                                done();
-                            });
-                        });
-                    });
-                    it('adding permissions should succeed', function (done) {
-                        var userPermissions = {
-                            permissionsToAdd: [globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN],
-                            permissionsToRemove: []
-                        };
-                        server.put('/user/' + userToModifyPermissionsOf.id + '/permissions')
-                            .send(userPermissions)
-                            .expect(statusCode_1.StatusCode.OK)
-                            .end(function () {
-                            userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToModifyPermissionsOf.id)
-                                .then(function (_actualPermissions) {
-                                chai_1.expect(_actualPermissions).to.contain(globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN);
-                                done();
-                            });
-                        });
-                    });
-                    it('removing not existing permission should succeed', function (done) {
-                        var userPermissions = {
-                            permissionsToAdd: [],
-                            permissionsToRemove: [globalPermission_1.GlobalPermission.ADMIN]
-                        };
-                        server.put('/user/' + userToModifyPermissionsOf.id + '/permissions')
-                            .send(userPermissions)
-                            .expect(statusCode_1.StatusCode.OK)
-                            .end(function () {
-                            userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToModifyPermissionsOf.id)
-                                .then(function (_actualPermissions) {
-                                permissionsOfUserToModify.forEach(function (_permission) {
-                                    chai_1.expect(_actualPermissions).to.not.contain(globalPermission_1.GlobalPermission.ADMIN);
-                                });
-                                done();
-                            });
-                        });
-                    });
-                    it('adding existing permissions should succeed', function (done) {
-                        var userPermissions = {
-                            permissionsToAdd: permissionsOfUserToModify,
-                            permissionsToRemove: []
-                        };
-                        server.put('/user/' + userToModifyPermissionsOf.id + '/permissions')
-                            .send(userPermissions)
-                            .expect(statusCode_1.StatusCode.OK)
-                            .end(function () {
-                            userDataHandler_1.UserDataHandler.getUserGlobalPermissions(userToModifyPermissionsOf.id)
-                                .then(function (_actualPermissions) {
-                                permissionsOfUserToModify.forEach(function (_permission) {
-                                    chai_1.expect(_actualPermissions).to.contain(_permission);
-                                });
-                                done();
-                            });
-                        });
-                    });
-                });
-            });
             describe('canUpdatePassword', function () {
                 var userToChangePasswordOf;
                 beforeEach(function () {

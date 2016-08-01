@@ -20,6 +20,9 @@ export = {
         });
       })
       .then((_teamInfoResponses: ITeamInfoResponse[]) => {
+        return _teamInfoResponses.sort((_info1, _info2) => _info1.id - _info2.id)
+      })
+      .then((_teamInfoResponses: ITeamInfoResponse[]) => {
         response.json(_teamInfoResponses);
       });
   }]

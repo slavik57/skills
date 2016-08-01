@@ -1,3 +1,9 @@
+import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
+import {GlobalPermissionConverter} from "../enums/globalPermissionConverter";
+import {IUserPermissionResponse} from "../apiResponses/iUserPermissionResponse";
+import {GlobalPermission} from "../models/enums/globalPermission";
+import {IUserInfo} from "../models/interfaces/iUserInfo";
+import {ModelInfoVerificator} from "../testUtils/modelInfoVerificator";
 import {EnvironmentDirtifier} from "../testUtils/environmentDirtifier";
 import {IUserRegistrationDefinition} from "../passportStrategies/interfaces/iUserRegistrationDefinition";
 import {IUserInfoResponse} from "../apiResponses/iUserInfoResponse";
@@ -98,6 +104,61 @@ describe('usersController', () => {
         .end(done);
     });
 
+    it('checking if not existing user exists should return false', (done) => {
+      server.get('/users/notExistingUser/exists')
+        .expect(StatusCode.OK)
+        .expect({ userExists: false })
+        .end(done);
+    });
+
+    it('checking if existing user exists should return true', (done) => {
+      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(123);
+
+      UserDataHandler.createUser(userInfo)
+        .then(() => {
+          server.get('/users/' + userInfo.username + '/exists')
+            .expect(StatusCode.OK)
+            .expect({ userExists: true })
+            .end(done)
+        });
+    });
+
+    it('updating user permissions should fail', (done) => {
+      server.put('/users/1/permissions')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    describe('get user permissions', () => {
+
+      var user: User;
+
+      beforeEach(() => {
+        var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(42);
+        return UserDataHandler.createUser(userInfo)
+          .then((_user: User) => {
+            user = _user;
+          });
+      });
+
+      afterEach(() => {
+        return EnvironmentCleaner.clearTables();
+      });
+
+      it('getting not existing user permissions should fail', (done) => {
+        server.get('/users/123456/permissions')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
+      it('getting existing user permissions should fail', (done) => {
+        server.get('/users/' + user.id + '/permissions')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
+    });
+
   };
 
   var autorizedTests = (signinUserMethod: () => Promise<User>) => {
@@ -144,6 +205,204 @@ describe('usersController', () => {
           .expect(StatusCode.OK)
           .expect(expectedUsers)
           .end(done);
+      });
+
+      it('checking if not existing user exists should return false', (done) => {
+        server.get('/users/notExistingUser/exists')
+          .expect(StatusCode.OK)
+          .expect({ userExists: false })
+          .end(done);
+      });
+
+      it('checking if existing user exists should return true', (done) => {
+        server.get('/users/' + userDefinition.username + '/exists')
+          .expect(StatusCode.OK)
+          .expect({ userExists: true })
+          .end(done);
+      });
+
+      describe('get user permissions', () => {
+
+        var user: User;
+        var permissions: GlobalPermission[];
+        var expectedPermissions: IUserPermissionResponse[];
+
+        beforeEach(() => {
+          permissions = [
+            GlobalPermission.ADMIN,
+            GlobalPermission.SKILLS_LIST_ADMIN,
+            GlobalPermission.READER,
+            GlobalPermission.GUEST
+          ];
+
+          var permissionsWithoutGuest = _.difference(permissions, [GlobalPermission.GUEST]);
+
+          expectedPermissions =
+            _.map(permissionsWithoutGuest, _ => GlobalPermissionConverter.convertToUserPermissionResponse(_))
+              .sort((_1, _2) => _1.value - _2.value);
+
+          var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(213);
+
+          return UserDataHandler.createUser(userInfo)
+            .then((_user: User) => {
+              user = _user;
+            })
+            .then(() => UserDataHandler.addGlobalPermissions(user.id, permissions));
+        });
+
+        it('getting not existing user permissions should succeed with empty permissions', (done) => {
+          server.get('/users/123456/permissions')
+            .expect(StatusCode.OK)
+            .expect([])
+            .end(done);
+        });
+
+        it('getting existing user permissions should succeed', (done) => {
+          server.get('/users/' + user.id + '/permissions')
+            .expect(StatusCode.OK)
+            .expect(expectedPermissions)
+            .end(done);
+        });
+
+      });
+
+      describe('update user permissions', () => {
+
+        var userToModifyPermissionsOf: User;
+        var permissionsOfUserToModify: GlobalPermission[];
+
+        beforeEach(() => {
+          permissionsOfUserToModify = [
+            GlobalPermission.TEAMS_LIST_ADMIN
+          ];
+
+          var userInfo = ModelInfoMockFactory.createUserInfo(334);
+
+          return UserDataHandler.createUser(userInfo)
+            .then((_user: User) => {
+              userToModifyPermissionsOf = _user;
+            })
+            .then(() => UserDataHandler.addGlobalPermissions(userToModifyPermissionsOf.id, permissionsOfUserToModify));
+        });
+
+        describe('logged in user has insuffisient permissions to modify the user', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.READER]);
+          });
+
+          it('removing permissions should fail', (done) => {
+            var userPermissions = {
+              permissionsToAdd: [],
+              permissionsToRemove: permissionsOfUserToModify
+            };
+
+            server.put('/users/' + userToModifyPermissionsOf.id + '/permissions')
+              .send(userPermissions)
+              .expect(StatusCode.UNAUTHORIZED)
+              .end(done);
+          });
+
+          it('adding permissions should fail', (done) => {
+            var userPermissions = {
+              permissionsToAdd: [GlobalPermission.TEAMS_LIST_ADMIN],
+              permissionsToRemove: []
+            };
+
+            server.put('/users/' + userToModifyPermissionsOf.id + '/permissions')
+              .send(userPermissions)
+              .expect(StatusCode.UNAUTHORIZED)
+              .end(done);
+          });
+
+        });
+
+        describe('logged in user has suffisient permissions to modify the user', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN]);
+          });
+
+          it('removing permissions should succeed', (done) => {
+            var userPermissions = {
+              permissionsToAdd: [],
+              permissionsToRemove: permissionsOfUserToModify
+            };
+
+            server.put('/users/' + userToModifyPermissionsOf.id + '/permissions')
+              .send(userPermissions)
+              .expect(StatusCode.OK)
+              .end(() => {
+                UserDataHandler.getUserGlobalPermissions(userToModifyPermissionsOf.id)
+                  .then((_actualPermissions: GlobalPermission[]) => {
+                    permissionsOfUserToModify.forEach((_permission) => {
+                      expect(_actualPermissions).to.not.contain(_permission);
+                    })
+                    done();
+                  });
+              });
+          });
+
+          it('adding permissions should succeed', (done) => {
+            var userPermissions = {
+              permissionsToAdd: [GlobalPermission.TEAMS_LIST_ADMIN],
+              permissionsToRemove: []
+            };
+
+            server.put('/users/' + userToModifyPermissionsOf.id + '/permissions')
+              .send(userPermissions)
+              .expect(StatusCode.OK)
+              .end(() => {
+                UserDataHandler.getUserGlobalPermissions(userToModifyPermissionsOf.id)
+                  .then((_actualPermissions: GlobalPermission[]) => {
+                    expect(_actualPermissions).to.contain(GlobalPermission.TEAMS_LIST_ADMIN);
+                    done();
+                  });
+              });
+          });
+
+          it('removing not existing permission should succeed', (done) => {
+            var userPermissions = {
+              permissionsToAdd: [],
+              permissionsToRemove: [GlobalPermission.ADMIN]
+            };
+
+            server.put('/users/' + userToModifyPermissionsOf.id + '/permissions')
+              .send(userPermissions)
+              .expect(StatusCode.OK)
+              .end(() => {
+                UserDataHandler.getUserGlobalPermissions(userToModifyPermissionsOf.id)
+                  .then((_actualPermissions: GlobalPermission[]) => {
+                    permissionsOfUserToModify.forEach((_permission) => {
+                      expect(_actualPermissions).to.not.contain(GlobalPermission.ADMIN);
+                    })
+                    done();
+                  });
+              });
+          });
+
+          it('adding existing permissions should succeed', (done) => {
+            var userPermissions = {
+              permissionsToAdd: permissionsOfUserToModify,
+              permissionsToRemove: []
+            };
+
+            server.put('/users/' + userToModifyPermissionsOf.id + '/permissions')
+              .send(userPermissions)
+              .expect(StatusCode.OK)
+              .end(() => {
+                UserDataHandler.getUserGlobalPermissions(userToModifyPermissionsOf.id)
+                  .then((_actualPermissions: GlobalPermission[]) => {
+                    permissionsOfUserToModify.forEach((_permission) => {
+                      expect(_actualPermissions).to.contain(_permission);
+                    });
+                    done();
+                  });
+              });
+          });
+
+        });
+
       });
 
       describe('logout', notAuthorizedTests);

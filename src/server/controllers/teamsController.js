@@ -15,6 +15,9 @@ module.exports = {
                 });
             })
                 .then(function (_teamInfoResponses) {
+                return _teamInfoResponses.sort(function (_info1, _info2) { return _info1.id - _info2.id; });
+            })
+                .then(function (_teamInfoResponses) {
                 response.json(_teamInfoResponses);
             });
         }]
