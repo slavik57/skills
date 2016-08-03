@@ -1,4 +1,5 @@
 "use strict";
+var modifyTeamOperationBase_1 = require("../operations/base/modifyTeamOperationBase");
 var unauthorizedError_1 = require("../../common/errors/unauthorizedError");
 var permissionsGuestFilter_1 = require("../../common/permissionsGuestFilter");
 var errorUtils_1 = require("../../common/errors/errorUtils");
@@ -58,6 +59,13 @@ module.exports = {
             operation.canChangePassword(false)
                 .then(function () { return response.status(statusCode_1.StatusCode.OK).send({ canUpdatePassword: true }); }, function (error) {
                 return response.status(statusCode_1.StatusCode.OK).send({ canUpdatePassword: false });
+            });
+        }],
+    get_canModifyTeamsList: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response) {
+            var operation = new modifyTeamOperationBase_1.ModifyTeamOperationBase(request.user.id);
+            operation.canExecute()
+                .then(function () { return response.status(statusCode_1.StatusCode.OK).send({ canModifyTeamsList: true }); }, function (error) {
+                return response.status(statusCode_1.StatusCode.OK).send({ canModifyTeamsList: false });
             });
         }],
     get_permissionsModificationRules: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response) {

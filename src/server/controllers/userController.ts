@@ -1,3 +1,4 @@
+import {ModifyTeamOperationBase} from "../operations/base/modifyTeamOperationBase";
 import {UnauthorizedError} from "../../common/errors/unauthorizedError";
 import {PermissionsGuestFilter} from "../../common/permissionsGuestFilter";
 import {ErrorUtils} from "../../common/errors/errorUtils";
@@ -109,6 +110,15 @@ export = {
       .then(() => response.status(StatusCode.OK).send({ canUpdatePassword: true }),
       (error: any) => {
         return response.status(StatusCode.OK).send({ canUpdatePassword: false });
+      });
+  }],
+  get_canModifyTeamsList: [Authenticator.ensureAuthenticated, function(request: Request, response: Response) {
+    var operation = new ModifyTeamOperationBase(request.user.id);
+
+    operation.canExecute()
+      .then(() => response.status(StatusCode.OK).send({ canModifyTeamsList: true }),
+      (error: any) => {
+        return response.status(StatusCode.OK).send({ canModifyTeamsList: false });
       });
   }],
   get_permissionsModificationRules: [Authenticator.ensureAuthenticated, function(request: Request, response: Response): void {

@@ -115,6 +115,12 @@ describe('userController', () => {
         .end(done);
     });
 
+    it('checking if user can omdify teams list should fail', (done) => {
+      server.get('/user/can-modify-teams-list')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
   };
 
   var autorizedTests = (signinUserMethod: () => Promise<User>) => {
@@ -404,6 +410,46 @@ describe('userController', () => {
               server.get('/user/' + userToChangePasswordOf.id + '/can-update-password')
                 .expect(StatusCode.OK)
                 .expect({ canUpdatePassword: true })
+                .end(done);
+            });
+        });
+
+      });
+
+      describe('canModifyTeamsList', () => {
+
+        it('checking can modify teams list with permissions other than teams list admin or admin should return false', (done) => {
+          var permissions: GlobalPermission[] =
+            _.difference(EnumValues.getValues(GlobalPermission), [GlobalPermission.ADMIN, GlobalPermission.TEAMS_LIST_ADMIN]);
+
+          console.log(permissions);
+          console.log(EnumValues.getNamesAndValues(GlobalPermission));
+
+          UserDataHandler.addGlobalPermissions(user.id, permissions)
+            .then(() => {
+              server.get('/user/can-modify-teams-list')
+                .expect(StatusCode.OK)
+                .expect({ canModifyTeamsList: false })
+                .end(done);
+            });
+        });
+
+        it('checking can modify teams list with teams list admin should return true', (done) => {
+          UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.TEAMS_LIST_ADMIN])
+            .then(() => {
+              server.get('/user/can-modify-teams-list')
+                .expect(StatusCode.OK)
+                .expect({ canModifyTeamsList: true })
+                .end(done);
+            });
+        });
+
+        it('checking can modify teams list with admin should return true', (done) => {
+          UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN])
+            .then(() => {
+              server.get('/user/can-modify-teams-list')
+                .expect(StatusCode.OK)
+                .expect({ canModifyTeamsList: true })
                 .end(done);
             });
         });

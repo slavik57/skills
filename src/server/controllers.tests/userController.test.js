@@ -15,6 +15,7 @@ var chaiAsPromised = require('chai-as-promised');
 var statusCode_1 = require('../enums/statusCode');
 var testConfigurations_1 = require('../../../testConfigurations');
 var passwordHash = require('password-hash');
+var _ = require('lodash');
 chai.use(chaiAsPromised);
 describe('userController', function () {
     var expressServer;
@@ -82,6 +83,11 @@ describe('userController', function () {
         });
         it('checking if user can update other user password should fail', function (done) {
             server.get('/user/1/can-update-password')
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
+        it('checking if user can omdify teams list should fail', function (done) {
+            server.get('/user/can-modify-teams-list')
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
@@ -324,6 +330,38 @@ describe('userController', function () {
                         server.get('/user/' + userToChangePasswordOf.id + '/can-update-password')
                             .expect(statusCode_1.StatusCode.OK)
                             .expect({ canUpdatePassword: true })
+                            .end(done);
+                    });
+                });
+            });
+            describe('canModifyTeamsList', function () {
+                it('checking can modify teams list with permissions other than teams list admin or admin should return false', function (done) {
+                    var permissions = _.difference(enum_values_1.EnumValues.getValues(globalPermission_1.GlobalPermission), [globalPermission_1.GlobalPermission.ADMIN, globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN]);
+                    console.log(permissions);
+                    console.log(enum_values_1.EnumValues.getNamesAndValues(globalPermission_1.GlobalPermission));
+                    userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions)
+                        .then(function () {
+                        server.get('/user/can-modify-teams-list')
+                            .expect(statusCode_1.StatusCode.OK)
+                            .expect({ canModifyTeamsList: false })
+                            .end(done);
+                    });
+                });
+                it('checking can modify teams list with teams list admin should return true', function (done) {
+                    userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN])
+                        .then(function () {
+                        server.get('/user/can-modify-teams-list')
+                            .expect(statusCode_1.StatusCode.OK)
+                            .expect({ canModifyTeamsList: true })
+                            .end(done);
+                    });
+                });
+                it('checking can modify teams list with admin should return true', function (done) {
+                    userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.ADMIN])
+                        .then(function () {
+                        server.get('/user/can-modify-teams-list')
+                            .expect(statusCode_1.StatusCode.OK)
+                            .expect({ canModifyTeamsList: true })
                             .end(done);
                     });
                 });

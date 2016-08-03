@@ -4,10 +4,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var modifyTeamOperationBase_1 = require("../base/modifyTeamOperationBase");
 var alreadyExistsError_1 = require("../../../common/errors/alreadyExistsError");
-var globalPermission_1 = require("../../models/enums/globalPermission");
 var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
-var authenticatedOperationBase_1 = require("../base/authenticatedOperationBase");
 var bluebirdPromise = require('bluebird');
 var AddTeamOperation = (function (_super) {
     __extends(AddTeamOperation, _super);
@@ -20,13 +19,6 @@ var AddTeamOperation = (function (_super) {
         return _super.prototype.canExecute.call(this)
             .then(function () { return _this._checkIfTeamAlreadyExists(); }, function (_error) { return bluebirdPromise.reject(_error); });
     };
-    Object.defineProperty(AddTeamOperation.prototype, "sufficientOperationGlobalPermissions", {
-        get: function () {
-            return [globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN];
-        },
-        enumerable: true,
-        configurable: true
-    });
     AddTeamOperation.prototype.doWork = function () {
         return teamsDataHandler_1.TeamsDataHandler.createTeam(this._teamInfo, this.executingUserId);
     };
@@ -45,6 +37,6 @@ var AddTeamOperation = (function (_super) {
         });
     };
     return AddTeamOperation;
-}(authenticatedOperationBase_1.AuthenticatedOperationBase));
+}(modifyTeamOperationBase_1.ModifyTeamOperationBase));
 exports.AddTeamOperation = AddTeamOperation;
 //# sourceMappingURL=addTeamOperation.js.map

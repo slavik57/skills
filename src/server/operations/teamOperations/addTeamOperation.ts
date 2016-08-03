@@ -1,12 +1,12 @@
+import {ModifyTeamOperationBase} from "../base/modifyTeamOperationBase";
 import {AlreadyExistsError} from "../../../common/errors/alreadyExistsError";
 import {Team} from "../../models/team";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
-import {AuthenticatedOperationBase} from "../base/authenticatedOperationBase";
 import {ITeamInfo} from "../../models/interfaces/iTeamInfo";
 import * as bluebirdPromise from 'bluebird';
 
-export class AddTeamOperation extends AuthenticatedOperationBase<Team> {
+export class AddTeamOperation extends ModifyTeamOperationBase {
   constructor(private _teamInfo: ITeamInfo, executingUserId: number) {
     super(executingUserId);
   }
@@ -15,10 +15,6 @@ export class AddTeamOperation extends AuthenticatedOperationBase<Team> {
     return super.canExecute()
       .then(() => this._checkIfTeamAlreadyExists(),
       (_error: any) => bluebirdPromise.reject(_error));
-  }
-
-  protected get sufficientOperationGlobalPermissions(): GlobalPermission[] {
-    return [GlobalPermission.TEAMS_LIST_ADMIN];
   }
 
   protected doWork(): bluebirdPromise<Team> {
