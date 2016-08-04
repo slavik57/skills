@@ -1,7 +1,8 @@
 todo:
 - teams settings page - after adding a team add it to list and close the modal and open the new team settings modal
-- teams settings page - remove teams
+- teams settings page - remove teams - also remove from the list if the removal succeeds
 - teams settings page - do not allow removing teams if the user does not have sufficient permissions
+- teams settings page - modify team name
 - teams settings page - add/remove users to team (make as team users component)
 - teams settings page - modify team admins
 - user settings page - show user teams
