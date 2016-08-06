@@ -1,3 +1,4 @@
+import {RemoveTeamOperation} from "../operations/teamOperations/removeTeamOperation";
 import {GetTeamByNameOperation} from "../operations/teamOperations/getTeamByNameOperation";
 import {AlreadyExistsError} from "../../common/errors/alreadyExistsError";
 import {UnauthorizedError} from "../../common/errors/unauthorizedError";
@@ -79,5 +80,24 @@ export = {
         response.status(statusCode);
         response.send();
       })
+  }],
+  delete_teamId_index: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, teamId: string) {
+    var numberId = Number(teamId);
+
+    var operation = new RemoveTeamOperation(numberId, request.user.id);
+
+    operation.execute()
+      .then(() => {
+        response.status(StatusCode.OK);
+        response.send();
+      }, (error) => {
+        if (ErrorUtils.isErrorOfType(error, UnauthorizedError)) {
+          response.status(StatusCode.UNAUTHORIZED);
+        } else {
+          response.status(StatusCode.INTERNAL_SERVER_ERROR);
+        }
+
+        response.send();
+      });
   }]
 };

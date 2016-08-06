@@ -127,6 +127,12 @@ describe('teamsController', () => {
 
     })
 
+    it('deleting team should fail', (done) => {
+      server.delete('/teams/' + teams[0].id)
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
   };
 
   function authorizdedTests(beforeEachFunc: () => Promise<User>) {
@@ -241,6 +247,65 @@ describe('teamsController', () => {
                       id: _team.id,
                       teamName: newTeamName
                     });
+                    done();
+                  });
+              });
+          });
+
+        }
+
+        describe('User is admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('User is teams list admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.TEAMS_LIST_ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+      });
+
+      describe('delete team', () => {
+
+        it('deleting team without sufficient permissions should fail', (done) => {
+          server.delete('/teams/' + teams[0].id)
+            .send({ name: 'some new name' })
+            .expect(StatusCode.UNAUTHORIZED)
+            .end(done);
+        })
+
+        var sufficientPermissionsTests = () => {
+
+          it('deleting not existing team should succeed', (done) => {
+            server.delete('/teams/' + 9996655)
+              .expect(StatusCode.OK)
+              .end(done);
+          });
+
+          it('deleting existing team should succeed', (done) => {
+            server.delete('/teams/' + teams[0].id)
+              .expect(StatusCode.OK)
+              .end(done);
+          });
+
+          it('deleting existing team should delete the team', (done) => {
+            var teamIdToDelete: number = teams[0].id;
+
+            server.delete('/teams/' + teamIdToDelete)
+              .end(() => {
+                TeamsDataHandler.getTeams()
+                  .then((_teams: Team[]) => _.map(_teams, _ => _.id))
+                  .then((_teamIds: number[]) => {
+                    expect(_teamIds).not.to.contain(teamIdToDelete);
                     done();
                   });
               });

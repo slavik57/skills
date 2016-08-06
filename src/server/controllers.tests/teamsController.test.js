@@ -96,6 +96,11 @@ describe('teamsController', function () {
                     .end(done);
             });
         });
+        it('deleting team should fail', function (done) {
+            server.delete('/teams/' + teams[0].id)
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
     };
     function authorizdedTests(beforeEachFunc) {
         return function () {
@@ -189,6 +194,50 @@ describe('teamsController', function () {
                                     id: _team.id,
                                     teamName: newTeamName
                                 });
+                                done();
+                            });
+                        });
+                    });
+                };
+                describe('User is admin', function () {
+                    beforeEach(function () {
+                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.ADMIN]);
+                    });
+                    sufficientPermissionsTests();
+                });
+                describe('User is teams list admin', function () {
+                    beforeEach(function () {
+                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN]);
+                    });
+                    sufficientPermissionsTests();
+                });
+            });
+            describe('delete team', function () {
+                it('deleting team without sufficient permissions should fail', function (done) {
+                    server.delete('/teams/' + teams[0].id)
+                        .send({ name: 'some new name' })
+                        .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                        .end(done);
+                });
+                var sufficientPermissionsTests = function () {
+                    it('deleting not existing team should succeed', function (done) {
+                        server.delete('/teams/' + 9996655)
+                            .expect(statusCode_1.StatusCode.OK)
+                            .end(done);
+                    });
+                    it('deleting existing team should succeed', function (done) {
+                        server.delete('/teams/' + teams[0].id)
+                            .expect(statusCode_1.StatusCode.OK)
+                            .end(done);
+                    });
+                    it('deleting existing team should delete the team', function (done) {
+                        var teamIdToDelete = teams[0].id;
+                        server.delete('/teams/' + teamIdToDelete)
+                            .end(function () {
+                            teamsDataHandler_1.TeamsDataHandler.getTeams()
+                                .then(function (_teams) { return _.map(_teams, function (_) { return _.id; }); })
+                                .then(function (_teamIds) {
+                                chai_1.expect(_teamIds).not.to.contain(teamIdToDelete);
                                 done();
                             });
                         });

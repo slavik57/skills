@@ -1,4 +1,5 @@
 "use strict";
+var removeTeamOperation_1 = require("../operations/teamOperations/removeTeamOperation");
 var getTeamByNameOperation_1 = require("../operations/teamOperations/getTeamByNameOperation");
 var alreadyExistsError_1 = require("../../common/errors/alreadyExistsError");
 var unauthorizedError_1 = require("../../common/errors/unauthorizedError");
@@ -64,6 +65,23 @@ module.exports = {
                     statusCode = statusCode_1.StatusCode.CONFLICT;
                 }
                 response.status(statusCode);
+                response.send();
+            });
+        }],
+    delete_teamId_index: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, teamId) {
+            var numberId = Number(teamId);
+            var operation = new removeTeamOperation_1.RemoveTeamOperation(numberId, request.user.id);
+            operation.execute()
+                .then(function () {
+                response.status(statusCode_1.StatusCode.OK);
+                response.send();
+            }, function (error) {
+                if (errorUtils_1.ErrorUtils.isErrorOfType(error, unauthorizedError_1.UnauthorizedError)) {
+                    response.status(statusCode_1.StatusCode.UNAUTHORIZED);
+                }
+                else {
+                    response.status(statusCode_1.StatusCode.INTERNAL_SERVER_ERROR);
+                }
                 response.send();
             });
         }]
