@@ -1,6 +1,4 @@
 todo:
-- teams settings page - remove teams - also remove from the list if the removal succeeds
-- teams settings page - do not allow removing teams if the user does not have sufficient permissions
 - teams settings page - modify team name
 - teams settings page - add/remove users to team (make as team users component)
 - teams settings page - modify team admins
