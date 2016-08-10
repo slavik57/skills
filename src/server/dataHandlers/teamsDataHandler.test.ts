@@ -1694,4 +1694,69 @@ describe('TeamsDataHandler', () => {
 
   });
 
+  describe('updateTeamName', () => {
+
+    var team: Team;
+    var newTeamName: string;
+
+    beforeEach(() => {
+      newTeamName = 'new team name';
+
+      return EnvironmentDirtifier.createUsers(1)
+        .then((_users: User[]) => EnvironmentDirtifier.createTeams(1, _users[0].id))
+        .then((_teams: Team[]) => {
+          [team] = _teams;
+        });
+    });
+
+    it('should update the team name correctly', () => {
+      // Act
+      var updateTeamNamePromise: Promise<Team> =
+        TeamsDataHandler.updateTeamName(team.id,
+          newTeamName);
+
+      // Assert
+      return expect(updateTeamNamePromise).to.eventually.fulfilled
+        .then(() => TeamsDataHandler.getTeam(team.id))
+        .then((_team: Team) => {
+          expect(_team.attributes.name).to.be.equal(newTeamName);
+        })
+    });
+
+    it('should return correct team details', () => {
+      // Act
+      var updateTeamNamePromise: Promise<Team> =
+        TeamsDataHandler.updateTeamName(team.id,
+          newTeamName);
+
+      // Assert
+      return expect(updateTeamNamePromise).to.eventually.fulfilled
+        .then((_team: Team) => {
+          expect(_team.id).to.be.equal(team.id);
+          expect(_team.attributes.name).to.be.equal(newTeamName);
+        })
+    });
+
+    it('with empty team name should fail', () => {
+      // Act
+      var updateTeamNamePromise: Promise<Team> =
+        TeamsDataHandler.updateTeamName(team.id,
+          '');
+
+      // Assert
+      return expect(updateTeamNamePromise).to.eventually.rejected;
+    });
+
+    it('with null team name should fail', () => {
+      // Act
+      var updateTeamNamePromise: Promise<Team> =
+        TeamsDataHandler.updateTeamName(team.id,
+          null);
+
+      // Assert
+      return expect(updateTeamNamePromise).to.eventually.rejected;
+    });
+
+  });
+
 });

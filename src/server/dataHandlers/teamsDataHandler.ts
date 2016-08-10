@@ -157,6 +157,13 @@ export class TeamsDataHandler {
       });
   }
 
+  public static updateTeamName(teamId: number, newTeamName: string): bluebirdPromise<Team>{
+    var updateValues = {};
+    updateValues[Team.nameAttribute] = newTeamName;
+
+    return this._updateTeam(teamId, updateValues);
+  }
+
   private static _initializeTeamByIdQuery(teamId: number): Team {
     var queryCondition = {};
     queryCondition[Team.idAttribute] = teamId;
@@ -196,4 +203,13 @@ export class TeamsDataHandler {
       });
   }
 
+  private static _updateTeam(teamId: number, updateValues: any): bluebirdPromise<Team> {
+    var saveOptions: SaveOptions = {
+      method: 'update'
+    }
+
+    return this._initializeTeamByIdQuery(teamId).fetch().then((_team: Team) => {
+      return _team.save(updateValues, saveOptions);
+    });
+  }
 }

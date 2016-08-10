@@ -116,6 +116,11 @@ var TeamsDataHandler = (function () {
             return _teamsCreatorsCollection.toArray();
         });
     };
+    TeamsDataHandler.updateTeamName = function (teamId, newTeamName) {
+        var updateValues = {};
+        updateValues[team_2.Team.nameAttribute] = newTeamName;
+        return this._updateTeam(teamId, updateValues);
+    };
     TeamsDataHandler._initializeTeamByIdQuery = function (teamId) {
         var queryCondition = {};
         queryCondition[team_2.Team.idAttribute] = teamId;
@@ -144,6 +149,14 @@ var TeamsDataHandler = (function () {
             .fetch(fetchOptions)
             .then(function (teamMember) {
             return teamMember.save(updateAttributes, saveOptions);
+        });
+    };
+    TeamsDataHandler._updateTeam = function (teamId, updateValues) {
+        var saveOptions = {
+            method: 'update'
+        };
+        return this._initializeTeamByIdQuery(teamId).fetch().then(function (_team) {
+            return _team.save(updateValues, saveOptions);
         });
     };
     return TeamsDataHandler;

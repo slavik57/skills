@@ -1073,5 +1073,41 @@ describe('TeamsDataHandler', function () {
             });
         });
     });
+    describe('updateTeamName', function () {
+        var team;
+        var newTeamName;
+        beforeEach(function () {
+            newTeamName = 'new team name';
+            return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return environmentDirtifier_1.EnvironmentDirtifier.createTeams(1, _users[0].id); })
+                .then(function (_teams) {
+                team = _teams[0];
+            });
+        });
+        it('should update the team name correctly', function () {
+            var updateTeamNamePromise = teamsDataHandler_1.TeamsDataHandler.updateTeamName(team.id, newTeamName);
+            return chai_1.expect(updateTeamNamePromise).to.eventually.fulfilled
+                .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeam(team.id); })
+                .then(function (_team) {
+                chai_1.expect(_team.attributes.name).to.be.equal(newTeamName);
+            });
+        });
+        it('should return correct team details', function () {
+            var updateTeamNamePromise = teamsDataHandler_1.TeamsDataHandler.updateTeamName(team.id, newTeamName);
+            return chai_1.expect(updateTeamNamePromise).to.eventually.fulfilled
+                .then(function (_team) {
+                chai_1.expect(_team.id).to.be.equal(team.id);
+                chai_1.expect(_team.attributes.name).to.be.equal(newTeamName);
+            });
+        });
+        it('with empty team name should fail', function () {
+            var updateTeamNamePromise = teamsDataHandler_1.TeamsDataHandler.updateTeamName(team.id, '');
+            return chai_1.expect(updateTeamNamePromise).to.eventually.rejected;
+        });
+        it('with null team name should fail', function () {
+            var updateTeamNamePromise = teamsDataHandler_1.TeamsDataHandler.updateTeamName(team.id, null);
+            return chai_1.expect(updateTeamNamePromise).to.eventually.rejected;
+        });
+    });
 });
 //# sourceMappingURL=teamsDataHandler.test.js.map
