@@ -157,7 +157,7 @@ export class TeamsDataHandler {
       });
   }
 
-  public static updateTeamName(teamId: number, newTeamName: string): bluebirdPromise<Team>{
+  public static updateTeamName(teamId: number, newTeamName: string): bluebirdPromise<Team> {
     var updateValues = {};
     updateValues[Team.nameAttribute] = newTeamName;
 
