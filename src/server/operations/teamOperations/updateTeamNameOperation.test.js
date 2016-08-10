@@ -1,4 +1,5 @@
 "use strict";
+var alreadyExistsError_1 = require("../../../common/errors/alreadyExistsError");
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
 var updateTeamNameOperation_1 = require("./updateTeamNameOperation");
@@ -115,9 +116,11 @@ describe('UpdateTeamNameOperation', function () {
                         var updateUserDetailsOperation = new updateTeamNameOperation_1.UpdateTeamNameOperation(team.id, otherTeam.attributes.name, executingUser.id);
                         var result = updateUserDetailsOperation.execute()
                             .then(function () { return operation.execute(); });
+                        var expectedError = new alreadyExistsError_1.AlreadyExistsError();
+                        expectedError.message = 'The team name is taken';
                         return chai_1.expect(result).to.eventually.rejected
                             .then(function (error) {
-                            chai_1.expect(error).to.be.equal('The team name is taken');
+                            chai_1.expect(error).to.deep.equal(expectedError);
                         });
                     });
                 };

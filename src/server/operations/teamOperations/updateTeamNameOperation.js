@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var alreadyExistsError_1 = require("../../../common/errors/alreadyExistsError");
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
 var teamOperationBase_1 = require("../base/teamOperationBase");
@@ -33,7 +34,9 @@ var UpdateTeamNameOperation = (function (_super) {
             .then(function (_team) {
             if (!!_team &&
                 _team.id !== _this.teamId) {
-                return bluebirdPromise.reject('The team name is taken');
+                var error = new alreadyExistsError_1.AlreadyExistsError();
+                error.message = 'The team name is taken';
+                return bluebirdPromise.reject(error);
             }
         });
     };

@@ -101,6 +101,11 @@ describe('teamsController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
+        it('updating team details should fail', function (done) {
+            server.put('/teams/1')
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
     };
     function authorizdedTests(beforeEachFunc) {
         return function () {
@@ -257,6 +262,102 @@ describe('teamsController', function () {
                 });
             });
             describe('logout', notAuthorizedTests);
+            describe('update team name', function () {
+                var teamToUpdate;
+                beforeEach(function () {
+                    teamToUpdate = teams[0];
+                });
+                it('on invalid team name should fail', function (done) {
+                    server.put('/teams/' + teamToUpdate.id)
+                        .send({ name: '' })
+                        .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                        .end(done);
+                });
+                it('without sufficient permissions should fail', function (done) {
+                    server.put('/teams/' + teamToUpdate.id)
+                        .send({ name: '' })
+                        .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                        .end(done);
+                });
+                var sufficientPermissionsTests = function () {
+                    it('without body should fail', function (done) {
+                        server.put('/teams/' + teamToUpdate.id)
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with empty body should fail', function (done) {
+                        server.put('/teams/' + teamToUpdate.id)
+                            .send({})
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with empty team name should fail', function (done) {
+                        server.put('/teams/' + teamToUpdate.id)
+                            .send({ name: '' })
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with existing team name should fail', function (done) {
+                        server.put('/teams/' + teamToUpdate.id)
+                            .send({ name: teams[1].attributes.name })
+                            .expect(statusCode_1.StatusCode.CONFLICT)
+                            .end(done);
+                    });
+                    it('with new team name should succeed', function (done) {
+                        server.put('/teams/' + teamToUpdate.id)
+                            .send({ name: 'some new team name' })
+                            .expect(statusCode_1.StatusCode.OK)
+                            .end(done);
+                    });
+                    it('with new team name should update the team', function (done) {
+                        var newTeamName = 'some new team name';
+                        server.put('/teams/' + teamToUpdate.id)
+                            .send({ name: newTeamName })
+                            .end(function () {
+                            teamsDataHandler_1.TeamsDataHandler.getTeam(teamToUpdate.id)
+                                .then(function (_team) {
+                                chai_1.expect(_team.attributes.name).to.be.equal(newTeamName);
+                                done();
+                            });
+                        });
+                    });
+                    it('should return the team info', function (done) {
+                        var newTeamName = 'some new team name';
+                        server.put('/teams/' + teamToUpdate.id)
+                            .send({ name: newTeamName })
+                            .end(function (error, response) {
+                            chai_1.expect(response.body).to.deep.equal({
+                                id: teamToUpdate.id,
+                                teamName: newTeamName
+                            });
+                            done();
+                        });
+                    });
+                };
+                describe('user is admin', function () {
+                    beforeEach(function () {
+                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.ADMIN]);
+                    });
+                    sufficientPermissionsTests();
+                });
+                describe('user is teams list admin', function () {
+                    beforeEach(function () {
+                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN]);
+                    });
+                    sufficientPermissionsTests();
+                });
+                describe('user is team admin', function () {
+                    beforeEach(function () {
+                        var teamMemberInfo = {
+                            team_id: teamToUpdate.id,
+                            user_id: executingUser.id,
+                            is_admin: true
+                        };
+                        return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+                    });
+                    sufficientPermissionsTests();
+                });
+            });
         };
     }
     describe('user not logged in', notAuthorizedTests);

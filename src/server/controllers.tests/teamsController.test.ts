@@ -1,3 +1,4 @@
+import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
 import {GlobalPermission} from "../models/enums/globalPermission";
 import {Team} from "../models/team";
 import {EnvironmentDirtifier} from "../testUtils/environmentDirtifier";
@@ -129,6 +130,12 @@ describe('teamsController', () => {
 
     it('deleting team should fail', (done) => {
       server.delete('/teams/' + teams[0].id)
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    it('updating team details should fail', (done) => {
+      server.put('/teams/1')
         .expect(StatusCode.UNAUTHORIZED)
         .end(done);
     });
@@ -334,6 +341,129 @@ describe('teamsController', () => {
       });
 
       describe('logout', notAuthorizedTests);
+
+      describe('update team name', () => {
+
+        var teamToUpdate: Team;
+
+        beforeEach(() => {
+          teamToUpdate = teams[0];
+        });
+
+        it('on invalid team name should fail', (done) => {
+          server.put('/teams/' + teamToUpdate.id)
+            .send({ name: '' })
+            .expect(StatusCode.BAD_REQUEST)
+            .end(done);
+        });
+
+        it('without sufficient permissions should fail', (done) => {
+          server.put('/teams/' + teamToUpdate.id)
+            .send({ name: '' })
+            .expect(StatusCode.BAD_REQUEST)
+            .end(done);
+        });
+
+        var sufficientPermissionsTests = () => {
+
+          it('without body should fail', (done) => {
+            server.put('/teams/' + teamToUpdate.id)
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with empty body should fail', (done) => {
+            server.put('/teams/' + teamToUpdate.id)
+              .send({})
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with empty team name should fail', (done) => {
+            server.put('/teams/' + teamToUpdate.id)
+              .send({ name: '' })
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with existing team name should fail', (done) => {
+            server.put('/teams/' + teamToUpdate.id)
+              .send({ name: teams[1].attributes.name })
+              .expect(StatusCode.CONFLICT)
+              .end(done);
+          });
+
+          it('with new team name should succeed', (done) => {
+            server.put('/teams/' + teamToUpdate.id)
+              .send({ name: 'some new team name' })
+              .expect(StatusCode.OK)
+              .end(done);
+          });
+
+          it('with new team name should update the team', (done) => {
+            var newTeamName = 'some new team name';
+
+            server.put('/teams/' + teamToUpdate.id)
+              .send({ name: newTeamName })
+              .end(() => {
+                TeamsDataHandler.getTeam(teamToUpdate.id)
+                  .then((_team: Team) => {
+                    expect(_team.attributes.name).to.be.equal(newTeamName);
+                    done();
+                  });
+              });
+          });
+
+          it('should return the team info', (done) => {
+            var newTeamName = 'some new team name';
+
+            server.put('/teams/' + teamToUpdate.id)
+              .send({ name: newTeamName })
+              .end((error, response: Response) => {
+                expect(response.body).to.deep.equal(<ITeamInfoResponse>{
+                  id: teamToUpdate.id,
+                  teamName: newTeamName
+                });
+                done();
+              });
+          });
+
+        }
+
+        describe('user is admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('user is teams list admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.TEAMS_LIST_ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('user is team admin', () => {
+
+          beforeEach(() => {
+            var teamMemberInfo: ITeamMemberInfo = {
+              team_id: teamToUpdate.id,
+              user_id: executingUser.id,
+              is_admin: true
+            }
+
+            return TeamsDataHandler.addTeamMember(teamMemberInfo);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+      });
 
     }
   }

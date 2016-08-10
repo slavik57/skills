@@ -1,3 +1,4 @@
+import {AlreadyExistsError} from "../../../common/errors/alreadyExistsError";
 import {ITeamMemberInfo} from "../../models/interfaces/iTeamMemberInfo";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
@@ -183,9 +184,12 @@ describe('UpdateTeamNameOperation', () => {
               .then(() => operation.execute());
 
             // Assert
+            var expectedError = new AlreadyExistsError();
+            expectedError.message = 'The team name is taken';
+
             return expect(result).to.eventually.rejected
               .then((error: any) => {
-                expect(error).to.be.equal('The team name is taken');
+                expect(error).to.deep.equal(expectedError);
               });
           });
 

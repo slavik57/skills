@@ -1,3 +1,4 @@
+import {AlreadyExistsError} from "../../../common/errors/alreadyExistsError";
 import {GlobalPermission} from "../../models/enums/globalPermission";
 import {TeamsDataHandler} from "../../dataHandlers/teamsDataHandler";
 import {Team} from "../../models/team";
@@ -28,7 +29,9 @@ export class UpdateTeamNameOperation extends TeamOperationBase<Team>{
       .then((_team: Team) => {
         if (!!_team &&
           _team.id !== this.teamId) {
-          return bluebirdPromise.reject('The team name is taken');
+          var error = new AlreadyExistsError();
+          error.message = 'The team name is taken';
+          return bluebirdPromise.reject(error);
         }
       });
   }

@@ -1,3 +1,4 @@
+import {UpdateTeamNameOperation} from "../operations/teamOperations/updateTeamNameOperation";
 import {RemoveTeamOperation} from "../operations/teamOperations/removeTeamOperation";
 import {GetTeamByNameOperation} from "../operations/teamOperations/getTeamByNameOperation";
 import {AlreadyExistsError} from "../../common/errors/alreadyExistsError";
@@ -14,6 +15,10 @@ import { Express, Request, Response } from 'express';
 import * as _ from 'lodash';
 
 interface ICreateTeamRequestBody {
+  name: string;
+}
+
+interface IUpdateTeamRequestBody {
   name: string;
 }
 
@@ -62,6 +67,40 @@ export = {
 
     var addOperation = new AddTeamOperation(teamInfo, request.user.id);
     addOperation.execute()
+      .then((_team: Team) => {
+        response.status(StatusCode.OK);
+        response.send(<ITeamInfoResponse>{
+          id: _team.id,
+          teamName: _team.attributes.name
+        });
+      }, (error: any) => {
+        var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
+
+        if (ErrorUtils.isErrorOfType(error, UnauthorizedError)) {
+          statusCode = StatusCode.UNAUTHORIZED;
+        } else if (ErrorUtils.isErrorOfType(error, AlreadyExistsError)) {
+          statusCode = StatusCode.CONFLICT;
+        }
+
+        response.status(statusCode);
+        response.send();
+      })
+  }],
+  put_teamId_index: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, teamId: string) {
+    var updateTeamRequest: IUpdateTeamRequestBody = request.body;
+
+    if (!updateTeamRequest || !updateTeamRequest.name) {
+      response.status(StatusCode.BAD_REQUEST);
+      response.send();
+      return;
+    }
+
+    var numberId: number = Number(teamId);
+
+    var updateTeamNameUperation =
+      new UpdateTeamNameOperation(numberId, updateTeamRequest.name, request.user.id);
+
+    updateTeamNameUperation.execute()
       .then((_team: Team) => {
         response.status(StatusCode.OK);
         response.send(<ITeamInfoResponse>{

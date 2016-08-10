@@ -1,4 +1,5 @@
 "use strict";
+var updateTeamNameOperation_1 = require("../operations/teamOperations/updateTeamNameOperation");
 var removeTeamOperation_1 = require("../operations/teamOperations/removeTeamOperation");
 var getTeamByNameOperation_1 = require("../operations/teamOperations/getTeamByNameOperation");
 var alreadyExistsError_1 = require("../../common/errors/alreadyExistsError");
@@ -50,6 +51,34 @@ module.exports = {
             };
             var addOperation = new addTeamOperation_1.AddTeamOperation(teamInfo, request.user.id);
             addOperation.execute()
+                .then(function (_team) {
+                response.status(statusCode_1.StatusCode.OK);
+                response.send({
+                    id: _team.id,
+                    teamName: _team.attributes.name
+                });
+            }, function (error) {
+                var statusCode = statusCode_1.StatusCode.INTERNAL_SERVER_ERROR;
+                if (errorUtils_1.ErrorUtils.isErrorOfType(error, unauthorizedError_1.UnauthorizedError)) {
+                    statusCode = statusCode_1.StatusCode.UNAUTHORIZED;
+                }
+                else if (errorUtils_1.ErrorUtils.isErrorOfType(error, alreadyExistsError_1.AlreadyExistsError)) {
+                    statusCode = statusCode_1.StatusCode.CONFLICT;
+                }
+                response.status(statusCode);
+                response.send();
+            });
+        }],
+    put_teamId_index: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, teamId) {
+            var updateTeamRequest = request.body;
+            if (!updateTeamRequest || !updateTeamRequest.name) {
+                response.status(statusCode_1.StatusCode.BAD_REQUEST);
+                response.send();
+                return;
+            }
+            var numberId = Number(teamId);
+            var updateTeamNameUperation = new updateTeamNameOperation_1.UpdateTeamNameOperation(numberId, updateTeamRequest.name, request.user.id);
+            updateTeamNameUperation.execute()
                 .then(function (_team) {
                 response.status(statusCode_1.StatusCode.OK);
                 response.send({
