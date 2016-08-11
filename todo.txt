@@ -1,5 +1,6 @@
 todo:
 - teams settings page - add/remove users to team (make as team users component)
+- rename all the scss files to begin with underscore so the compiler wont compile them
 - teams settings page - modify team admins
 - teams settings page - allow only team admins, team list admins and admins to modify team name
 - teams settings page - allow only team admins, team list admins and admins to modify team admins
