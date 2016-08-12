@@ -1,3 +1,6 @@
+import {ITeamMemberResponse} from "../apiResponses/iTeamMemberResponse";
+import {IUserOfATeam} from "../models/interfaces/iUserOfATeam";
+import {GetTeamUsersOperation} from "../operations/teamOperations/getTeamUsersOperation";
 import {UpdateTeamNameOperation} from "../operations/teamOperations/updateTeamNameOperation";
 import {RemoveTeamOperation} from "../operations/teamOperations/removeTeamOperation";
 import {GetTeamByNameOperation} from "../operations/teamOperations/getTeamByNameOperation";
@@ -137,6 +140,24 @@ export = {
         }
 
         response.send();
+      });
+  }],
+  get_teamId_members: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, teamId: string) {
+    var numberId = Number(teamId);
+
+    var operation = new GetTeamUsersOperation(numberId);
+
+    operation.execute()
+      .then((_teamMembers: IUserOfATeam[]) => {
+        var result: ITeamMemberResponse[] = _.map(_teamMembers, (_teamMember) => {
+          return <ITeamMemberResponse>{
+            id: _teamMember.user.id,
+            username: _teamMember.user.attributes.username,
+            isAdmin: _teamMember.isAdmin
+          }
+        }).sort((_info1, _info2) => _info1.id - _info2.id);
+
+        response.json(result);
       });
   }]
 };

@@ -1,3 +1,5 @@
+import {ITeamMemberResponse} from "../apiResponses/iTeamMemberResponse";
+import {IUserInfoResponse} from "../apiResponses/iUserInfoResponse";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
 import {GlobalPermission} from "../models/enums/globalPermission";
 import {Team} from "../models/team";
@@ -94,6 +96,20 @@ describe('teamsController', () => {
     })
   }
 
+  function getExpectedTeamsMembers(team: Team, teamMembers: User[], teamMemberInfos: ITeamMemberInfo[]): ITeamMemberResponse[] {
+    var result: ITeamMemberResponse[] = [];
+
+    for (var i = 0; i < teamMembers.length; i++) {
+      result.push({
+        id: teamMembers[i].id,
+        username: teamMembers[i].attributes.username,
+        isAdmin: teamMemberInfos[i].is_admin
+      });
+    }
+
+    return result;
+  }
+
   var notAuthorizedTests = () => {
 
     beforeEach(() => {
@@ -136,6 +152,12 @@ describe('teamsController', () => {
 
     it('updating team details should fail', (done) => {
       server.put('/teams/1')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    it('getting team members should fail', (done) => {
+      server.get('/teams/' + teams[0].id + '/members')
         .expect(StatusCode.UNAUTHORIZED)
         .end(done);
     });
@@ -461,6 +483,44 @@ describe('teamsController', () => {
           })
 
           sufficientPermissionsTests();
+        });
+
+      });
+
+      describe('getting team members', () => {
+
+        var teamOfTeamMembers: Team;
+        var teamMembers: User[];
+        var teamMemberInfos: ITeamMemberInfo[];
+
+        beforeEach(() => {
+          teamOfTeamMembers = teams[0];
+
+          return EnvironmentDirtifier.createUsers(3, '_getTeamMember')
+            .then((_users: User[]) => {
+              teamMembers = _users;
+
+              teamMemberInfos = [
+                { team_id: teamOfTeamMembers.id, user_id: teamMembers[0].id, is_admin: true },
+                { team_id: teamOfTeamMembers.id, user_id: teamMembers[1].id, is_admin: false },
+                { team_id: teamOfTeamMembers.id, user_id: teamMembers[2].id, is_admin: true }
+              ]
+            })
+            .then(() => Promise.all([
+              TeamsDataHandler.addTeamMember(teamMemberInfos[0]),
+              TeamsDataHandler.addTeamMember(teamMemberInfos[1]),
+              TeamsDataHandler.addTeamMember(teamMemberInfos[2])
+            ]));
+        });
+
+        it('should return correct team members', (done) => {
+          var expectedTeamMembers: IUserInfoResponse[] =
+            getExpectedTeamsMembers(teamOfTeamMembers, teamMembers, teamMemberInfos).sort((_1, _2) => _1.id - _2.id);
+
+          server.get('/teams/' + teamOfTeamMembers.id + '/members')
+            .expect(StatusCode.OK)
+            .expect(expectedTeamMembers)
+            .end(done);
         });
 
       });

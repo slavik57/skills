@@ -1,4 +1,5 @@
 "use strict";
+var getTeamUsersOperation_1 = require("../operations/teamOperations/getTeamUsersOperation");
 var updateTeamNameOperation_1 = require("../operations/teamOperations/updateTeamNameOperation");
 var removeTeamOperation_1 = require("../operations/teamOperations/removeTeamOperation");
 var getTeamByNameOperation_1 = require("../operations/teamOperations/getTeamByNameOperation");
@@ -112,6 +113,21 @@ module.exports = {
                     response.status(statusCode_1.StatusCode.INTERNAL_SERVER_ERROR);
                 }
                 response.send();
+            });
+        }],
+    get_teamId_members: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, teamId) {
+            var numberId = Number(teamId);
+            var operation = new getTeamUsersOperation_1.GetTeamUsersOperation(numberId);
+            operation.execute()
+                .then(function (_teamMembers) {
+                var result = _.map(_teamMembers, function (_teamMember) {
+                    return {
+                        id: _teamMember.user.id,
+                        username: _teamMember.user.attributes.username,
+                        isAdmin: _teamMember.isAdmin
+                    };
+                }).sort(function (_info1, _info2) { return _info1.id - _info2.id; });
+                response.json(result);
             });
         }]
 };

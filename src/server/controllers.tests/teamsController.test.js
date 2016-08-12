@@ -70,6 +70,17 @@ describe('teamsController', function () {
             };
         });
     }
+    function getExpectedTeamsMembers(team, teamMembers, teamMemberInfos) {
+        var result = [];
+        for (var i = 0; i < teamMembers.length; i++) {
+            result.push({
+                id: teamMembers[i].id,
+                username: teamMembers[i].attributes.username,
+                isAdmin: teamMemberInfos[i].is_admin
+            });
+        }
+        return result;
+    }
     var notAuthorizedTests = function () {
         beforeEach(function () {
             return userLoginManager_1.UserLoginManager.logoutUser(server);
@@ -103,6 +114,11 @@ describe('teamsController', function () {
         });
         it('updating team details should fail', function (done) {
             server.put('/teams/1')
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
+        it('getting team members should fail', function (done) {
+            server.get('/teams/' + teams[0].id + '/members')
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
@@ -356,6 +372,35 @@ describe('teamsController', function () {
                         return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
                     });
                     sufficientPermissionsTests();
+                });
+            });
+            describe('getting team members', function () {
+                var teamOfTeamMembers;
+                var teamMembers;
+                var teamMemberInfos;
+                beforeEach(function () {
+                    teamOfTeamMembers = teams[0];
+                    return environmentDirtifier_1.EnvironmentDirtifier.createUsers(3, '_getTeamMember')
+                        .then(function (_users) {
+                        teamMembers = _users;
+                        teamMemberInfos = [
+                            { team_id: teamOfTeamMembers.id, user_id: teamMembers[0].id, is_admin: true },
+                            { team_id: teamOfTeamMembers.id, user_id: teamMembers[1].id, is_admin: false },
+                            { team_id: teamOfTeamMembers.id, user_id: teamMembers[2].id, is_admin: true }
+                        ];
+                    })
+                        .then(function () { return Promise.all([
+                        teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfos[0]),
+                        teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfos[1]),
+                        teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfos[2])
+                    ]); });
+                });
+                it('should return correct team members', function (done) {
+                    var expectedTeamMembers = getExpectedTeamsMembers(teamOfTeamMembers, teamMembers, teamMemberInfos).sort(function (_1, _2) { return _1.id - _2.id; });
+                    server.get('/teams/' + teamOfTeamMembers.id + '/members')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect(expectedTeamMembers)
+                        .end(done);
                 });
             });
         };

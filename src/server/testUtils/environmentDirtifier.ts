@@ -51,10 +51,10 @@ export class EnvironmentDirtifier {
       .then(() => testModels);
   }
 
-  public static createUsers(numberOfUsers: number): bluebirdPromise<User[]> {
+  public static createUsers(numberOfUsers: number, suffix: string = ''): bluebirdPromise<User[]> {
     var userCreationPromises: bluebirdPromise<User>[] = [];
     for (var i = 0; i < numberOfUsers; i++) {
-      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(i);
+      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(i, suffix);
 
       userCreationPromises.push(UserDataHandler.createUser(userInfo));
     }

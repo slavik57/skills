@@ -44,10 +44,11 @@ var EnvironmentDirtifier = (function () {
             .then(function () { return _this._fillLevel3Tables(testModels); })
             .then(function () { return testModels; });
     };
-    EnvironmentDirtifier.createUsers = function (numberOfUsers) {
+    EnvironmentDirtifier.createUsers = function (numberOfUsers, suffix) {
+        if (suffix === void 0) { suffix = ''; }
         var userCreationPromises = [];
         for (var i = 0; i < numberOfUsers; i++) {
-            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(i);
+            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(i, suffix);
             userCreationPromises.push(userDataHandler_1.UserDataHandler.createUser(userInfo));
         }
         return bluebirdPromise.all(userCreationPromises);

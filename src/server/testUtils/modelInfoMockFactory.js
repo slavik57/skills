@@ -2,13 +2,14 @@
 var ModelInfoMockFactory = (function () {
     function ModelInfoMockFactory() {
     }
-    ModelInfoMockFactory.createUserInfo = function (userNumber) {
+    ModelInfoMockFactory.createUserInfo = function (userNumber, suffix) {
+        if (suffix === void 0) { suffix = ''; }
         return {
-            username: 'username' + userNumber,
-            password_hash: 'password_hash' + userNumber,
-            email: 'email' + userNumber + '@gmail.com',
-            firstName: 'firstName' + userNumber,
-            lastName: 'lastName' + userNumber
+            username: 'username' + userNumber + suffix,
+            password_hash: 'password_hash' + userNumber + suffix,
+            email: 'email' + userNumber + suffix + '@gmail.com',
+            firstName: 'firstName' + userNumber + suffix,
+            lastName: 'lastName' + userNumber + suffix
         };
     };
     ModelInfoMockFactory.createSkillInfo = function (skillName) {

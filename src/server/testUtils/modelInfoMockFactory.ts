@@ -12,13 +12,13 @@ import {ISkillInfo} from "../models/interfaces/iSkillInfo";
 
 export class ModelInfoMockFactory {
 
-  public static createUserInfo(userNumber: number): IUserInfo {
+  public static createUserInfo(userNumber: number, suffix: string = ''): IUserInfo {
     return {
-      username: 'username' + userNumber,
-      password_hash: 'password_hash' + userNumber,
-      email: 'email' + userNumber + '@gmail.com',
-      firstName: 'firstName' + userNumber,
-      lastName: 'lastName' + userNumber
+      username: 'username' + userNumber + suffix,
+      password_hash: 'password_hash' + userNumber + suffix,
+      email: 'email' + userNumber + suffix + '@gmail.com',
+      firstName: 'firstName' + userNumber + suffix,
+      lastName: 'lastName' + userNumber + suffix
     };
   }
 
