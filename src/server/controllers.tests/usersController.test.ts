@@ -15,7 +15,7 @@ import {ExpressServer} from "../expressServer";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import * as supertest from 'supertest';
-import {SuperTest} from 'supertest';
+import {SuperTest, Response} from 'supertest';
 import * as chaiAsPromised from 'chai-as-promised';
 import {StatusCode} from '../enums/statusCode';
 import {webpackInitializationTimeout} from '../../../testConfigurations';
@@ -30,6 +30,7 @@ describe('usersController', () => {
 
   var userDefinition: IUserRegistrationDefinition;
   var users: User[];
+  var usernameSuffix: string;
 
   before(function(done) {
     this.timeout(webpackInitializationTimeout);
@@ -66,7 +67,9 @@ describe('usersController', () => {
   beforeEach(function() {
     this.timeout(webpackInitializationTimeout);
 
-    return EnvironmentDirtifier.createUsers(5)
+    usernameSuffix = '_usersController';
+
+    return EnvironmentDirtifier.createUsers(5, usernameSuffix)
       .then(() => UserDataHandler.getUsers())
       .then((_users: User[]) => {
         users = _users;
@@ -98,10 +101,20 @@ describe('usersController', () => {
         .end(done);
     });
 
-    it('getting filtered users details by partial username should fail', (done) => {
-      server.get('/users/filtered/1')
-        .expect(StatusCode.UNAUTHORIZED)
-        .end(done);
+    describe('get filtered users details by partial username', () => {
+
+      it('should fail', (done) => {
+        server.get('/users/filtered/1')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
+      it('with maximum number of users should fail', (done) => {
+        server.get('/users/filtered/1?max=12')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
     });
 
     it('checking if not existing user exists should return false', (done) => {
@@ -183,28 +196,67 @@ describe('usersController', () => {
           .end(done);
       });
 
-      it('getting filtered users details by partial username should return one user', (done) => {
-        var usersWith1 = _.filter(users, _ => _.attributes.username.indexOf('1') >= 0);
+      describe('gett filtered users details by partial username', () => {
 
-        var expectedUsers = getExpectedUsersDetails(usersWith1);
-        expect(expectedUsers.length > 0).to.be.true;
+        it('should return one user', (done) => {
+          var usersWith1 = _.filter(users, _ => _.attributes.username.indexOf('1') >= 0);
 
-        server.get('/users/filtered/1')
-          .expect(StatusCode.OK)
-          .expect(expectedUsers)
-          .end(done);
-      });
+          var expectedUsers = getExpectedUsersDetails(usersWith1);
+          expect(expectedUsers.length > 0).to.be.true;
 
-      it('getting filtered users details by partial username should return all users', (done) => {
-        var usersWithUsername = _.filter(users, _ => _.attributes.username.indexOf('username') >= 0);
+          server.get('/users/filtered/1')
+            .expect(StatusCode.OK)
+            .expect(expectedUsers)
+            .end(done);
+        });
 
-        var expectedUsers = getExpectedUsersDetails(usersWithUsername);
-        expect(expectedUsers.length > 0).to.be.true;
+        it('should return all users', (done) => {
+          var usersWithUsername = _.filter(users, _ => _.attributes.username.indexOf('username') >= 0);
 
-        server.get('/users/filtered/username')
-          .expect(StatusCode.OK)
-          .expect(expectedUsers)
-          .end(done);
+          var expectedUsers = getExpectedUsersDetails(usersWithUsername);
+          expect(expectedUsers.length > 0).to.be.true;
+
+          server.get('/users/filtered/username')
+            .expect(StatusCode.OK)
+            .expect(expectedUsers)
+            .end(done);
+        });
+
+        it('with max number of users limit should return one user', (done) => {
+          var usersWith1 = _.filter(users, _ => _.attributes.username.indexOf('name1') >= 0);
+
+          var expectedUsers = getExpectedUsersDetails(usersWith1);
+          expect(expectedUsers.length).to.be.equal(1);
+
+          server.get('/users/filtered/1?max=12')
+            .expect(StatusCode.OK)
+            .expect(expectedUsers)
+            .end(done);
+        });
+
+        it('with max number of users limit should return correct number of users', (done) => {
+          var allRelevantUsers = _.filter(users, _ => _.attributes.username.indexOf(usernameSuffix) >= 0);
+
+          var allUsers: IUserInfoResponse[] = getExpectedUsersDetails(allRelevantUsers);
+
+          var maxNumberOfUsers = 2;
+          expect(allUsers.length).to.be.greaterThan(maxNumberOfUsers);
+
+          server.get('/users/filtered/' + usernameSuffix + '?max=' + maxNumberOfUsers)
+            .expect(StatusCode.OK)
+            .end((error: any, response: Response) => {
+              var actualUsers: IUserInfoResponse[] = response.body;
+
+              expect(actualUsers).to.be.length(maxNumberOfUsers);
+
+              actualUsers.forEach((_user: IUserInfoResponse) => {
+                expect(_user.username).to.contain(usernameSuffix);
+              });
+
+              done();
+            });
+        });
+
       });
 
       it('checking if not existing user exists should return false', (done) => {

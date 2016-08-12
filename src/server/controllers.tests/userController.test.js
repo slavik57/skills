@@ -337,8 +337,6 @@ describe('userController', function () {
             describe('canModifyTeamsList', function () {
                 it('checking can modify teams list with permissions other than teams list admin or admin should return false', function (done) {
                     var permissions = _.difference(enum_values_1.EnumValues.getValues(globalPermission_1.GlobalPermission), [globalPermission_1.GlobalPermission.ADMIN, globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN]);
-                    console.log(permissions);
-                    console.log(enum_values_1.EnumValues.getNamesAndValues(globalPermission_1.GlobalPermission));
                     userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions)
                         .then(function () {
                         server.get('/user/can-modify-teams-list')

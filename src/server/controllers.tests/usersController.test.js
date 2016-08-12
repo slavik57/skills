@@ -20,6 +20,7 @@ describe('usersController', function () {
     var server;
     var userDefinition;
     var users;
+    var usernameSuffix;
     before(function (done) {
         this.timeout(testConfigurations_1.webpackInitializationTimeout);
         expressServer_1.ExpressServer.instance.initialize()
@@ -46,7 +47,8 @@ describe('usersController', function () {
     });
     beforeEach(function () {
         this.timeout(testConfigurations_1.webpackInitializationTimeout);
-        return environmentDirtifier_1.EnvironmentDirtifier.createUsers(5)
+        usernameSuffix = '_usersController';
+        return environmentDirtifier_1.EnvironmentDirtifier.createUsers(5, usernameSuffix)
             .then(function () { return userDataHandler_1.UserDataHandler.getUsers(); })
             .then(function (_users) {
             users = _users;
@@ -72,10 +74,17 @@ describe('usersController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
-        it('getting filtered users details by partial username should fail', function (done) {
-            server.get('/users/filtered/1')
-                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
-                .end(done);
+        describe('get filtered users details by partial username', function () {
+            it('should fail', function (done) {
+                server.get('/users/filtered/1')
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .end(done);
+            });
+            it('with maximum number of users should fail', function (done) {
+                server.get('/users/filtered/1?max=12')
+                    .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                    .end(done);
+            });
         });
         it('checking if not existing user exists should return false', function (done) {
             server.get('/users/notExistingUser/exists')
@@ -138,23 +147,50 @@ describe('usersController', function () {
                     .expect(expectedUsers)
                     .end(done);
             });
-            it('getting filtered users details by partial username should return one user', function (done) {
-                var usersWith1 = _.filter(users, function (_) { return _.attributes.username.indexOf('1') >= 0; });
-                var expectedUsers = getExpectedUsersDetails(usersWith1);
-                chai_1.expect(expectedUsers.length > 0).to.be.true;
-                server.get('/users/filtered/1')
-                    .expect(statusCode_1.StatusCode.OK)
-                    .expect(expectedUsers)
-                    .end(done);
-            });
-            it('getting filtered users details by partial username should return all users', function (done) {
-                var usersWithUsername = _.filter(users, function (_) { return _.attributes.username.indexOf('username') >= 0; });
-                var expectedUsers = getExpectedUsersDetails(usersWithUsername);
-                chai_1.expect(expectedUsers.length > 0).to.be.true;
-                server.get('/users/filtered/username')
-                    .expect(statusCode_1.StatusCode.OK)
-                    .expect(expectedUsers)
-                    .end(done);
+            describe('gett filtered users details by partial username', function () {
+                it('should return one user', function (done) {
+                    var usersWith1 = _.filter(users, function (_) { return _.attributes.username.indexOf('1') >= 0; });
+                    var expectedUsers = getExpectedUsersDetails(usersWith1);
+                    chai_1.expect(expectedUsers.length > 0).to.be.true;
+                    server.get('/users/filtered/1')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect(expectedUsers)
+                        .end(done);
+                });
+                it('should return all users', function (done) {
+                    var usersWithUsername = _.filter(users, function (_) { return _.attributes.username.indexOf('username') >= 0; });
+                    var expectedUsers = getExpectedUsersDetails(usersWithUsername);
+                    chai_1.expect(expectedUsers.length > 0).to.be.true;
+                    server.get('/users/filtered/username')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect(expectedUsers)
+                        .end(done);
+                });
+                it('with max number of users limit should return one user', function (done) {
+                    var usersWith1 = _.filter(users, function (_) { return _.attributes.username.indexOf('name1') >= 0; });
+                    var expectedUsers = getExpectedUsersDetails(usersWith1);
+                    chai_1.expect(expectedUsers.length).to.be.equal(1);
+                    server.get('/users/filtered/1?max=12')
+                        .expect(statusCode_1.StatusCode.OK)
+                        .expect(expectedUsers)
+                        .end(done);
+                });
+                it('with max number of users limit should return correct number of users', function (done) {
+                    var allRelevantUsers = _.filter(users, function (_) { return _.attributes.username.indexOf(usernameSuffix) >= 0; });
+                    var allUsers = getExpectedUsersDetails(allRelevantUsers);
+                    var maxNumberOfUsers = 2;
+                    chai_1.expect(allUsers.length).to.be.greaterThan(maxNumberOfUsers);
+                    server.get('/users/filtered/' + usernameSuffix + '?max=' + maxNumberOfUsers)
+                        .expect(statusCode_1.StatusCode.OK)
+                        .end(function (error, response) {
+                        var actualUsers = response.body;
+                        chai_1.expect(actualUsers).to.be.length(maxNumberOfUsers);
+                        actualUsers.forEach(function (_user) {
+                            chai_1.expect(_user.username).to.contain(usernameSuffix);
+                        });
+                        done();
+                    });
+                });
             });
             it('checking if not existing user exists should return false', function (done) {
                 server.get('/users/notExistingUser/exists')

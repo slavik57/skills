@@ -8,12 +8,14 @@ var userDataHandler_1 = require("../../dataHandlers/userDataHandler");
 var operationBase_1 = require("../base/operationBase");
 var GetUsersByPartialUsernameOperation = (function (_super) {
     __extends(GetUsersByPartialUsernameOperation, _super);
-    function GetUsersByPartialUsernameOperation(partialUsername) {
+    function GetUsersByPartialUsernameOperation(partialUsername, maxNumberOfUsers) {
+        if (maxNumberOfUsers === void 0) { maxNumberOfUsers = null; }
         _super.call(this);
         this.partialUsername = partialUsername;
+        this.maxNumberOfUsers = maxNumberOfUsers;
     }
     GetUsersByPartialUsernameOperation.prototype.doWork = function () {
-        return userDataHandler_1.UserDataHandler.getUsersByPartialUsername(this.partialUsername);
+        return userDataHandler_1.UserDataHandler.getUsersByPartialUsername(this.partialUsername, this.maxNumberOfUsers);
     };
     return GetUsersByPartialUsernameOperation;
 }(operationBase_1.OperationBase));

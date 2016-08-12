@@ -53,11 +53,15 @@ export class UserDataHandler {
       });
   }
 
-  public static getUsersByPartialUsername(partialUsername: string): bluebirdPromise<User[]> {
+  public static getUsersByPartialUsername(partialUsername: string, maxNumberOfUsers: number = null): bluebirdPromise<User[]> {
     var likePartialUsername = this._createLikeQueryValue(partialUsername);
 
     return new Users().query((_queryBuilder: QueryBuilder) => {
       _queryBuilder.where(User.usernameAttribute, QuerySelectors.LIKE, likePartialUsername);
+
+      if (maxNumberOfUsers >= 0) {
+        _queryBuilder.limit(maxNumberOfUsers);
+      }
     }).fetch()
       .then((_usersCollection: Collection<User>) => _usersCollection.toArray());
   }

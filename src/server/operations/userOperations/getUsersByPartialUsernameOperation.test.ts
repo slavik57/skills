@@ -23,12 +23,13 @@ describe('GetUsersByPartialUsernameOperation', () => {
   describe('execute', () => {
 
     var users: User[];
-
-
+    var usernameSuffix: string;
 
     beforeEach(() => {
+      usernameSuffix = '_GetUsersByPartialUsernameOperation';
+
       var createUserPromise: Promise<any> =
-        EnvironmentDirtifier.createUsers(4)
+        EnvironmentDirtifier.createUsers(4, usernameSuffix)
           .then((_users: User[]) => {
             users = _users;
           });
@@ -66,10 +67,10 @@ describe('GetUsersByPartialUsernameOperation', () => {
         });
     });
 
-    it('getting by "username" should return correct user', () => {
+    it('getting by usernameSuffix should return correct users', () => {
       // Arrange
       var operation: GetUsersByPartialUsernameOperation =
-        new GetUsersByPartialUsernameOperation('username');
+        new GetUsersByPartialUsernameOperation(usernameSuffix);
 
       // Act
       var resultPromise: Promise<User[]> = operation.execute();
@@ -78,6 +79,71 @@ describe('GetUsersByPartialUsernameOperation', () => {
       return expect(resultPromise).to.eventually.fulfilled
         .then((_actualUsers: User[]) => {
           ModelVerificator.verifyMultipleModelsEqualById(_actualUsers, users);
+        });
+    });
+
+    it('getting by usernameSuffix with null max users should return correct users', () => {
+      // Arrange
+      var operation: GetUsersByPartialUsernameOperation =
+        new GetUsersByPartialUsernameOperation(usernameSuffix, null);
+
+      // Act
+      var resultPromise: Promise<User[]> = operation.execute();
+
+      // Assert
+      return expect(resultPromise).to.eventually.fulfilled
+        .then((_actualUsers: User[]) => {
+          ModelVerificator.verifyMultipleModelsEqualById(_actualUsers, users);
+        });
+    });
+
+    it('getting by usernameSuffix with undefined max users should return correct users', () => {
+      // Arrange
+      var operation: GetUsersByPartialUsernameOperation =
+        new GetUsersByPartialUsernameOperation(usernameSuffix, undefined);
+
+      // Act
+      var resultPromise: Promise<User[]> = operation.execute();
+
+      // Assert
+      return expect(resultPromise).to.eventually.fulfilled
+        .then((_actualUsers: User[]) => {
+          ModelVerificator.verifyMultipleModelsEqualById(_actualUsers, users);
+        });
+    });
+
+    it('getting by usernameSuffix with limited number of users to 0 should return no users', () => {
+      // Arrange
+      var operation: GetUsersByPartialUsernameOperation =
+        new GetUsersByPartialUsernameOperation(usernameSuffix, 0);
+
+      // Act
+      var resultPromise: Promise<User[]> = operation.execute();
+
+      // Assert
+      return expect(resultPromise).to.eventually.fulfilled
+        .then((_actualUsers: User[]) => {
+          expect(_actualUsers).to.be.length(0);
+        });
+    });
+    it('getting by usernameSuffix with limited number of users should return correct users', () => {
+      // Arrange
+      var maxNumberOfUsers = 1;
+
+      var operation: GetUsersByPartialUsernameOperation =
+        new GetUsersByPartialUsernameOperation(usernameSuffix, maxNumberOfUsers);
+
+      // Act
+      var resultPromise: Promise<User[]> = operation.execute();
+
+      // Assert
+      return expect(resultPromise).to.eventually.fulfilled
+        .then((_actualUsers: User[]) => {
+          expect(_actualUsers).to.be.length(maxNumberOfUsers);
+
+          _actualUsers.forEach((_user) => {
+            expect(_user.attributes.username).to.contain(usernameSuffix);
+          });
         });
     });
 

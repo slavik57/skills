@@ -422,9 +422,6 @@ describe('userController', () => {
           var permissions: GlobalPermission[] =
             _.difference(EnumValues.getValues(GlobalPermission), [GlobalPermission.ADMIN, GlobalPermission.TEAMS_LIST_ADMIN]);
 
-          console.log(permissions);
-          console.log(EnumValues.getNamesAndValues(GlobalPermission));
-
           UserDataHandler.addGlobalPermissions(user.id, permissions)
             .then(() => {
               server.get('/user/can-modify-teams-list')

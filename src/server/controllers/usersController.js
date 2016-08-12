@@ -31,7 +31,8 @@ module.exports = {
             });
         }],
     get_filtered_username: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, username) {
-            var operation = new getUsersByPartialUsernameOperation_1.GetUsersByPartialUsernameOperation(username);
+            var query = request.query;
+            var operation = new getUsersByPartialUsernameOperation_1.GetUsersByPartialUsernameOperation(username, Number(query.max));
             operation.execute()
                 .then(function (_users) {
                 return _.map(_users, function (_user) {

@@ -41,10 +41,14 @@ var UserDataHandler = (function () {
             return users.toArray();
         });
     };
-    UserDataHandler.getUsersByPartialUsername = function (partialUsername) {
+    UserDataHandler.getUsersByPartialUsername = function (partialUsername, maxNumberOfUsers) {
+        if (maxNumberOfUsers === void 0) { maxNumberOfUsers = null; }
         var likePartialUsername = this._createLikeQueryValue(partialUsername);
         return new user_1.Users().query(function (_queryBuilder) {
             _queryBuilder.where(user_1.User.usernameAttribute, querySelectors_1.QuerySelectors.LIKE, likePartialUsername);
+            if (maxNumberOfUsers >= 0) {
+                _queryBuilder.limit(maxNumberOfUsers);
+            }
         }).fetch()
             .then(function (_usersCollection) { return _usersCollection.toArray(); });
     };

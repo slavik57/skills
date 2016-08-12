@@ -1501,12 +1501,12 @@ describe('userDataHandler', () => {
         });
     });
 
-    it('multiple usernames with given partial username should return the users 1', () => {
+    it('multiple usernames with given partial username should return the users', () => {
       var result: Promise<User[]> = UserDataHandler.getUsersByPartialUsername(multiplePartialUsername);
 
       return expect(result).to.eventually.fulfilled
         .then((_users: User[]) => {
-          expect(_users.length > 0, 'should contain atleast one user').to.be.true;
+          expect(_users.length > 1, 'should contain atleast 2 users').to.be.true;
 
           verifyUsersContainThePartialUsername(_users, multiplePartialUsername);
         });
@@ -1517,7 +1517,7 @@ describe('userDataHandler', () => {
 
       return expect(result).to.eventually.fulfilled
         .then((_users: User[]) => {
-          expect(_users.length > 0, 'should contain atleast one user').to.be.true;
+          expect(_users.length > 1, 'should contain atleast 2 users').to.be.true;
 
           verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithUnderscore);
         });
@@ -1528,7 +1528,67 @@ describe('userDataHandler', () => {
 
       return expect(result).to.eventually.fulfilled
         .then((_users: User[]) => {
-          expect(_users.length > 0, 'should contain atleast one user').to.be.true;
+          expect(_users.length > 1, 'should contain atleast 2 users').to.be.true;
+
+          verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithPercentage);
+        });
+    });
+
+    it('limited to 0, multiple usernames with given partial username should return no users', () => {
+      var result: Promise<User[]> = UserDataHandler.getUsersByPartialUsername(multiplePartialUsername, 0);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_users: User[]) => {
+          expect(_users).to.be.length(0);
+        });
+    });
+
+    it('limited to 0, multiple usernames with given partial username with _ should return no users', () => {
+      var result: Promise<User[]> = UserDataHandler.getUsersByPartialUsername(multiplePartialUsernameWithUnderscore, 0);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_users: User[]) => {
+          expect(_users).to.be.length(0);
+        });
+    });
+
+    it('limited to 0, multiple usernames with given partial username with % should return no users', () => {
+      var result: Promise<User[]> = UserDataHandler.getUsersByPartialUsername(multiplePartialUsernameWithPercentage, 0);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_users: User[]) => {
+          expect(_users).to.be.length(0);
+        });
+    });
+
+    it('limited to 1, multiple usernames with given partial username should return one user', () => {
+      var result: Promise<User[]> = UserDataHandler.getUsersByPartialUsername(multiplePartialUsername, 1);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_users: User[]) => {
+          expect(_users).to.be.length(1);
+
+          verifyUsersContainThePartialUsername(_users, multiplePartialUsername);
+        });
+    });
+
+    it('limited to 1, multiple usernames with given partial username with _ should return one user', () => {
+      var result: Promise<User[]> = UserDataHandler.getUsersByPartialUsername(multiplePartialUsernameWithUnderscore, 1);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_users: User[]) => {
+          expect(_users).to.be.length(1);
+
+          verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithUnderscore);
+        });
+    });
+
+    it('limited to 1, multiple usernames with given partial username with % should return one user', () => {
+      var result: Promise<User[]> = UserDataHandler.getUsersByPartialUsername(multiplePartialUsernameWithPercentage, 1);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_users: User[]) => {
+          expect(_users).to.be.length(1);
 
           verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithPercentage);
         });

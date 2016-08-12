@@ -1,3 +1,4 @@
+import {ILimitedQuery} from "../apiQueries/iLimitedQuery";
 import {UnauthorizedError} from "../../common/errors/unauthorizedError";
 import {ErrorUtils} from "../../common/errors/errorUtils";
 import {UpdateUserPermissionsOperation} from "../operations/userOperations/updateUserPermissionsOperation";
@@ -42,7 +43,9 @@ export = {
       });
   }],
   get_filtered_username: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, username: string): void {
-    var operation = new GetUsersByPartialUsernameOperation(username);
+    var query: ILimitedQuery = request.query;
+
+    var operation = new GetUsersByPartialUsernameOperation(username, Number(query.max));
 
     operation.execute()
       .then((_users: User[]) => {
