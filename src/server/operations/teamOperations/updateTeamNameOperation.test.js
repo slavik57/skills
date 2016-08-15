@@ -1,4 +1,6 @@
 "use strict";
+var unauthorizedError_1 = require("../../../common/errors/unauthorizedError");
+var errorUtils_1 = require("../../../common/errors/errorUtils");
 var alreadyExistsError_1 = require("../../../common/errors/alreadyExistsError");
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
@@ -74,7 +76,10 @@ describe('UpdateTeamNameOperation', function () {
                     ]);
                 });
                 it('should fail', function () {
-                    return chai_1.expect(operation.execute()).to.eventually.rejected;
+                    return chai_1.expect(operation.execute()).to.eventually.rejected
+                        .then(function (_error) {
+                        chai_1.expect(errorUtils_1.ErrorUtils.isErrorOfType(_error, unauthorizedError_1.UnauthorizedError)).to.be.true;
+                    });
                 });
                 it('should not update the team name', function () {
                     return teamsDataHandler_1.TeamsDataHandler.getTeam(team.id)

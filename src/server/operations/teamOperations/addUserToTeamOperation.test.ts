@@ -1,3 +1,5 @@
+import {NotFoundError} from "../../../common/errors/notFoundError";
+import {ErrorUtils} from "../../../common/errors/errorUtils";
 import {ITeamMemberInfo} from "../../models/interfaces/iTeamMemberInfo";
 import {IUserOfATeam} from "../../models/interfaces/iUserOfATeam";
 import {GlobalPermission} from "../../models/enums/globalPermission";
@@ -61,7 +63,7 @@ describe('AddUserToTeamOperation', () => {
 
       it('should reject', () => {
         // Arrange
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, false, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.canExecute();
@@ -86,7 +88,7 @@ describe('AddUserToTeamOperation', () => {
       it('add as admin should fulfil', () => {
         // Arrange
         var shouldBeAdmin = true;
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.canExecute();
@@ -98,7 +100,7 @@ describe('AddUserToTeamOperation', () => {
       it('add not as admin should fulfil', () => {
         // Arrange
         var shouldBeAdmin = false;
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.canExecute();
@@ -123,7 +125,7 @@ describe('AddUserToTeamOperation', () => {
       it('add as admin should fulfil', () => {
         // Arrange
         var shouldBeAdmin = true;
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.canExecute();
@@ -135,7 +137,7 @@ describe('AddUserToTeamOperation', () => {
       it('add not as admin should fulfil', () => {
         // Arrange
         var shouldBeAdmin = false;
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.canExecute();
@@ -159,7 +161,7 @@ describe('AddUserToTeamOperation', () => {
 
       it('should reject', () => {
         // Arrange
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, false, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.canExecute();
@@ -184,7 +186,7 @@ describe('AddUserToTeamOperation', () => {
       it('add as admin should fulfil', () => {
         // Arrange
         var shouldBeAdmin = true;
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.canExecute();
@@ -196,7 +198,7 @@ describe('AddUserToTeamOperation', () => {
       it('add not as admin should fulfil', () => {
         // Arrange
         var shouldBeAdmin = false;
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.canExecute();
@@ -220,7 +222,7 @@ describe('AddUserToTeamOperation', () => {
 
       it('should reject', () => {
         // Arrange
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, false, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.canExecute();
@@ -244,7 +246,7 @@ describe('AddUserToTeamOperation', () => {
 
       it('should reject', () => {
         // Arrange
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, false, executingUser.id);
 
         // Act
         var result: Promise<any> = operation.canExecute();
@@ -265,6 +267,72 @@ describe('AddUserToTeamOperation', () => {
       expect(teamMember.isAdmin).to.be.equal(shouldBeAdmin);
     }
 
+    var unauthorizedTests = () => {
+
+      it('should reject', () => {
+        // Arrange
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, false, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
+    };
+
+    var authorizedTests = () => {
+
+      it('add as admin should add user to the team correctly', () => {
+        // Arrange
+        var shouldBeAdmin = true;
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled
+          .then(() => TeamsDataHandler.getTeamMembers(teamToAddTheUser.id))
+          .then((_teamMembers: IUserOfATeam[]) => {
+            verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
+          });
+      });
+
+      it('add not as admin should add user to the team correctly', () => {
+        // Arrange
+        var shouldBeAdmin = false;
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled
+          .then(() => TeamsDataHandler.getTeamMembers(teamToAddTheUser.id))
+          .then((_teamMembers: IUserOfATeam[]) => {
+            verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
+          });
+      });
+
+      it('add not existing user should fail', () => {
+        // Arrange
+        var operation =
+          new AddUserToTeamOperation('not existing username', teamToAddTheUser.id, false, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.rejected
+          .then((_error: any) => {
+            expect(ErrorUtils.isErrorOfType(_error, NotFoundError)).to.be.true;
+          });
+      });
+
+    }
+
     describe('executing user is not part of the team and has insufficient global permissions', () => {
 
       beforeEach(() => {
@@ -278,16 +346,7 @@ describe('AddUserToTeamOperation', () => {
         return UserDataHandler.addGlobalPermissions(executingUser.id, permissions)
       });
 
-      it('should reject', () => {
-        // Arrange
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
-
-        // Act
-        var result: Promise<any> = operation.execute();
-
-        // Assert
-        return expect(result).to.eventually.rejected;
-      });
+      unauthorizedTests();
 
     });
 
@@ -302,37 +361,7 @@ describe('AddUserToTeamOperation', () => {
         return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
       });
 
-      it('add as admin should add user to the team correctly', () => {
-        // Arrange
-        var shouldBeAdmin = true;
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
-
-        // Act
-        var result: Promise<any> = operation.execute();
-
-        // Assert
-        return expect(result).to.eventually.fulfilled
-          .then(() => TeamsDataHandler.getTeamMembers(teamToAddTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
-          });
-      });
-
-      it('add not as admin should add user to the team correctly', () => {
-        // Arrange
-        var shouldBeAdmin = false;
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
-
-        // Act
-        var result: Promise<any> = operation.execute();
-
-        // Assert
-        return expect(result).to.eventually.fulfilled
-          .then(() => TeamsDataHandler.getTeamMembers(teamToAddTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
-          });
-      });
+      authorizedTests();
 
     });
 
@@ -347,37 +376,7 @@ describe('AddUserToTeamOperation', () => {
         return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
       });
 
-      it('add as admin should add user to the team correctly', () => {
-        // Arrange
-        var shouldBeAdmin = true;
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
-
-        // Act
-        var result: Promise<any> = operation.execute();
-
-        // Assert
-        return expect(result).to.eventually.fulfilled
-          .then(() => TeamsDataHandler.getTeamMembers(teamToAddTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
-          });
-      });
-
-      it('add not as admin should add user to the team correctly', () => {
-        // Arrange
-        var shouldBeAdmin = false;
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
-
-        // Act
-        var result: Promise<any> = operation.execute();
-
-        // Assert
-        return expect(result).to.eventually.fulfilled
-          .then(() => TeamsDataHandler.getTeamMembers(teamToAddTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
-          });
-      });
+      authorizedTests();
 
     });
 
@@ -392,16 +391,7 @@ describe('AddUserToTeamOperation', () => {
         return TeamsDataHandler.addTeamMember(teamMemberInfo);
       });
 
-      it('should reject', () => {
-        // Arrange
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
-
-        // Act
-        var result: Promise<any> = operation.execute();
-
-        // Assert
-        return expect(result).to.eventually.rejected;
-      });
+      unauthorizedTests();
 
     });
 
@@ -416,37 +406,7 @@ describe('AddUserToTeamOperation', () => {
         return TeamsDataHandler.addTeamMember(teamMemberInfo);
       });
 
-      it('add as admin should add user to the team correctly', () => {
-        // Arrange
-        var shouldBeAdmin = true;
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
-
-        // Act
-        var result: Promise<any> = operation.execute();
-
-        // Assert
-        return expect(result).to.eventually.fulfilled
-          .then(() => TeamsDataHandler.getTeamMembers(teamToAddTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
-          });
-      });
-
-      it('add not as admin should add user to the team correctly', () => {
-        // Arrange
-        var shouldBeAdmin = false;
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
-
-        // Act
-        var result: Promise<any> = operation.execute();
-
-        // Assert
-        return expect(result).to.eventually.fulfilled
-          .then(() => TeamsDataHandler.getTeamMembers(teamToAddTheUser.id))
-          .then((_teamMembers: IUserOfATeam[]) => {
-            verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
-          });
-      });
+      authorizedTests();
 
     });
 
@@ -461,16 +421,7 @@ describe('AddUserToTeamOperation', () => {
         return TeamsDataHandler.addTeamMember(teamMemberInfo);
       });
 
-      it('should reject', () => {
-        // Arrange
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
-
-        // Act
-        var result: Promise<any> = operation.execute();
-
-        // Assert
-        return expect(result).to.eventually.rejected;
-      });
+      unauthorizedTests();
 
     });
 
@@ -485,16 +436,7 @@ describe('AddUserToTeamOperation', () => {
         return TeamsDataHandler.addTeamMember(teamMemberInfo);
       });
 
-      it('should reject', () => {
-        // Arrange
-        var operation = new AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
-
-        // Act
-        var result: Promise<any> = operation.execute();
-
-        // Assert
-        return expect(result).to.eventually.rejected;
-      });
+      unauthorizedTests();
 
     });
 

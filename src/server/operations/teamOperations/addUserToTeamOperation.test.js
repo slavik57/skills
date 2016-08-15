@@ -1,4 +1,6 @@
 "use strict";
+var notFoundError_1 = require("../../../common/errors/notFoundError");
+var errorUtils_1 = require("../../../common/errors/errorUtils");
 var globalPermission_1 = require("../../models/enums/globalPermission");
 var addUserToTeamOperation_1 = require("./addUserToTeamOperation");
 var environmentCleaner_1 = require("../../testUtils/environmentCleaner");
@@ -44,7 +46,7 @@ describe('AddUserToTeamOperation', function () {
                 return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
             });
             it('should reject', function () {
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, false, executingUser.id);
                 var result = operation.canExecute();
                 return chai_1.expect(result).to.eventually.rejected;
             });
@@ -58,13 +60,13 @@ describe('AddUserToTeamOperation', function () {
             });
             it('add as admin should fulfil', function () {
                 var shouldBeAdmin = true;
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
                 var result = operation.canExecute();
                 return chai_1.expect(result).to.eventually.fulfilled;
             });
             it('add not as admin should fulfil', function () {
                 var shouldBeAdmin = false;
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
                 var result = operation.canExecute();
                 return chai_1.expect(result).to.eventually.fulfilled;
             });
@@ -78,13 +80,13 @@ describe('AddUserToTeamOperation', function () {
             });
             it('add as admin should fulfil', function () {
                 var shouldBeAdmin = true;
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
                 var result = operation.canExecute();
                 return chai_1.expect(result).to.eventually.fulfilled;
             });
             it('add not as admin should fulfil', function () {
                 var shouldBeAdmin = false;
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
                 var result = operation.canExecute();
                 return chai_1.expect(result).to.eventually.fulfilled;
             });
@@ -96,7 +98,7 @@ describe('AddUserToTeamOperation', function () {
                 return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
             });
             it('should reject', function () {
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, false, executingUser.id);
                 var result = operation.canExecute();
                 return chai_1.expect(result).to.eventually.rejected;
             });
@@ -109,13 +111,13 @@ describe('AddUserToTeamOperation', function () {
             });
             it('add as admin should fulfil', function () {
                 var shouldBeAdmin = true;
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
                 var result = operation.canExecute();
                 return chai_1.expect(result).to.eventually.fulfilled;
             });
             it('add not as admin should fulfil', function () {
                 var shouldBeAdmin = false;
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
                 var result = operation.canExecute();
                 return chai_1.expect(result).to.eventually.fulfilled;
             });
@@ -127,7 +129,7 @@ describe('AddUserToTeamOperation', function () {
                 return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
             });
             it('should reject', function () {
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, false, executingUser.id);
                 var result = operation.canExecute();
                 return chai_1.expect(result).to.eventually.rejected;
             });
@@ -139,7 +141,7 @@ describe('AddUserToTeamOperation', function () {
                 return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
             });
             it('should reject', function () {
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, false, executingUser.id);
                 var result = operation.canExecute();
                 return chai_1.expect(result).to.eventually.rejected;
             });
@@ -150,6 +152,43 @@ describe('AddUserToTeamOperation', function () {
             var teamMember = _.find(teamMembers, function (_teamMember) { return _teamMember.user.id === userToAdd.id; });
             chai_1.expect(teamMember.isAdmin).to.be.equal(shouldBeAdmin);
         }
+        var unauthorizedTests = function () {
+            it('should reject', function () {
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, false, executingUser.id);
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.rejected;
+            });
+        };
+        var authorizedTests = function () {
+            it('add as admin should add user to the team correctly', function () {
+                var shouldBeAdmin = true;
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.fulfilled
+                    .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToAddTheUser.id); })
+                    .then(function (_teamMembers) {
+                    verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
+                });
+            });
+            it('add not as admin should add user to the team correctly', function () {
+                var shouldBeAdmin = false;
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.fulfilled
+                    .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToAddTheUser.id); })
+                    .then(function (_teamMembers) {
+                    verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
+                });
+            });
+            it('add not existing user should fail', function () {
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation('not existing username', teamToAddTheUser.id, false, executingUser.id);
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.rejected
+                    .then(function (_error) {
+                    chai_1.expect(errorUtils_1.ErrorUtils.isErrorOfType(_error, notFoundError_1.NotFoundError)).to.be.true;
+                });
+            });
+        };
         describe('executing user is not part of the team and has insufficient global permissions', function () {
             beforeEach(function () {
                 var permissions = [
@@ -159,11 +198,7 @@ describe('AddUserToTeamOperation', function () {
                 ];
                 return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
             });
-            it('should reject', function () {
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
-                var result = operation.execute();
-                return chai_1.expect(result).to.eventually.rejected;
-            });
+            unauthorizedTests();
         });
         describe('executing user is global admin', function () {
             beforeEach(function () {
@@ -172,26 +207,7 @@ describe('AddUserToTeamOperation', function () {
                 ];
                 return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
             });
-            it('add as admin should add user to the team correctly', function () {
-                var shouldBeAdmin = true;
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
-                var result = operation.execute();
-                return chai_1.expect(result).to.eventually.fulfilled
-                    .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToAddTheUser.id); })
-                    .then(function (_teamMembers) {
-                    verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
-                });
-            });
-            it('add not as admin should add user to the team correctly', function () {
-                var shouldBeAdmin = false;
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
-                var result = operation.execute();
-                return chai_1.expect(result).to.eventually.fulfilled
-                    .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToAddTheUser.id); })
-                    .then(function (_teamMembers) {
-                    verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
-                });
-            });
+            authorizedTests();
         });
         describe('executing user is teams list admin', function () {
             beforeEach(function () {
@@ -200,26 +216,7 @@ describe('AddUserToTeamOperation', function () {
                 ];
                 return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
             });
-            it('add as admin should add user to the team correctly', function () {
-                var shouldBeAdmin = true;
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
-                var result = operation.execute();
-                return chai_1.expect(result).to.eventually.fulfilled
-                    .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToAddTheUser.id); })
-                    .then(function (_teamMembers) {
-                    verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
-                });
-            });
-            it('add not as admin should add user to the team correctly', function () {
-                var shouldBeAdmin = false;
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
-                var result = operation.execute();
-                return chai_1.expect(result).to.eventually.fulfilled
-                    .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToAddTheUser.id); })
-                    .then(function (_teamMembers) {
-                    verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
-                });
-            });
+            authorizedTests();
         });
         describe('executing user is a simple team member', function () {
             beforeEach(function () {
@@ -227,11 +224,7 @@ describe('AddUserToTeamOperation', function () {
                 teamMemberInfo.is_admin = false;
                 return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
             });
-            it('should reject', function () {
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
-                var result = operation.execute();
-                return chai_1.expect(result).to.eventually.rejected;
-            });
+            unauthorizedTests();
         });
         describe('executing user is a team admin', function () {
             beforeEach(function () {
@@ -239,26 +232,7 @@ describe('AddUserToTeamOperation', function () {
                 teamMemberInfo.is_admin = true;
                 return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
             });
-            it('add as admin should add user to the team correctly', function () {
-                var shouldBeAdmin = true;
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
-                var result = operation.execute();
-                return chai_1.expect(result).to.eventually.fulfilled
-                    .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToAddTheUser.id); })
-                    .then(function (_teamMembers) {
-                    verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
-                });
-            });
-            it('add not as admin should add user to the team correctly', function () {
-                var shouldBeAdmin = false;
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, shouldBeAdmin, executingUser.id);
-                var result = operation.execute();
-                return chai_1.expect(result).to.eventually.fulfilled
-                    .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToAddTheUser.id); })
-                    .then(function (_teamMembers) {
-                    verifyUserIsTeamMember(userToAdd, shouldBeAdmin, _teamMembers);
-                });
-            });
+            authorizedTests();
         });
         describe('executing user is a simple team member of another team', function () {
             beforeEach(function () {
@@ -266,11 +240,7 @@ describe('AddUserToTeamOperation', function () {
                 teamMemberInfo.is_admin = false;
                 return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
             });
-            it('should reject', function () {
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
-                var result = operation.execute();
-                return chai_1.expect(result).to.eventually.rejected;
-            });
+            unauthorizedTests();
         });
         describe('executing user is a team admin of another team', function () {
             beforeEach(function () {
@@ -278,11 +248,7 @@ describe('AddUserToTeamOperation', function () {
                 teamMemberInfo.is_admin = true;
                 return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
             });
-            it('should reject', function () {
-                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.id, teamToAddTheUser.id, false, executingUser.id);
-                var result = operation.execute();
-                return chai_1.expect(result).to.eventually.rejected;
-            });
+            unauthorizedTests();
         });
     });
 });

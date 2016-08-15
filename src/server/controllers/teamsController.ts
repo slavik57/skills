@@ -1,3 +1,6 @@
+import {NotFoundError} from "../../common/errors/notFoundError";
+import {TeamMember} from "../models/teamMember";
+import {AddUserToTeamOperation} from "../operations/teamOperations/addUserToTeamOperation";
 import {ITeamMemberResponse} from "../apiResponses/iTeamMemberResponse";
 import {IUserOfATeam} from "../models/interfaces/iUserOfATeam";
 import {GetTeamUsersOperation} from "../operations/teamOperations/getTeamUsersOperation";
@@ -23,6 +26,10 @@ interface ICreateTeamRequestBody {
 
 interface IUpdateTeamRequestBody {
   name: string;
+}
+
+interface IAddTeamMemberRequestBody {
+  username: string;
 }
 
 export = {
@@ -89,6 +96,41 @@ export = {
         response.send();
       })
   }],
+  post_teamId_members: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, teamId: string) {
+    var numberId: number = Number(teamId);
+
+    var addTeamMemberRequest: IAddTeamMemberRequestBody = request.body;
+
+    if (!addTeamMemberRequest || !addTeamMemberRequest.username) {
+      response.status(StatusCode.BAD_REQUEST);
+      response.send();
+      return;
+    }
+
+    const operation =
+      new AddUserToTeamOperation(addTeamMemberRequest.username, numberId, false, request.user.id);
+
+    operation.execute()
+      .then((_teamMember: TeamMember) => {
+        response.status(StatusCode.OK);
+        response.send(<ITeamMemberResponse>{
+          id: _teamMember.attributes.user_id,
+          username: addTeamMemberRequest.username,
+          isAdmin: _teamMember.attributes.is_admin
+        });
+      }, (error: any) => {
+        var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
+
+        if (ErrorUtils.isErrorOfType(error, UnauthorizedError)) {
+          statusCode = StatusCode.UNAUTHORIZED;
+        } else if (ErrorUtils.isErrorOfType(error, NotFoundError)) {
+          statusCode = StatusCode.NOT_FOUND;
+        }
+
+        response.status(statusCode);
+        response.send();
+      })
+  }],
   put_teamId_index: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, teamId: string) {
     var updateTeamRequest: IUpdateTeamRequestBody = request.body;
 
@@ -100,10 +142,10 @@ export = {
 
     var numberId: number = Number(teamId);
 
-    var updateTeamNameUperation =
+    var opearation =
       new UpdateTeamNameOperation(numberId, updateTeamRequest.name, request.user.id);
 
-    updateTeamNameUperation.execute()
+    opearation.execute()
       .then((_team: Team) => {
         response.status(StatusCode.OK);
         response.send(<ITeamInfoResponse>{

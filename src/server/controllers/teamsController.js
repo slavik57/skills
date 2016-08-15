@@ -1,4 +1,6 @@
 "use strict";
+var notFoundError_1 = require("../../common/errors/notFoundError");
+var addUserToTeamOperation_1 = require("../operations/teamOperations/addUserToTeamOperation");
 var getTeamUsersOperation_1 = require("../operations/teamOperations/getTeamUsersOperation");
 var updateTeamNameOperation_1 = require("../operations/teamOperations/updateTeamNameOperation");
 var removeTeamOperation_1 = require("../operations/teamOperations/removeTeamOperation");
@@ -70,6 +72,35 @@ module.exports = {
                 response.send();
             });
         }],
+    post_teamId_members: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, teamId) {
+            var numberId = Number(teamId);
+            var addTeamMemberRequest = request.body;
+            if (!addTeamMemberRequest || !addTeamMemberRequest.username) {
+                response.status(statusCode_1.StatusCode.BAD_REQUEST);
+                response.send();
+                return;
+            }
+            var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(addTeamMemberRequest.username, numberId, false, request.user.id);
+            operation.execute()
+                .then(function (_teamMember) {
+                response.status(statusCode_1.StatusCode.OK);
+                response.send({
+                    id: _teamMember.attributes.user_id,
+                    username: addTeamMemberRequest.username,
+                    isAdmin: _teamMember.attributes.is_admin
+                });
+            }, function (error) {
+                var statusCode = statusCode_1.StatusCode.INTERNAL_SERVER_ERROR;
+                if (errorUtils_1.ErrorUtils.isErrorOfType(error, unauthorizedError_1.UnauthorizedError)) {
+                    statusCode = statusCode_1.StatusCode.UNAUTHORIZED;
+                }
+                else if (errorUtils_1.ErrorUtils.isErrorOfType(error, notFoundError_1.NotFoundError)) {
+                    statusCode = statusCode_1.StatusCode.NOT_FOUND;
+                }
+                response.status(statusCode);
+                response.send();
+            });
+        }],
     put_teamId_index: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, teamId) {
             var updateTeamRequest = request.body;
             if (!updateTeamRequest || !updateTeamRequest.name) {
@@ -78,8 +109,8 @@ module.exports = {
                 return;
             }
             var numberId = Number(teamId);
-            var updateTeamNameUperation = new updateTeamNameOperation_1.UpdateTeamNameOperation(numberId, updateTeamRequest.name, request.user.id);
-            updateTeamNameUperation.execute()
+            var opearation = new updateTeamNameOperation_1.UpdateTeamNameOperation(numberId, updateTeamRequest.name, request.user.id);
+            opearation.execute()
                 .then(function (_team) {
                 response.status(statusCode_1.StatusCode.OK);
                 response.send({

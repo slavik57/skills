@@ -122,6 +122,11 @@ describe('teamsController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
+        it('adding team member should fail', function (done) {
+            server.post('/teams/1/members')
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
     };
     function authorizdedTests(beforeEachFunc) {
         return function () {
@@ -291,8 +296,8 @@ describe('teamsController', function () {
                 });
                 it('without sufficient permissions should fail', function (done) {
                     server.put('/teams/' + teamToUpdate.id)
-                        .send({ name: '' })
-                        .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                        .send({ name: 'new name' })
+                        .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                         .end(done);
                 });
                 var sufficientPermissionsTests = function () {
@@ -401,6 +406,107 @@ describe('teamsController', function () {
                         .expect(statusCode_1.StatusCode.OK)
                         .expect(expectedTeamMembers)
                         .end(done);
+                });
+            });
+            describe('add team member', function () {
+                var teamToAddUserTo;
+                var userToAdd;
+                beforeEach(function () {
+                    teamToAddUserTo = teams[0];
+                    return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1, 'team_member_to_add')
+                        .then(function (_users) {
+                        userToAdd = _users[0];
+                    });
+                });
+                it('on invalid username should fail', function (done) {
+                    server.post('/teams/' + teamToAddUserTo.id + '/members')
+                        .send({ username: '' })
+                        .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                        .end(done);
+                });
+                it('without sufficient permissions should fail', function (done) {
+                    server.post('/teams/' + teamToAddUserTo.id + '/members')
+                        .send({ username: userToAdd.attributes.username })
+                        .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                        .end(done);
+                });
+                var sufficientPermissionsTests = function () {
+                    it('without body should fail', function (done) {
+                        server.post('/teams/' + teamToAddUserTo.id + '/members')
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with empty body should fail', function (done) {
+                        server.post('/teams/' + teamToAddUserTo.id + '/members')
+                            .send({})
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with empty username should fail', function (done) {
+                        server.post('/teams/' + teamToAddUserTo.id + '/members')
+                            .send({ username: '' })
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with not existing username should fail', function (done) {
+                        server.post('/teams/' + teamToAddUserTo.id + '/members')
+                            .send({ username: 'not existing username' })
+                            .expect(statusCode_1.StatusCode.NOT_FOUND)
+                            .end(done);
+                    });
+                    it('with exiting username should succeed', function (done) {
+                        server.post('/teams/' + teamToAddUserTo.id + '/members')
+                            .send({ username: userToAdd.attributes.username })
+                            .expect(statusCode_1.StatusCode.OK)
+                            .end(done);
+                    });
+                    it('with existing username should add the user to the team', function (done) {
+                        server.post('/teams/' + teamToAddUserTo.id + '/members')
+                            .send({ username: userToAdd.attributes.username })
+                            .end(function () {
+                            teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToAddUserTo.id)
+                                .then(function (_teamMembers) { return _.find(_teamMembers, function (_member) { return _member.user.id === userToAdd.id; }); })
+                                .then(function (_teamMember) {
+                                chai_1.expect(_teamMember.user.attributes.username).to.be.equal(userToAdd.attributes.username);
+                                done();
+                            });
+                        });
+                    });
+                    it('should return the user info', function (done) {
+                        server.post('/teams/' + teamToAddUserTo.id + '/members')
+                            .send({ username: userToAdd.attributes.username })
+                            .end(function (error, response) {
+                            chai_1.expect(response.body).to.deep.equal({
+                                id: userToAdd.id,
+                                username: userToAdd.attributes.username,
+                                isAdmin: false
+                            });
+                            done();
+                        });
+                    });
+                };
+                describe('user is admin', function () {
+                    beforeEach(function () {
+                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.ADMIN]);
+                    });
+                    sufficientPermissionsTests();
+                });
+                describe('user is teams list admin', function () {
+                    beforeEach(function () {
+                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN]);
+                    });
+                    sufficientPermissionsTests();
+                });
+                describe('user is team admin', function () {
+                    beforeEach(function () {
+                        var teamMemberInfo = {
+                            team_id: teamToAddUserTo.id,
+                            user_id: executingUser.id,
+                            is_admin: true
+                        };
+                        return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+                    });
+                    sufficientPermissionsTests();
                 });
             });
         };

@@ -1,3 +1,5 @@
+import {UnauthorizedError} from "../../../common/errors/unauthorizedError";
+import {ErrorUtils} from "../../../common/errors/errorUtils";
 import {AlreadyExistsError} from "../../../common/errors/alreadyExistsError";
 import {ITeamMemberInfo} from "../../models/interfaces/iTeamMemberInfo";
 import {GlobalPermission} from "../../models/enums/globalPermission";
@@ -109,7 +111,10 @@ describe('UpdateTeamNameOperation', () => {
         });
 
         it('should fail', () => {
-          return expect(operation.execute()).to.eventually.rejected;
+          return expect(operation.execute()).to.eventually.rejected
+            .then((_error: any) => {
+              expect(ErrorUtils.isErrorOfType(_error, UnauthorizedError)).to.be.true;
+            })
         });
 
         it('should not update the team name', () => {

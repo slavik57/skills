@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var unauthorizedError_1 = require("../../../common/errors/unauthorizedError");
 var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
 var authenticatedOperationBase_1 = require("./authenticatedOperationBase");
 var bluebirdPromise = require('bluebird');
@@ -45,16 +46,16 @@ var TeamOperationBase = (function (_super) {
             }
             return this._userHasSufficientAdminRights(isAdmin);
         }
-        return bluebirdPromise.reject(this._createError('The user is not in the team'));
+        return bluebirdPromise.reject(this._createUnauthorizedError('The user is not in the team'));
     };
     TeamOperationBase.prototype._userHasSufficientAdminRights = function (isAdmin) {
         if (this.isRegularTeamMemberAlowedToExecute || isAdmin) {
             return bluebirdPromise.resolve();
         }
-        return bluebirdPromise.reject(this._createError('The user must be team admin'));
+        return bluebirdPromise.reject(this._createUnauthorizedError('The user must be team admin'));
     };
-    TeamOperationBase.prototype._createError = function (errorMessage) {
-        var error = new Error();
+    TeamOperationBase.prototype._createUnauthorizedError = function (errorMessage) {
+        var error = new unauthorizedError_1.UnauthorizedError();
         error.message = errorMessage;
         return error;
     };

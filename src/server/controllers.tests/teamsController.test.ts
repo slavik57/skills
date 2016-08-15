@@ -1,3 +1,4 @@
+import {IUserOfATeam} from "../models/interfaces/iUserOfATeam";
 import {ITeamMemberResponse} from "../apiResponses/iTeamMemberResponse";
 import {IUserInfoResponse} from "../apiResponses/iUserInfoResponse";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
@@ -158,6 +159,12 @@ describe('teamsController', () => {
 
     it('getting team members should fail', (done) => {
       server.get('/teams/' + teams[0].id + '/members')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    it('adding team member should fail', (done) => {
+      server.post('/teams/1/members')
         .expect(StatusCode.UNAUTHORIZED)
         .end(done);
     });
@@ -381,8 +388,8 @@ describe('teamsController', () => {
 
         it('without sufficient permissions should fail', (done) => {
           server.put('/teams/' + teamToUpdate.id)
-            .send({ name: '' })
-            .expect(StatusCode.BAD_REQUEST)
+            .send({ name: 'new name' })
+            .expect(StatusCode.UNAUTHORIZED)
             .end(done);
         });
 
@@ -521,6 +528,133 @@ describe('teamsController', () => {
             .expect(StatusCode.OK)
             .expect(expectedTeamMembers)
             .end(done);
+        });
+
+      });
+
+      describe('add team member', () => {
+
+        let teamToAddUserTo: Team;
+        let userToAdd: User;
+
+        beforeEach(() => {
+          teamToAddUserTo = teams[0];
+
+          return EnvironmentDirtifier.createUsers(1, 'team_member_to_add')
+            .then((_users: User[]) => {
+              [userToAdd] = _users;
+            });
+        });
+
+        it('on invalid username should fail', (done) => {
+          server.post('/teams/' + teamToAddUserTo.id + '/members')
+            .send({ username: '' })
+            .expect(StatusCode.BAD_REQUEST)
+            .end(done);
+        });
+
+        it('without sufficient permissions should fail', (done) => {
+          server.post('/teams/' + teamToAddUserTo.id + '/members')
+            .send({ username: userToAdd.attributes.username })
+            .expect(StatusCode.UNAUTHORIZED)
+            .end(done);
+        });
+
+        var sufficientPermissionsTests = () => {
+
+          it('without body should fail', (done) => {
+            server.post('/teams/' + teamToAddUserTo.id + '/members')
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with empty body should fail', (done) => {
+            server.post('/teams/' + teamToAddUserTo.id + '/members')
+              .send({})
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with empty username should fail', (done) => {
+            server.post('/teams/' + teamToAddUserTo.id + '/members')
+              .send({ username: '' })
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with not existing username should fail', (done) => {
+            server.post('/teams/' + teamToAddUserTo.id + '/members')
+              .send({ username: 'not existing username' })
+              .expect(StatusCode.NOT_FOUND)
+              .end(done);
+          });
+
+          it('with exiting username should succeed', (done) => {
+            server.post('/teams/' + teamToAddUserTo.id + '/members')
+              .send({ username: userToAdd.attributes.username })
+              .expect(StatusCode.OK)
+              .end(done);
+          });
+
+          it('with existing username should add the user to the team', (done) => {
+            server.post('/teams/' + teamToAddUserTo.id + '/members')
+              .send({ username: userToAdd.attributes.username })
+              .end(() => {
+                TeamsDataHandler.getTeamMembers(teamToAddUserTo.id)
+                  .then((_teamMembers: IUserOfATeam[]) => _.find(_teamMembers, _member => _member.user.id === userToAdd.id))
+                  .then((_teamMember: IUserOfATeam) => {
+                    expect(_teamMember.user.attributes.username).to.be.equal(userToAdd.attributes.username);
+                    done();
+                  });
+              });
+          });
+
+          it('should return the user info', (done) => {
+            server.post('/teams/' + teamToAddUserTo.id + '/members')
+              .send({ username: userToAdd.attributes.username })
+              .end((error, response: Response) => {
+                expect(response.body).to.deep.equal(<ITeamMemberResponse>{
+                  id: userToAdd.id,
+                  username: userToAdd.attributes.username,
+                  isAdmin: false
+                });
+                done();
+              });
+          });
+
+        }
+
+        describe('user is admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('user is teams list admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.TEAMS_LIST_ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('user is team admin', () => {
+
+          beforeEach(() => {
+            var teamMemberInfo: ITeamMemberInfo = {
+              team_id: teamToAddUserTo.id,
+              user_id: executingUser.id,
+              is_admin: true
+            }
+
+            return TeamsDataHandler.addTeamMember(teamMemberInfo);
+          })
+
+          sufficientPermissionsTests();
         });
 
       });

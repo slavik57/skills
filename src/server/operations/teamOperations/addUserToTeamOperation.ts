@@ -1,3 +1,6 @@
+import {NotFoundError} from "../../../common/errors/notFoundError";
+import {User} from "../../models/user";
+import {UserDataHandler} from "../../dataHandlers/userDataHandler";
 import {TeamMember} from "../../models/teamMember";
 import {AddRemoveUserFromTeamOperationBase} from "../base/addRemoveUserFromTeamOperationBase";
 import {GlobalPermission} from "../../models/enums/globalPermission";
@@ -8,7 +11,7 @@ import * as bluebirdPromise from 'bluebird';
 
 export class AddUserToTeamOperation extends AddRemoveUserFromTeamOperationBase<TeamMember> {
 
-  constructor(private _userIdToAdd: number,
+  constructor(private _usernameToAdd: string,
     _teamId: number,
     private _shouldBeAdmin: boolean,
     _executingUserId: number) {
@@ -17,13 +20,24 @@ export class AddUserToTeamOperation extends AddRemoveUserFromTeamOperationBase<T
   }
 
   protected doWork(): bluebirdPromise<TeamMember> {
-    var teamMemberInfo: ITeamMemberInfo = {
-      team_id: this.teamId,
-      user_id: this._userIdToAdd,
-      is_admin: this._shouldBeAdmin
-    }
+    return UserDataHandler.getUserByUsername(this._usernameToAdd)
+      .then((_user: User) => {
+        if (!_user) {
+          var error = new NotFoundError();
+          error.message = 'User with username: [' + this._usernameToAdd + '] not found';
+          return bluebirdPromise.reject(error);
+        }
 
-    return TeamsDataHandler.addTeamMember(teamMemberInfo);
+        return _user;
+      })
+      .then((_user: User) => {
+        return <ITeamMemberInfo>{
+          team_id: this.teamId,
+          user_id: _user.id,
+          is_admin: this._shouldBeAdmin
+        }
+      })
+      .then((_teamMemberInfo: ITeamMemberInfo) => TeamsDataHandler.addTeamMember(_teamMemberInfo))
   }
 
 }
