@@ -1,7 +1,8 @@
 todo:
-- teams settings page - add/remove users to team (make as team users component)
-- support case insensitive users in the users autocomplete (pass as an argument to the server)
-- rename all the scss files to begin with underscore so the compiler wont compile them
+- find a way to use the styles without blowing up the application size
+- teams settings page - fix the issue with the cancel button that looks bad when the screen size is very not high
+- teams settings page - remove users to team
+- teams settings page - support case insensitive users in the users autocomplete (pass as an argument to the server)
 - fix the fonts with the reverse proxy
 - teams settings page - modify team admins
 - teams settings page - allow only team admins, team list admins and admins to modify team name
@@ -55,6 +56,7 @@ todo:
 - skills page - show all skills with paging
 - skills page - filter skills with paging
 - user settings page - remove users if allowed
+- separate the application into different pages to minimize the first file size
 
 Maybe:
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory
