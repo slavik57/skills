@@ -91,14 +91,19 @@ module.exports = {
                 });
             }, function (error) {
                 var statusCode = statusCode_1.StatusCode.INTERNAL_SERVER_ERROR;
+                var errorDescription;
                 if (errorUtils_1.ErrorUtils.isErrorOfType(error, unauthorizedError_1.UnauthorizedError)) {
                     statusCode = statusCode_1.StatusCode.UNAUTHORIZED;
                 }
                 else if (errorUtils_1.ErrorUtils.isErrorOfType(error, notFoundError_1.NotFoundError)) {
                     statusCode = statusCode_1.StatusCode.NOT_FOUND;
                 }
+                else if (errorUtils_1.ErrorUtils.isErrorOfType(error, alreadyExistsError_1.AlreadyExistsError)) {
+                    statusCode = statusCode_1.StatusCode.CONFLICT;
+                    errorDescription = { error: 'The user is already in the team' };
+                }
                 response.status(statusCode);
-                response.send();
+                response.send(errorDescription);
             });
         }],
     put_teamId_index: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, teamId) {

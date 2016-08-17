@@ -4,11 +4,13 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var alreadyExistsError_1 = require("../../../common/errors/alreadyExistsError");
 var notFoundError_1 = require("../../../common/errors/notFoundError");
 var userDataHandler_1 = require("../../dataHandlers/userDataHandler");
 var addRemoveUserFromTeamOperationBase_1 = require("../base/addRemoveUserFromTeamOperationBase");
 var teamsDataHandler_1 = require("../../dataHandlers/teamsDataHandler");
 var bluebirdPromise = require('bluebird');
+var _ = require('lodash');
 var AddUserToTeamOperation = (function (_super) {
     __extends(AddUserToTeamOperation, _super);
     function AddUserToTeamOperation(_usernameToAdd, _teamId, _shouldBeAdmin, _executingUserId) {
@@ -18,6 +20,7 @@ var AddUserToTeamOperation = (function (_super) {
     }
     AddUserToTeamOperation.prototype.doWork = function () {
         var _this = this;
+        var teamMemberInfo;
         return userDataHandler_1.UserDataHandler.getUserByUsername(this._usernameToAdd)
             .then(function (_user) {
             if (!_user) {
@@ -28,13 +31,25 @@ var AddUserToTeamOperation = (function (_super) {
             return _user;
         })
             .then(function (_user) {
-            return {
+            teamMemberInfo = {
                 team_id: _this.teamId,
                 user_id: _user.id,
                 is_admin: _this._shouldBeAdmin
             };
         })
-            .then(function (_teamMemberInfo) { return teamsDataHandler_1.TeamsDataHandler.addTeamMember(_teamMemberInfo); });
+            .then(function () { return teamsDataHandler_1.TeamsDataHandler.getTeamMembers(_this.teamId); })
+            .then(function (_teamMembers) { return _this._verifyUserNotInTeam(_teamMembers); })
+            .then(function () { return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo); });
+    };
+    AddUserToTeamOperation.prototype._verifyUserNotInTeam = function (teamMembers) {
+        var _this = this;
+        var user = _.find(teamMembers, function (_teamMember) { return _teamMember.user.attributes.username === _this._usernameToAdd; });
+        if (!user) {
+            return bluebirdPromise.resolve();
+        }
+        else {
+            return bluebirdPromise.reject(new alreadyExistsError_1.AlreadyExistsError());
+        }
     };
     return AddUserToTeamOperation;
 }(addRemoveUserFromTeamOperationBase_1.AddRemoveUserFromTeamOperationBase));

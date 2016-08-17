@@ -1,4 +1,5 @@
 "use strict";
+var alreadyExistsError_1 = require("../../../common/errors/alreadyExistsError");
 var notFoundError_1 = require("../../../common/errors/notFoundError");
 var errorUtils_1 = require("../../../common/errors/errorUtils");
 var globalPermission_1 = require("../../models/enums/globalPermission");
@@ -186,6 +187,21 @@ describe('AddUserToTeamOperation', function () {
                 return chai_1.expect(result).to.eventually.rejected
                     .then(function (_error) {
                     chai_1.expect(errorUtils_1.ErrorUtils.isErrorOfType(_error, notFoundError_1.NotFoundError)).to.be.true;
+                });
+            });
+            it('add a user that is already in the team should fail correctly', function () {
+                var existingTeamMemberInfo = {
+                    team_id: teamToAddTheUser.id,
+                    user_id: userToAdd.id,
+                    is_admin: false
+                };
+                var addExistingTeamMemberPromise = teamsDataHandler_1.TeamsDataHandler.addTeamMember(existingTeamMemberInfo);
+                var operation = new addUserToTeamOperation_1.AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, false, executingUser.id);
+                var result = addExistingTeamMemberPromise
+                    .then(function () { return operation.execute(); });
+                return chai_1.expect(result).to.eventually.rejected
+                    .then(function (error) {
+                    chai_1.expect(errorUtils_1.ErrorUtils.isErrorOfType(error, alreadyExistsError_1.AlreadyExistsError)).to.be.true;
                 });
             });
         };

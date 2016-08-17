@@ -1,7 +1,5 @@
 todo:
-- find a way to use the styles without blowing up the application size
-- teams settings page - fix the issue with the cancel button that looks bad when the screen size is very not high
-- teams settings page - remove users to team
+- teams settings page - remove users from the team
 - teams settings page - support case insensitive users in the users autocomplete (pass as an argument to the server)
 - fix the fonts with the reverse proxy
 - teams settings page - modify team admins
@@ -57,6 +55,7 @@ todo:
 - skills page - filter skills with paging
 - user settings page - remove users if allowed
 - separate the application into different pages to minimize the first file size
+- find a way to use the styles without blowing up the application size
 
 Maybe:
 - add copyWebpackPlugin to copy the assets from the assets directory to the dist directory

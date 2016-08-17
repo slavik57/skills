@@ -1,3 +1,4 @@
+import {AlreadyExistsError} from "../../../common/errors/alreadyExistsError";
 import {NotFoundError} from "../../../common/errors/notFoundError";
 import {ErrorUtils} from "../../../common/errors/errorUtils";
 import {ITeamMemberInfo} from "../../models/interfaces/iTeamMemberInfo";
@@ -328,6 +329,31 @@ describe('AddUserToTeamOperation', () => {
         return expect(result).to.eventually.rejected
           .then((_error: any) => {
             expect(ErrorUtils.isErrorOfType(_error, NotFoundError)).to.be.true;
+          });
+      });
+
+      it('add a user that is already in the team should fail correctly', () => {
+        // Arrange
+        var existingTeamMemberInfo: ITeamMemberInfo = {
+          team_id: teamToAddTheUser.id,
+          user_id: userToAdd.id,
+          is_admin: false
+        };
+
+        var addExistingTeamMemberPromise: Promise<any> =
+          TeamsDataHandler.addTeamMember(existingTeamMemberInfo);
+
+        var operation = new AddUserToTeamOperation(userToAdd.attributes.username, teamToAddTheUser.id, false, executingUser.id);
+
+        // Act
+        var result: Promise<any> =
+          addExistingTeamMemberPromise
+            .then(() => operation.execute());
+
+        // Assert
+        return expect(result).to.eventually.rejected
+          .then((error: any) => {
+            expect(ErrorUtils.isErrorOfType(error, AlreadyExistsError)).to.be.true;
           });
       });
 

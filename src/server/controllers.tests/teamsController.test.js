@@ -484,6 +484,26 @@ describe('teamsController', function () {
                             done();
                         });
                     });
+                    it('with user that is already in the team should fail', function (done) {
+                        server.post('/teams/' + teamToAddUserTo.id + '/members')
+                            .send({ username: userToAdd.attributes.username })
+                            .end(function () {
+                            server.post('/teams/' + teamToAddUserTo.id + '/members')
+                                .send({ username: userToAdd.attributes.username })
+                                .expect(statusCode_1.StatusCode.CONFLICT)
+                                .end(done);
+                        });
+                    });
+                    it('with user that is already in the team should fail with correct error', function (done) {
+                        server.post('/teams/' + teamToAddUserTo.id + '/members')
+                            .send({ username: userToAdd.attributes.username })
+                            .end(function () {
+                            server.post('/teams/' + teamToAddUserTo.id + '/members')
+                                .send({ username: userToAdd.attributes.username })
+                                .expect({ error: 'The user is already in the team' })
+                                .end(done);
+                        });
+                    });
                 };
                 describe('user is admin', function () {
                     beforeEach(function () {
