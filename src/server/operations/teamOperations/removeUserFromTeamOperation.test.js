@@ -10,7 +10,7 @@ var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 var _ = require('lodash');
 chai.use(chaiAsPromised);
-describe('UpdateUserTeamAdminRightsOperation', function () {
+describe('RemoveUserFromTeamOperation', function () {
     var teamOfTheUser;
     var otherTeam;
     var executingUser;
@@ -207,6 +207,11 @@ describe('UpdateUserTeamAdminRightsOperation', function () {
                     verifyUserIsInTheTeam(adminUser, _teamMembers);
                 });
             });
+            it('removing not existing user should reject', function () {
+                var operation = new removeUserFromTeamOperation_1.RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.rejected;
+            });
         });
         describe('executing user is global admin', function () {
             beforeEach(function () {
@@ -232,6 +237,11 @@ describe('UpdateUserTeamAdminRightsOperation', function () {
                     .then(function (_teamMembers) {
                     verifyUserIsNotInTheTeam(adminUser, _teamMembers);
                 });
+            });
+            it('removing not existing user should succeed', function () {
+                var operation = new removeUserFromTeamOperation_1.RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.fulfilled;
             });
         });
         describe('executing user is teams list admin', function () {
@@ -259,6 +269,11 @@ describe('UpdateUserTeamAdminRightsOperation', function () {
                     verifyUserIsNotInTheTeam(adminUser, _teamMembers);
                 });
             });
+            it('removing not existing user should succeed', function () {
+                var operation = new removeUserFromTeamOperation_1.RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.fulfilled;
+            });
         });
         describe('executing user is a simple team member', function () {
             beforeEach(function () {
@@ -285,6 +300,11 @@ describe('UpdateUserTeamAdminRightsOperation', function () {
                     verifyUserIsInTheTeam(notAdminUser, _teamMembers);
                 });
             });
+            it('removing not existing user should fail', function () {
+                var operation = new removeUserFromTeamOperation_1.RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.rejected;
+            });
         });
         describe('executing user is a team admin', function () {
             beforeEach(function () {
@@ -309,6 +329,11 @@ describe('UpdateUserTeamAdminRightsOperation', function () {
                     .then(function (_teamMembers) {
                     verifyUserIsNotInTheTeam(adminUser, _teamMembers);
                 });
+            });
+            it('removing not existing user should succeed', function () {
+                var operation = new removeUserFromTeamOperation_1.RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.fulfilled;
             });
         });
         describe('executing user is a simple team member of another team', function () {
@@ -335,6 +360,11 @@ describe('UpdateUserTeamAdminRightsOperation', function () {
                     verifyUserIsInTheTeam(notAdminUser, _teamMembers);
                 });
             });
+            it('removing not existing user should fail', function () {
+                var operation = new removeUserFromTeamOperation_1.RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.rejected;
+            });
         });
         describe('executing user is a team admin of another team', function () {
             beforeEach(function () {
@@ -359,6 +389,11 @@ describe('UpdateUserTeamAdminRightsOperation', function () {
                     .then(function (_teamMembers) {
                     verifyUserIsInTheTeam(notAdminUser, _teamMembers);
                 });
+            });
+            it('removing not existing user should fail', function () {
+                var operation = new removeUserFromTeamOperation_1.RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+                var result = operation.execute();
+                return chai_1.expect(result).to.eventually.rejected;
             });
         });
     });

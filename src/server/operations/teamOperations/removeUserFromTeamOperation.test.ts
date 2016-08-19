@@ -15,7 +15,7 @@ import * as _ from 'lodash';
 
 chai.use(chaiAsPromised);
 
-describe('UpdateUserTeamAdminRightsOperation', () => {
+describe('RemoveUserFromTeamOperation', () => {
 
   var teamOfTheUser: Team;
   var otherTeam: Team;
@@ -367,6 +367,17 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
           });
       });
 
+      it('removing not existing user should reject', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
     });
 
     describe('executing user is global admin', () => {
@@ -410,6 +421,17 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
           });
       });
 
+      it('removing not existing user should succeed', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
+      });
+
     });
 
     describe('executing user is teams list admin', () => {
@@ -451,6 +473,17 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
           .then((_teamMembers: IUserOfATeam[]) => {
             verifyUserIsNotInTheTeam(adminUser, _teamMembers);
           });
+      });
+
+      it('removing not existing user should succeed', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
       });
 
     });
@@ -497,6 +530,17 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
           });
       });
 
+      it('removing not existing user should fail', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
     });
 
     describe('executing user is a team admin', () => {
@@ -538,6 +582,17 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
           .then((_teamMembers: IUserOfATeam[]) => {
             verifyUserIsNotInTheTeam(adminUser, _teamMembers);
           });
+      });
+
+      it('removing not existing user should succeed', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.fulfilled;
       });
 
     });
@@ -583,6 +638,17 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
           });
       });
 
+      it('removing not existing user should fail', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
+      });
+
     });
 
     describe('executing user is a team admin of another team', () => {
@@ -624,6 +690,17 @@ describe('UpdateUserTeamAdminRightsOperation', () => {
           .then((_teamMembers: IUserOfATeam[]) => {
             verifyUserIsInTheTeam(notAdminUser, _teamMembers);
           });
+      });
+
+      it('removing not existing user should fail', () => {
+        // Arrange
+        var operation = new RemoveUserFromTeamOperation(98765, teamOfTheUser.id, executingUser.id);
+
+        // Act
+        var result: Promise<any> = operation.execute();
+
+        // Assert
+        return expect(result).to.eventually.rejected;
       });
 
     });

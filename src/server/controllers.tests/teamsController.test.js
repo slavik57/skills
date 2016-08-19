@@ -127,6 +127,11 @@ describe('teamsController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
+        it('deleting team should fail', function (done) {
+            server.delete('/teams/1/members')
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
     };
     function authorizdedTests(beforeEachFunc) {
         return function () {
@@ -521,6 +526,113 @@ describe('teamsController', function () {
                     beforeEach(function () {
                         var teamMemberInfo = {
                             team_id: teamToAddUserTo.id,
+                            user_id: executingUser.id,
+                            is_admin: true
+                        };
+                        return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+                    });
+                    sufficientPermissionsTests();
+                });
+            });
+            describe('remove team member', function () {
+                var teamToRemoveUserFrom;
+                var userToRemove;
+                beforeEach(function () {
+                    teamToRemoveUserFrom = teams[0];
+                    return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1, 'team_member_to_add')
+                        .then(function (_users) {
+                        userToRemove = _users[0];
+                    })
+                        .then(function () {
+                        var teamMemberInfo = {
+                            team_id: teamToRemoveUserFrom.id,
+                            user_id: userToRemove.id,
+                            is_admin: false
+                        };
+                        return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+                    });
+                });
+                it('on invalid userId should fail', function (done) {
+                    server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+                        .send({ userId: null })
+                        .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                        .end(done);
+                });
+                it('without sufficient permissions should fail', function (done) {
+                    server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+                        .send({ userId: userToRemove.id })
+                        .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                        .end(done);
+                });
+                var sufficientPermissionsTests = function () {
+                    it('without body should fail', function (done) {
+                        server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with empty body should fail', function (done) {
+                        server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+                            .send({})
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with null userId should fail', function (done) {
+                        server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+                            .send({ userId: null })
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with not existing user id should succeed', function (done) {
+                        server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+                            .send({ userId: 98765 })
+                            .expect(statusCode_1.StatusCode.OK)
+                            .end(done);
+                    });
+                    it('with exiting user id should succeed', function (done) {
+                        server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+                            .send({ userId: userToRemove.id })
+                            .expect(statusCode_1.StatusCode.OK)
+                            .end(done);
+                    });
+                    it('with existing username should remove the user from the team', function (done) {
+                        server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+                            .send({ userId: userToRemove.id })
+                            .end(function () {
+                            teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToRemoveUserFrom.id)
+                                .then(function (_teamMembers) { return _.find(_teamMembers, function (_member) { return _member.user.id === userToRemove.id; }); })
+                                .then(function (_teamMember) {
+                                chai_1.expect(_teamMember).to.not.exist;
+                                done();
+                            });
+                        });
+                    });
+                    it('with user that is not in the team should succeed', function (done) {
+                        server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+                            .send({ userId: userToRemove.id })
+                            .end(function () {
+                            server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+                                .send({ userId: userToRemove.id })
+                                .expect(statusCode_1.StatusCode.OK)
+                                .end(done);
+                        });
+                    });
+                };
+                describe('user is admin', function () {
+                    beforeEach(function () {
+                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.ADMIN]);
+                    });
+                    sufficientPermissionsTests();
+                });
+                describe('user is teams list admin', function () {
+                    beforeEach(function () {
+                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN]);
+                    });
+                    sufficientPermissionsTests();
+                });
+                describe('user is team admin', function () {
+                    beforeEach(function () {
+                        var teamMemberInfo = {
+                            team_id: teamToRemoveUserFrom.id,
                             user_id: executingUser.id,
                             is_admin: true
                         };

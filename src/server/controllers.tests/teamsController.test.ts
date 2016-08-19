@@ -169,6 +169,12 @@ describe('teamsController', () => {
         .end(done);
     });
 
+    it('deleting team should fail', (done) => {
+      server.delete('/teams/1/members')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
   };
 
   function authorizdedTests(beforeEachFunc: () => Promise<User>) {
@@ -669,6 +675,140 @@ describe('teamsController', () => {
           beforeEach(() => {
             var teamMemberInfo: ITeamMemberInfo = {
               team_id: teamToAddUserTo.id,
+              user_id: executingUser.id,
+              is_admin: true
+            }
+
+            return TeamsDataHandler.addTeamMember(teamMemberInfo);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+      });
+
+      describe('remove team member', () => {
+
+        let teamToRemoveUserFrom: Team;
+        let userToRemove: User;
+
+        beforeEach(() => {
+          teamToRemoveUserFrom = teams[0];
+
+          return EnvironmentDirtifier.createUsers(1, 'team_member_to_add')
+            .then((_users: User[]) => {
+              [userToRemove] = _users;
+            })
+            .then(() => {
+              var teamMemberInfo: ITeamMemberInfo = {
+                team_id: teamToRemoveUserFrom.id,
+                user_id: userToRemove.id,
+                is_admin: false
+              };
+
+              return TeamsDataHandler.addTeamMember(teamMemberInfo);
+            })
+        });
+
+        it('on invalid userId should fail', (done) => {
+          server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+            .send({ userId: null })
+            .expect(StatusCode.BAD_REQUEST)
+            .end(done);
+        });
+
+        it('without sufficient permissions should fail', (done) => {
+          server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+            .send({ userId: userToRemove.id })
+            .expect(StatusCode.UNAUTHORIZED)
+            .end(done);
+        });
+
+        var sufficientPermissionsTests = () => {
+
+          it('without body should fail', (done) => {
+            server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with empty body should fail', (done) => {
+            server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+              .send({})
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with null userId should fail', (done) => {
+            server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+              .send({ userId: null })
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with not existing user id should succeed', (done) => {
+            server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+              .send({ userId: 98765 })
+              .expect(StatusCode.OK)
+              .end(done);
+          });
+
+          it('with exiting user id should succeed', (done) => {
+            server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+              .send({ userId: userToRemove.id })
+              .expect(StatusCode.OK)
+              .end(done);
+          });
+
+          it('with existing username should remove the user from the team', (done) => {
+            server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+              .send({ userId: userToRemove.id })
+              .end(() => {
+                TeamsDataHandler.getTeamMembers(teamToRemoveUserFrom.id)
+                  .then((_teamMembers: IUserOfATeam[]) => _.find(_teamMembers, _member => _member.user.id === userToRemove.id))
+                  .then((_teamMember: IUserOfATeam) => {
+                    expect(_teamMember).to.not.exist;
+                    done();
+                  });
+              });
+          });
+
+          it('with user that is not in the team should succeed', (done) => {
+            server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+              .send({ userId: userToRemove.id })
+              .end(() => {
+                server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+                  .send({ userId: userToRemove.id })
+                  .expect(StatusCode.OK)
+                  .end(done)
+              });
+          });
+
+        }
+
+        describe('user is admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('user is teams list admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.TEAMS_LIST_ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('user is team admin', () => {
+
+          beforeEach(() => {
+            var teamMemberInfo: ITeamMemberInfo = {
+              team_id: teamToRemoveUserFrom.id,
               user_id: executingUser.id,
               is_admin: true
             }

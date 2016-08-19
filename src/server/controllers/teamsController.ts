@@ -1,3 +1,4 @@
+import {RemoveUserFromTeamOperation} from "../operations/teamOperations/removeUserFromTeamOperation";
 import {NotFoundError} from "../../common/errors/notFoundError";
 import {TeamMember} from "../models/teamMember";
 import {AddUserToTeamOperation} from "../operations/teamOperations/addUserToTeamOperation";
@@ -30,6 +31,10 @@ interface IUpdateTeamRequestBody {
 
 interface IAddTeamMemberRequestBody {
   username: string;
+}
+
+interface IRemoveTeamMemberRequestBody {
+  userId: number;
 }
 
 export = {
@@ -133,6 +138,42 @@ export = {
 
         response.status(statusCode);
         response.send(errorDescription);
+      })
+  }],
+  delete_teamId_members: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, teamId: string) {
+    var numberId: number = Number(teamId);
+
+    var removeTeamMemberRequest: IRemoveTeamMemberRequestBody = request.body;
+
+    if (!removeTeamMemberRequest || !removeTeamMemberRequest.userId) {
+      response.status(StatusCode.BAD_REQUEST);
+      response.send();
+      return;
+    }
+
+    const operation =
+      new RemoveUserFromTeamOperation(removeTeamMemberRequest.userId, numberId, request.user.id);
+
+    operation.execute()
+      .then(() => {
+        response.status(StatusCode.OK);
+        response.send();
+      }, (error: any) => {
+        var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
+        //
+        // var errorDescription: any;
+        if (ErrorUtils.isErrorOfType(error, UnauthorizedError)) {
+          statusCode = StatusCode.UNAUTHORIZED;
+        }
+        // } else if (ErrorUtils.isErrorOfType(error, NotFoundError)) {
+        //   statusCode = StatusCode.NOT_FOUND;
+        // } else if (ErrorUtils.isErrorOfType(error, AlreadyExistsError)) {
+        //   statusCode = StatusCode.CONFLICT;
+        //   errorDescription = { error: 'The user is already in the team' };
+        // }
+
+        response.status(statusCode);
+        response.send();
       })
   }],
   put_teamId_index: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, teamId: string) {

@@ -1,4 +1,5 @@
 "use strict";
+var removeUserFromTeamOperation_1 = require("../operations/teamOperations/removeUserFromTeamOperation");
 var notFoundError_1 = require("../../common/errors/notFoundError");
 var addUserToTeamOperation_1 = require("../operations/teamOperations/addUserToTeamOperation");
 var getTeamUsersOperation_1 = require("../operations/teamOperations/getTeamUsersOperation");
@@ -104,6 +105,28 @@ module.exports = {
                 }
                 response.status(statusCode);
                 response.send(errorDescription);
+            });
+        }],
+    delete_teamId_members: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, teamId) {
+            var numberId = Number(teamId);
+            var removeTeamMemberRequest = request.body;
+            if (!removeTeamMemberRequest || !removeTeamMemberRequest.userId) {
+                response.status(statusCode_1.StatusCode.BAD_REQUEST);
+                response.send();
+                return;
+            }
+            var operation = new removeUserFromTeamOperation_1.RemoveUserFromTeamOperation(removeTeamMemberRequest.userId, numberId, request.user.id);
+            operation.execute()
+                .then(function () {
+                response.status(statusCode_1.StatusCode.OK);
+                response.send();
+            }, function (error) {
+                var statusCode = statusCode_1.StatusCode.INTERNAL_SERVER_ERROR;
+                if (errorUtils_1.ErrorUtils.isErrorOfType(error, unauthorizedError_1.UnauthorizedError)) {
+                    statusCode = statusCode_1.StatusCode.UNAUTHORIZED;
+                }
+                response.status(statusCode);
+                response.send();
             });
         }],
     put_teamId_index: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, teamId) {
