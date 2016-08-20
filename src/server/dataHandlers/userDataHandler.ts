@@ -7,6 +7,7 @@ import {User, Users} from '../models/user';
 import {UserGlobalPermissions, UsersGlobalPermissions} from '../models/usersGlobalPermissions';
 import {Collection, FetchOptions, SaveOptions} from 'bookshelf';
 import {bookshelf} from '../../../bookshelf';
+import * as knex from 'knex';
 import * as _ from 'lodash';
 import {Team, Teams} from '../models/team';
 import {ITeamOfAUser} from '../models/interfaces/iTeamOfAUser';
@@ -54,12 +55,14 @@ export class UserDataHandler {
   }
 
   public static getUsersByPartialUsername(partialUsername: string, maxNumberOfUsers: number = null): bluebirdPromise<User[]> {
-    var likePartialUsername = this._createLikeQueryValue(partialUsername);
+    var likePartialUsername = this._createLikeQueryValue(partialUsername.toLowerCase());
 
     return new Users().query((_queryBuilder: QueryBuilder) => {
-      _queryBuilder.where(User.usernameAttribute, QuerySelectors.LIKE, likePartialUsername);
+      _queryBuilder.whereRaw(`LOWER(${User.usernameAttribute}) ${QuerySelectors.LIKE} ?`, likePartialUsername);
+      // _queryBuilder.where(User.usernameAttribute, QuerySelectors.LIKE, likePartialUsername);
 
-      if (maxNumberOfUsers >= 0) {
+      if (maxNumberOfUsers !== null &&
+        maxNumberOfUsers >= 0) {
         _queryBuilder.limit(maxNumberOfUsers);
       }
     }).fetch()

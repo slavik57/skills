@@ -1,6 +1,4 @@
 todo:
-- teams settings page - support case insensitive users in the users autocomplete (pass as an argument to the server)
-- fix the fonts with the reverse proxy
 - teams settings page - modify team admins
 - teams settings page - allow only team admins, team list admins and admins to modify team name
 - teams settings page - allow only team admins, team list admins and admins to modify team admins

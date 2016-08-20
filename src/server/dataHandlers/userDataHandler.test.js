@@ -959,6 +959,60 @@ describe('userDataHandler', function () {
                 verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithPercentage);
             });
         });
+        it('multiple usernames with given partial upper case username should return the users', function () {
+            var partialUsername = multiplePartialUsername.toUpperCase();
+            var result = userDataHandler_1.UserDataHandler.getUsersByPartialUsername(partialUsername);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_users) {
+                chai_1.expect(_users.length, 'should contain atleast 2 users').to.be.at.least(2);
+                verifyUsersContainThePartialUsername(_users, multiplePartialUsername);
+            });
+        });
+        it('multiple usernames with given partial upper case username with _ should return the users', function () {
+            var partialUsername = multiplePartialUsernameWithUnderscore.toUpperCase();
+            var result = userDataHandler_1.UserDataHandler.getUsersByPartialUsername(partialUsername);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_users) {
+                chai_1.expect(_users.length > 1, 'should contain atleast 2 users').to.be.true;
+                verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithUnderscore);
+            });
+        });
+        it('multiple usernames with given partial upper case username with % should return the users', function () {
+            var partialUsername = multiplePartialUsernameWithPercentage.toUpperCase();
+            var result = userDataHandler_1.UserDataHandler.getUsersByPartialUsername(partialUsername);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_users) {
+                chai_1.expect(_users.length > 1, 'should contain atleast 2 users').to.be.true;
+                verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithPercentage);
+            });
+        });
+        it('multiple usernames with given partial lower case username should return the users', function () {
+            var partialUsername = multiplePartialUsername.toLowerCase();
+            var result = userDataHandler_1.UserDataHandler.getUsersByPartialUsername(partialUsername);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_users) {
+                chai_1.expect(_users.length > 1, 'should contain atleast 2 users').to.be.true;
+                verifyUsersContainThePartialUsername(_users, multiplePartialUsername);
+            });
+        });
+        it('multiple usernames with given partial lower case username with _ should return the users', function () {
+            var partialUsername = multiplePartialUsernameWithUnderscore.toLowerCase();
+            var result = userDataHandler_1.UserDataHandler.getUsersByPartialUsername(partialUsername);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_users) {
+                chai_1.expect(_users.length > 1, 'should contain atleast 2 users').to.be.true;
+                verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithUnderscore);
+            });
+        });
+        it('multiple usernames with given partial lower case username with % should return the users', function () {
+            var partialUsername = multiplePartialUsernameWithPercentage.toLowerCase();
+            var result = userDataHandler_1.UserDataHandler.getUsersByPartialUsername(partialUsername);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_users) {
+                chai_1.expect(_users.length > 1, 'should contain atleast 2 users').to.be.true;
+                verifyUsersContainThePartialUsername(_users, multiplePartialUsernameWithPercentage);
+            });
+        });
     });
 });
 //# sourceMappingURL=userDataHandler.test.js.map
