@@ -1,5 +1,4 @@
 todo:
-- teams settings page - modify team admins
 - teams settings page - allow only team admins, team list admins and admins to modify team name
 - teams settings page - allow only team admins, team list admins and admins to modify team admins
 - teams settings page - allow only team admins, team list admins and admins to modify team users(add/remove)

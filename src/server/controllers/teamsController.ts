@@ -1,3 +1,4 @@
+import {UpdateUserTeamAdminRightsOperation} from "../operations/userOperations/updateUserTeamAdminRightsOperation";
 import {RemoveUserFromTeamOperation} from "../operations/teamOperations/removeUserFromTeamOperation";
 import {NotFoundError} from "../../common/errors/notFoundError";
 import {TeamMember} from "../models/teamMember";
@@ -35,6 +36,10 @@ interface IAddTeamMemberRequestBody {
 
 interface IRemoveTeamMemberRequestBody {
   userId: number;
+}
+
+interface IModifyTeamMemberAdminRightsRequestBody {
+  isAdmin: boolean;
 }
 
 export = {
@@ -160,17 +165,9 @@ export = {
         response.send();
       }, (error: any) => {
         var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
-        //
-        // var errorDescription: any;
         if (ErrorUtils.isErrorOfType(error, UnauthorizedError)) {
           statusCode = StatusCode.UNAUTHORIZED;
         }
-        // } else if (ErrorUtils.isErrorOfType(error, NotFoundError)) {
-        //   statusCode = StatusCode.NOT_FOUND;
-        // } else if (ErrorUtils.isErrorOfType(error, AlreadyExistsError)) {
-        //   statusCode = StatusCode.CONFLICT;
-        //   errorDescription = { error: 'The user is already in the team' };
-        // }
 
         response.status(statusCode);
         response.send();
@@ -187,10 +184,10 @@ export = {
 
     var numberId: number = Number(teamId);
 
-    var opearation =
+    var operation =
       new UpdateTeamNameOperation(numberId, updateTeamRequest.name, request.user.id);
 
-    opearation.execute()
+    operation.execute()
       .then((_team: Team) => {
         response.status(StatusCode.OK);
         response.send(<ITeamInfoResponse>{
@@ -246,5 +243,44 @@ export = {
 
         response.json(result);
       });
+  }],
+  patch_teamId_members_memberId_admin: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, teamId: string, memberId: string) {
+    var teamIdNumber = Number(teamId);
+    var memberIdNumber = Number(memberId);
+
+    var modifyAdminRightsRequest: IModifyTeamMemberAdminRightsRequestBody = request.body;
+
+    if (isNaN(teamIdNumber) ||
+      isNaN(memberIdNumber) ||
+      !modifyAdminRightsRequest ||
+      modifyAdminRightsRequest.isAdmin === null ||
+      modifyAdminRightsRequest.isAdmin === undefined) {
+      response.status(StatusCode.BAD_REQUEST);
+      response.send();
+      return;
+    }
+
+    var operation =
+      new UpdateUserTeamAdminRightsOperation(memberIdNumber,
+        teamIdNumber,
+        modifyAdminRightsRequest.isAdmin,
+        request.user.id);
+
+    operation.execute()
+      .then(() => {
+        response.status(StatusCode.OK);
+        response.send();
+      }, (error: any) => {
+        var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
+
+        if (ErrorUtils.isErrorOfType(error, UnauthorizedError)) {
+          statusCode = StatusCode.UNAUTHORIZED;
+        } else if (ErrorUtils.isErrorOfType(error, NotFoundError)) {
+          statusCode = StatusCode.NOT_FOUND;
+        }
+
+        response.status(statusCode);
+        response.send();
+      })
   }]
 };

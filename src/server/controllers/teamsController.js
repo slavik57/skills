@@ -1,4 +1,5 @@
 "use strict";
+var updateUserTeamAdminRightsOperation_1 = require("../operations/userOperations/updateUserTeamAdminRightsOperation");
 var removeUserFromTeamOperation_1 = require("../operations/teamOperations/removeUserFromTeamOperation");
 var notFoundError_1 = require("../../common/errors/notFoundError");
 var addUserToTeamOperation_1 = require("../operations/teamOperations/addUserToTeamOperation");
@@ -137,8 +138,8 @@ module.exports = {
                 return;
             }
             var numberId = Number(teamId);
-            var opearation = new updateTeamNameOperation_1.UpdateTeamNameOperation(numberId, updateTeamRequest.name, request.user.id);
-            opearation.execute()
+            var operation = new updateTeamNameOperation_1.UpdateTeamNameOperation(numberId, updateTeamRequest.name, request.user.id);
+            operation.execute()
                 .then(function (_team) {
                 response.status(statusCode_1.StatusCode.OK);
                 response.send({
@@ -187,6 +188,36 @@ module.exports = {
                     };
                 }).sort(function (_info1, _info2) { return _info1.id - _info2.id; });
                 response.json(result);
+            });
+        }],
+    patch_teamId_members_memberId_admin: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, teamId, memberId) {
+            var teamIdNumber = Number(teamId);
+            var memberIdNumber = Number(memberId);
+            var modifyAdminRightsRequest = request.body;
+            if (isNaN(teamIdNumber) ||
+                isNaN(memberIdNumber) ||
+                !modifyAdminRightsRequest ||
+                modifyAdminRightsRequest.isAdmin === null ||
+                modifyAdminRightsRequest.isAdmin === undefined) {
+                response.status(statusCode_1.StatusCode.BAD_REQUEST);
+                response.send();
+                return;
+            }
+            var operation = new updateUserTeamAdminRightsOperation_1.UpdateUserTeamAdminRightsOperation(memberIdNumber, teamIdNumber, modifyAdminRightsRequest.isAdmin, request.user.id);
+            operation.execute()
+                .then(function () {
+                response.status(statusCode_1.StatusCode.OK);
+                response.send();
+            }, function (error) {
+                var statusCode = statusCode_1.StatusCode.INTERNAL_SERVER_ERROR;
+                if (errorUtils_1.ErrorUtils.isErrorOfType(error, unauthorizedError_1.UnauthorizedError)) {
+                    statusCode = statusCode_1.StatusCode.UNAUTHORIZED;
+                }
+                else if (errorUtils_1.ErrorUtils.isErrorOfType(error, notFoundError_1.NotFoundError)) {
+                    statusCode = statusCode_1.StatusCode.NOT_FOUND;
+                }
+                response.status(statusCode);
+                response.send();
             });
         }]
 };

@@ -132,6 +132,11 @@ describe('teamsController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
+        it('updating team member rights should fail', function (done) {
+            server.patch('/teams/1/members/2/admin')
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
     };
     function authorizdedTests(beforeEachFunc) {
         return function () {
@@ -533,6 +538,22 @@ describe('teamsController', function () {
                     });
                     sufficientPermissionsTests();
                 });
+                describe('user is regular team member', function () {
+                    beforeEach(function () {
+                        var teamMemberInfo = {
+                            team_id: teamToAddUserTo.id,
+                            user_id: executingUser.id,
+                            is_admin: false
+                        };
+                        return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+                    });
+                    it('should fail', function (done) {
+                        server.post('/teams/' + teamToAddUserTo.id + '/members')
+                            .send({ username: userToAdd.attributes.username })
+                            .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                            .end(done);
+                    });
+                });
             });
             describe('remove team member', function () {
                 var teamToRemoveUserFrom;
@@ -639,6 +660,177 @@ describe('teamsController', function () {
                         return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
                     });
                     sufficientPermissionsTests();
+                });
+                describe('user is regular team member', function () {
+                    beforeEach(function () {
+                        var teamMemberInfo = {
+                            team_id: teamToRemoveUserFrom.id,
+                            user_id: executingUser.id,
+                            is_admin: false
+                        };
+                        return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+                    });
+                    it('should fail', function (done) {
+                        server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+                            .send({ userId: userToRemove.id })
+                            .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                            .end(done);
+                    });
+                });
+            });
+            describe('update team member admin rights', function () {
+                var teamToUpdateTheUserIn;
+                var userToUpdate;
+                var originalIsAdmin;
+                beforeEach(function () {
+                    teamToUpdateTheUserIn = teams[0];
+                    originalIsAdmin = false;
+                    return environmentDirtifier_1.EnvironmentDirtifier.createUsers(1, 'team_member_to_add')
+                        .then(function (_users) {
+                        userToUpdate = _users[0];
+                    })
+                        .then(function () {
+                        var teamMemberInfo = {
+                            team_id: teamToUpdateTheUserIn.id,
+                            user_id: userToUpdate.id,
+                            is_admin: originalIsAdmin
+                        };
+                        return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+                    });
+                });
+                it('on invalid isAdmin should fail', function (done) {
+                    server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+                        .send({ isAdmin: null })
+                        .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                        .end(done);
+                });
+                it('without sufficient permissions should fail', function (done) {
+                    server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+                        .send({ isAdmin: !originalIsAdmin })
+                        .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                        .end(done);
+                });
+                it('without sufficient permissions should not update the user admin rights', function (done) {
+                    server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+                        .send({ isAdmin: !originalIsAdmin })
+                        .end(function () {
+                        teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToUpdateTheUserIn.id)
+                            .then(function (_teamMembers) { return _.find(_teamMembers, function (_member) { return _member.user.id === userToUpdate.id; }); })
+                            .then(function (_teamMember) {
+                            chai_1.expect(_teamMember.isAdmin).to.be.equal(originalIsAdmin);
+                            done();
+                        });
+                    });
+                });
+                var sufficientPermissionsTests = function () {
+                    it('without body should fail', function (done) {
+                        server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with empty body should fail', function (done) {
+                        server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+                            .send({})
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with null isAdmin should fail', function (done) {
+                        server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+                            .send({ isAdmin: null })
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with null user id should fail', function (done) {
+                        server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + null + '/admin')
+                            .send({ isAdmin: !originalIsAdmin })
+                            .expect(statusCode_1.StatusCode.BAD_REQUEST)
+                            .end(done);
+                    });
+                    it('with not existing user id should fail', function (done) {
+                        server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + 98765 + '/admin')
+                            .send({ isAdmin: !originalIsAdmin })
+                            .expect(statusCode_1.StatusCode.NOT_FOUND)
+                            .end(done);
+                    });
+                    it('with exiting user id should succeed', function (done) {
+                        server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+                            .send({ isAdmin: !originalIsAdmin })
+                            .expect(statusCode_1.StatusCode.OK)
+                            .end(done);
+                    });
+                    it('with existing username should update the user admin rights', function (done) {
+                        server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+                            .send({ isAdmin: !originalIsAdmin })
+                            .end(function () {
+                            teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToUpdateTheUserIn.id)
+                                .then(function (_teamMembers) { return _.find(_teamMembers, function (_member) { return _member.user.id === userToUpdate.id; }); })
+                                .then(function (_teamMember) {
+                                chai_1.expect(_teamMember.isAdmin).to.be.equal(!originalIsAdmin);
+                                done();
+                            });
+                        });
+                    });
+                    it('with user that is not in the team should fail', function (done) {
+                        server.delete('/teams/' + teamToUpdateTheUserIn.id + '/members')
+                            .send({ userId: userToUpdate.id })
+                            .end(function () {
+                            server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+                                .send({ isAdmin: !originalIsAdmin })
+                                .expect(statusCode_1.StatusCode.NOT_FOUND)
+                                .end(done);
+                        });
+                    });
+                };
+                describe('user is admin', function () {
+                    beforeEach(function () {
+                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.ADMIN]);
+                    });
+                    sufficientPermissionsTests();
+                });
+                describe('user is teams list admin', function () {
+                    beforeEach(function () {
+                        return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, [globalPermission_1.GlobalPermission.TEAMS_LIST_ADMIN]);
+                    });
+                    sufficientPermissionsTests();
+                });
+                describe('user is team admin', function () {
+                    beforeEach(function () {
+                        var teamMemberInfo = {
+                            team_id: teamToUpdateTheUserIn.id,
+                            user_id: executingUser.id,
+                            is_admin: true
+                        };
+                        return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+                    });
+                    sufficientPermissionsTests();
+                });
+                describe('user is regular team member', function () {
+                    beforeEach(function () {
+                        var teamMemberInfo = {
+                            team_id: teamToUpdateTheUserIn.id,
+                            user_id: executingUser.id,
+                            is_admin: false
+                        };
+                        return teamsDataHandler_1.TeamsDataHandler.addTeamMember(teamMemberInfo);
+                    });
+                    it('should fail', function (done) {
+                        server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+                            .send({ isAdmin: !originalIsAdmin })
+                            .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                            .end(done);
+                    });
+                    it('without sufficient permissions should not update the user admin rights', function (done) {
+                        server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+                            .send({ isAdmin: !originalIsAdmin })
+                            .end(function () {
+                            teamsDataHandler_1.TeamsDataHandler.getTeamMembers(teamToUpdateTheUserIn.id)
+                                .then(function (_teamMembers) { return _.find(_teamMembers, function (_member) { return _member.user.id === userToUpdate.id; }); })
+                                .then(function (_teamMember) {
+                                chai_1.expect(_teamMember.isAdmin).to.be.equal(originalIsAdmin);
+                                done();
+                            });
+                        });
+                    });
                 });
             });
         };

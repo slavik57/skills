@@ -175,6 +175,12 @@ describe('teamsController', () => {
         .end(done);
     });
 
+    it('updating team member rights should fail', (done) => {
+      server.patch('/teams/1/members/2/admin')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
   };
 
   function authorizdedTests(beforeEachFunc: () => Promise<User>) {
@@ -685,6 +691,26 @@ describe('teamsController', () => {
           sufficientPermissionsTests();
         });
 
+        describe('user is regular team member', () => {
+
+          beforeEach(() => {
+            var teamMemberInfo: ITeamMemberInfo = {
+              team_id: teamToAddUserTo.id,
+              user_id: executingUser.id,
+              is_admin: false
+            }
+
+            return TeamsDataHandler.addTeamMember(teamMemberInfo);
+          })
+
+          it('should fail', (done) => {
+            server.post('/teams/' + teamToAddUserTo.id + '/members')
+              .send({ username: userToAdd.attributes.username })
+              .expect(StatusCode.UNAUTHORIZED)
+              .end(done);
+          });
+        });
+
       });
 
       describe('remove team member', () => {
@@ -817,6 +843,215 @@ describe('teamsController', () => {
           })
 
           sufficientPermissionsTests();
+        });
+
+        describe('user is regular team member', () => {
+
+          beforeEach(() => {
+            var teamMemberInfo: ITeamMemberInfo = {
+              team_id: teamToRemoveUserFrom.id,
+              user_id: executingUser.id,
+              is_admin: false
+            }
+
+            return TeamsDataHandler.addTeamMember(teamMemberInfo);
+          })
+
+          it('should fail', (done) => {
+            server.delete('/teams/' + teamToRemoveUserFrom.id + '/members')
+              .send({ userId: userToRemove.id })
+              .expect(StatusCode.UNAUTHORIZED)
+              .end(done);
+          });
+        });
+      });
+
+      describe('update team member admin rights', () => {
+
+        let teamToUpdateTheUserIn: Team;
+        let userToUpdate: User;
+        let originalIsAdmin: boolean;
+
+        beforeEach(() => {
+          teamToUpdateTheUserIn = teams[0];
+          originalIsAdmin = false;
+
+          return EnvironmentDirtifier.createUsers(1, 'team_member_to_add')
+            .then((_users: User[]) => {
+              [userToUpdate] = _users;
+            })
+            .then(() => {
+              var teamMemberInfo: ITeamMemberInfo = {
+                team_id: teamToUpdateTheUserIn.id,
+                user_id: userToUpdate.id,
+                is_admin: originalIsAdmin
+              };
+
+              return TeamsDataHandler.addTeamMember(teamMemberInfo);
+            })
+        });
+
+        it('on invalid isAdmin should fail', (done) => {
+          server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+            .send({ isAdmin: null })
+            .expect(StatusCode.BAD_REQUEST)
+            .end(done);
+        });
+
+        it('without sufficient permissions should fail', (done) => {
+          server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+            .send({ isAdmin: !originalIsAdmin })
+            .expect(StatusCode.UNAUTHORIZED)
+            .end(done);
+        });
+
+        it('without sufficient permissions should not update the user admin rights', (done) => {
+          server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+            .send({ isAdmin: !originalIsAdmin })
+            .end(() => {
+              TeamsDataHandler.getTeamMembers(teamToUpdateTheUserIn.id)
+                .then((_teamMembers: IUserOfATeam[]) => _.find(_teamMembers, _member => _member.user.id === userToUpdate.id))
+                .then((_teamMember: IUserOfATeam) => {
+                  expect(_teamMember.isAdmin).to.be.equal(originalIsAdmin);
+                  done();
+                });
+            });
+        });
+
+        var sufficientPermissionsTests = () => {
+
+          it('without body should fail', (done) => {
+            server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with empty body should fail', (done) => {
+            server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+              .send({})
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with null isAdmin should fail', (done) => {
+            server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+              .send({ isAdmin: null })
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with null user id should fail', (done) => {
+            server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + null + '/admin')
+              .send({ isAdmin: !originalIsAdmin })
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with not existing user id should fail', (done) => {
+            server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + 98765 + '/admin')
+              .send({ isAdmin: !originalIsAdmin })
+              .expect(StatusCode.NOT_FOUND)
+              .end(done);
+          });
+
+          it('with exiting user id should succeed', (done) => {
+            server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+              .send({ isAdmin: !originalIsAdmin })
+              .expect(StatusCode.OK)
+              .end(done);
+          });
+
+          it('with existing username should update the user admin rights', (done) => {
+            server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+              .send({ isAdmin: !originalIsAdmin })
+              .end(() => {
+                TeamsDataHandler.getTeamMembers(teamToUpdateTheUserIn.id)
+                  .then((_teamMembers: IUserOfATeam[]) => _.find(_teamMembers, _member => _member.user.id === userToUpdate.id))
+                  .then((_teamMember: IUserOfATeam) => {
+                    expect(_teamMember.isAdmin).to.be.equal(!originalIsAdmin);
+                    done();
+                  });
+              });
+          });
+
+          it('with user that is not in the team should fail', (done) => {
+            server.delete('/teams/' + teamToUpdateTheUserIn.id + '/members')
+              .send({ userId: userToUpdate.id })
+              .end(() => {
+                server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+                  .send({ isAdmin: !originalIsAdmin })
+                  .expect(StatusCode.NOT_FOUND)
+                  .end(done)
+              });
+          });
+
+        }
+
+        describe('user is admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('user is teams list admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.TEAMS_LIST_ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('user is team admin', () => {
+
+          beforeEach(() => {
+            var teamMemberInfo: ITeamMemberInfo = {
+              team_id: teamToUpdateTheUserIn.id,
+              user_id: executingUser.id,
+              is_admin: true
+            }
+
+            return TeamsDataHandler.addTeamMember(teamMemberInfo);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('user is regular team member', () => {
+
+          beforeEach(() => {
+            var teamMemberInfo: ITeamMemberInfo = {
+              team_id: teamToUpdateTheUserIn.id,
+              user_id: executingUser.id,
+              is_admin: false
+            }
+
+            return TeamsDataHandler.addTeamMember(teamMemberInfo);
+          })
+
+          it('should fail', (done) => {
+            server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+              .send({ isAdmin: !originalIsAdmin })
+              .expect(StatusCode.UNAUTHORIZED)
+              .end(done);
+          });
+
+          it('without sufficient permissions should not update the user admin rights', (done) => {
+            server.patch('/teams/' + teamToUpdateTheUserIn.id + '/members/' + userToUpdate.id + '/admin')
+              .send({ isAdmin: !originalIsAdmin })
+              .end(() => {
+                TeamsDataHandler.getTeamMembers(teamToUpdateTheUserIn.id)
+                  .then((_teamMembers: IUserOfATeam[]) => _.find(_teamMembers, _member => _member.user.id === userToUpdate.id))
+                  .then((_teamMember: IUserOfATeam) => {
+                    expect(_teamMember.isAdmin).to.be.equal(originalIsAdmin);
+                    done();
+                  });
+              });
+          });
+
         });
 
       });
