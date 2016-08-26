@@ -1,7 +1,4 @@
 todo:
-- user settings page - show user teams
-- user settings page - add/remove teams of the user
-- user settings page - modify team admins
 - skills settings page - show skills
 - skills settings page - add/remove skill
 - skills settings page - show skill prerequisites
