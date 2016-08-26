@@ -1,6 +1,4 @@
 todo:
-- skills settings page - show skills
-- skills settings page - add/remove skill
 - skills settings page - show skill prerequisites
 - skills settings page - show skill contributions
 - skills settings page - add/remove skill prerequisites (make as skill prerequisites component)
