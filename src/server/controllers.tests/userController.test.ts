@@ -124,6 +124,13 @@ describe('userController', () => {
         .end(done);
     });
 
+    it('checking if user can modify skills list should fail', (done) => {
+      server.get('/user/can-modify-skills-list')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+
     it('getting user team modification permissions should fail', (done) => {
       server.get('/user/team-modification-permissions/1')
         .expect(StatusCode.UNAUTHORIZED)
@@ -456,6 +463,43 @@ describe('userController', () => {
               server.get('/user/can-modify-teams-list/')
                 .expect(StatusCode.OK)
                 .expect({ canModifyTeamsList: true })
+                .end(done);
+            });
+        });
+
+      });
+
+      describe('canModifySkillsList', () => {
+
+        it('checking can modify teams list with permissions other than skills list admin or admin should return false', (done) => {
+          var permissions: GlobalPermission[] =
+            _.difference(EnumValues.getValues(GlobalPermission), [GlobalPermission.ADMIN, GlobalPermission.SKILLS_LIST_ADMIN]);
+
+          UserDataHandler.addGlobalPermissions(user.id, permissions)
+            .then(() => {
+              server.get('/user/can-modify-skills-list')
+                .expect(StatusCode.OK)
+                .expect({ canModifySkillsList: false })
+                .end(done);
+            });
+        });
+
+        it('checking can modify teams list with skills list admin should return true', (done) => {
+          UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.SKILLS_LIST_ADMIN])
+            .then(() => {
+              server.get('/user/can-modify-skills-list/')
+                .expect(StatusCode.OK)
+                .expect({ canModifySkillsList: true })
+                .end(done);
+            });
+        });
+
+        it('checking can modify teams list with admin should return true', (done) => {
+          UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN])
+            .then(() => {
+              server.get('/user/can-modify-skills-list/')
+                .expect(StatusCode.OK)
+                .expect({ canModifySkillsList: true })
                 .end(done);
             });
         });

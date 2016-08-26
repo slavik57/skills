@@ -1,3 +1,4 @@
+import {SkillOperationBase} from "../operations/base/skillOperationBase";
 import {NotFoundError} from "../../common/errors/notFoundError";
 import {GetTeamModificationPermissionsOperation} from "../operations/teamOperations/getTeamModificationPermissionsOperation";
 import {Team} from "../models/team";
@@ -122,6 +123,13 @@ export = {
     operation.canExecute()
       .then(() => response.status(StatusCode.OK).send({ canModifyTeamsList: true }),
       (error: any) => response.status(StatusCode.OK).send({ canModifyTeamsList: false }));
+  }],
+  get_canModifySkillsList: [Authenticator.ensureAuthenticated, function(request: Request, response: Response) {
+    var operation = new SkillOperationBase<void>(request.user.id);
+
+    operation.canExecute()
+      .then(() => response.status(StatusCode.OK).send({ canModifySkillsList: true }),
+      (error: any) => response.status(StatusCode.OK).send({ canModifySkillsList: false }));
   }],
   get_permissionsModificationRules: [Authenticator.ensureAuthenticated, function(request: Request, response: Response): void {
     var operation = new GetAllowedUserPermissionsToModifyOperation(request.user.id);

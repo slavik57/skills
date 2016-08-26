@@ -127,7 +127,7 @@ describe('teamsController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
-        it('deleting team should fail', function (done) {
+        it('deleting team member should fail', function (done) {
             server.delete('/teams/1/members')
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);

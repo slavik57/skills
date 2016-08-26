@@ -169,7 +169,7 @@ describe('teamsController', () => {
         .end(done);
     });
 
-    it('deleting team should fail', (done) => {
+    it('deleting team member should fail', (done) => {
       server.delete('/teams/1/members')
         .expect(StatusCode.UNAUTHORIZED)
         .end(done);

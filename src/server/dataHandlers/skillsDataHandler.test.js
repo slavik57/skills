@@ -163,6 +163,20 @@ describe('SkillsDataHandler', function () {
             return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(getSkillPromise, skillInfo);
         });
     });
+    describe('getSkillByName', function () {
+        it('no such skill should return null', function () {
+            var skillPromise = skillsDataHandler_1.SkillsDataHandler.getSkillByName('not existing skill name');
+            return chai_1.expect(skillPromise).to.eventually.null;
+        });
+        it('skill exists should return correct skill', function () {
+            var skillName = 'a';
+            var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo(skillName);
+            var createSkillPromose = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
+                .then(function (_users) { return skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, _users[0].id); });
+            var getSkillPromise = createSkillPromose.then(function (_skill) { return skillsDataHandler_1.SkillsDataHandler.getSkillByName(skillName); });
+            return modelVerificator_1.ModelVerificator.verifyModelInfoAsync(getSkillPromise, skillInfo);
+        });
+    });
     describe('getSkills', function () {
         it('no skills should return empty', function () {
             var skillsPromise = skillsDataHandler_1.SkillsDataHandler.getSkills();

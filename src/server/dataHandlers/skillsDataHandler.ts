@@ -101,6 +101,12 @@ export class SkillsDataHandler {
       .fetch(fetchOptions);
   }
 
+  public static getSkillByName(name: string): bluebirdPromise<Skill> {
+    var skill: Skill = this._initializeSkillByNameQuery(name);
+
+    return skill.fetch();
+  }
+
   public static getTeams(skillId: number): bluebirdPromise<ITeamOfASkill[]> {
     var skill: Skill = this._initializeSkillByIdQuery(skillId);
 
@@ -121,6 +127,13 @@ export class SkillsDataHandler {
   private static _initializeSkillByIdQuery(skillId: number): Skill {
     var queryCondition = {};
     queryCondition[Skill.idAttribute] = skillId;
+
+    return new Skill(queryCondition);
+  }
+
+  private static _initializeSkillByNameQuery(name: string): Skill {
+    var queryCondition = {};
+    queryCondition[Skill.nameAttribute] = name;
 
     return new Skill(queryCondition);
   }

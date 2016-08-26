@@ -273,6 +273,35 @@ describe('SkillsDataHandler', () => {
 
   });
 
+  describe('getSkillByName', () => {
+
+    it('no such skill should return null', () => {
+      // Act
+      var skillPromise: Promise<Skill> =
+        SkillsDataHandler.getSkillByName('not existing skill name');
+
+      // Assert
+      return expect(skillPromise).to.eventually.null;
+    });
+
+    it('skill exists should return correct skill', () => {
+      // Arrange
+      var skillName = 'a';
+      var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo(skillName);
+      var createSkillPromose: Promise<Skill> =
+        EnvironmentDirtifier.createUsers(1)
+          .then((_users: User[]) => SkillsDataHandler.createSkill(skillInfo, _users[0].id));
+
+      // Act
+      var getSkillPromise: Promise<Skill> =
+        createSkillPromose.then((_skill: Skill) => SkillsDataHandler.getSkillByName(skillName));
+
+      // Assert
+      return ModelVerificator.verifyModelInfoAsync(getSkillPromise, skillInfo);
+    });
+
+  });
+
   describe('getSkills', () => {
 
     it('no skills should return empty', () => {

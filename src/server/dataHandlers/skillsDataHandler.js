@@ -75,6 +75,10 @@ var SkillsDataHandler = (function () {
         return this._initializeSkillByIdQuery(skillId)
             .fetch(fetchOptions);
     };
+    SkillsDataHandler.getSkillByName = function (name) {
+        var skill = this._initializeSkillByNameQuery(name);
+        return skill.fetch();
+    };
     SkillsDataHandler.getTeams = function (skillId) {
         var skill = this._initializeSkillByIdQuery(skillId);
         return this._fetchSkillTeams(skill);
@@ -91,6 +95,11 @@ var SkillsDataHandler = (function () {
     SkillsDataHandler._initializeSkillByIdQuery = function (skillId) {
         var queryCondition = {};
         queryCondition[skill_1.Skill.idAttribute] = skillId;
+        return new skill_1.Skill(queryCondition);
+    };
+    SkillsDataHandler._initializeSkillByNameQuery = function (name) {
+        var queryCondition = {};
+        queryCondition[skill_1.Skill.nameAttribute] = name;
         return new skill_1.Skill(queryCondition);
     };
     SkillsDataHandler._initializeSkillPrerequisiteByIdQuery = function (skillPrerequisiteId) {

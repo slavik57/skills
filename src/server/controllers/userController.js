@@ -1,4 +1,5 @@
 "use strict";
+var skillOperationBase_1 = require("../operations/base/skillOperationBase");
 var notFoundError_1 = require("../../common/errors/notFoundError");
 var getTeamModificationPermissionsOperation_1 = require("../operations/teamOperations/getTeamModificationPermissionsOperation");
 var modifyTeamOperationBase_1 = require("../operations/base/modifyTeamOperationBase");
@@ -67,6 +68,11 @@ module.exports = {
             var operation = new modifyTeamOperationBase_1.ModifyTeamOperationBase(request.user.id);
             operation.canExecute()
                 .then(function () { return response.status(statusCode_1.StatusCode.OK).send({ canModifyTeamsList: true }); }, function (error) { return response.status(statusCode_1.StatusCode.OK).send({ canModifyTeamsList: false }); });
+        }],
+    get_canModifySkillsList: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response) {
+            var operation = new skillOperationBase_1.SkillOperationBase(request.user.id);
+            operation.canExecute()
+                .then(function () { return response.status(statusCode_1.StatusCode.OK).send({ canModifySkillsList: true }); }, function (error) { return response.status(statusCode_1.StatusCode.OK).send({ canModifySkillsList: false }); });
         }],
     get_permissionsModificationRules: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response) {
             var operation = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(request.user.id);

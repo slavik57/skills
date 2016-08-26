@@ -93,6 +93,11 @@ describe('userController', function () {
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
                 .end(done);
         });
+        it('checking if user can modify skills list should fail', function (done) {
+            server.get('/user/can-modify-skills-list')
+                .expect(statusCode_1.StatusCode.UNAUTHORIZED)
+                .end(done);
+        });
         it('getting user team modification permissions should fail', function (done) {
             server.get('/user/team-modification-permissions/1')
                 .expect(statusCode_1.StatusCode.UNAUTHORIZED)
@@ -367,6 +372,36 @@ describe('userController', function () {
                         server.get('/user/can-modify-teams-list/')
                             .expect(statusCode_1.StatusCode.OK)
                             .expect({ canModifyTeamsList: true })
+                            .end(done);
+                    });
+                });
+            });
+            describe('canModifySkillsList', function () {
+                it('checking can modify teams list with permissions other than skills list admin or admin should return false', function (done) {
+                    var permissions = _.difference(enum_values_1.EnumValues.getValues(globalPermission_1.GlobalPermission), [globalPermission_1.GlobalPermission.ADMIN, globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN]);
+                    userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, permissions)
+                        .then(function () {
+                        server.get('/user/can-modify-skills-list')
+                            .expect(statusCode_1.StatusCode.OK)
+                            .expect({ canModifySkillsList: false })
+                            .end(done);
+                    });
+                });
+                it('checking can modify teams list with skills list admin should return true', function (done) {
+                    userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN])
+                        .then(function () {
+                        server.get('/user/can-modify-skills-list/')
+                            .expect(statusCode_1.StatusCode.OK)
+                            .expect({ canModifySkillsList: true })
+                            .end(done);
+                    });
+                });
+                it('checking can modify teams list with admin should return true', function (done) {
+                    userDataHandler_1.UserDataHandler.addGlobalPermissions(user.id, [globalPermission_1.GlobalPermission.ADMIN])
+                        .then(function () {
+                        server.get('/user/can-modify-skills-list/')
+                            .expect(statusCode_1.StatusCode.OK)
+                            .expect({ canModifySkillsList: true })
                             .end(done);
                     });
                 });
