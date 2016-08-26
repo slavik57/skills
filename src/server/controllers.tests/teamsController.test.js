@@ -138,7 +138,7 @@ describe('teamsController', function () {
                 .end(done);
         });
     };
-    function authorizdedTests(beforeEachFunc) {
+    var authorizdedTests = function (beforeEachFunc) {
         return function () {
             var executingUser;
             beforeEach(function () {
@@ -834,7 +834,7 @@ describe('teamsController', function () {
                 });
             });
         };
-    }
+    };
     describe('user not logged in', notAuthorizedTests);
     describe('user registered', authorizdedTests(function () {
         return userLoginManager_1.UserLoginManager.registerUser(server, userDefinition)

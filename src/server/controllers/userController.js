@@ -1,4 +1,6 @@
 "use strict";
+var notFoundError_1 = require("../../common/errors/notFoundError");
+var getTeamModificationPermissionsOperation_1 = require("../operations/teamOperations/getTeamModificationPermissionsOperation");
 var modifyTeamOperationBase_1 = require("../operations/base/modifyTeamOperationBase");
 var unauthorizedError_1 = require("../../common/errors/unauthorizedError");
 var permissionsGuestFilter_1 = require("../../common/permissionsGuestFilter");
@@ -64,9 +66,7 @@ module.exports = {
     get_canModifyTeamsList: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response) {
             var operation = new modifyTeamOperationBase_1.ModifyTeamOperationBase(request.user.id);
             operation.canExecute()
-                .then(function () { return response.status(statusCode_1.StatusCode.OK).send({ canModifyTeamsList: true }); }, function (error) {
-                return response.status(statusCode_1.StatusCode.OK).send({ canModifyTeamsList: false });
-            });
+                .then(function () { return response.status(statusCode_1.StatusCode.OK).send({ canModifyTeamsList: true }); }, function (error) { return response.status(statusCode_1.StatusCode.OK).send({ canModifyTeamsList: false }); });
         }],
     get_permissionsModificationRules: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response) {
             var operation = new getAllowedUserPermissionsToModifyOperation_1.GetAllowedUserPermissionsToModifyOperation(request.user.id);
@@ -84,6 +84,20 @@ module.exports = {
                     };
                 });
                 response.send(result.sort(function (_1, _2) { return _1.value - _2.value; }));
+            });
+        }],
+    get_teamModificationPermissions_teamId: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, teamId) {
+            var numberTeamId = Number(teamId);
+            var getTeamByIdOperation = new getTeamModificationPermissionsOperation_1.GetTeamModificationPermissionsOperation(numberTeamId, request.user.id);
+            getTeamByIdOperation.execute()
+                .then(function (_permissions) {
+                response.status(statusCode_1.StatusCode.OK).send(_permissions);
+            }, function (_error) {
+                var statusCode = statusCode_1.StatusCode.INTERNAL_SERVER_ERROR;
+                if (errorUtils_1.ErrorUtils.isErrorOfType(_error, notFoundError_1.NotFoundError)) {
+                    statusCode = statusCode_1.StatusCode.BAD_REQUEST;
+                }
+                response.status(statusCode).send();
             });
         }]
 };

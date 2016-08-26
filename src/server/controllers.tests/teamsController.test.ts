@@ -183,7 +183,7 @@ describe('teamsController', () => {
 
   };
 
-  function authorizdedTests(beforeEachFunc: () => Promise<User>) {
+  var authorizdedTests = (beforeEachFunc: () => Promise<User>) => {
     return () => {
 
       var executingUser: User;

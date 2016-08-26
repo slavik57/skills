@@ -1,3 +1,7 @@
+import {NotFoundError} from "../../common/errors/notFoundError";
+import {GetTeamModificationPermissionsOperation} from "../operations/teamOperations/getTeamModificationPermissionsOperation";
+import {Team} from "../models/team";
+import {ITeamModificationPermissionsResponse} from "../apiResponses/iTeamModificationPermissionsResponse";
 import {ModifyTeamOperationBase} from "../operations/base/modifyTeamOperationBase";
 import {UnauthorizedError} from "../../common/errors/unauthorizedError";
 import {PermissionsGuestFilter} from "../../common/permissionsGuestFilter";
@@ -117,9 +121,7 @@ export = {
 
     operation.canExecute()
       .then(() => response.status(StatusCode.OK).send({ canModifyTeamsList: true }),
-      (error: any) => {
-        return response.status(StatusCode.OK).send({ canModifyTeamsList: false });
-      });
+      (error: any) => response.status(StatusCode.OK).send({ canModifyTeamsList: false }));
   }],
   get_permissionsModificationRules: [Authenticator.ensureAuthenticated, function(request: Request, response: Response): void {
     var operation = new GetAllowedUserPermissionsToModifyOperation(request.user.id);
@@ -143,6 +145,25 @@ export = {
             })
 
         response.send(result.sort((_1, _2) => _1.value - _2.value));
+      });
+  }],
+  get_teamModificationPermissions_teamId: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, teamId: string) {
+    var numberTeamId: number = Number(teamId);
+
+    var getTeamByIdOperation =
+      new GetTeamModificationPermissionsOperation(numberTeamId, request.user.id);
+
+    getTeamByIdOperation.execute()
+      .then((_permissions: ITeamModificationPermissionsResponse) => {
+        response.status(StatusCode.OK).send(_permissions);
+      }, (_error: any) => {
+        var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
+
+        if (ErrorUtils.isErrorOfType(_error, NotFoundError)) {
+          statusCode = StatusCode.BAD_REQUEST;
+        }
+
+        response.status(statusCode).send();
       });
   }]
 };

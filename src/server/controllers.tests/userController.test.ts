@@ -1,3 +1,6 @@
+import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
+import {TeamsDataHandler} from "../dataHandlers/teamsDataHandler";
+import {Team} from "../models/team";
 import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
 import {EnumValues} from "enum-values";
 import {IUserPermissionRuleResponse} from "../apiResponses/iUserPermissionRuleResponse";
@@ -115,8 +118,14 @@ describe('userController', () => {
         .end(done);
     });
 
-    it('checking if user can omdify teams list should fail', (done) => {
+    it('checking if user can modify teams list should fail', (done) => {
       server.get('/user/can-modify-teams-list')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    it('getting user team modification permissions should fail', (done) => {
+      server.get('/user/team-modification-permissions/1')
         .expect(StatusCode.UNAUTHORIZED)
         .end(done);
     });
@@ -434,7 +443,7 @@ describe('userController', () => {
         it('checking can modify teams list with teams list admin should return true', (done) => {
           UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.TEAMS_LIST_ADMIN])
             .then(() => {
-              server.get('/user/can-modify-teams-list')
+              server.get('/user/can-modify-teams-list/')
                 .expect(StatusCode.OK)
                 .expect({ canModifyTeamsList: true })
                 .end(done);
@@ -444,9 +453,134 @@ describe('userController', () => {
         it('checking can modify teams list with admin should return true', (done) => {
           UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN])
             .then(() => {
-              server.get('/user/can-modify-teams-list')
+              server.get('/user/can-modify-teams-list/')
                 .expect(StatusCode.OK)
                 .expect({ canModifyTeamsList: true })
+                .end(done);
+            });
+        });
+
+      });
+
+      describe('team modification permissions', () => {
+
+        var team: Team;
+        var otherTeam: Team;
+
+        beforeEach(() => {
+          return EnvironmentDirtifier.createTeams(2, user.id)
+            .then((_teams: Team[]) => {
+              [team, otherTeam] = _teams;
+            });
+        });
+
+        it('getting user team modification permissions with not existing team should fail', (done) => {
+          server.get('/user/team-modification-permissions/12321')
+            .expect(StatusCode.BAD_REQUEST)
+            .end(done);
+        });
+
+        it('getting user team modification permissions with user that is not admin nor teams list admin should reaturn all false', (done) => {
+          var permissions: GlobalPermission[] =
+            _.difference(EnumValues.getValues(GlobalPermission), [GlobalPermission.ADMIN, GlobalPermission.TEAMS_LIST_ADMIN]);
+
+          UserDataHandler.addGlobalPermissions(user.id, permissions)
+            .then(() => {
+              server.get(`/user/team-modification-permissions/${team.id}`)
+                .expect(StatusCode.OK)
+                .expect({
+                  canModifyTeamName: false,
+                  canModifyTeamAdmins: false,
+                  canModifyTeamUsers: false
+                })
+                .end(done);
+            });
+        });
+
+        it('getting user team modification permissions with user that is teams list admin should return correct values', (done) => {
+          UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.TEAMS_LIST_ADMIN])
+            .then(() => {
+              server.get(`/user/team-modification-permissions/${team.id}`)
+                .expect(StatusCode.OK)
+                .expect({
+                  canModifyTeamName: true,
+                  canModifyTeamAdmins: true,
+                  canModifyTeamUsers: true
+                })
+                .end(done);
+            });
+        });
+
+        it('getting user team modification permissions with user that is admin should return correct values', (done) => {
+          UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN])
+            .then(() => {
+              server.get(`/user/team-modification-permissions/${team.id}`)
+                .expect(StatusCode.OK)
+                .expect({
+                  canModifyTeamName: true,
+                  canModifyTeamAdmins: true,
+                  canModifyTeamUsers: true
+                })
+                .end(done);
+            });
+        });
+
+        it('checking can modify teams list with user that is admin in other team should return false', (done) => {
+          var teamMemberInfo: ITeamMemberInfo = {
+            team_id: otherTeam.id,
+            user_id: user.id,
+            is_admin: true
+          };
+
+          TeamsDataHandler.addTeamMember(teamMemberInfo)
+            .then(() => {
+              server.get(`/user/team-modification-permissions/${team.id}`)
+                .expect(StatusCode.OK)
+                .expect({
+                  canModifyTeamName: false,
+                  canModifyTeamAdmins: false,
+                  canModifyTeamUsers: false
+                })
+                .end(done);
+            });
+        });
+
+        it('checking can modify teams list with user that is team member in the team should return correct values', (done) => {
+          var teamMemberInfo: ITeamMemberInfo = {
+            team_id: team.id,
+            user_id: user.id,
+            is_admin: false
+          };
+
+          TeamsDataHandler.addTeamMember(teamMemberInfo)
+            .then(() => {
+              server.get(`/user/team-modification-permissions/${team.id}`)
+                .expect(StatusCode.OK)
+                .expect({
+                  canModifyTeamName: false,
+                  canModifyTeamAdmins: false,
+                  canModifyTeamUsers: false
+                })
+                .end(done);
+            });
+        });
+
+        it('checking can modify teams list with user that is team admin in the team should return correct values', (done) => {
+          var teamMemberInfo: ITeamMemberInfo = {
+            team_id: team.id,
+            user_id: user.id,
+            is_admin: true
+          };
+
+          TeamsDataHandler.addTeamMember(teamMemberInfo)
+            .then(() => {
+              server.get(`/user/team-modification-permissions/${team.id}`)
+                .expect(StatusCode.OK)
+                .expect({
+                  canModifyTeamName: true,
+                  canModifyTeamAdmins: true,
+                  canModifyTeamUsers: true
+                })
                 .end(done);
             });
         });
