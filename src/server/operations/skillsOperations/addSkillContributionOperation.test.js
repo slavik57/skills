@@ -9,13 +9,13 @@ var userDataHandler_1 = require("../../dataHandlers/userDataHandler");
 var chai = require('chai');
 var chai_1 = require('chai');
 var chaiAsPromised = require('chai-as-promised');
-var addSkillPrerequisiteOperation_1 = require('./addSkillPrerequisiteOperation');
+var addSkillContributionOperation_1 = require('./addSkillContributionOperation');
 chai.use(chaiAsPromised);
-describe('AddSkillPrerequisiteOperation', function () {
+describe('AddSkillContributionOperation', function () {
     var executingUser;
     var operation;
     var skill;
-    var skillPrerequisite;
+    var skillContribution;
     beforeEach(function () {
         return environmentCleaner_1.EnvironmentCleaner.clearTables();
     });
@@ -25,15 +25,15 @@ describe('AddSkillPrerequisiteOperation', function () {
             executingUser = _user;
         });
         var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skill');
-        var skillPrerequisiteInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skillPrerequisite');
+        var skillContributionInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('skillContribution');
         var createSkillPromise = environmentDirtifier_1.EnvironmentDirtifier.createUsers(1)
             .then(function (_users) { return Promise.all([
             skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, _users[0].id),
-            skillsDataHandler_1.SkillsDataHandler.createSkill(skillPrerequisiteInfo, _users[0].id)
+            skillsDataHandler_1.SkillsDataHandler.createSkill(skillContributionInfo, _users[0].id)
         ]); })
             .then(function (_skills) {
-            skill = _skills[0], skillPrerequisite = _skills[1];
-            operation = new addSkillPrerequisiteOperation_1.AddSkillPrerequisiteOperation(skill.id, skillPrerequisite.attributes.name, executingUser.id);
+            skill = _skills[0], skillContribution = _skills[1];
+            operation = new addSkillContributionOperation_1.AddSkillContributionOperation(skill.id, skillContribution.attributes.name, executingUser.id);
         });
         return Promise.all([
             userCreationPromise,
@@ -93,12 +93,12 @@ describe('AddSkillPrerequisiteOperation', function () {
                 ];
                 return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
             });
-            it('should fail and not add prerequisite', function () {
+            it('should fail and not add contribution', function () {
                 var resultPromise = operation.execute();
                 return chai_1.expect(resultPromise).to.eventually.rejected
-                    .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites(skill.id); })
-                    .then(function (_skillPrerequisites) {
-                    chai_1.expect(_skillPrerequisites).to.be.length(0);
+                    .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillContributions(skill.id); })
+                    .then(function (_skillContributions) {
+                    chai_1.expect(_skillContributions).to.be.length(0);
                 });
             });
         });
@@ -109,13 +109,13 @@ describe('AddSkillPrerequisiteOperation', function () {
                 ];
                 return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
             });
-            it('should succeed and add prerequisite', function () {
+            it('should succeed and add contribution', function () {
                 var resultPromise = operation.execute();
                 return chai_1.expect(resultPromise).to.eventually.fulfilled
-                    .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites(skill.id); })
+                    .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillContributions(skill.id); })
                     .then(function (_skills) {
                     chai_1.expect(_skills).to.be.length(1);
-                    modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillPrerequisite.attributes);
+                    modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillContribution.attributes);
                 });
             });
         });
@@ -126,16 +126,16 @@ describe('AddSkillPrerequisiteOperation', function () {
                 ];
                 return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
             });
-            it('should succeed and add prerequisite', function () {
+            it('should succeed and add contribution', function () {
                 var resultPromise = operation.execute();
                 return chai_1.expect(resultPromise).to.eventually.fulfilled
-                    .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites(skill.id); })
+                    .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillContributions(skill.id); })
                     .then(function (_skills) {
                     chai_1.expect(_skills).to.be.length(1);
-                    modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillPrerequisite.attributes);
+                    modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillContribution.attributes);
                 });
             });
         });
     });
 });
-//# sourceMappingURL=addSkillPrerequisiteOperation.test.js.map
+//# sourceMappingURL=addSkillContributionOperation.test.js.map

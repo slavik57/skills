@@ -1259,4 +1259,253 @@ describe('SkillsDataHandler', () => {
 
   });
 
+  describe('getSkillsByPartialSkillName', () => {
+
+    var singlePartialSkillName: string;
+    var multiplePartialSkillName: string;
+    var multiplePartialSkillNameWithUnderscore: string;
+    var multiplePartialSkillNameWithPercentage: string;
+    var skillCreatorUser: User;
+    var skillInfos: ISkillInfo[];
+
+    beforeEach(() => {
+      return EnvironmentCleaner.clearTables();
+    });
+
+    beforeEach(() => {
+      var userInfo: IUserInfo = ModelInfoMockFactory.createUserInfo(1);
+
+      return UserDataHandler.createUser(userInfo)
+        .then((_user: User) => {
+          skillCreatorUser = _user;
+        })
+    });
+
+    beforeEach(() => {
+      singlePartialSkillName = '_a_';
+      multiplePartialSkillName = '-b-';
+      multiplePartialSkillNameWithUnderscore = '_c_';
+      multiplePartialSkillNameWithPercentage = '%d%';
+
+      skillInfos = [
+        ModelInfoMockFactory.createSkillInfo('1'),
+        ModelInfoMockFactory.createSkillInfo('2'),
+        ModelInfoMockFactory.createSkillInfo('3'),
+        ModelInfoMockFactory.createSkillInfo('4'),
+        ModelInfoMockFactory.createSkillInfo('5'),
+        ModelInfoMockFactory.createSkillInfo('6'),
+        ModelInfoMockFactory.createSkillInfo('7')
+      ];
+
+      skillInfos[0].name = 'skillName' + singlePartialSkillName + 'skillName';
+      skillInfos[1].name = 'skillName' + multiplePartialSkillName + 'skillName1';
+      skillInfos[2].name = 'skillName' + multiplePartialSkillName + 'skillName2';
+      skillInfos[3].name = 'skillName' + multiplePartialSkillNameWithUnderscore + 'skillName1';
+      skillInfos[4].name = 'skillName' + multiplePartialSkillNameWithUnderscore + 'skillName2';
+      skillInfos[5].name = 'skillName' + multiplePartialSkillNameWithPercentage + 'skillName1';
+      skillInfos[6].name = 'skillName' + multiplePartialSkillNameWithPercentage + 'skillName2';
+
+      return Promise.all([
+        SkillsDataHandler.createSkill(skillInfos[0], skillCreatorUser.id),
+        SkillsDataHandler.createSkill(skillInfos[1], skillCreatorUser.id),
+        SkillsDataHandler.createSkill(skillInfos[2], skillCreatorUser.id),
+        SkillsDataHandler.createSkill(skillInfos[3], skillCreatorUser.id),
+        SkillsDataHandler.createSkill(skillInfos[4], skillCreatorUser.id),
+        SkillsDataHandler.createSkill(skillInfos[5], skillCreatorUser.id),
+        SkillsDataHandler.createSkill(skillInfos[6], skillCreatorUser.id),
+      ]);
+    });
+
+    function verifySkillsContainThePartialSkillName(skills: Skill[], partialSkillName: string) {
+      var skillNames: string[] = _.map(skills, _ => _.attributes.name);
+
+      skillNames.forEach((_skillName: string) => {
+        expect(_skillName).to.contain(partialSkillName);
+      });
+    }
+
+    it('no skill with given partial skill name should return empty', () => {
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName('not existing');
+
+      return expect(result).to.eventually.deep.equal([]);
+    });
+
+    it('one sill with given partial skill name should return the skill', () => {
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(singlePartialSkillName);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills).to.be.length(1, 'should contain atleast one skill');
+
+          verifySkillsContainThePartialSkillName(_skills, singlePartialSkillName);
+        });
+    });
+
+    it('multiple skills with given partial skill name should return the skills', () => {
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillName);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+
+          verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillName);
+        });
+    });
+
+    it('multiple skills with given partial skill name with _ should return the skills', () => {
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillNameWithUnderscore);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+
+          verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithUnderscore);
+        });
+    });
+
+    it('multiple skills with given partial skill name with % should return the skills', () => {
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillNameWithPercentage);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+
+          verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithPercentage);
+        });
+    });
+
+    it('limited to 0, multiple skills with given partial skill name should return no skills', () => {
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillName, 0);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills).to.be.length(0);
+        });
+    });
+
+    it('limited to 0, multiple skills with given partial skill name with _ should return no skills', () => {
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillNameWithUnderscore, 0);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills).to.be.length(0);
+        });
+    });
+
+    it('limited to 0, multiple skills with given partial skill name with % should return no skills', () => {
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillNameWithPercentage, 0);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills).to.be.length(0);
+        });
+    });
+
+    it('limited to 1, multiple skills with given partial skill name should return one skills', () => {
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillName, 1);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills).to.be.length(1);
+
+          verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillName);
+        });
+    });
+
+    it('limited to 1, multiple skills with given partial skill name with _ should return one skills', () => {
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillNameWithUnderscore, 1);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills).to.be.length(1);
+
+          verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithUnderscore);
+        });
+    });
+
+    it('limited to 1, multiple skills with given partial skill name with % should return one skills', () => {
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillNameWithPercentage, 1);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills).to.be.length(1);
+
+          verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithPercentage);
+        });
+    });
+
+    it('multiple skills with given partial upper case skill name should return the skills', () => {
+      var partialSkillName = multiplePartialSkillName.toUpperCase();
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(partialSkillName);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills.length, 'should contain atleast 2 skills').to.be.at.least(2);
+
+          verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillName);
+        });
+    });
+
+    it('multiple skills with given partial upper case skill name with _ should return the skills', () => {
+      var partialSkillName = multiplePartialSkillNameWithUnderscore.toUpperCase();
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(partialSkillName);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+
+          verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithUnderscore);
+        });
+    });
+
+    it('multiple skills with given partial upper case skill name with % should return the skills', () => {
+      var partialSkillName = multiplePartialSkillNameWithPercentage.toUpperCase();
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(partialSkillName);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+
+          verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithPercentage);
+        });
+    });
+
+    it('multiple skills with given partial lower case skill name should return the skills', () => {
+      var partialSkillName = multiplePartialSkillName.toLowerCase();
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(partialSkillName);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+
+          verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillName);
+        });
+    });
+
+    it('multiple skills with given partial lower case skill name with _ should return the skills', () => {
+      var partialSkillName = multiplePartialSkillNameWithUnderscore.toLowerCase();
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(partialSkillName);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+
+          verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithUnderscore);
+        });
+    });
+
+    it('multiple skills with given partial lower case skill name with % should return the skills', () => {
+      var partialSkillName = multiplePartialSkillNameWithPercentage.toLowerCase();
+      var result: Promise<Skill[]> = SkillsDataHandler.getSkillsByPartialSkillName(partialSkillName);
+
+      return expect(result).to.eventually.fulfilled
+        .then((_skills: Skill[]) => {
+          expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+
+          verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithPercentage);
+        });
+    });
+
+  });
+
 });

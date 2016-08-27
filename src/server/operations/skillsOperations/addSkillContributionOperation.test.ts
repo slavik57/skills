@@ -11,16 +11,16 @@ import {User} from "../../models/user";
 import * as chai from 'chai';
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised'
-import {AddSkillPrerequisiteOperation} from './addSkillPrerequisiteOperation';
+import {AddSkillContributionOperation} from './addSkillContributionOperation';
 
 chai.use(chaiAsPromised);
 
-describe('AddSkillPrerequisiteOperation', () => {
+describe('AddSkillContributionOperation', () => {
 
   var executingUser: User;
-  var operation: AddSkillPrerequisiteOperation;
+  var operation: AddSkillContributionOperation;
   var skill: Skill;
-  var skillPrerequisite: Skill;
+  var skillContribution: Skill;
 
   beforeEach(() => {
     return EnvironmentCleaner.clearTables();
@@ -31,22 +31,21 @@ describe('AddSkillPrerequisiteOperation', () => {
       UserDataHandler.createUser(ModelInfoMockFactory.createUserInfo(1))
         .then((_user: User) => {
           executingUser = _user;
-
         });
 
     var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('skill');
-    var skillPrerequisiteInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('skillPrerequisite');
+    var skillContributionInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo('skillContribution');
 
     var createSkillPromise: Promise<any> =
       EnvironmentDirtifier.createUsers(1)
         .then((_users: User[]) => Promise.all([
           SkillsDataHandler.createSkill(skillInfo, _users[0].id),
-          SkillsDataHandler.createSkill(skillPrerequisiteInfo, _users[0].id)
+          SkillsDataHandler.createSkill(skillContributionInfo, _users[0].id)
         ]))
         .then((_skills: Skill[]) => {
-          [skill, skillPrerequisite] = _skills;
+          [skill, skillContribution] = _skills;
 
-          operation = new AddSkillPrerequisiteOperation(skill.id, skillPrerequisite.attributes.name, executingUser.id);
+          operation = new AddSkillContributionOperation(skill.id, skillContribution.attributes.name, executingUser.id);
         });
 
     return Promise.all(
@@ -144,15 +143,15 @@ describe('AddSkillPrerequisiteOperation', () => {
         return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
       });
 
-      it('should fail and not add prerequisite', () => {
+      it('should fail and not add contribution', () => {
         // Act
         var resultPromise: Promise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.rejected
-          .then(() => SkillsDataHandler.getSkillPrerequisites(skill.id))
-          .then((_skillPrerequisites: Skill[]) => {
-            expect(_skillPrerequisites).to.be.length(0);
+          .then(() => SkillsDataHandler.getSkillContributions(skill.id))
+          .then((_skillContributions: Skill[]) => {
+            expect(_skillContributions).to.be.length(0);
           });
       });
 
@@ -168,17 +167,17 @@ describe('AddSkillPrerequisiteOperation', () => {
         return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
       });
 
-      it('should succeed and add prerequisite', () => {
+      it('should succeed and add contribution', () => {
         // Act
         var resultPromise: Promise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled
-          .then(() => SkillsDataHandler.getSkillPrerequisites(skill.id))
+          .then(() => SkillsDataHandler.getSkillContributions(skill.id))
           .then((_skills: Skill[]) => {
             expect(_skills).to.be.length(1);
 
-            ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillPrerequisite.attributes);
+            ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillContribution.attributes);
           });
       });
 
@@ -194,17 +193,17 @@ describe('AddSkillPrerequisiteOperation', () => {
         return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
       });
 
-      it('should succeed and add prerequisite', () => {
+      it('should succeed and add contribution', () => {
         // Act
         var resultPromise: Promise<any> = operation.execute();
 
         // Assert
         return expect(resultPromise).to.eventually.fulfilled
-          .then(() => SkillsDataHandler.getSkillPrerequisites(skill.id))
+          .then(() => SkillsDataHandler.getSkillContributions(skill.id))
           .then((_skills: Skill[]) => {
             expect(_skills).to.be.length(1);
 
-            ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillPrerequisite.attributes);
+            ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillContribution.attributes);
           });
       });
 

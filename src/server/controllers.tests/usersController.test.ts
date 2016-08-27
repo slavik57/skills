@@ -196,7 +196,7 @@ describe('usersController', () => {
           .end(done);
       });
 
-      describe('gett filtered users details by partial username', () => {
+      describe('get filtered users details by partial username', () => {
 
         it('should return one user', (done) => {
           var usersWith1 = _.filter(users, _ => _.attributes.username.indexOf('1') >= 0);

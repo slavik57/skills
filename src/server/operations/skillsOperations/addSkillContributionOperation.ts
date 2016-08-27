@@ -8,20 +8,20 @@ import {SkillOperationBase} from "../base/skillOperationBase";
 import * as bluebirdPromise from 'bluebird';
 import * as _ from 'lodash';
 
-export class AddSkillPrerequisiteOperation extends SkillOperationBase<SkillPrerequisite> {
+export class AddSkillContributionOperation extends SkillOperationBase<SkillPrerequisite> {
 
-  constructor(private _skillId: number, private _skillPrerequisiteName: string, executingUserId: number) {
+  constructor(private _skillId: number, private _skillContributionName: string, executingUserId: number) {
     super(executingUserId);
   }
 
   protected doWork(): bluebirdPromise<SkillPrerequisite> {
     var skillPrerequisiteInfo: ISkillPrerequisiteInfo;
 
-    return SkillsDataHandler.getSkillByName(this._skillPrerequisiteName)
+    return SkillsDataHandler.getSkillByName(this._skillContributionName)
       .then((_skill: Skill) => {
         if (!_skill) {
           var error = new NotFoundError();
-          error.message = 'Skill with name: [' + this._skillPrerequisiteName + '] not found';
+          error.message = 'Skill with name: [' + this._skillContributionName + '] not found';
           return bluebirdPromise.reject(error);
         }
 
@@ -29,19 +29,19 @@ export class AddSkillPrerequisiteOperation extends SkillOperationBase<SkillPrere
       })
       .then((_skill: Skill) => {
         skillPrerequisiteInfo = {
-          skill_id: this._skillId,
-          skill_prerequisite_id: _skill.id
+          skill_id: _skill.id,
+          skill_prerequisite_id: this._skillId
         }
       })
-      .then(() => SkillsDataHandler.getSkillPrerequisites(this._skillId))
-      .then((_prerequisites: Skill[]) => this._verifyNotAlreadyAPrerequisite(_prerequisites))
+      .then(() => SkillsDataHandler.getSkillContributions(this._skillId))
+      .then((_contributions: Skill[]) => this._verifyNotAlreadyAContribution(_contributions))
       .then(() => SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo))
   }
 
-  private _verifyNotAlreadyAPrerequisite(skills: Skill[]): bluebirdPromise<any> {
-    var prerequisite = _.find(skills, _skill => _skill.attributes.name === this._skillPrerequisiteName);
+  private _verifyNotAlreadyAContribution(skills: Skill[]): bluebirdPromise<any> {
+    var contribution = _.find(skills, _skill => _skill.attributes.name === this._skillContributionName);
 
-    if (!prerequisite) {
+    if (!contribution) {
       return bluebirdPromise.resolve();
     } else {
       return bluebirdPromise.reject(new AlreadyExistsError());

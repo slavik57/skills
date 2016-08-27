@@ -1,11 +1,20 @@
 "use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var querySelectors_1 = require("./querySelectors");
+var dataHandlerBase_1 = require("./dataHandlerBase");
 var skillCreator_1 = require("../models/skillCreator");
 var skillCreator_2 = require("../models/skillCreator");
 var skill_1 = require('../models/skill');
 var skillPrerequisite_1 = require('../models/skillPrerequisite');
 var bookshelf_1 = require('../../../bookshelf');
-var SkillsDataHandler = (function () {
+var SkillsDataHandler = (function (_super) {
+    __extends(SkillsDataHandler, _super);
     function SkillsDataHandler() {
+        _super.apply(this, arguments);
     }
     SkillsDataHandler.createSkill = function (skillInfo, creatorId) {
         return bookshelf_1.bookshelf.transaction(function (_transaction) {
@@ -36,6 +45,18 @@ var SkillsDataHandler = (function () {
             .then(function (skills) {
             return skills.toArray();
         });
+    };
+    SkillsDataHandler.getSkillsByPartialSkillName = function (partialSkillName, maxNumberOfSkills) {
+        if (maxNumberOfSkills === void 0) { maxNumberOfSkills = null; }
+        var likePartialSkillName = this._createLikeQueryValue(partialSkillName.toLowerCase());
+        return new skill_1.Skills().query(function (_queryBuilder) {
+            _queryBuilder.whereRaw("LOWER(" + skill_1.Skill.nameAttribute + ") " + querySelectors_1.QuerySelectors.LIKE + " ?", likePartialSkillName);
+            if (maxNumberOfSkills !== null &&
+                maxNumberOfSkills >= 0) {
+                _queryBuilder.limit(maxNumberOfSkills);
+            }
+        }).fetch()
+            .then(function (_skillsCollection) { return _skillsCollection.toArray(); });
     };
     SkillsDataHandler.addSkillPrerequisite = function (skillPrerequisiteInfo) {
         return new skillPrerequisite_1.SkillPrerequisite(skillPrerequisiteInfo).save();
@@ -123,6 +144,6 @@ var SkillsDataHandler = (function () {
         return skill.getTeams();
     };
     return SkillsDataHandler;
-}());
+}(dataHandlerBase_1.DataHandlerBase));
 exports.SkillsDataHandler = SkillsDataHandler;
 //# sourceMappingURL=skillsDataHandler.js.map

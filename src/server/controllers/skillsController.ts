@@ -1,3 +1,12 @@
+import {GetSkillsByPartialSkillNameOperation} from "../operations/skillsOperations/getSkillsByPartialSkillNameOperation";
+import {ILimitedQuery} from "../apiQueries/iLimitedQuery";
+import {RemoveSkillPrerequisiteOperation} from "../operations/skillsOperations/removeSkillPrerequisiteOperation";
+import {AddSkillContributionOperation} from "../operations/skillsOperations/addSkillContributionOperation";
+import {NotFoundError} from "../../common/errors/notFoundError";
+import {SkillPrerequisite} from "../models/skillPrerequisite";
+import {AddSkillPrerequisiteOperation} from "../operations/skillsOperations/addSkillPrerequisiteOperation";
+import {GetSkillContributionsOperation} from "../operations/skillsOperations/getSkillContributionsOperation";
+import {GetSkillPrerequisitesOperation} from "../operations/skillsOperations/getSkillPrerequisitesOperation";
 import {GetSkillByNameOperation} from "../operations/skillsOperations/getSkillByNameOperation";
 import {RemoveSkillOperation} from "../operations/skillsOperations/removeSkillOperation";
 import {AlreadyExistsError} from "../../common/errors/alreadyExistsError";
@@ -15,6 +24,18 @@ import * as _ from 'lodash';
 
 interface ICreateSkillRequestBody {
   name: string;
+}
+
+interface IAddSkillPrerequisiteRequestBody {
+  skillName: string;
+}
+
+interface IAddSkillDependencyRequestBody {
+  skillName: string;
+}
+
+interface IRemovePrerequisiteRequestBody {
+  prerequisiteId: number;
 }
 
 export = {
@@ -98,6 +119,162 @@ export = {
         }
 
         response.send();
+      });
+  }],
+  get_skillId_prerequisites: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, skillId: string) {
+    var numberId = Number(skillId);
+
+    var operation = new GetSkillPrerequisitesOperation(numberId);
+
+    operation.execute()
+      .then((_prerequisites: Skill[]) => {
+        var result: ISkillInfoResponse[] = _.map(_prerequisites, (_prerequiste) => {
+          return <ISkillInfoResponse>{
+            id: _prerequiste.id,
+            skillName: _prerequiste.attributes.name,
+          }
+        }).sort((_info1, _info2) => _info1.id - _info2.id);
+
+        response.json(result);
+      });
+  }],
+  get_skillId_dependencies: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, skillId: string) {
+    var numberId = Number(skillId);
+
+    var operation = new GetSkillContributionsOperation(numberId);
+
+    operation.execute()
+      .then((_contributions: Skill[]) => {
+        var result: ISkillInfoResponse[] = _.map(_contributions, (_contribution) => {
+          return <ISkillInfoResponse>{
+            id: _contribution.id,
+            skillName: _contribution.attributes.name,
+          }
+        }).sort((_info1, _info2) => _info1.id - _info2.id);
+
+        response.json(result);
+      });
+  }],
+  post_skillId_prerequisites: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, skillId: string) {
+    var numberId: number = Number(skillId);
+
+    var addSkillPrerequisiteRequest: IAddSkillPrerequisiteRequestBody = request.body;
+
+    if (!addSkillPrerequisiteRequest || !addSkillPrerequisiteRequest.skillName) {
+      response.status(StatusCode.BAD_REQUEST);
+      response.send();
+      return;
+    }
+
+    const operation =
+      new AddSkillPrerequisiteOperation(numberId, addSkillPrerequisiteRequest.skillName, request.user.id);
+
+    operation.execute()
+      .then((_prerequisite: SkillPrerequisite) => {
+        response.status(StatusCode.OK);
+        response.send(<ISkillInfoResponse>{
+          id: _prerequisite.attributes.skill_prerequisite_id,
+          skillName: addSkillPrerequisiteRequest.skillName,
+        });
+      }, (error: any) => {
+        var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
+
+        var errorDescription: any;
+        if (ErrorUtils.isErrorOfType(error, UnauthorizedError)) {
+          statusCode = StatusCode.UNAUTHORIZED;
+        } else if (ErrorUtils.isErrorOfType(error, NotFoundError)) {
+          statusCode = StatusCode.NOT_FOUND;
+        } else if (ErrorUtils.isErrorOfType(error, AlreadyExistsError)) {
+          statusCode = StatusCode.CONFLICT;
+          errorDescription = { error: 'The skill is already a prerequisite' };
+        }
+
+        response.status(statusCode);
+        response.send(errorDescription);
+      })
+  }],
+  post_skillId_dependencies: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, skillId: string) {
+    var numberId: number = Number(skillId);
+
+    var addSkillDependencyRequest: IAddSkillDependencyRequestBody = request.body;
+
+    if (!addSkillDependencyRequest || !addSkillDependencyRequest.skillName) {
+      response.status(StatusCode.BAD_REQUEST);
+      response.send();
+      return;
+    }
+
+    const operation =
+      new AddSkillContributionOperation(numberId, addSkillDependencyRequest.skillName, request.user.id);
+
+    operation.execute()
+      .then((_prerequisite: SkillPrerequisite) => {
+        response.status(StatusCode.OK);
+        response.send(<ISkillInfoResponse>{
+          id: _prerequisite.attributes.skill_id,
+          skillName: addSkillDependencyRequest.skillName,
+        });
+      }, (error: any) => {
+        var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
+
+        var errorDescription: any;
+        if (ErrorUtils.isErrorOfType(error, UnauthorizedError)) {
+          statusCode = StatusCode.UNAUTHORIZED;
+        } else if (ErrorUtils.isErrorOfType(error, NotFoundError)) {
+          statusCode = StatusCode.NOT_FOUND;
+        } else if (ErrorUtils.isErrorOfType(error, AlreadyExistsError)) {
+          statusCode = StatusCode.CONFLICT;
+          errorDescription = { error: 'The skill is already a dependency' };
+        }
+
+        response.status(statusCode);
+        response.send(errorDescription);
+      })
+  }],
+  delete_skillId_prerequisites: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, skillId: string) {
+    var numberId: number = Number(skillId);
+
+    var removePrerequisiteRequest: IRemovePrerequisiteRequestBody = request.body;
+
+    if (!removePrerequisiteRequest || !removePrerequisiteRequest.prerequisiteId) {
+      response.status(StatusCode.BAD_REQUEST);
+      response.send();
+      return;
+    }
+
+    const operation =
+      new RemoveSkillPrerequisiteOperation(numberId, removePrerequisiteRequest.prerequisiteId, request.user.id);
+
+    operation.execute()
+      .then(() => {
+        response.status(StatusCode.OK);
+        response.send();
+      }, (error: any) => {
+        var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
+        if (ErrorUtils.isErrorOfType(error, UnauthorizedError)) {
+          statusCode = StatusCode.UNAUTHORIZED;
+        }
+
+        response.status(statusCode);
+        response.send();
+      })
+  }],
+  get_filtered_skillName: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, skillName: string): void {
+    var query: ILimitedQuery = request.query;
+
+    var operation = new GetSkillsByPartialSkillNameOperation(skillName, Number(query.max));
+
+    operation.execute()
+      .then((_skills: Skill[]) => {
+        return _.map(_skills, (_skill: Skill) => {
+          return <ISkillInfoResponse>{
+            id: _skill.id,
+            skillName: _skill.attributes.name
+          }
+        });
+      })
+      .then((_userInfoResponses: ISkillInfoResponse[]) => {
+        response.json(_userInfoResponses);
       });
   }],
 };

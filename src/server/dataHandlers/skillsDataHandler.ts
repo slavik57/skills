@@ -1,3 +1,5 @@
+import {QuerySelectors} from "./querySelectors";
+import {DataHandlerBase} from "./dataHandlerBase";
 import {ISkillCreatorInfo} from "../models/interfaces/iSkillCreatorInfo";
 import {SkillCreators} from "../models/skillCreator";
 import {SkillCreator} from "../models/skillCreator";
@@ -12,10 +14,10 @@ import {SaveOptions, Collection, FetchOptions, CollectionFetchOptions} from 'boo
 import {Skill, Skills} from '../models/skill';
 import {SkillPrerequisite, SkillPrerequisites} from '../models/skillPrerequisite';
 import * as bluebirdPromise from 'bluebird';
-import {Transaction}from 'knex';
+import {Transaction, QueryBuilder}from 'knex';
 import {bookshelf} from '../../../bookshelf';
 
-export class SkillsDataHandler {
+export class SkillsDataHandler extends DataHandlerBase {
   public static createSkill(skillInfo: ISkillInfo, creatorId: number): bluebirdPromise<Skill> {
     return bookshelf.transaction((_transaction: Transaction) => {
       var saveOptions: SaveOptions = {
@@ -49,6 +51,20 @@ export class SkillsDataHandler {
       .then((skills: Collection<Skill>) => {
         return skills.toArray();
       });
+  }
+
+  public static getSkillsByPartialSkillName(partialSkillName: string, maxNumberOfSkills: number = null): bluebirdPromise<Skill[]> {
+    var likePartialSkillName = this._createLikeQueryValue(partialSkillName.toLowerCase());
+
+    return new Skills().query((_queryBuilder: QueryBuilder) => {
+      _queryBuilder.whereRaw(`LOWER(${Skill.nameAttribute}) ${QuerySelectors.LIKE} ?`, likePartialSkillName);
+
+      if (maxNumberOfSkills !== null &&
+        maxNumberOfSkills >= 0) {
+        _queryBuilder.limit(maxNumberOfSkills);
+      }
+    }).fetch()
+      .then((_skillsCollection: Collection<Skill>) => _skillsCollection.toArray());
   }
 
   public static addSkillPrerequisite(skillPrerequisiteInfo: ISkillPrerequisiteInfo): bluebirdPromise<SkillPrerequisite> {

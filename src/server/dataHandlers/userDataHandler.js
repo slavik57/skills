@@ -1,5 +1,10 @@
 "use strict";
-var stringManipulator_1 = require("../../common/stringManipulator");
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var dataHandlerBase_1 = require("./dataHandlerBase");
 var querySelectors_1 = require("./querySelectors");
 var globalPermission_1 = require("../models/enums/globalPermission");
 var user_1 = require('../models/user');
@@ -7,8 +12,10 @@ var usersGlobalPermissions_1 = require('../models/usersGlobalPermissions');
 var bookshelf_1 = require('../../../bookshelf');
 var _ = require('lodash');
 var bluebirdPromise = require('bluebird');
-var UserDataHandler = (function () {
+var UserDataHandler = (function (_super) {
+    __extends(UserDataHandler, _super);
     function UserDataHandler() {
+        _super.apply(this, arguments);
     }
     UserDataHandler.createUser = function (userInfo) {
         return new user_1.User(userInfo).save();
@@ -188,16 +195,7 @@ var UserDataHandler = (function () {
             return _user.save(updateValues, saveOptions);
         });
     };
-    UserDataHandler._createLikeQueryValue = function (value) {
-        var fixedValue = this._fixValueForLikeQuery(value);
-        return '%' + fixedValue + '%';
-    };
-    UserDataHandler._fixValueForLikeQuery = function (value) {
-        var noLodash = stringManipulator_1.StringManipulator.replaceAll(value, '_', '\\_');
-        var noPercentage = stringManipulator_1.StringManipulator.replaceAll(noLodash, '%', '\\%');
-        return noPercentage;
-    };
     return UserDataHandler;
-}());
+}(dataHandlerBase_1.DataHandlerBase));
 exports.UserDataHandler = UserDataHandler;
 //# sourceMappingURL=userDataHandler.js.map

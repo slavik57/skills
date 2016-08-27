@@ -1,3 +1,4 @@
+import {DataHandlerBase} from "./dataHandlerBase";
 import {StringManipulator} from "../../common/stringManipulator";
 import {QuerySelectors} from "./querySelectors";
 import {IDestroyOptions} from "./interfaces/iDestroyOptions";
@@ -15,7 +16,7 @@ import {IUserGlobalPermissions} from '../models/interfaces/iUserGlobalPermission
 import {Transaction, QueryBuilder} from 'knex';
 import * as bluebirdPromise from 'bluebird';
 
-export class UserDataHandler {
+export class UserDataHandler extends DataHandlerBase {
   public static createUser(userInfo: IUserInfo): bluebirdPromise<User> {
     return new User(userInfo).save();
   }
@@ -59,7 +60,6 @@ export class UserDataHandler {
 
     return new Users().query((_queryBuilder: QueryBuilder) => {
       _queryBuilder.whereRaw(`LOWER(${User.usernameAttribute}) ${QuerySelectors.LIKE} ?`, likePartialUsername);
-      // _queryBuilder.where(User.usernameAttribute, QuerySelectors.LIKE, likePartialUsername);
 
       if (maxNumberOfUsers !== null &&
         maxNumberOfUsers >= 0) {
@@ -253,18 +253,5 @@ export class UserDataHandler {
     return this._initializeUserByIdQuery(userId).fetch().then((_user: User) => {
       return _user.save(updateValues, saveOptions);
     });
-  }
-
-  private static _createLikeQueryValue(value: string): string {
-    var fixedValue = this._fixValueForLikeQuery(value);
-
-    return '%' + fixedValue + '%';
-  }
-
-  private static _fixValueForLikeQuery(value: string): string {
-    var noLodash = StringManipulator.replaceAll(value, '_', '\\_');
-    var noPercentage = StringManipulator.replaceAll(noLodash, '%', '\\%');
-
-    return noPercentage;
   }
 }

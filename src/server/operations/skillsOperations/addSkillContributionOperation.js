@@ -10,46 +10,46 @@ var skillsDataHandler_1 = require("../../dataHandlers/skillsDataHandler");
 var skillOperationBase_1 = require("../base/skillOperationBase");
 var bluebirdPromise = require('bluebird');
 var _ = require('lodash');
-var AddSkillPrerequisiteOperation = (function (_super) {
-    __extends(AddSkillPrerequisiteOperation, _super);
-    function AddSkillPrerequisiteOperation(_skillId, _skillPrerequisiteName, executingUserId) {
+var AddSkillContributionOperation = (function (_super) {
+    __extends(AddSkillContributionOperation, _super);
+    function AddSkillContributionOperation(_skillId, _skillContributionName, executingUserId) {
         _super.call(this, executingUserId);
         this._skillId = _skillId;
-        this._skillPrerequisiteName = _skillPrerequisiteName;
+        this._skillContributionName = _skillContributionName;
     }
-    AddSkillPrerequisiteOperation.prototype.doWork = function () {
+    AddSkillContributionOperation.prototype.doWork = function () {
         var _this = this;
         var skillPrerequisiteInfo;
-        return skillsDataHandler_1.SkillsDataHandler.getSkillByName(this._skillPrerequisiteName)
+        return skillsDataHandler_1.SkillsDataHandler.getSkillByName(this._skillContributionName)
             .then(function (_skill) {
             if (!_skill) {
                 var error = new notFoundError_1.NotFoundError();
-                error.message = 'Skill with name: [' + _this._skillPrerequisiteName + '] not found';
+                error.message = 'Skill with name: [' + _this._skillContributionName + '] not found';
                 return bluebirdPromise.reject(error);
             }
             return _skill;
         })
             .then(function (_skill) {
             skillPrerequisiteInfo = {
-                skill_id: _this._skillId,
-                skill_prerequisite_id: _skill.id
+                skill_id: _skill.id,
+                skill_prerequisite_id: _this._skillId
             };
         })
-            .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites(_this._skillId); })
-            .then(function (_prerequisites) { return _this._verifyNotAlreadyAPrerequisite(_prerequisites); })
+            .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillContributions(_this._skillId); })
+            .then(function (_contributions) { return _this._verifyNotAlreadyAContribution(_contributions); })
             .then(function () { return skillsDataHandler_1.SkillsDataHandler.addSkillPrerequisite(skillPrerequisiteInfo); });
     };
-    AddSkillPrerequisiteOperation.prototype._verifyNotAlreadyAPrerequisite = function (skills) {
+    AddSkillContributionOperation.prototype._verifyNotAlreadyAContribution = function (skills) {
         var _this = this;
-        var prerequisite = _.find(skills, function (_skill) { return _skill.attributes.name === _this._skillPrerequisiteName; });
-        if (!prerequisite) {
+        var contribution = _.find(skills, function (_skill) { return _skill.attributes.name === _this._skillContributionName; });
+        if (!contribution) {
             return bluebirdPromise.resolve();
         }
         else {
             return bluebirdPromise.reject(new alreadyExistsError_1.AlreadyExistsError());
         }
     };
-    return AddSkillPrerequisiteOperation;
+    return AddSkillContributionOperation;
 }(skillOperationBase_1.SkillOperationBase));
-exports.AddSkillPrerequisiteOperation = AddSkillPrerequisiteOperation;
-//# sourceMappingURL=addSkillPrerequisiteOperation.js.map
+exports.AddSkillContributionOperation = AddSkillContributionOperation;
+//# sourceMappingURL=addSkillContributionOperation.js.map

@@ -53,10 +53,11 @@ var EnvironmentDirtifier = (function () {
         }
         return bluebirdPromise.all(userCreationPromises);
     };
-    EnvironmentDirtifier.createSkills = function (numberOfSkills, creatorId) {
+    EnvironmentDirtifier.createSkills = function (numberOfSkills, creatorId, suffix) {
+        if (suffix === void 0) { suffix = ''; }
         var skillCreationPromises = [];
         for (var i = 0; i < numberOfSkills; i++) {
-            var skillName = i.toString() + ' created by ' + creatorId.toString();
+            var skillName = 'skill' + i.toString() + ' created by ' + creatorId.toString() + suffix;
             var skillInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo(skillName);
             skillCreationPromises.push(skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfo, creatorId));
         }

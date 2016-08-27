@@ -1,3 +1,6 @@
+import {SkillPrerequisite} from "../models/skillPrerequisite";
+import {ModelInfoMockFactory} from "../testUtils/modelInfoMockFactory";
+import {ISkillPrerequisiteInfo} from "../models/interfaces/iSkillPrerequisiteInfo";
 import {GlobalPermission} from "../models/enums/globalPermission";
 import {ISkillInfoResponse} from "../apiResponses/iSkillInfoResponse";
 import {UserDataHandler} from "../dataHandlers/userDataHandler";
@@ -17,6 +20,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import {StatusCode} from '../enums/statusCode';
 import {webpackInitializationTimeout} from '../../../testConfigurations';
 import * as _ from 'lodash';
+import * as bluebirdPromise from 'bluebird';
 
 chai.use(chaiAsPromised);
 
@@ -111,6 +115,12 @@ describe('skillsController', () => {
         .end(done);
     });
 
+    it('deleting skill should fail', (done) => {
+      server.delete('/skills/1')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
     describe('checking if skill exists', () => {
 
       it('not existing skill should fail', (done) => {
@@ -126,6 +136,52 @@ describe('skillsController', () => {
       });
 
     })
+
+    it('getting skill prerequisites should fail', (done) => {
+      server.get('/skills/' + skills[0].id + '/prerequisites')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    it('getting skill dependencies should fail', (done) => {
+      server.get('/skills/' + skills[0].id + '/dependencies')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    it('adding skill prerequisite should fail', (done) => {
+      server.post('/skills/1/prerequisites')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    it('adding skill dependency should fail', (done) => {
+      server.post('/skills/1/dependencies')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    it('deleting skill prerequisite should fail', (done) => {
+      server.delete('/skills/1/prerequisites')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    describe('get filtered skills details by partial skill name', () => {
+
+      it('should fail', (done) => {
+        server.get('/skills/filtered/a')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
+      it('with maximum number of skills should fail', (done) => {
+        server.get('/skills/filtered/a?max=12')
+          .expect(StatusCode.UNAUTHORIZED)
+          .end(done);
+      });
+
+    });
 
   };
 
@@ -322,6 +378,507 @@ describe('skillsController', () => {
           })
 
           sufficientPermissionsTests();
+        });
+
+      });
+
+      describe('getting skill prerequisites', () => {
+
+        var skillOfSkillPrerequisites: Skill;
+        var skillPrerequisites: Skill[];
+        var skillPrerequisitesInfos: ISkillPrerequisiteInfo[];
+
+        beforeEach(() => {
+          skillOfSkillPrerequisites = skills[0];
+
+          skillPrerequisitesInfos = [
+            ModelInfoMockFactory.createSkillPrerequisiteInfo(skillOfSkillPrerequisites, skills[1]),
+            ModelInfoMockFactory.createSkillPrerequisiteInfo(skillOfSkillPrerequisites, skills[2])
+          ];
+
+          skillPrerequisites = [skills[1], skills[2]];
+
+          return bluebirdPromise.all([
+            SkillsDataHandler.addSkillPrerequisite(skillPrerequisitesInfos[0]),
+            SkillsDataHandler.addSkillPrerequisite(skillPrerequisitesInfos[1])
+          ]);
+        });
+
+        it('should return correct skill prerequisites', (done) => {
+          var expected: ISkillInfoResponse[] =
+            getExpectedSkillsDetails(skillPrerequisites).sort((_1, _2) => _1.id - _2.id);
+
+          server.get('/skills/' + skillOfSkillPrerequisites.id + '/prerequisites')
+            .expect(StatusCode.OK)
+            .expect(expected)
+            .end(done);
+        });
+
+      });
+
+      describe('getting skill dependencies', () => {
+
+        var skillOfSkillDependencies: Skill;
+        var skillDependencies: Skill[];
+        var skillDependenciesInfos: ISkillPrerequisiteInfo[];
+
+        beforeEach(() => {
+          skillOfSkillDependencies = skills[0];
+
+          skillDependenciesInfos = [
+            ModelInfoMockFactory.createSkillPrerequisiteInfo(skills[1], skillOfSkillDependencies),
+            ModelInfoMockFactory.createSkillPrerequisiteInfo(skills[2], skillOfSkillDependencies)
+          ];
+
+          skillDependencies = [skills[1], skills[2]];
+
+          return bluebirdPromise.all([
+            SkillsDataHandler.addSkillPrerequisite(skillDependenciesInfos[0]),
+            SkillsDataHandler.addSkillPrerequisite(skillDependenciesInfos[1])
+          ]);
+        });
+
+        it('should return correct skill dependencies', (done) => {
+          var expected: ISkillInfoResponse[] =
+            getExpectedSkillsDetails(skillDependencies).sort((_1, _2) => _1.id - _2.id);
+
+          server.get('/skills/' + skillOfSkillDependencies.id + '/dependencies')
+            .expect(StatusCode.OK)
+            .expect(expected)
+            .end(done);
+        });
+
+      });
+
+      describe('add skill prerequisite', () => {
+
+        let skillToAddPrerequisiteTo: Skill;
+        let skillPrerequisiteToAdd: Skill;
+
+        beforeEach(() => {
+          skillToAddPrerequisiteTo = skills[0];
+          skillPrerequisiteToAdd = skills[1];
+        });
+
+        it('on invalid skill name should fail', (done) => {
+          server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+            .send({ skillName: '' })
+            .expect(StatusCode.BAD_REQUEST)
+            .end(done);
+        });
+
+        it('without sufficient permissions should fail', (done) => {
+          server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+            .send({ skillName: skillPrerequisiteToAdd.attributes.name })
+            .expect(StatusCode.UNAUTHORIZED)
+            .end(done);
+        });
+
+        var sufficientPermissionsTests = () => {
+
+          it('without body should fail', (done) => {
+            server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with empty body should fail', (done) => {
+            server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+              .send({})
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with empty skill name should fail', (done) => {
+            server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+              .send({ skillName: '' })
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with not existing skill name should fail', (done) => {
+            server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+              .send({ skillName: 'not existing skill name' })
+              .expect(StatusCode.NOT_FOUND)
+              .end(done);
+          });
+
+          it('with exiting skill name should succeed', (done) => {
+            server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+              .send({ skillName: skillPrerequisiteToAdd.attributes.name })
+              .expect(StatusCode.OK)
+              .end(done);
+          });
+
+          it('with existing skill name should add the prerequisite', (done) => {
+            server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+              .send({ skillName: skillPrerequisiteToAdd.attributes.name })
+              .end(() => {
+                SkillsDataHandler.getSkillPrerequisites(skillToAddPrerequisiteTo.id)
+                  .then((_prerequisites: Skill[]) => _.find(_prerequisites, _prerequisite => _prerequisite.id === skillPrerequisiteToAdd.id))
+                  .then((_prerequisite: Skill) => {
+                    expect(_prerequisite.attributes.name).to.be.equal(skillPrerequisiteToAdd.attributes.name);
+                    done();
+                  });
+              });
+          });
+
+          it('should return the prerequisite info', (done) => {
+            server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+              .send({ skillName: skillPrerequisiteToAdd.attributes.name })
+              .end((error, response: Response) => {
+                expect(response.body).to.deep.equal(<ISkillInfoResponse>{
+                  id: skillPrerequisiteToAdd.id,
+                  skillName: skillPrerequisiteToAdd.attributes.name
+                });
+                done();
+              });
+          });
+
+          it('with skill that is already prerequisite should fail', (done) => {
+            server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+              .send({ skillName: skillPrerequisiteToAdd.attributes.name })
+              .end(() => {
+                server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+                  .send({ skillName: skillPrerequisiteToAdd.attributes.name })
+                  .expect(StatusCode.CONFLICT)
+                  .end(done)
+              });
+          });
+
+          it('with skill that is already prerequisite should fail with correct error', (done) => {
+            server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+              .send({ skillName: skillPrerequisiteToAdd.attributes.name })
+              .end(() => {
+                server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+                  .send({ skillName: skillPrerequisiteToAdd.attributes.name })
+                  .expect({ error: 'The skill is already a prerequisite' })
+                  .end(done)
+              });
+          });
+
+        }
+
+        describe('user is admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('user is skills list admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.SKILLS_LIST_ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+      });
+
+      describe('add skill dependency', () => {
+
+        let skillToAddDependencyTo: Skill;
+        let skillDependencyToAdd: Skill;
+
+        beforeEach(() => {
+          skillToAddDependencyTo = skills[0];
+          skillDependencyToAdd = skills[1];
+        });
+
+        it('on invalid skill name should fail', (done) => {
+          server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+            .send({ skillName: '' })
+            .expect(StatusCode.BAD_REQUEST)
+            .end(done);
+        });
+
+        it('without sufficient permissions should fail', (done) => {
+          server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+            .send({ skillName: skillDependencyToAdd.attributes.name })
+            .expect(StatusCode.UNAUTHORIZED)
+            .end(done);
+        });
+
+        var sufficientPermissionsTests = () => {
+
+          it('without body should fail', (done) => {
+            server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with empty body should fail', (done) => {
+            server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+              .send({})
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with empty skill name should fail', (done) => {
+            server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+              .send({ skillName: '' })
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with not existing skill name should fail', (done) => {
+            server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+              .send({ skillName: 'not existing skill name' })
+              .expect(StatusCode.NOT_FOUND)
+              .end(done);
+          });
+
+          it('with exiting skill name should succeed', (done) => {
+            server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+              .send({ skillName: skillDependencyToAdd.attributes.name })
+              .expect(StatusCode.OK)
+              .end(done);
+          });
+
+          it('with existing skill name should add the dependency', (done) => {
+            server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+              .send({ skillName: skillDependencyToAdd.attributes.name })
+              .end(() => {
+                SkillsDataHandler.getSkillPrerequisites(skillDependencyToAdd.id)
+                  .then((_prerequisites: Skill[]) => _.find(_prerequisites, _prerequisite => _prerequisite.id === skillToAddDependencyTo.id))
+                  .then((_prerequisite: Skill) => {
+                    expect(_prerequisite.attributes.name).to.be.equal(skillToAddDependencyTo.attributes.name);
+                    done();
+                  });
+              });
+          });
+
+          it('should return the dependency info', (done) => {
+            server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+              .send({ skillName: skillDependencyToAdd.attributes.name })
+              .end((error, response: Response) => {
+                expect(response.body).to.deep.equal(<ISkillInfoResponse>{
+                  id: skillDependencyToAdd.id,
+                  skillName: skillDependencyToAdd.attributes.name
+                });
+                done();
+              });
+          });
+
+          it('with skill that is already dependency should fail', (done) => {
+            server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+              .send({ skillName: skillDependencyToAdd.attributes.name })
+              .end(() => {
+                server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+                  .send({ skillName: skillDependencyToAdd.attributes.name })
+                  .expect(StatusCode.CONFLICT)
+                  .end(done)
+              });
+          });
+
+          it('with skill that is already dependency should fail with correct error', (done) => {
+            server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+              .send({ skillName: skillDependencyToAdd.attributes.name })
+              .end(() => {
+                server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+                  .send({ skillName: skillDependencyToAdd.attributes.name })
+                  .expect({ error: 'The skill is already a dependency' })
+                  .end(done)
+              });
+          });
+
+        }
+
+        describe('user is admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('user is skills list admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.SKILLS_LIST_ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+      });
+
+      describe('remove skill prerequisite', () => {
+
+        let skillToRemovePrerequisiteFrom: Skill;
+        let prerequisiteSkillToRemove: Skill;
+
+        beforeEach(() => {
+          skillToRemovePrerequisiteFrom = skills[0];
+          prerequisiteSkillToRemove = skills[1];
+
+          var info: ISkillPrerequisiteInfo =
+            ModelInfoMockFactory.createSkillPrerequisiteInfo(skillToRemovePrerequisiteFrom, prerequisiteSkillToRemove);
+
+          return SkillsDataHandler.addSkillPrerequisite(info);
+        });
+
+        it('on invalid prerequisiteId should fail', (done) => {
+          server.delete('/skills/' + skillToRemovePrerequisiteFrom.id + '/prerequisites')
+            .send({ prerequisiteId: null })
+            .expect(StatusCode.BAD_REQUEST)
+            .end(done);
+        });
+
+        it('without sufficient permissions should fail', (done) => {
+          server.delete('/skills/' + skillToRemovePrerequisiteFrom.id + '/prerequisites')
+            .send({ prerequisiteId: prerequisiteSkillToRemove.id })
+            .expect(StatusCode.UNAUTHORIZED)
+            .end(done);
+        });
+
+        var sufficientPermissionsTests = () => {
+
+          it('without body should fail', (done) => {
+            server.delete('/skills/' + skillToRemovePrerequisiteFrom.id + '/prerequisites')
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with empty body should fail', (done) => {
+            server.delete('/skills/' + skillToRemovePrerequisiteFrom.id + '/prerequisites')
+              .send({})
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with null prerequisiteId should fail', (done) => {
+            server.delete('/skills/' + skillToRemovePrerequisiteFrom.id + '/prerequisites')
+              .send({ prerequisiteId: null })
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with not existing prerequisiteId should succeed', (done) => {
+            server.delete('/skills/' + skillToRemovePrerequisiteFrom.id + '/prerequisites')
+              .send({ prerequisiteId: 98765 })
+              .expect(StatusCode.OK)
+              .end(done);
+          });
+
+          it('with exiting prerequisiteId should succeed', (done) => {
+            server.delete('/skills/' + skillToRemovePrerequisiteFrom.id + '/prerequisites')
+              .send({ prerequisiteId: prerequisiteSkillToRemove.id })
+              .expect(StatusCode.OK)
+              .end(done);
+          });
+
+          it('with existing prerequisiteId should remove the prerequisite from the skill', (done) => {
+            server.delete('/skills/' + skillToRemovePrerequisiteFrom.id + '/prerequisites')
+              .send({ prerequisiteId: prerequisiteSkillToRemove.id })
+              .end(() => {
+                SkillsDataHandler.getSkillPrerequisites(skillToRemovePrerequisiteFrom.id)
+                  .then((_prerequisites: Skill[]) => _.find(_prerequisites, _prerequisite => _prerequisite.id === prerequisiteSkillToRemove.id))
+                  .then((_prerequisite: Skill) => {
+                    expect(_prerequisite).to.not.exist;
+                    done();
+                  });
+              });
+          });
+
+          it('with prerequisite that is not in the skill prerequisites should succeed', (done) => {
+            server.delete('/skills/' + skillToRemovePrerequisiteFrom.id + '/prerequisites')
+              .send({ prerequisiteId: prerequisiteSkillToRemove.id })
+              .end(() => {
+                server.delete('/skills/' + skillToRemovePrerequisiteFrom.id + '/prerequisites')
+                  .send({ prerequisiteId: prerequisiteSkillToRemove.id })
+                  .expect(StatusCode.OK)
+                  .end(done)
+              });
+          });
+
+        }
+
+        describe('user is admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+        describe('user is skills list admin', () => {
+
+          beforeEach(() => {
+            return UserDataHandler.addGlobalPermissions(executingUser.id, [GlobalPermission.SKILLS_LIST_ADMIN]);
+          })
+
+          sufficientPermissionsTests();
+        });
+
+      });
+
+      describe('get filtered skills details by partial skill name', () => {
+
+        it('should return one skill', (done) => {
+          var skillWith1 = _.filter(skills, _ => _.attributes.name.indexOf('skill1') >= 0);
+
+          var expectedUsers = getExpectedSkillsDetails(skillWith1);
+          expect(expectedUsers.length > 0).to.be.true;
+
+          server.get('/skills/filtered/skill1')
+            .expect(StatusCode.OK)
+            .expect(expectedUsers)
+            .end(done);
+        });
+
+        it('should return all skills', (done) => {
+          var skillsWithSkill = _.filter(skills, _ => _.attributes.name.indexOf('skill') >= 0);
+
+          var expectedUsers = getExpectedSkillsDetails(skillsWithSkill);
+          expect(expectedUsers.length > 0).to.be.true;
+
+          server.get('/skills/filtered/skill')
+            .expect(StatusCode.OK)
+            .expect(expectedUsers)
+            .end(done);
+        });
+
+        it('with max number of skills limit should return one skill', (done) => {
+          var usersWith1 = _.filter(skills, _ => _.attributes.name.indexOf('skill1') >= 0);
+
+          var expectedUsers = getExpectedSkillsDetails(usersWith1);
+          expect(expectedUsers.length).to.be.equal(1);
+
+          server.get('/skills/filtered/skill1?max=12')
+            .expect(StatusCode.OK)
+            .expect(expectedUsers)
+            .end(done);
+        });
+
+        it('with max number of skills limit should return correct number of skills', (done) => {
+          var skillPrefix = 'skill';
+          var allRelevantSkills = _.filter(skills, _ => _.attributes.name.indexOf(skillPrefix) >= 0);
+
+          var allUsers: ISkillInfoResponse[] = getExpectedSkillsDetails(allRelevantSkills);
+
+          var maxNumberOfSkills = 2;
+          expect(allUsers.length).to.be.greaterThan(maxNumberOfSkills);
+
+          server.get('/skills/filtered/' + skillPrefix + '?max=' + maxNumberOfSkills)
+            .expect(StatusCode.OK)
+            .end((error: any, response: Response) => {
+              var actualSkills: ISkillInfoResponse[] = response.body;
+
+              expect(actualSkills).to.be.length(maxNumberOfSkills);
+
+              actualSkills.forEach((_skill: ISkillInfoResponse) => {
+                expect(_skill.skillName).to.contain(skillPrefix);
+              });
+
+              done();
+            });
         });
 
       });

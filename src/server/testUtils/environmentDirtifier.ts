@@ -62,10 +62,10 @@ export class EnvironmentDirtifier {
     return bluebirdPromise.all(userCreationPromises);
   }
 
-  public static createSkills(numberOfSkills: number, creatorId: number): bluebirdPromise<Skill[]> {
+  public static createSkills(numberOfSkills: number, creatorId: number, suffix: string = ''): bluebirdPromise<Skill[]> {
     var skillCreationPromises: bluebirdPromise<Skill>[] = [];
     for (var i = 0; i < numberOfSkills; i++) {
-      var skillName: string = i.toString() + ' created by ' + creatorId.toString();
+      var skillName: string = 'skill' + i.toString() + ' created by ' + creatorId.toString() + suffix;
 
       var skillInfo: ISkillInfo = ModelInfoMockFactory.createSkillInfo(skillName);
 

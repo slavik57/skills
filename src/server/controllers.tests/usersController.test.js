@@ -147,7 +147,7 @@ describe('usersController', function () {
                     .expect(expectedUsers)
                     .end(done);
             });
-            describe('gett filtered users details by partial username', function () {
+            describe('get filtered users details by partial username', function () {
                 it('should return one user', function (done) {
                     var usersWith1 = _.filter(users, function (_) { return _.attributes.username.indexOf('1') >= 0; });
                     var expectedUsers = getExpectedUsersDetails(usersWith1);

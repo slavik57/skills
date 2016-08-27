@@ -767,5 +767,195 @@ describe('SkillsDataHandler', function () {
             });
         });
     });
+    describe('getSkillsByPartialSkillName', function () {
+        var singlePartialSkillName;
+        var multiplePartialSkillName;
+        var multiplePartialSkillNameWithUnderscore;
+        var multiplePartialSkillNameWithPercentage;
+        var skillCreatorUser;
+        var skillInfos;
+        beforeEach(function () {
+            return environmentCleaner_1.EnvironmentCleaner.clearTables();
+        });
+        beforeEach(function () {
+            var userInfo = modelInfoMockFactory_1.ModelInfoMockFactory.createUserInfo(1);
+            return userDataHandler_1.UserDataHandler.createUser(userInfo)
+                .then(function (_user) {
+                skillCreatorUser = _user;
+            });
+        });
+        beforeEach(function () {
+            singlePartialSkillName = '_a_';
+            multiplePartialSkillName = '-b-';
+            multiplePartialSkillNameWithUnderscore = '_c_';
+            multiplePartialSkillNameWithPercentage = '%d%';
+            skillInfos = [
+                modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('1'),
+                modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('2'),
+                modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('3'),
+                modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('4'),
+                modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('5'),
+                modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('6'),
+                modelInfoMockFactory_1.ModelInfoMockFactory.createSkillInfo('7')
+            ];
+            skillInfos[0].name = 'skillName' + singlePartialSkillName + 'skillName';
+            skillInfos[1].name = 'skillName' + multiplePartialSkillName + 'skillName1';
+            skillInfos[2].name = 'skillName' + multiplePartialSkillName + 'skillName2';
+            skillInfos[3].name = 'skillName' + multiplePartialSkillNameWithUnderscore + 'skillName1';
+            skillInfos[4].name = 'skillName' + multiplePartialSkillNameWithUnderscore + 'skillName2';
+            skillInfos[5].name = 'skillName' + multiplePartialSkillNameWithPercentage + 'skillName1';
+            skillInfos[6].name = 'skillName' + multiplePartialSkillNameWithPercentage + 'skillName2';
+            return Promise.all([
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfos[0], skillCreatorUser.id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfos[1], skillCreatorUser.id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfos[2], skillCreatorUser.id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfos[3], skillCreatorUser.id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfos[4], skillCreatorUser.id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfos[5], skillCreatorUser.id),
+                skillsDataHandler_1.SkillsDataHandler.createSkill(skillInfos[6], skillCreatorUser.id),
+            ]);
+        });
+        function verifySkillsContainThePartialSkillName(skills, partialSkillName) {
+            var skillNames = _.map(skills, function (_) { return _.attributes.name; });
+            skillNames.forEach(function (_skillName) {
+                chai_1.expect(_skillName).to.contain(partialSkillName);
+            });
+        }
+        it('no skill with given partial skill name should return empty', function () {
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName('not existing');
+            return chai_1.expect(result).to.eventually.deep.equal([]);
+        });
+        it('one sill with given partial skill name should return the skill', function () {
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(singlePartialSkillName);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills).to.be.length(1, 'should contain atleast one skill');
+                verifySkillsContainThePartialSkillName(_skills, singlePartialSkillName);
+            });
+        });
+        it('multiple skills with given partial skill name should return the skills', function () {
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillName);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+                verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillName);
+            });
+        });
+        it('multiple skills with given partial skill name with _ should return the skills', function () {
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillNameWithUnderscore);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+                verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithUnderscore);
+            });
+        });
+        it('multiple skills with given partial skill name with % should return the skills', function () {
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillNameWithPercentage);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+                verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithPercentage);
+            });
+        });
+        it('limited to 0, multiple skills with given partial skill name should return no skills', function () {
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillName, 0);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills).to.be.length(0);
+            });
+        });
+        it('limited to 0, multiple skills with given partial skill name with _ should return no skills', function () {
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillNameWithUnderscore, 0);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills).to.be.length(0);
+            });
+        });
+        it('limited to 0, multiple skills with given partial skill name with % should return no skills', function () {
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillNameWithPercentage, 0);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills).to.be.length(0);
+            });
+        });
+        it('limited to 1, multiple skills with given partial skill name should return one skills', function () {
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillName, 1);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills).to.be.length(1);
+                verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillName);
+            });
+        });
+        it('limited to 1, multiple skills with given partial skill name with _ should return one skills', function () {
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillNameWithUnderscore, 1);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills).to.be.length(1);
+                verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithUnderscore);
+            });
+        });
+        it('limited to 1, multiple skills with given partial skill name with % should return one skills', function () {
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(multiplePartialSkillNameWithPercentage, 1);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills).to.be.length(1);
+                verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithPercentage);
+            });
+        });
+        it('multiple skills with given partial upper case skill name should return the skills', function () {
+            var partialSkillName = multiplePartialSkillName.toUpperCase();
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(partialSkillName);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills.length, 'should contain atleast 2 skills').to.be.at.least(2);
+                verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillName);
+            });
+        });
+        it('multiple skills with given partial upper case skill name with _ should return the skills', function () {
+            var partialSkillName = multiplePartialSkillNameWithUnderscore.toUpperCase();
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(partialSkillName);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+                verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithUnderscore);
+            });
+        });
+        it('multiple skills with given partial upper case skill name with % should return the skills', function () {
+            var partialSkillName = multiplePartialSkillNameWithPercentage.toUpperCase();
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(partialSkillName);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+                verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithPercentage);
+            });
+        });
+        it('multiple skills with given partial lower case skill name should return the skills', function () {
+            var partialSkillName = multiplePartialSkillName.toLowerCase();
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(partialSkillName);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+                verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillName);
+            });
+        });
+        it('multiple skills with given partial lower case skill name with _ should return the skills', function () {
+            var partialSkillName = multiplePartialSkillNameWithUnderscore.toLowerCase();
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(partialSkillName);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+                verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithUnderscore);
+            });
+        });
+        it('multiple skills with given partial lower case skill name with % should return the skills', function () {
+            var partialSkillName = multiplePartialSkillNameWithPercentage.toLowerCase();
+            var result = skillsDataHandler_1.SkillsDataHandler.getSkillsByPartialSkillName(partialSkillName);
+            return chai_1.expect(result).to.eventually.fulfilled
+                .then(function (_skills) {
+                chai_1.expect(_skills.length > 1, 'should contain atleast 2 skills').to.be.true;
+                verifySkillsContainThePartialSkillName(_skills, multiplePartialSkillNameWithPercentage);
+            });
+        });
+    });
 });
 //# sourceMappingURL=skillsDataHandler.test.js.map
