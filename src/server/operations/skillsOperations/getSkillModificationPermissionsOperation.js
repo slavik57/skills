@@ -56,8 +56,8 @@ var GetSkillModificationPermissionsOperation = (function (_super) {
             this._canUserAddPrerequisites()
         ]).then(function (_permissions) {
             return {
-                canAddPrerequisites: _permissions[0],
-                canAddDependencies: _permissions[0]
+                canModifyPrerequisites: _permissions[0],
+                canModifyDependencies: _permissions[0]
             };
         });
     };

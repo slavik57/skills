@@ -53,8 +53,8 @@ describe('GetSkillModificationPermissionsOperation', function () {
             var addPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
             var operation = new getSkillModificationPermissionsOperation_1.GetSkillModificationPermissionsOperation(skill.id, executingUser.id);
             var expectedPermissions = {
-                canAddPrerequisites: true,
-                canAddDependencies: true
+                canModifyPrerequisites: true,
+                canModifyDependencies: true
             };
             var executePromise = addPermissions.then(function () { return operation.execute(); });
             return chai_1.expect(executePromise).to.eventually.be.deep.equal(expectedPermissions);
@@ -66,8 +66,8 @@ describe('GetSkillModificationPermissionsOperation', function () {
             var addPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
             var operation = new getSkillModificationPermissionsOperation_1.GetSkillModificationPermissionsOperation(skill.id, executingUser.id);
             var expectedPermissions = {
-                canAddPrerequisites: true,
-                canAddDependencies: true
+                canModifyPrerequisites: true,
+                canModifyDependencies: true
             };
             var executePromise = addPermissions.then(function () { return operation.execute(); });
             return chai_1.expect(executePromise).to.eventually.be.deep.equal(expectedPermissions);
@@ -77,8 +77,8 @@ describe('GetSkillModificationPermissionsOperation', function () {
             var addPermissions = userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
             var operation = new getSkillModificationPermissionsOperation_1.GetSkillModificationPermissionsOperation(skill.id, executingUser.id);
             var expectedPermissions = {
-                canAddPrerequisites: false,
-                canAddDependencies: false
+                canModifyPrerequisites: false,
+                canModifyDependencies: false
             };
             var executePromise = addPermissions.then(function () { return operation.execute(); });
             return chai_1.expect(executePromise).to.eventually.be.deep.equal(expectedPermissions);

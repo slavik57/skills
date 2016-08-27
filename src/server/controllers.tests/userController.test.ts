@@ -1,3 +1,4 @@
+import {ISkillModificationPermissionsResponse} from "../apiResponses/iSkillModificationPermissionsResponse";
 import {Skill} from "../models/skill";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
 import {TeamsDataHandler} from "../dataHandlers/teamsDataHandler";
@@ -662,9 +663,9 @@ describe('userController', () => {
             .then(() => {
               server.get(`/user/skill-modification-permissions/${skill.id}`)
                 .expect(StatusCode.OK)
-                .expect({
-                  canAddPrerequisites: false,
-                  canAddDependencies: false
+                .expect(<ISkillModificationPermissionsResponse>{
+                  canModifyPrerequisites: false,
+                  canModifyDependencies: false
                 })
                 .end(done);
             });
@@ -675,9 +676,9 @@ describe('userController', () => {
             .then(() => {
               server.get(`/user/skill-modification-permissions/${skill.id}`)
                 .expect(StatusCode.OK)
-                .expect({
-                  canAddPrerequisites: true,
-                  canAddDependencies: true
+                .expect(<ISkillModificationPermissionsResponse>{
+                  canModifyPrerequisites: true,
+                  canModifyDependencies: true
                 })
                 .end(done);
             });
@@ -688,9 +689,9 @@ describe('userController', () => {
             .then(() => {
               server.get(`/user/skill-modification-permissions/${skill.id}`)
                 .expect(StatusCode.OK)
-                .expect({
-                  canAddPrerequisites: true,
-                  canAddDependencies: true
+                .expect(<ISkillModificationPermissionsResponse>{
+                  canModifyPrerequisites: true,
+                  canModifyDependencies: true
                 })
                 .end(done);
             });

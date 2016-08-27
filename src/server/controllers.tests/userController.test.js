@@ -540,8 +540,8 @@ describe('userController', function () {
                         server.get("/user/skill-modification-permissions/" + skill.id)
                             .expect(statusCode_1.StatusCode.OK)
                             .expect({
-                            canAddPrerequisites: false,
-                            canAddDependencies: false
+                            canModifyPrerequisites: false,
+                            canModifyDependencies: false
                         })
                             .end(done);
                     });
@@ -552,8 +552,8 @@ describe('userController', function () {
                         server.get("/user/skill-modification-permissions/" + skill.id)
                             .expect(statusCode_1.StatusCode.OK)
                             .expect({
-                            canAddPrerequisites: true,
-                            canAddDependencies: true
+                            canModifyPrerequisites: true,
+                            canModifyDependencies: true
                         })
                             .end(done);
                     });
@@ -564,8 +564,8 @@ describe('userController', function () {
                         server.get("/user/skill-modification-permissions/" + skill.id)
                             .expect(statusCode_1.StatusCode.OK)
                             .expect({
-                            canAddPrerequisites: true,
-                            canAddDependencies: true
+                            canModifyPrerequisites: true,
+                            canModifyDependencies: true
                         })
                             .end(done);
                     });

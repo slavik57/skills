@@ -56,8 +56,8 @@ export class GetSkillModificationPermissionsOperation extends OperationBase<ISki
       ]
     ).then((_permissions: boolean[]) => {
       return <ISkillModificationPermissionsResponse>{
-        canAddPrerequisites: _permissions[0],
-        canAddDependencies: _permissions[0]
+        canModifyPrerequisites: _permissions[0],
+        canModifyDependencies: _permissions[0]
       }
     })
   }

@@ -1,4 +1,4 @@
 export interface ISkillModificationPermissionsResponse {
-  canAddPrerequisites: boolean;
-  canAddDependencies: boolean;
+  canModifyPrerequisites: boolean;
+  canModifyDependencies: boolean;
 }

@@ -72,8 +72,8 @@ describe('GetSkillModificationPermissionsOperation', () => {
       var operation = new GetSkillModificationPermissionsOperation(skill.id, executingUser.id);
 
       var expectedPermissions: ISkillModificationPermissionsResponse = {
-        canAddPrerequisites: true,
-        canAddDependencies: true
+        canModifyPrerequisites: true,
+        canModifyDependencies: true
       }
 
       // Act
@@ -94,8 +94,8 @@ describe('GetSkillModificationPermissionsOperation', () => {
       var operation = new GetSkillModificationPermissionsOperation(skill.id, executingUser.id);
 
       var expectedPermissions: ISkillModificationPermissionsResponse = {
-        canAddPrerequisites: true,
-        canAddDependencies: true
+        canModifyPrerequisites: true,
+        canModifyDependencies: true
       }
 
       // Act
@@ -115,8 +115,8 @@ describe('GetSkillModificationPermissionsOperation', () => {
       var operation = new GetSkillModificationPermissionsOperation(skill.id, executingUser.id);
 
       var expectedPermissions: ISkillModificationPermissionsResponse = {
-        canAddPrerequisites: false,
-        canAddDependencies: false
+        canModifyPrerequisites: false,
+        canModifyDependencies: false
       }
 
       // Act
