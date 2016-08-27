@@ -1,4 +1,5 @@
 "use strict";
+var getSkillModificationPermissionsOperation_1 = require("../operations/skillsOperations/getSkillModificationPermissionsOperation");
 var skillOperationBase_1 = require("../operations/base/skillOperationBase");
 var notFoundError_1 = require("../../common/errors/notFoundError");
 var getTeamModificationPermissionsOperation_1 = require("../operations/teamOperations/getTeamModificationPermissionsOperation");
@@ -94,8 +95,22 @@ module.exports = {
         }],
     get_teamModificationPermissions_teamId: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, teamId) {
             var numberTeamId = Number(teamId);
-            var getTeamByIdOperation = new getTeamModificationPermissionsOperation_1.GetTeamModificationPermissionsOperation(numberTeamId, request.user.id);
-            getTeamByIdOperation.execute()
+            var operation = new getTeamModificationPermissionsOperation_1.GetTeamModificationPermissionsOperation(numberTeamId, request.user.id);
+            operation.execute()
+                .then(function (_permissions) {
+                response.status(statusCode_1.StatusCode.OK).send(_permissions);
+            }, function (_error) {
+                var statusCode = statusCode_1.StatusCode.INTERNAL_SERVER_ERROR;
+                if (errorUtils_1.ErrorUtils.isErrorOfType(_error, notFoundError_1.NotFoundError)) {
+                    statusCode = statusCode_1.StatusCode.BAD_REQUEST;
+                }
+                response.status(statusCode).send();
+            });
+        }],
+    get_skillModificationPermissions_skillId: [authenticator_1.Authenticator.ensureAuthenticated, function (request, response, skillId) {
+            var numberSkillId = Number(skillId);
+            var operation = new getSkillModificationPermissionsOperation_1.GetSkillModificationPermissionsOperation(numberSkillId, request.user.id);
+            operation.execute()
                 .then(function (_permissions) {
                 response.status(statusCode_1.StatusCode.OK).send(_permissions);
             }, function (_error) {

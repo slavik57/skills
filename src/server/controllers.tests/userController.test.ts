@@ -1,3 +1,4 @@
+import {Skill} from "../models/skill";
 import {ITeamMemberInfo} from "../models/interfaces/iTeamMemberInfo";
 import {TeamsDataHandler} from "../dataHandlers/teamsDataHandler";
 import {Team} from "../models/team";
@@ -130,9 +131,14 @@ describe('userController', () => {
         .end(done);
     });
 
-
     it('getting user team modification permissions should fail', (done) => {
       server.get('/user/team-modification-permissions/1')
+        .expect(StatusCode.UNAUTHORIZED)
+        .end(done);
+    });
+
+    it('getting user skill modification permissions should fail', (done) => {
+      server.get('/user/skill-modification-permissions/1')
         .expect(StatusCode.UNAUTHORIZED)
         .end(done);
     });
@@ -624,6 +630,67 @@ describe('userController', () => {
                   canModifyTeamName: true,
                   canModifyTeamAdmins: true,
                   canModifyTeamUsers: true
+                })
+                .end(done);
+            });
+        });
+
+      });
+
+      describe('skill modification permissions', () => {
+
+        var skill: Skill;
+
+        beforeEach(() => {
+          return EnvironmentDirtifier.createSkills(1, user.id)
+            .then((_skills: Skill[]) => {
+              [skill] = _skills;
+            });
+        });
+
+        it('getting user skill modification permissions with not existing skill should fail', (done) => {
+          server.get('/user/skill-modification-permissions/12321')
+            .expect(StatusCode.BAD_REQUEST)
+            .end(done);
+        });
+
+        it('getting user skill modification permissions with user that is not admin nor skills list admin should reaturn all false', (done) => {
+          var permissions: GlobalPermission[] =
+            _.difference(EnumValues.getValues(GlobalPermission), [GlobalPermission.ADMIN, GlobalPermission.SKILLS_LIST_ADMIN]);
+
+          UserDataHandler.addGlobalPermissions(user.id, permissions)
+            .then(() => {
+              server.get(`/user/skill-modification-permissions/${skill.id}`)
+                .expect(StatusCode.OK)
+                .expect({
+                  canAddPrerequisites: false,
+                  canAddDependencies: false
+                })
+                .end(done);
+            });
+        });
+
+        it('getting user skill modification permissions with user that is skills list admin should return correct values', (done) => {
+          UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.SKILLS_LIST_ADMIN])
+            .then(() => {
+              server.get(`/user/skill-modification-permissions/${skill.id}`)
+                .expect(StatusCode.OK)
+                .expect({
+                  canAddPrerequisites: true,
+                  canAddDependencies: true
+                })
+                .end(done);
+            });
+        });
+
+        it('getting user skill modification permissions with user that is admin should return correct values', (done) => {
+          UserDataHandler.addGlobalPermissions(user.id, [GlobalPermission.ADMIN])
+            .then(() => {
+              server.get(`/user/skill-modification-permissions/${skill.id}`)
+                .expect(StatusCode.OK)
+                .expect({
+                  canAddPrerequisites: true,
+                  canAddDependencies: true
                 })
                 .end(done);
             });

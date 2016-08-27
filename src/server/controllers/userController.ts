@@ -1,3 +1,5 @@
+import {GetSkillModificationPermissionsOperation} from "../operations/skillsOperations/getSkillModificationPermissionsOperation";
+import {ISkillModificationPermissionsResponse} from "../apiResponses/iSkillModificationPermissionsResponse";
 import {SkillOperationBase} from "../operations/base/skillOperationBase";
 import {NotFoundError} from "../../common/errors/notFoundError";
 import {GetTeamModificationPermissionsOperation} from "../operations/teamOperations/getTeamModificationPermissionsOperation";
@@ -158,11 +160,30 @@ export = {
   get_teamModificationPermissions_teamId: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, teamId: string) {
     var numberTeamId: number = Number(teamId);
 
-    var getTeamByIdOperation =
+    var operation =
       new GetTeamModificationPermissionsOperation(numberTeamId, request.user.id);
 
-    getTeamByIdOperation.execute()
+    operation.execute()
       .then((_permissions: ITeamModificationPermissionsResponse) => {
+        response.status(StatusCode.OK).send(_permissions);
+      }, (_error: any) => {
+        var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
+
+        if (ErrorUtils.isErrorOfType(_error, NotFoundError)) {
+          statusCode = StatusCode.BAD_REQUEST;
+        }
+
+        response.status(statusCode).send();
+      });
+  }],
+  get_skillModificationPermissions_skillId: [Authenticator.ensureAuthenticated, function(request: Request, response: Response, skillId: string) {
+    var numberSkillId: number = Number(skillId);
+
+    var operation =
+      new GetSkillModificationPermissionsOperation(numberSkillId, request.user.id);
+
+    operation.execute()
+      .then((_permissions: ISkillModificationPermissionsResponse) => {
         response.status(StatusCode.OK).send(_permissions);
       }, (_error: any) => {
         var statusCode = StatusCode.INTERNAL_SERVER_ERROR;
