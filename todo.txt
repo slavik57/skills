@@ -1,5 +1,4 @@
 todo:
-- skills settings page - if adding skill as prerequisite or dependency of itself show proper error...
 - skills settings page - show skill prerequisites
 - skills settings page - add/remove skill prerequisites (make as skill prerequisites component)
 - teams settings page - show team skills (make as team skills component)

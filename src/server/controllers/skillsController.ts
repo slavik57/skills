@@ -1,3 +1,4 @@
+import {SkillSelfPrerequisiteError} from "../../common/errors/skillSelfPrerequisiteError";
 import {GetSkillsByPartialSkillNameOperation} from "../operations/skillsOperations/getSkillsByPartialSkillNameOperation";
 import {ILimitedQuery} from "../apiQueries/iLimitedQuery";
 import {RemoveSkillPrerequisiteOperation} from "../operations/skillsOperations/removeSkillPrerequisiteOperation";
@@ -187,6 +188,9 @@ export = {
         } else if (ErrorUtils.isErrorOfType(error, AlreadyExistsError)) {
           statusCode = StatusCode.CONFLICT;
           errorDescription = { error: 'The skill is already a prerequisite' };
+        } else if (ErrorUtils.isErrorOfType(error, SkillSelfPrerequisiteError)) {
+          statusCode = StatusCode.BAD_REQUEST;
+          errorDescription = { error: 'Skill cannot be a prerequisite of itself' };
         }
 
         response.status(statusCode);
@@ -225,6 +229,9 @@ export = {
         } else if (ErrorUtils.isErrorOfType(error, AlreadyExistsError)) {
           statusCode = StatusCode.CONFLICT;
           errorDescription = { error: 'The skill is already a dependency' };
+        } else if (ErrorUtils.isErrorOfType(error, SkillSelfPrerequisiteError)) {
+          statusCode = StatusCode.BAD_REQUEST;
+          errorDescription = { error: 'Skill cannot be a dependency of itself' };
         }
 
         response.status(statusCode);

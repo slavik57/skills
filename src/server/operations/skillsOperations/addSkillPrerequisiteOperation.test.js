@@ -1,4 +1,6 @@
 "use strict";
+var skillSelfPrerequisiteError_1 = require("../../../common/errors/skillSelfPrerequisiteError");
+var errorUtils_1 = require("../../../common/errors/errorUtils");
 var environmentDirtifier_1 = require("../../testUtils/environmentDirtifier");
 var modelInfoVerificator_1 = require("../../testUtils/modelInfoVerificator");
 var skillsDataHandler_1 = require("../../dataHandlers/skillsDataHandler");
@@ -102,40 +104,31 @@ describe('AddSkillPrerequisiteOperation', function () {
                 });
             });
         });
-        describe('executing user is ADMIN', function () {
-            beforeEach(function () {
-                var permissions = [
-                    globalPermission_1.GlobalPermission.ADMIN
-                ];
-                return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
-            });
-            it('should succeed and add prerequisite', function () {
-                var resultPromise = operation.execute();
-                return chai_1.expect(resultPromise).to.eventually.fulfilled
-                    .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites(skill.id); })
-                    .then(function (_skills) {
-                    chai_1.expect(_skills).to.be.length(1);
-                    modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillPrerequisite.attributes);
+        var sufficientPermissionsTests = function (permissionsToAdd) {
+            return function () {
+                beforeEach(function () {
+                    return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissionsToAdd);
                 });
-            });
-        });
-        describe('executing user is SKILLS_LIST_ADMIN', function () {
-            beforeEach(function () {
-                var permissions = [
-                    globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN
-                ];
-                return userDataHandler_1.UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
-            });
-            it('should succeed and add prerequisite', function () {
-                var resultPromise = operation.execute();
-                return chai_1.expect(resultPromise).to.eventually.fulfilled
-                    .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites(skill.id); })
-                    .then(function (_skills) {
-                    chai_1.expect(_skills).to.be.length(1);
-                    modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillPrerequisite.attributes);
+                it('should succeed and add prerequisite', function () {
+                    var resultPromise = operation.execute();
+                    return chai_1.expect(resultPromise).to.eventually.fulfilled
+                        .then(function () { return skillsDataHandler_1.SkillsDataHandler.getSkillPrerequisites(skill.id); })
+                        .then(function (_skills) {
+                        chai_1.expect(_skills).to.be.length(1);
+                        modelInfoVerificator_1.ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillPrerequisite.attributes);
+                    });
                 });
-            });
-        });
+                it('adding a skill prerequisite as itself should fail correctly', function () {
+                    var operation = new addSkillPrerequisiteOperation_1.AddSkillPrerequisiteOperation(skill.id, skill.attributes.name, executingUser.id);
+                    return chai_1.expect(operation.execute()).to.eventually.rejected
+                        .then(function (error) {
+                        chai_1.expect(errorUtils_1.ErrorUtils.isErrorOfType(error, skillSelfPrerequisiteError_1.SkillSelfPrerequisiteError)).to.be.true;
+                    });
+                });
+            };
+        };
+        describe('executing user is ADMIN', sufficientPermissionsTests([globalPermission_1.GlobalPermission.ADMIN]));
+        describe('executing user is SKILLS_LIST_ADMIN', sufficientPermissionsTests([globalPermission_1.GlobalPermission.SKILLS_LIST_ADMIN]));
     });
 });
 //# sourceMappingURL=addSkillPrerequisiteOperation.test.js.map

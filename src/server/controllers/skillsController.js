@@ -1,4 +1,5 @@
 "use strict";
+var skillSelfPrerequisiteError_1 = require("../../common/errors/skillSelfPrerequisiteError");
 var getSkillsByPartialSkillNameOperation_1 = require("../operations/skillsOperations/getSkillsByPartialSkillNameOperation");
 var removeSkillPrerequisiteOperation_1 = require("../operations/skillsOperations/removeSkillPrerequisiteOperation");
 var addSkillContributionOperation_1 = require("../operations/skillsOperations/addSkillContributionOperation");
@@ -149,6 +150,10 @@ module.exports = {
                     statusCode = statusCode_1.StatusCode.CONFLICT;
                     errorDescription = { error: 'The skill is already a prerequisite' };
                 }
+                else if (errorUtils_1.ErrorUtils.isErrorOfType(error, skillSelfPrerequisiteError_1.SkillSelfPrerequisiteError)) {
+                    statusCode = statusCode_1.StatusCode.BAD_REQUEST;
+                    errorDescription = { error: 'Skill cannot be a prerequisite of itself' };
+                }
                 response.status(statusCode);
                 response.send(errorDescription);
             });
@@ -181,6 +186,10 @@ module.exports = {
                 else if (errorUtils_1.ErrorUtils.isErrorOfType(error, alreadyExistsError_1.AlreadyExistsError)) {
                     statusCode = statusCode_1.StatusCode.CONFLICT;
                     errorDescription = { error: 'The skill is already a dependency' };
+                }
+                else if (errorUtils_1.ErrorUtils.isErrorOfType(error, skillSelfPrerequisiteError_1.SkillSelfPrerequisiteError)) {
+                    statusCode = statusCode_1.StatusCode.BAD_REQUEST;
+                    errorDescription = { error: 'Skill cannot be a dependency of itself' };
                 }
                 response.status(statusCode);
                 response.send(errorDescription);

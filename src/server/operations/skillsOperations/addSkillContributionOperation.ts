@@ -17,16 +17,8 @@ export class AddSkillContributionOperation extends SkillOperationBase<SkillPrere
   protected doWork(): bluebirdPromise<SkillPrerequisite> {
     var skillPrerequisiteInfo: ISkillPrerequisiteInfo;
 
-    return SkillsDataHandler.getSkillByName(this._skillContributionName)
-      .then((_skill: Skill) => {
-        if (!_skill) {
-          var error = new NotFoundError();
-          error.message = 'Skill with name: [' + this._skillContributionName + '] not found';
-          return bluebirdPromise.reject(error);
-        }
-
-        return _skill;
-      })
+    return this.getSkillByName(this._skillContributionName)
+      .then((_skill: Skill) => this.verifySkillPrerequisiteNotCircularToItself(_skill, this._skillId))
       .then((_skill: Skill) => {
         skillPrerequisiteInfo = {
           skill_id: _skill.id,

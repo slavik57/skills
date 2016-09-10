@@ -1,3 +1,5 @@
+import {SkillSelfPrerequisiteError} from "../../../common/errors/skillSelfPrerequisiteError";
+import {ErrorUtils} from "../../../common/errors/errorUtils";
 import {EnvironmentDirtifier} from "../../testUtils/environmentDirtifier";
 import {ModelInfoVerificator} from "../../testUtils/modelInfoVerificator";
 import {Skill} from "../../models/skill";
@@ -157,57 +159,41 @@ describe('AddSkillContributionOperation', () => {
 
     });
 
-    describe('executing user is ADMIN', () => {
+    var sufficientPermissionsTests = (permissionsToAdd: GlobalPermission[]) => {
+      return () => {
+        beforeEach(() => {
+          return UserDataHandler.addGlobalPermissions(executingUser.id, permissionsToAdd);
+        });
 
-      beforeEach(() => {
-        var permissions = [
-          GlobalPermission.ADMIN
-        ];
+        it('should succeed and add contribution', () => {
+          // Act
+          var resultPromise: Promise<any> = operation.execute();
 
-        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
-      });
+          // Assert
+          return expect(resultPromise).to.eventually.fulfilled
+            .then(() => SkillsDataHandler.getSkillContributions(skill.id))
+            .then((_skills: Skill[]) => {
+              expect(_skills).to.be.length(1);
 
-      it('should succeed and add contribution', () => {
-        // Act
-        var resultPromise: Promise<any> = operation.execute();
+              ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillContribution.attributes);
+            });
+        });
 
-        // Assert
-        return expect(resultPromise).to.eventually.fulfilled
-          .then(() => SkillsDataHandler.getSkillContributions(skill.id))
-          .then((_skills: Skill[]) => {
-            expect(_skills).to.be.length(1);
+        it('adding a skill contributuin as itself should fail correctly', () => {
+          var operation = new AddSkillContributionOperation(skill.id, skill.attributes.name, executingUser.id);
 
-            ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillContribution.attributes);
-          });
-      });
+          return expect(operation.execute()).to.eventually.rejected
+            .then((error: any) => {
+              expect(ErrorUtils.isErrorOfType(error, SkillSelfPrerequisiteError)).to.be.true;
+            });
+        });
 
-    });
+      }
+    }
 
-    describe('executing user is SKILLS_LIST_ADMIN', () => {
+    describe('executing user is ADMIN', sufficientPermissionsTests([GlobalPermission.ADMIN]));
 
-      beforeEach(() => {
-        var permissions = [
-          GlobalPermission.SKILLS_LIST_ADMIN
-        ];
-
-        return UserDataHandler.addGlobalPermissions(executingUser.id, permissions);
-      });
-
-      it('should succeed and add contribution', () => {
-        // Act
-        var resultPromise: Promise<any> = operation.execute();
-
-        // Assert
-        return expect(resultPromise).to.eventually.fulfilled
-          .then(() => SkillsDataHandler.getSkillContributions(skill.id))
-          .then((_skills: Skill[]) => {
-            expect(_skills).to.be.length(1);
-
-            ModelInfoVerificator.verifyInfo(_skills[0].attributes, skillContribution.attributes);
-          });
-      });
-
-    });
+    describe('executing user is SKILLS_LIST_ADMIN', sufficientPermissionsTests([GlobalPermission.SKILLS_LIST_ADMIN]));
 
   });
 

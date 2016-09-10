@@ -557,6 +557,20 @@ describe('skillsController', () => {
               });
           });
 
+          it('with itself should fail', (done) => {
+            server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+              .send({ skillName: skillToAddPrerequisiteTo.attributes.name })
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with itself should fail with correct error', (done) => {
+            server.post('/skills/' + skillToAddPrerequisiteTo.id + '/prerequisites')
+              .send({ skillName: skillToAddPrerequisiteTo.attributes.name })
+              .expect({ error: 'Skill cannot be a prerequisite of itself' })
+              .end(done);
+          });
+
         }
 
         describe('user is admin', () => {
@@ -684,6 +698,20 @@ describe('skillsController', () => {
                   .expect({ error: 'The skill is already a dependency' })
                   .end(done)
               });
+          });
+
+          it('with itself should fail', (done) => {
+            server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+              .send({ skillName: skillToAddDependencyTo.attributes.name })
+              .expect(StatusCode.BAD_REQUEST)
+              .end(done);
+          });
+
+          it('with itself fail with correct error', (done) => {
+            server.post('/skills/' + skillToAddDependencyTo.id + '/dependencies')
+              .send({ skillName: skillToAddDependencyTo.attributes.name })
+              .expect({ error: 'Skill cannot be a dependency of itself' })
+              .end(done);
           });
 
         }

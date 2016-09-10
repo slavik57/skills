@@ -5,7 +5,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var alreadyExistsError_1 = require("../../../common/errors/alreadyExistsError");
-var notFoundError_1 = require("../../../common/errors/notFoundError");
 var skillsDataHandler_1 = require("../../dataHandlers/skillsDataHandler");
 var skillOperationBase_1 = require("../base/skillOperationBase");
 var bluebirdPromise = require('bluebird');
@@ -20,15 +19,8 @@ var AddSkillPrerequisiteOperation = (function (_super) {
     AddSkillPrerequisiteOperation.prototype.doWork = function () {
         var _this = this;
         var skillPrerequisiteInfo;
-        return skillsDataHandler_1.SkillsDataHandler.getSkillByName(this._skillPrerequisiteName)
-            .then(function (_skill) {
-            if (!_skill) {
-                var error = new notFoundError_1.NotFoundError();
-                error.message = 'Skill with name: [' + _this._skillPrerequisiteName + '] not found';
-                return bluebirdPromise.reject(error);
-            }
-            return _skill;
-        })
+        return this.getSkillByName(this._skillPrerequisiteName)
+            .then(function (_skill) { return _this.verifySkillPrerequisiteNotCircularToItself(_skill, _this._skillId); })
             .then(function (_skill) {
             skillPrerequisiteInfo = {
                 skill_id: _this._skillId,
