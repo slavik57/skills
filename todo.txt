@@ -1,5 +1,4 @@
 todo:
-- skills settings page - show skill prerequisites
 - skills settings page - add/remove skill prerequisites (make as skill prerequisites component)
 - teams settings page - show team skills (make as team skills component)
 - teams settings page - add/remove team skills
